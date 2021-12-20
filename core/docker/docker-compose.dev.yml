@@ -21,3 +21,7 @@ services:
   hapi-db:
     ports:
       - "5432:5432"
+
+  kafdrop:
+    ports:
+      - 9013:9013
