@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+
+hapi-fhir:
+    container_name: hapi-fhir
+    image: hapiproject/hapi:latest
+    ports:
+      - "8080:8080"
+    environment:
+      profiles.active: r4
+      spring.datasource.url: 'jdbc:postgresql://hapi-postgres:5432/hapi'
+      spring.datasource.username: admin
+      spring.datasource.password: admin
+      spring.datasource.driverClassName: org.postgresql.Driver
+    volumes:
+      - hapi-data:/data/hapi
+    depends_on:
+      - hapi-postgres
+
+hapi-postgres:
+  container_name: hapi-postgres
+  image: postgres
+  restart: always
+  environment:
+    POSTGRES_PASSWORD: admin
+    POSTGRES_USER: admin
+    POSTGRES_DB: hapi
+  # not needed for networking between containers but here for troubleshooting
+  ports:
+    - "5432:5432"
+
+volumes:
+    hapi-data:

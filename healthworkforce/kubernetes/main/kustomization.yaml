@@ -1,0 +1,6 @@
+resources:
+  - ./mapper/mapper-deployment.yaml
+  - ./mapper/mapper-service.yaml
+  # Mock services
+  - ./mapper/mock-service-deployment.yaml
+  - ./mapper/mock-service.yaml
