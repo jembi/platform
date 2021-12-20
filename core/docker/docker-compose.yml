@@ -65,6 +65,7 @@ services:
     hostname: kafka
     environment:
       KAFKA_CREATE_TOPICS: ${KAFKA_TOPICS:-''} # topic:partition:replicas
+      KAFKA_CREATE_TOPICS_SEPARATOR: '#'
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'FALSE'
       KAFKA_ADVERTISED_HOST_NAME: kafka
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181

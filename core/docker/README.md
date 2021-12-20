@@ -51,10 +51,10 @@ Once the volume is created you can continue with the rest of the start up script
 
 #### Configuring Kafka
 
-To create kafka topics, use the environment variable KAFKA_TOPICS. The topics should be comma seperated as shown in the example below.
+To create kafka topics, use the environment variable KAFKA_TOPICS. The topics should be seperated by a "#" as shown in the example below.
 
 ```bash
-KAFKA_TOPICS="Topic1:1:3,Topic2:1:1:compact"
+KAFKA_TOPICS="Topic1:1:3#Topic2:1:1:compact"
 ```
 
 From the instant root directory, run the following command to start up the core.
