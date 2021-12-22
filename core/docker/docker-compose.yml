@@ -50,7 +50,59 @@ services:
       - 'hapi-db-volume:/var/lib/postgresql/data'
     restart: unless-stopped
 
+  zookeeper:
+    image: wurstmeister/zookeeper:latest
+    container_name: zookeeper
+    hostname: zookeeper
+    environment:
+      - KAFKA_ADVERTISED_HOST_NAME=zookeeper
+    restart: unless-stopped
+
+  kafka:
+    image: wurstmeister/kafka:2.13-2.7.1
+    container_name: kafka
+    command: [start-kafka.sh]
+    hostname: kafka
+    environment:
+      KAFKA_CREATE_TOPICS: ${KAFKA_TOPICS:-''} # topic:partition:replicas
+      KAFKA_CREATE_TOPICS_SEPARATOR: '#'
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'FALSE'
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_PORT: 9092
+      KAFKA_MESSAGE_MAX_BYTES: 10485760
+      KAFKA_SOCKET_REQUEST_MAX_BYTES: 20971520
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - kafka-volume:/kafka
+    depends_on:
+      - 'zookeeper'
+    restart: unless-stopped
+
+  kafdrop:
+    image: obsidiandynamics/kafdrop:3.27.0
+    container_name: kafdrop
+    hostname: kafdrop
+    depends_on:
+      - 'kafka'
+    environment:
+      KAFKA_BROKERCONNECT: 'kafka:9092'
+      JVM_OPTS: '-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify'
+      CMD_ARGS: '--server.port=9013 --management.server.port=9013'
+    restart: unless-stopped
+
+  hapi-proxy:
+    image: jembi/springproxyserver:20211217-170809.3f57ef5
+    container_name: hapi-proxy
+    hostname: hapi-proxy
+    environment:
+      HAPI_SERVER_URL: 'http://hapi-fhir:8080/fhir'
+      KAFKA_BOOTSTRAP_SERVERS: 'kafka:9092'
+      HAPI_SERVER_VALIDATE_FORMAT: 'NONE'
+    restart: unless-stopped
+
 volumes:
   hapi-db-volume:
+  kafka-volume:
   instant:
     external: true
