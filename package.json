@@ -1,9 +1,9 @@
 {
-  "name": "instant",
+  "name": "instant-platform",
   "version": "0.0.12",
   "main": "instant.ts",
-  "repository": "git@github.com:openhie/instant.git",
-  "author": "Jembi and IntraHealth",
+  "repository": "git@github.com:jembi/instant-platform.git",
+  "author": "Jembi",
   "license": "Apache-2.0",
   "dependencies": {
     "@types/command-line-args": "^5.0.0",
