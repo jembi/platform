@@ -1,0 +1,10 @@
+version: '3.3'
+
+services:
+  prometheus:
+    ports:
+      - "9090:9090"
+
+  grafana:
+    ports:
+      - "3000:3000"

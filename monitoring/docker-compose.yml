@@ -1,0 +1,19 @@
+version: '3.3'
+
+services:
+  prometheus:
+    image: prom/prometheus:v2.32.1
+    configs:
+      - source: prometheus.config
+        target: /etc/prometheus.yml
+    deploy:
+      replicas: 1
+
+  grafana:
+    image: grafana/grafana:8.3.3
+    deploy:
+      replicas: 1
+
+configs:
+  prometheus.config:
+    file: ./importer/volume/prometheus.yml
