@@ -208,6 +208,13 @@ const logPackageDetails = (packageInfo: PackageInfo) => {
           ])
         }
         break
+      case 'swarm':
+        for (const id of chosenPackageIds) {
+          await runBashScript(`${allPackages[id].path}docker/`, 'swarm.sh', [
+            main.command
+          ])
+        }
+        break
       case 'k8s':
       case 'kubernetes':
         for (const id of chosenPackageIds) {
