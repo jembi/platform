@@ -204,12 +204,18 @@ const logPackageDetails = (packageInfo: PackageInfo) => {
       `Selected package IDs to operate on: ${chosenPackageIds.join(', ')}`
     )
 
+    if (mainOptions.dev) {
+      mainOptions.mode = 'dev'
+    } else {
+      mainOptions.mode = 'prod'
+    }
+
     switch (mainOptions.target) {
       case 'swarm':
         for (const id of chosenPackageIds) {
           await runBashScript(`${allPackages[id].path}/`, 'swarm.sh', [
             main.command,
-            mainOptions.dev
+            mainOptions.mode
           ])
         }
         break

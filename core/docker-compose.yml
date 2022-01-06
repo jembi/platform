@@ -10,13 +10,6 @@ services:
       - api_authenticationTypes=["token", "basic"]
       - authentication_enableCustomTokenAuthentication=true
     restart: unless-stopped
-    ports:
-      - "8080:8080"
-      - "5000:5000"
-      - "5001:5001"
-      - "5050:5050"
-      - "5051:5051"
-      - "5052:5052"
 
   openhim-console:
     container_name: openhim-console
@@ -24,8 +17,6 @@ services:
     depends_on:
       - openhim-core
     restart: unless-stopped
-    ports:
-        - "9000:80"
 
   hapi-fhir:
     container_name: hapi-fhir
