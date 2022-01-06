@@ -160,11 +160,16 @@ const logPackageDetails = (packageInfo: PackageInfo) => {
         {
           name: 'target',
           alias: 't',
-          defaultValue: 'docker'
+          defaultValue: 'swarm'
         },
         {
           name: 'only',
           alias: 'o',
+          type: Boolean
+        },
+        {
+          name: 'dev',
+          alias: 'd',
           type: Boolean
         }
       ],
@@ -200,29 +205,12 @@ const logPackageDetails = (packageInfo: PackageInfo) => {
     )
 
     switch (mainOptions.target) {
-      case 'docker':
-        for (const id of chosenPackageIds) {
-          logPackageDetails(allPackages[id])
-          await runBashScript(`${allPackages[id].path}docker/`, 'compose.sh', [
-            main.command
-          ])
-        }
-        break
       case 'swarm':
         for (const id of chosenPackageIds) {
-          await runBashScript(`${allPackages[id].path}docker/`, 'swarm.sh', [
-            main.command
+          await runBashScript(`${allPackages[id].path}/`, 'swarm.sh', [
+            main.command,
+            mainOptions.dev
           ])
-        }
-        break
-      case 'k8s':
-      case 'kubernetes':
-        for (const id of chosenPackageIds) {
-          await runBashScript(
-            `${allPackages[id].path}kubernetes/main/`,
-            'k8s.sh',
-            [main.command]
-          )
         }
         break
       default:
