@@ -1,0 +1,7 @@
+version: '3.3'
+
+services:
+  elasticsearch-metric-exporter:
+    image: prometheuscommunity/elasticsearch-exporter:v1.3.0
+    command:
+     - '--es.uri=http://instant_es-analytics:9200'
