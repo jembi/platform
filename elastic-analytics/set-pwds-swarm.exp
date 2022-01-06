@@ -43,7 +43,9 @@ if {$force_conservative} {
 
 
 set timeout -1
-spawn kubectl exec -it deployment/es-analytics -- /bin/bash -c {bin/elasticsearch-setup-passwords interactive}
+# Get container id of the service, there could be multiple
+set serviceName [exec docker ps -q -f name=es-analytics]
+spawn docker exec -it $serviceName /bin/bash -c {bin/elasticsearch-setup-passwords interactive}
 match_max 100000
 expect -exact "Initiating the setup of passwords for reserved users elastic,apm_system,kibana,kibana_system,logstash_system,beats_system,remote_monitoring_user.\r
 You will be prompted to enter passwords as the process progresses.\r

@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  es-analytics:
+    environment:
+      network.host: _eth0:ipv4_
+      discovery.type: zen
+      discovery.seed_hosts: tasks.es-analytics # Service name, to let Swarm handle discovery
+      cluster.initial_master_nodes: ${PRIMARY1_HOSTNAME},${PRIMARY2_HOSTNAME},${SECONDARY_HOSTNAME} # Swarm nodes host names
+      node.name: "{{.Node.Hostname}}" # To create a predictable node name
+      xpack.security.transport.ssl.enabled: 'true'
+      xpack.security.transport.ssl.verification_mode: certificate 
+      xpack.security.transport.ssl.client_authentication: required
+      xpack.security.transport.ssl.keystore.path: elastic-certificates.p12
+      xpack.security.transport.ssl.truststore.path: elastic-certificates.p12
+    deploy:
+      replicas: 3
+      placement:
+        max_replicas_per_node: 1
+    configs:
+      - source: elastic-certificates.p12
+        target: /usr/share/elasticsearch/config/elastic-certificates.p12
+
+  kibana:
+    deploy:
+      placement:
+        constraints:
+          - "node.labels.name==primary-2"
+      replicas: 0
+
+  metricbeat:
+    image: docker.elastic.co/beats/metricbeat:7.14.1
+    deploy:
+      mode: global
+    configs:
+      - source: metricbeat.yml
+        target: /usr/share/metricbeat/metricbeat.yml
+
+configs:
+  metricbeat.yml:
+    file: ./metricbeat/metricbeat.yml
+  elastic-certificates.p12:
+    file: ./elastic-certificates.p12

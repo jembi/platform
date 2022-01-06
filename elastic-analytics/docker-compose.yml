@@ -1,4 +1,4 @@
-version: '3.3'
+version: '3.8'
 
 services:
   es-analytics:
@@ -9,15 +9,22 @@ services:
       discovery.type: single-node
       bootstrap.memory_lock: 'true'
       xpack.security.enabled: 'true'
-      ES_JAVA_OPTS: -Xms512m -Xmx512m
+      xpack.monitoring.collection.enabled: 'true'
+      ES_JAVA_OPTS: ${ES_HEAP_SIZE}
+      search.max_buckets: 1000000
+      search.default_search_timeout: -1
+    labels:
+      co.elastic.metrics/module: 'elasticsearch'
+      co.elastic.metrics/hosts: 'http://es-analytics:9200'
+      co.elastic.metrics/metricsets: 'node_stats,node'
+      co.elastic.metrics/1.module: 'docker'
+      co.elastic.metrics/1.metricsets: 'cpu,memory,diskio'
     ulimits:
       memlock:
         soft: -1
         hard: -1
     volumes:
       - es-data:/usr/share/elasticsearch/data
-    ports:
-      - 9201:9200
 
   kibana:
     container_name: kibana
@@ -34,3 +41,4 @@ volumes:
   es-data:
   instant:
     external: true
+  metricbeat-data01:

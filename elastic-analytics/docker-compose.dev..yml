@@ -1,0 +1,6 @@
+version: '3.8'
+
+services:
+  kibana:
+    ports:
+      - 5601:5601
