@@ -20,6 +20,8 @@ services:
     # ensure all relevant services are running before executing the importer
     depends_on:
       - openhim-core
+    deploy:
+      replicas: 1
 
 volumes:
   instant:
