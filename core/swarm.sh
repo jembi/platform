@@ -4,29 +4,29 @@ composeFilePath=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 
 if [ "$1" == "init" ]; then
     if  [ "$2" == "dev" ]; then
-        docker stack deploy -c "$composeFilePath"/docker-compose-mongo.yml -c "$composeFilePath"/docker-compose-mongo.dev.yml  -c "$composeFilePath"/docker-compose-mongo.stack.dev.yml instant
+        docker stack deploy -c "$composeFilePath"/docker-compose-mongo.yml -c "$composeFilePath"/docker-compose-mongo.dev.yml  -c "$composeFilePath"/docker-compose-mongo.stack.yml instant
 
         # Set up the replica set
         "$composeFilePath"/initiateReplicaSet.sh
 
-        docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.dev.yml -c "$composeFilePath"/docker-compose.stack-0.dev.yml instant
+        docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.dev.yml -c "$composeFilePath"/docker-compose.stack-0.yml instant
 
         echo "Sleep 60 seconds to give OpenHIM Core and Postgres time to start up before OpenHIM Console and HAPI-FHIR run"
         sleep 60
 
-        docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.dev.yml -c "$composeFilePath"/docker-compose.stack-1.dev.yml instant
+        docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.dev.yml -c "$composeFilePath"/docker-compose.stack-1.yml instant
     else
-        docker stack deploy -c "$composeFilePath"/docker-compose-mongo.yml -c "$composeFilePath"/docker-compose-mongo.stack.yml instant
+        docker stack deploy -c "$composeFilePath"/docker-compose-mongo.yml -c "$composeFilePath"/docker-compose-mongo.prod.yml -c "$composeFilePath"/docker-compose-mongo.stack.yml instant
 
         # Set up the replica set
         "$composeFilePath"/initiateReplicaSet.sh
 
-        docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.stack-0.yml instant
+        docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.prod.yml -c "$composeFilePath"/docker-compose.stack-0.yml instant
 
         echo "Sleep 60 seconds to give OpenHIM Core and Postgres time to start up before OpenHIM Console and HAPI-FHIR run"
         sleep 60
 
-        docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.stack-1.yml instant
+        docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.prod.yml -c "$composeFilePath"/docker-compose.stack-1.yml instant
     fi
 
     echo "Sleep 60 seconds to give HAPI-FHIR and OpenHIM Console time to start up"
@@ -40,9 +40,9 @@ if [ "$1" == "init" ]; then
     docker service rm instant_core-config-importer
 elif [ "$1" == "up" ]; then
     if [ "$2" == "dev" ]; then
-        docker stack deploy -c "$composeFilePath"/docker-compose.mongo.yml -c "$composeFilePath"/docker-compose.mongo.dev.yml -c "$composeFilePath"/docker-compose-mongo.stack.dev.yml instant
+        docker stack deploy -c "$composeFilePath"/docker-compose.mongo.yml -c "$composeFilePath"/docker-compose.mongo.dev.yml -c "$composeFilePath"/docker-compose-mongo.stack.yml instant
         sleep 20
-        docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.dev.yml -c "$composeFilePath"/docker-compose.stack-1.dev.yml instant
+        docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.dev.yml -c "$composeFilePath"/docker-compose.stack-1.yml instant
     else
         docker stack deploy -c "$composeFilePath"/docker-compose.mongo.yml -c "$composeFilePath"/docker-compose-mongo.stack.yml instant
         sleep 20

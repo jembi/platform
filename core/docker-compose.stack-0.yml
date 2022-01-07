@@ -3,42 +3,20 @@ version: '3.3'
 services:
   openhim-core:
     deploy:
-      # placement:
-      #   constraints:
-      #     - "node.labels.name==primary-1"
       replicas: 1
 
   openhim-console:
     deploy:
-      # placement:
-      #   constraints:
-      #     - "node.labels.name==primary-2"
       replicas: 0
-    configs:
-      - source: console.config
-        target: /usr/share/nginx/html/config/default.json
 
   hapi-fhir:
     deploy:
-      # placement:
-      #   constraints:
-      #     - "node.labels.name==primary-1"
       replicas: 0
 
   hapi-db:
     deploy:
-      # placement:
-      #   constraints:
-      #     - "node.labels.name==primary-2"
-      replicas: 0
+      replicas: 1
 
   hapi-proxy:
     deploy:
-      # placement:
-          #   constraints:
-          #     - "node.labels.name==primary-1"
       replicas: 0
-
-configs:
-  console.config:
-    file: ./importer/volume/default.json
