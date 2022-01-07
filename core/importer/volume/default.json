@@ -2,7 +2,7 @@
   "version": "1.14.2",
   "minimumCoreVersion": "5.2.0",
   "protocol": "https",
-  "host": "127.0.0.1",
+  "host": "localhost",
   "hostPath": "",
   "port": 8080,
   "title": "Admin Console",
