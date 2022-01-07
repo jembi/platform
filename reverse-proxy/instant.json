@@ -1,0 +1,8 @@
+{
+  "id": "reverse-proxy",
+  "name": "Reverse Proxy package",
+  "description": "nginx reverse proxy",
+  "type": "use-case",
+  "version": "v0.0.1",
+  "dependencies": []
+}
