@@ -12,6 +12,9 @@ services:
       placement:
         constraints:
           - "node.labels.name==primary-2"
+    configs:
+      - source: console.config
+        target: /usr/share/nginx/html/config/default.json
 
   hapi-fhir:
     deploy:
@@ -30,3 +33,7 @@ services:
       placement:
         constraints:
           - "node.labels.name==primary-1"
+
+configs:
+  console.config:
+    file: ./importer/volume/default.json
