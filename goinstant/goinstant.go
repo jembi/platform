@@ -18,7 +18,7 @@ type customOption struct {
 	customPackageFileLocations []string
 	onlyFlag                   bool
 	instantVersion             string
-	devMode                   bool
+	devMode                    bool
 }
 
 var customOptions = customOption{
