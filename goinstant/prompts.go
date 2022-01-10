@@ -106,6 +106,7 @@ func selectCustomOptions() {
 			"Specify custom package locations",
 			"Toggle only flag",
 			"Specify Instant Version",
+			"Toggle dev mode (default mode is prod)",
 			"Execute with current options",
 			"View current options set",
 			"Reset to default options",
@@ -135,6 +136,8 @@ func selectCustomOptions() {
 		setCustomPackages()
 	case "Toggle only flag":
 		toggleOnlyFlag()
+	case "Toggle dev mode (default mode is prod)":
+		toggleDevMode()
 	case "Specify Instant Version":
 		setInstantVersion()
 	case "Execute with current options":
@@ -160,6 +163,7 @@ func resetAll() {
 	customOptions.customPackageFileLocations = make([]string, 0)
 	customOptions.onlyFlag = false
 	customOptions.instantVersion = "latest"
+	customOptions.devMode = false
 	fmt.Println("\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nAll custom options have been reset to default.\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 }
 
@@ -217,6 +221,9 @@ func executeCommand() {
 	if customOptions.onlyFlag {
 		startupCommands = append(startupCommands, "--only")
 	}
+	if customOptions.devMode {
+		startupCommands = append(startupCommands, "--dev")
+	}
 	startupCommands = append(startupCommands, "--instant-version="+customOptions.instantVersion)
 	RunDirectDockerCommand(startupCommands)
 }
@@ -253,6 +260,12 @@ func printAll(loopback bool) {
 
 	fmt.Println("Only Flag Setting:")
 	if customOptions.onlyFlag {
+		fmt.Printf("-%q\n\n", "On")
+	} else {
+		fmt.Printf("-%q\n\n", "Off")
+	}
+	fmt.Println("Dev Mode Setting:")
+	if customOptions.devMode {
 		fmt.Printf("-%q\n\n", "On")
 	} else {
 		fmt.Printf("-%q\n\n", "Off")
@@ -402,6 +415,16 @@ func toggleOnlyFlag() {
 		fmt.Println("Only flag is now on")
 	} else {
 		fmt.Println("Only flag is now off")
+	}
+	selectCustomOptions()
+}
+
+func toggleDevMode() {
+	customOptions.devMode = !customOptions.devMode
+	if customOptions.devMode {
+		fmt.Println("Dev mode is now on")
+	} else {
+		fmt.Println("Dev mode is now off")
 	}
 	selectCustomOptions()
 }

@@ -150,7 +150,7 @@ func RunDirectDockerCommand(startupCommands []string) {
 	commandSlice = append(commandSlice, environmentVariables...)
 	commandSlice = append(commandSlice, []string{instantImage, deployCommand}...)
 	commandSlice = append(commandSlice, otherFlags...)
-	commandSlice = append(commandSlice, []string{"-t", deployEnvironment}...)
+	commandSlice = append(commandSlice, []string{"-t", "swarm"}...)
 	commandSlice = append(commandSlice, packages...)
 	runCommand(deployEnvironment, nil, commandSlice...)
 
