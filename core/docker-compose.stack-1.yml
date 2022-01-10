@@ -8,9 +8,6 @@ services:
   openhim-console:
     deploy:
       replicas: 1
-    configs:
-      - source: console.config
-        target: /usr/share/nginx/html/config/default.json
 
   hapi-fhir:
     deploy:
@@ -23,7 +20,3 @@ services:
   hapi-proxy:
     deploy:
       replicas: 1
-
-configs:
-  console.config:
-    file: ./importer/volume/default.json
