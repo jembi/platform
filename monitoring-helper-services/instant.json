@@ -1,0 +1,9 @@
+{
+  "id": "monitoring-helper-services",
+  "name": "Moniter Package Helper Services",
+  "description": "Add helper services for each package specified",
+  "type": "infrastructure",
+  "version": "v0.0.1",
+  "dependencies": ["monitoring"],
+  "environmentVariables": {}
+}

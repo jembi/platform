@@ -1,0 +1,9 @@
+{
+  "id": "monitoring",
+  "name": "Instant Package Moniter Pacakge",
+  "description": "",
+  "type": "infrastructure",
+  "version": "v0.0.1",
+  "dependencies": [],
+  "environmentVariables": {}
+}
