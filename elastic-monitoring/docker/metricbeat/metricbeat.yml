@@ -1,0 +1,91 @@
+metricbeat.config:
+  modules:
+    path: ${path.config}/modules.d/*.yml
+    # Reload module configs as they change:
+    reload.enabled: false
+
+metricbeat.autodiscover:
+  providers:
+    - type: docker
+      hints.enabled: true
+
+metricbeat.modules:
+  - module: docker
+    enabled: true
+    period: 10s
+    metricsets:
+      - container
+      - cpu
+      - diskio
+      - healthcheck
+      - info
+      - image
+      - memory
+      - network
+    hosts: ['unix:///var/run/docker.sock']
+  - module: kafka
+    enabled: true
+    period: 10s
+    metricsets:
+      - partition
+      - consumergroup
+    hosts: ['kafka:9092']
+  - module: postgresql
+    enabled: true
+    period: 10s
+    metricsets:
+      - database
+      - bgwriter
+      - activity
+    hosts: ['postgres://hapi-db:5432?sslmode=disable&dbname=hapi']
+    username: admin
+    password: instant101
+  - module: mongodb
+    enabled: true
+    period: 10s
+    metricsets:
+      - dbstats
+      - status
+      - collstats
+      - metrics
+      - replstatus
+    hosts:
+      [
+        'mongodb://mongo-1:27017/openhim?replicaSet=mongo-set',
+        'mongodb://mongo-2:27017/openhim?replicaSet=mongo-set',
+        'mongodb://mongo-3:27017/openhim?replicaSet=mongo-set'
+      ]
+  - module: elasticsearch
+    enabled: true
+    period: 10s
+    hosts: '${ELASTICSEARCH_HOSTS:}'
+    username: '${ELASTICSEARCH_USERNAME:}'
+    password: '${ELASTICSEARCH_PASSWORD:}'
+    xpack.enabled: true
+  - module: kibana
+    enabled: true
+    period: 10s
+    hosts: '${KIBANA_HOST:}'
+    basepath: ''
+    username: '${ELASTICSEARCH_USERNAME:}'
+    password: '${ELASTICSEARCH_PASSWORD:}'
+    xpack.enabled: true
+  - module: logstash
+    enabled: true
+    period: 10s
+    hosts: ['logstash:9600']
+    xpack.enabled: true
+
+processors:
+  - add_cloud_metadata: ~
+
+output.elasticsearch:
+  hosts: '${ELASTICSEARCH_HOSTS:}'
+  username: '${ELASTICSEARCH_USERNAME:}'
+  password: '${ELASTICSEARCH_PASSWORD:}'
+
+setup.kibana:
+  host: '${KIBANA_HOST:}'
+
+setup.dashboards.enabled: true
+setup.dashboards.retry.enabled: true
