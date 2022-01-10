@@ -1,7 +1,7 @@
 {
   "id": "elastic-analytics",
-  "name": "Data Analytics using the elastic stack",
-  "description": "",
+  "name": "Elastic Analytics",
+  "description": "Deploy Kibana and Elastic Search Services for data analysis and visualization",
   "type": "infrastructure",
   "version": "v0.1.0",
   "dependencies": [],

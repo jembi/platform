@@ -1,7 +1,7 @@
 {
   "id": "elastic-monitoring",
-  "name": "Deploy monitoring tools that work with the elastic stack to monitor containers and host metrics and log",
-  "description": "",
+  "name": "Elastic Monitoring",
+  "description": "Deploy monitoring tools that work with the elastic stack to record Docker container and host logs",
   "type": "infrastructure",
   "version": "v0.2.0",
   "dependencies": [
