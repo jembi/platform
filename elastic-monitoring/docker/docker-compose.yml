@@ -1,0 +1,44 @@
+version: '3.3'
+
+services:
+  metricbeat:
+    image: docker.elastic.co/beats/metricbeat:7.14.1
+    user: root
+    environment:
+      ELASTICSEARCH_URL: http://es-analytics:9200
+      ELASTICSEARCH_HOSTS: http://es-analytics:9200
+      ELASTICSEARCH_USERNAME: 'elastic'
+      ELASTICSEARCH_PASSWORD: ${ES_BEATS_SYSTEM}
+      KIBANA_HOST: kibana:5601
+      MYSQL_ROOT_PASSWORD: instant101
+    deploy:
+      mode: global
+    configs:
+      - source: metricbeat.yml
+        target: /usr/share/metricbeat/metricbeat.yml
+    volumes:
+      - metricbeat-data01:/usr/share/metricbeat/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
+      - /proc:/hostfs/proc:ro
+      - /:/hostfs:ro
+  
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:7.15.2
+    user: root
+    environment:
+      ELASTICSEARCH_HOSTS: http://es-analytics:9200
+      ELASTICSEARCH_USERNAME: 'elastic'
+      ELASTICSEARCH_PASSWORD: ${ES_BEATS_SYSTEM}
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+configs:
+  metricbeat.yml:
+    file: ./metricbeat/metricbeat.yml
+  filebeat.yml:
+    file: ./filebeat/filebeat.yml
+
+volumes:
+  metricbeat-data01:

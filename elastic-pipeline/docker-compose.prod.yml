@@ -1,0 +1,35 @@
+version: '3.3'
+
+services:
+  logstash:
+    configs:
+      - source: logstash.yml
+        target: /usr/share/logstash/config/logstash.yml
+      - source: pipelines.yml
+        target: /usr/share/logstash/config/pipelines.yml
+      - source: pipeline.jvm.options
+        target: /usr/share/logstash/config/jvm.options
+      - source: log4j2.properties
+        target: /usr/share/logstash/config/log4j2.properties
+      - source: id-query.json
+        target: /usr/share/logstash/pipeline/id-query.json
+      - source: fhir-errors.logstash.conf
+        target: /usr/share/logstash/pipeline/fhir-errors.logstash.conf
+      - source: fhir-router.logstash.conf
+        target: /usr/share/logstash/pipeline/fhir-router.logstash.conf
+
+configs:
+  logstash.yml:
+    file: ./logstash.yml
+  pipelines.yml:
+    file: ./pipelines.yml
+  pipeline.jvm.options:
+    file: ./jvm.options
+  log4j2.properties:
+    file: ./log4j2.properties
+  id-query.json:
+    file: ./id-query.json
+  fhir-errors.logstash.conf:
+    file: ./pipeline/fhir-errors.logstash.conf
+  fhir-router.logstash.conf:
+    file: ./pipeline/fhir-router.logstash.conf

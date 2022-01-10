@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  es-analytics:
+    container_name: es-analytics
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.13.0
+    environment:
+      discovery.seed_hosts: tasks.es-analytics # Service name, to let Swarm handle discovery
+      node.name: "{{.Node.Hostname}}" # To create a predictable node name
+      bootstrap.memory_lock: 'true'
+      xpack.security.enabled: 'true'
+      xpack.monitoring.collection.enabled: 'true'
+      ES_JAVA_OPTS: ${ES_HEAP_SIZE}
+      search.max_buckets: 1000000
+      search.default_search_timeout: -1
+    labels:
+      co.elastic.metrics/module: 'elasticsearch'
+      co.elastic.metrics/hosts: 'http://es-analytics:9200'
+      co.elastic.metrics/metricsets: 'node_stats,node'
+      co.elastic.metrics/1.module: 'docker'
+      co.elastic.metrics/1.metricsets: 'cpu,memory,diskio'
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+
+  kibana:
+    container_name: kibana
+    image: docker.elastic.co/kibana/kibana:7.13.0
+    environment:
+      ELASTICSEARCH_URL: http://es-analytics:9200
+      ELASTICSEARCH_HOSTS: http://es-analytics:9200
+      ELASTICSEARCH_USERNAME: 'kibana_system'
+      ELASTICSEARCH_PASSWORD: ${ES_KIBANA_SYSTEM}
+
+volumes:
+  es-data:

@@ -1,0 +1,14 @@
+version: '3.3'
+
+services:
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.12.1
+    container_name: logstash
+    labels:
+      co.elastic.metrics/module: 'docker'
+      co.elastic.metrics/metricsets: 'cpu,memory,diskio,info,healthcheck,container'
+    environment:
+      ES_ELASTIC: ${ES_ELASTIC}
+      LS_JAVA_OPTS: '-Xmx6g -Xms6g'
+    deploy:
+      replicas: 1
