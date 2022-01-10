@@ -160,11 +160,16 @@ const logPackageDetails = (packageInfo: PackageInfo) => {
         {
           name: 'target',
           alias: 't',
-          defaultValue: 'docker'
+          defaultValue: 'swarm'
         },
         {
           name: 'only',
           alias: 'o',
+          type: Boolean
+        },
+        {
+          name: 'dev',
+          alias: 'd',
           type: Boolean
         }
       ],
@@ -199,23 +204,19 @@ const logPackageDetails = (packageInfo: PackageInfo) => {
       `Selected package IDs to operate on: ${chosenPackageIds.join(', ')}`
     )
 
+    if (mainOptions.dev) {
+      mainOptions.mode = 'dev'
+    } else {
+      mainOptions.mode = 'prod'
+    }
+
     switch (mainOptions.target) {
-      case 'docker':
+      case 'swarm':
         for (const id of chosenPackageIds) {
-          logPackageDetails(allPackages[id])
-          await runBashScript(`${allPackages[id].path}docker/`, 'compose.sh', [
-            main.command
+          await runBashScript(`${allPackages[id].path}/`, 'swarm.sh', [
+            main.command,
+            mainOptions.mode
           ])
-        }
-        break
-      case 'k8s':
-      case 'kubernetes':
-        for (const id of chosenPackageIds) {
-          await runBashScript(
-            `${allPackages[id].path}kubernetes/main/`,
-            'k8s.sh',
-            [main.command]
-          )
         }
         break
       default:

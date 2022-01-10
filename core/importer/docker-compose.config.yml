@@ -3,9 +3,7 @@ version: '3.3'
 services:
   # container for executing config import scripts for setting up initial config
   core-config-importer:
-    container_name: core-config-importer
     image: jembi/instantohie-config-importer
-    restart: on-failure
     environment:
       OPENHIM_API_HOSTNAME: 'openhim-core'
       OPENHIM_API_PORT: 8080
@@ -18,10 +16,12 @@ services:
         source: instant
         target: /instant
     # This command will only attempt to import the OpenHIM config when the heartbeat responds with a 2xx
-    command: sh -c "wait-on -t 60000 https-get://openhim-core:8080/heartbeat && node /instant/core/docker/importer/volume/openhimConfig.js"
+    command: sh -c "wait-on -t 60000 https-get://openhim-core:8080/heartbeat && node /instant/core/importer/volume/openhimConfig.js"
     # ensure all relevant services are running before executing the importer
     depends_on:
       - openhim-core
+    deploy:
+      replicas: 1
 
 volumes:
   instant:
