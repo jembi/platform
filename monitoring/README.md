@@ -13,7 +13,7 @@ bash compose.sh down
 bash compose.sh destroy
 ```
 
-* Prometheus Console: <https://localhost:9090>
-* Grafana Console: <https://localhost:3000>
+* Prometheus Console: <https://{HOST_IP}:9090>
+* Grafana Console: <https://{HOST_IP}:3000>
   * **Default username**: admin
   * **Default password**: admin

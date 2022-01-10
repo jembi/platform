@@ -1,0 +1,11 @@
+version: '3.3'
+
+services:
+  prometheus:
+    configs:
+      - source: prometheus.config
+        target: /etc/prometheus.yml
+
+configs:
+  prometheus.config:
+    file: ./importer/volume/prometheus.yml

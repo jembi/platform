@@ -6,9 +6,17 @@ composeFilePath=$(
 )
 
 if [ "$1" == "init" ]; then
-  docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.dev.yml instant
+  if  [ "$2" == "dev" ]; then
+        docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.dev.yml instant
+    else
+        docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.prod.yml instant
+  fi
 elif [ "$1" == "up" ]; then
-  docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.dev.yml instant
+    if  [ "$2" == "dev" ]; then
+        docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.dev.yml instant
+    else
+        docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.prod.yml instant
+  fi
 elif [ "$1" == "down" ]; then
   docker service scale instant_prometheus=0 instant_grafana=0
 elif [ "$1" == "destroy" ]; then
