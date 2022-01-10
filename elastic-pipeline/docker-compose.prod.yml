@@ -2,8 +2,6 @@ version: '3.3'
 
 services:
   logstash:
-    deploy:
-      replicas: 1
     configs:
       - source: logstash.yml
         target: /usr/share/logstash/config/logstash.yml

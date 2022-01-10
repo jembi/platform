@@ -7,12 +7,8 @@ services:
     labels:
       co.elastic.metrics/module: 'docker'
       co.elastic.metrics/metricsets: 'cpu,memory,diskio,info,healthcheck,container'
-    volumes:
-      - logstash-pipeline:/usr/share/logstash/pipeline/
-      - logstash-config:/usr/share/logstash/config/
-
-volumes:
-  logstash-pipeline:
-    external: true
-  logstash-config:
-    external: true
+    environment:
+      ES_ELASTIC: ${ES_ELASTIC}
+      LS_JAVA_OPTS: '-Xmx6g -Xms6g'
+    deploy:
+      replicas: 1

@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  es-analytics:
+    environment:
+      discovery.type: zen
+      network.host: _eth0:ipv4_
+      xpack.security.transport.ssl.enabled: 'true'
+      xpack.security.transport.ssl.verification_mode: certificate 
+      xpack.security.transport.ssl.client_authentication: required
+      xpack.security.transport.ssl.keystore.path: elastic-certificates.p12
+      xpack.security.transport.ssl.truststore.path: elastic-certificates.p12
+      cluster.initial_master_nodes: ${PRIMARY1_HOSTNAME},${PRIMARY2_HOSTNAME},${SECONDARY_HOSTNAME} # Swarm nodes host names
+    deploy:
+      replicas: 3
+      placement:
+        max_replicas_per_node: 1
+    configs:
+      - source: elastic-certificates.p12
+        target: /usr/share/elasticsearch/config/elastic-certificates.p12
+
+  kibana:
+    deploy:
+      placement:
+        constraints:
+          - "node.labels.name==primary-2"
+
+configs:
+  elastic-certificates.p12:
+    file: ./elastic-certificates.p12
