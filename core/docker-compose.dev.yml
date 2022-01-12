@@ -13,11 +13,3 @@ services:
   openhim-console:
     ports:
         - "9000:80"
-
-  hapi-fhir:
-    ports:
-      - "3447:8080"
-
-  hapi-db:
-    ports:
-      - "5432:5432"

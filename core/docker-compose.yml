@@ -17,34 +17,6 @@ services:
       - source: console.config
         target: /usr/share/nginx/html/config/default.json
 
-  hapi-fhir:
-    image: hapiproject/hapi:v5.5.1
-    environment:
-      - spring.datasource.url=jdbc:postgresql://hapi-db:5432/hapi
-      - spring.datasource.username=admin
-      - spring.datasource.password=instant101
-      - spring.datasource.driverClassName=org.postgresql.Driver
-      - spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQL95Dialect
-      - hapi.fhir.allow_external_references=true
-      - hapi.fhir.bulk_export_enabled=true
-      - JAVA_TOOL_OPTIONS=-Xmx2g
-      - CATALINA_OPTS=-Xmx2g
-    volumes:
-      - type: volume
-        source: instant
-        target: /instant
-    depends_on:
-      - hapi-db
-
-  hapi-db:
-    image: postgres:14.1
-    environment:
-      POSTGRES_PASSWORD: instant101
-      POSTGRES_USER: admin
-      POSTGRES_DB: hapi
-    volumes:
-      - 'hapi-db-volume:/var/lib/postgresql/data'
-
   hapi-proxy:
     image: jembi/springproxyserver:20211217-170809.3f57ef5
     hostname: hapi-proxy
@@ -54,7 +26,6 @@ services:
       HAPI_SERVER_VALIDATE_FORMAT: 'NONE'
 
 volumes:
-  hapi-db-volume:
   instant:
     external: true
 
