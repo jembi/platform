@@ -1,0 +1,21 @@
+{
+  "id": "hapi-fhir",
+  "name": "Fhir datastore package",
+  "description": "",
+  "version": "",
+  "environmentVariables": {
+    "spring.datasource.url": "jdbc:postgresql://hapi-db:5432/hapi",
+    "spring.datasource.username": "admin",
+    "spring.datasource.password": "instant101",
+    "spring.datasource.driverClassName": "org.postgresql.Driver",
+    "spring.jpa.properties.hibernate.dialect": "org.hibernate.dialect.PostgreSQL95Dialect",
+    "hapi.fhir.allow_external_references": "true",
+    "hapi.fhir.bulk_export_enabled": "true",
+    "JAVA_TOOL_OPTIONS": "-Xmx2g",
+    "CATALINA_OPTS": "-Xmx2g",
+    "POSTGRES_PASSWORD": "instant101",
+    "POSTGRES_USER": "admin",
+    "POSTGRES_DB": "hapi",
+    "NODE_TLS_REJECT_UNAUTHORIZED": "0"
+  }
+}

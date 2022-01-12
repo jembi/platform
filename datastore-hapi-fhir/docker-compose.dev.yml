@@ -1,0 +1,10 @@
+version: '3.3'
+
+services:
+  hapi-fhir:
+    ports:
+      - "3447:8080"
+
+  hapi-db:
+    ports:
+      - "5432:5432"
