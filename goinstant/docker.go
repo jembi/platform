@@ -130,7 +130,7 @@ func RunDirectDockerCommand(startupCommands []string) {
 	fmt.Println("Other Flags:", otherFlags)
 	fmt.Println("InstantVersion:", instantVersion)
 
-	instantImage := "openhie/instant:" + instantVersion
+	instantImage := "jembi/platform:" + instantVersion
 
 	if deployCommand == "init" {
 		fmt.Println("\n\nDelete a pre-existing instant volume...")
