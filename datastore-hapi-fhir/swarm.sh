@@ -6,7 +6,7 @@ if [ "$1" == "init" ]; then
     if  [ "$2" == "dev" ]; then
         docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.dev.yml -c "$composeFilePath"/docker-compose.stack-0.yml instant
 
-        echo "Sleep 60 seconds to give Postgres time to start up before OpenHIM Console HAPI-FHIR run"
+        echo "Sleep 60 seconds to give Postgres time to start up before HAPI-FHIR run"
         sleep 60
 
         docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.dev.yml -c "$composeFilePath"/docker-compose.stack-1.yml instant
