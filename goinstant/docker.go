@@ -21,7 +21,6 @@ import (
 )
 
 func debugDocker() {
-
 	fmt.Printf("...checking your Docker setup")
 
 	cwd, err := os.Getwd()
@@ -73,6 +72,7 @@ func getEnvironmentVariables(inputArr []string, flags []string) (environmentVari
 			}
 		}
 	}
+
 	return
 }
 

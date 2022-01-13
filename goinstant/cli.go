@@ -48,26 +48,6 @@ Commands:
 				install <ig_url> <fhir_server> custom test
 	`)
 
-	case "install":
-		params := &Params{}
-		switch startupCommands[3] {
-		case "none", "None":
-			params.TypeAuth = "None"
-			loadIGpackage(startupCommands[1], startupCommands[2], params)
-		case "basic", "Basic":
-			params.TypeAuth = "Basic"
-			params.BasicUser = startupCommands[4]
-			params.BasicPass = startupCommands[5]
-			loadIGpackage(startupCommands[1], startupCommands[2], params)
-		case "token", "Token":
-			params.TypeAuth = "Token"
-			params.Token = startupCommands[4]
-			loadIGpackage(startupCommands[1], startupCommands[2], params)
-		case "custom", "Custom":
-			params.TypeAuth = "Custom"
-			params.Token = startupCommands[4]
-			loadIGpackage(startupCommands[1], startupCommands[2], params)
-		}
 	default:
 		fmt.Println("The deploy command is not recognized: ", startupCommands)
 	}

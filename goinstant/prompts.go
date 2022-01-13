@@ -158,15 +158,17 @@ func setStartupAction() error {
 	case "Back":
 		selectCustomOptions()
 	}
+
+	return nil
 }
 
 func executeCommand() {
 	startupCommands := []string{"docker", customOptions.startupAction}
 
 	if len(customOptions.startupPackages) == 0 {
-		fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n" +
+		fmt.Printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n" +
 			"Warning: No package IDs specified, all default packages will be included in your command.\n" +
-			">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n")
+			">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n\n")
 	}
 
 	startupCommands = append(startupCommands, customOptions.startupPackages...)
@@ -601,16 +603,11 @@ func selectPackageCluster() error {
 		selectPackageCluster()
 
 	case "Stop All Services and Cleanup Kubernetes":
-		// composeDownCore()
 		fmt.Println("Stopping and Cleaning Up Everything...")
 		RunDirectDockerCommand([]string{"k8s", "core", "destroy"})
 		RunDirectDockerCommand([]string{"k8s", "facility", "destroy"})
 		RunDirectDockerCommand([]string{"k8s", "healthworker", "destroy"})
 		selectPackageCluster()
-
-	// case "Developer Mode":
-	// 	selectPackageDockerDev()
-	// 	// selectPackageCluster()
 
 	case "Quit":
 		quit()
@@ -623,7 +620,6 @@ func selectPackageCluster() error {
 }
 
 func selectFHIR() (result_url string, params *Params) {
-
 	prompt := promptui.Select{
 		Label: "Select or enter URL for a FHIR Server",
 		Items: []string{"Docker Default", "Kubernetes Default", "Use Public HAPI Server", "Enter a Server URL", "Quit", "Back"},
@@ -683,8 +679,8 @@ func selectFHIR() (result_url string, params *Params) {
 		return "", params
 
 	}
-	return result_url, params
 
+	return result_url, params
 }
 
 type Params struct {
@@ -696,7 +692,6 @@ type Params struct {
 }
 
 func selectParams() *Params {
-
 	a := &Params{}
 
 	prompt := promptui.Select{
@@ -778,5 +773,6 @@ func selectParams() *Params {
 		selectUtil()
 		return a
 	}
+
 	return a
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"fmt"
 	"os"
 
 	"github.com/fatih/color"
@@ -26,7 +27,7 @@ var customOptions = customOption{
 	envVarFileLocation: "",
 	onlyFlag:           false,
 	instantVersion:     "latest",
-	devMode: 						false,
+	devMode:            false,
 }
 
 func stopContainer() {
