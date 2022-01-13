@@ -231,7 +231,7 @@ func setStartupPackages() {
 		printSlice(customOptions.startupPackages)
 	}
 	prompt := promptui.Prompt{
-		Label: "Startup Package List(Comma Delimited). e.g. core,cdr",
+		Label: "Startup Package List (Comma Delimited). e.g. iol-openhim,reverse-proxy-nginx",
 	}
 	packageList, err := prompt.Run()
 	if err != nil {
@@ -397,24 +397,23 @@ func selectDefaultInstall() error {
 		Label: "Great, now choose an action (Packages will start up their dependencies automatically)",
 		Items: []string{
 			"Initialise All Packages",
-			"Initialise Core",
-			"Initialise Client",
-			"Initialise Elastic-Analytics",
-			"Initialise Elastic-Pipeline",
-			"Initialise Electronic Medical Record",
-			"Initialise Health Management Information System",
-			"Initialise Health Worker", "Initialise Facility Registry",
-			"Initialise Workforce",
+			"Initialise IOL - OpenHIM",
+			"Initialise Reverse Proxy - NGINX",
+			"Initialise FHIR Data Store - HAPI-FHIR",
+			"Initialise Message Bus - Kafka",
+			"Initialise Elastic-Analytics - ElasticSearch and Kibana",
+			"Initialise Elastic-Pipeline - LogStash",
+			"Initialise Elastic Monitoring - MetricBeats and FileBeats",
+			"Initialise System Monitoring - Prometheus and Grafana",
 			"Stop All Services and Cleanup Docker",
-			"Stop and Cleanup Core",
-			"Stop and Cleanup Client",
-			"Stop and Cleanup Elastic-Analytics",
-			"Stop and Cleanup Elastic-Pipeline",
-			"Stop and Cleanup Electronic Medical Record",
-			"Stop and Cleanup Health Management Information System",
-			"Stop and Cleanup Health Worker",
-			"Stop and Cleanup Facility Registry",
-			"Stop and Cleanup Workforce",
+			"Stop and Cleanup IOL - OpenHIM",
+			"Stop and Cleanup Reverse Proxy - NGINX",
+			"Stop and Cleanup FHIR Data Store - HAPI-FHIR",
+			"Stop and Cleanup Message Bus - Kafka",
+			"Stop and Cleanup Elastic-Analytics - ElasticSearch and Kibana",
+			"Stop and Cleanup Elastic-Pipeline - LogStash",
+			"Stop and Cleanup Elastic Monitoring - MetricBeats and FileBeats",
+			"Stop and Cleanup System Monitoring - Prometheus and Grafana",
 			"Quit",
 			"Back",
 		},
@@ -434,49 +433,44 @@ func selectDefaultInstall() error {
 		RunDirectDockerCommand([]string{"docker", "init"})
 		selectDefaultInstall()
 
-	case "Initialise Core":
-		fmt.Println("...Setting up Core Package")
-		RunDirectDockerCommand([]string{"docker", "core", "init"})
+	case "Initialise IOL - OpenHIM":
+		fmt.Println("...Setting up IOL - OpenHIM Package")
+		RunDirectDockerCommand([]string{"docker", "iol-openhim", "init"})
 		selectDefaultInstall()
 
-	case "Initialise Client":
-		fmt.Println("...Setting up Client Package")
-		RunDirectDockerCommand([]string{"docker", "client", "init"})
+	case "Initialise Reverse Proxy - NGINX":
+		fmt.Println("...Setting up Reverse Proxy - NGINX Package")
+		RunDirectDockerCommand([]string{"docker", "reverse-proxy-nginx", "init"})
 		selectDefaultInstall()
 
-	case "Initialise Elastic-Analytics":
-		fmt.Println("...Setting up Elastic-Analytics Package")
-		RunDirectDockerCommand([]string{"docker", "elastic-analytics", "init"})
+	case "Initialise FHIR Datastore - HAPI-FHIR":
+		fmt.Println("...Setting up FHIR Datastore - HAPI-FHIR Package")
+		RunDirectDockerCommand([]string{"docker", "fhir-datastore-hapi-fhir", "init"})
 		selectDefaultInstall()
 
-	case "Initialise Elastic-Pipeline":
-		fmt.Println("...Setting up Elastic-Pipeline Package")
-		RunDirectDockerCommand([]string{"docker", "elastic-pipeline", "init"})
+	case "Initialise Message Bus - Kafka":
+		fmt.Println("...Setting up Message Bus - Kafka Package")
+		RunDirectDockerCommand([]string{"docker", "message-bus-kafka", "init"})
 		selectDefaultInstall()
 
-	case "Initialise Electronic Medical Record":
-		fmt.Println("...Setting up Electronic Medical Record Package")
-		RunDirectDockerCommand([]string{"docker", "emr", "init"})
+	case "Initialise Elastic-Analytics - ElasticSearch and Kibana":
+		fmt.Println("...Setting up Elastic-Analytics - ElasticSearch and Kibana Package")
+		RunDirectDockerCommand([]string{"docker", "elastic-analytics-elasticsearch-kibana", "init"})
 		selectDefaultInstall()
 
-	case "Initialise Health Management Information System":
-		fmt.Println("...Setting up Health Management Information System Package")
-		RunDirectDockerCommand([]string{"docker", "hmis", "init"})
+	case "Initialise Elastic-Pipeline - LogStash":
+		fmt.Println("...Setting up Elastic-Pipeline - LogStash Package")
+		RunDirectDockerCommand([]string{"docker", "elastic-pipeline-logstash", "init"})
 		selectDefaultInstall()
 
-	case "Initialise Health Worker":
-		fmt.Println("...Setting up Health Worker Package")
-		RunDirectDockerCommand([]string{"docker", "healthworker", "init"})
+	case "Initialise Elastic Monitoring - MetricBeats and FileBeats":
+		fmt.Println("...Setting up Elastic Monitoring - MetricBeats and FileBeats Package")
+		RunDirectDockerCommand([]string{"docker", "elastic-monitoring-metricbeats-filebeats", "init"})
 		selectDefaultInstall()
 
-	case "Initialise Facility Registry":
-		fmt.Println("...Setting up Facility Registry Package")
-		RunDirectDockerCommand([]string{"docker", "facility", "init"})
-		selectDefaultInstall()
-
-	case "Initialise Workforce":
-		fmt.Println("...Setting up Workforce Package")
-		RunDirectDockerCommand([]string{"docker", "mcsd", "init"})
+	case "Initialise System Monitoring - Prometheus and Grafana":
+		fmt.Println("...Setting up System Monitoring - Prometheus and Grafana Package")
+		RunDirectDockerCommand([]string{"docker", "system-monitoring-prometheus-grafana", "init"})
 		selectDefaultInstall()
 
 	case "Stop All Services and Cleanup Docker":
@@ -484,49 +478,44 @@ func selectDefaultInstall() error {
 		RunDirectDockerCommand([]string{"docker", "destroy"})
 		selectDefaultInstall()
 
-	case "Stop and Cleanup Core":
-		fmt.Println("Stopping and Cleaning Up Core...")
-		RunDirectDockerCommand([]string{"docker", "core", "destroy"})
+	case "Stop and Cleanup IOL - OpenHIM":
+		fmt.Println("Stopping and Cleaning Up IOL - OpenHIM...")
+		RunDirectDockerCommand([]string{"docker", "iol-openhim", "destroy"})
 		selectDefaultInstall()
 
-	case "Stop and Cleanup Client":
-		fmt.Println("Stopping and Cleaning Up Client...")
-		RunDirectDockerCommand([]string{"docker", "client", "destroy"})
+	case "Stop and Cleanup Reverse Proxy - NGINX":
+		fmt.Println("Stopping and Cleaning Up Reverse Proxy - NGINX...")
+		RunDirectDockerCommand([]string{"docker", "reverse-proxy-nginx", "destroy"})
 		selectDefaultInstall()
 
-	case "Stop and Cleanup Elastic-Analytics":
-		fmt.Println("Stopping and Cleaning Up Elastic-Analytics...")
-		RunDirectDockerCommand([]string{"docker", "elastic-analytics", "destroy"})
+	case "Stop and Cleanup FHIR Datastore - HAPI-FHIR":
+		fmt.Println("Stopping and Cleaning Up FHIR Datastore - HAPI-FHIR...")
+		RunDirectDockerCommand([]string{"docker", "fhir-datastore-hapi-fhir", "destroy"})
 		selectDefaultInstall()
 
-	case "Stop and Cleanup Elastic-Pipeline":
-		fmt.Println("Stopping and Cleaning Up Elastic-Pipeline...")
-		RunDirectDockerCommand([]string{"docker", "elastic-pipeline", "destroy"})
+	case "Stop and Cleanup Message Bus - Kafka":
+		fmt.Println("Stopping and Cleaning Up Message Bus - Kafka...")
+		RunDirectDockerCommand([]string{"docker", "message-bus-kafka", "destroy"})
 		selectDefaultInstall()
 
-	case "Stop and Cleanup Electronic Medical Record":
-		fmt.Println("Stopping and Cleaning Up Electronic Medical Record...")
-		RunDirectDockerCommand([]string{"docker", "emr", "destroy"})
+	case "Stop and Cleanup Elastic-Analytics - ElasticSearch and Kibana":
+		fmt.Println("Stopping and Cleaning Up Elastic-Analytics - ElasticSearch and Kibana...")
+		RunDirectDockerCommand([]string{"docker", "elastic-analytics-elasticsearch-kibana", "destroy"})
 		selectDefaultInstall()
 
-	case "Stop and Cleanup Health Management Information System":
-		fmt.Println("Stopping and Cleaning Up Health Management Information System...")
-		RunDirectDockerCommand([]string{"docker", "hmis", "destroy"})
+	case "Stop and Cleanup Elastic-Pipeline - LogStash":
+		fmt.Println("Stopping and Cleaning Up Elastic-Pipeline - LogStash...")
+		RunDirectDockerCommand([]string{"docker", "elastic-pipeline-logstash", "destroy"})
 		selectDefaultInstall()
 
-	case "Stop and Cleanup Health Worker":
-		fmt.Println("Stopping and Cleaning Up Health Worker...")
-		RunDirectDockerCommand([]string{"docker", "healthworker", "destroy"})
+	case "Stop and Cleanup Elastic Monitoring - MetricBeats and FileBeats":
+		fmt.Println("Stopping and Cleaning Up Elastic Monitoring - MetricBeats and FileBeats...")
+		RunDirectDockerCommand([]string{"docker", "elastic-monitoring-metricbeats-filebeats", "destroy"})
 		selectDefaultInstall()
 
-	case "Stop and Cleanup Facility Registry":
-		fmt.Println("Stopping and Cleaning Up Facility Registry...")
-		RunDirectDockerCommand([]string{"docker", "facility", "destroy"})
-		selectDefaultInstall()
-
-	case "Stop and Cleanup Workforce":
-		fmt.Println("Stopping and Cleaning Up Workforce...")
-		RunDirectDockerCommand([]string{"docker", "mcsd", "destroy"})
+	case "Stop and Cleanup System Monitoring - Prometheus and Grafana":
+		fmt.Println("Stopping and Cleaning Up System Monitoring - Prometheus and Grafana...")
+		RunDirectDockerCommand([]string{"docker", "system-monitoring-prometheus-grafana", "destroy"})
 		selectDefaultInstall()
 
 	case "Quit":
