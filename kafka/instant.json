@@ -1,7 +1,7 @@
 {
-  "id": "kafka",
-  "name": "Kafka package",
-  "description": "",
+  "id": "message-bus-kafka",
+  "name": "Message Bus Kafka Package",
+  "description": "The Kafka message bus implements a robust publish-subscribe message streaming. This will take the pressure of downstream systems during high load",
   "version": "0.1.0",
   "environmentVariables": {
     "KAFKA_CREATE_TOPICS_SEPARATOR": "#",
