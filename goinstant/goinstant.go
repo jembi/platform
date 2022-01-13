@@ -60,6 +60,7 @@ func main() {
 	if len(os.Args) > 1 {
 		CLI()
 	} else {
-		selectSetup()
+		debugDocker()
+		selectDefaultOrCustom()
 	}
 }

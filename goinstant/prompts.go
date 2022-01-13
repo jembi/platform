@@ -36,7 +36,7 @@ func selectDefaultOrCustom() error {
 	case "Quit":
 		quit()
 	case "Back":
-		selectSetup()
+		selectDefaultOrCustom()
 	}
 
 	return nil
