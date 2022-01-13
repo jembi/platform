@@ -39,13 +39,6 @@ Commands:
 				kubernetes core up
 				kubernetes core destroy
 
-	install		install fhir npm package on fhir server
-				usage: install <ig_url> <fhir_server> <authtype> <user/token> <pass>
-
-				install https://intrahealth.github.io/simple-hiv-ig/ http://hapi.fhir.org/baseR4 none
-				install <ig_url> <fhir_server> basic smith stuff
-				install <ig_url> <fhir_server> token "123"
-				install <ig_url> <fhir_server> custom test
 	`)
 
 	default:
