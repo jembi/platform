@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/manifoldco/promptui"
+	"github.com/pkg/errors"
 )
 
 func quit() {
@@ -14,71 +15,33 @@ func quit() {
 	os.Exit(0)
 }
 
-func selectSetup() {
-	prompt := promptui.Select{
-		Label: "Please choose how you want to run Instant. \nChoose Docker if you're running on your PC. \nIf you want to run Instant on Kubernetes, then you have should been provided credentials or have Kubernetes running on your PC.",
-		Items: []string{"Use Docker on your PC", "Use a Kubernetes Cluster", "Install FHIR package", "Quit"},
-		Size:  12,
-	}
-
-	_, result, err := prompt.Run()
-
-	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
-		return
-	}
-
-	fmt.Printf("You chose %q\n========================================\n", result)
-
-	switch result {
-	case "Use Docker on your PC":
-		debugDocker()
-		selectDefaultOrCustom()
-
-	case "Use a Kubernetes Cluster":
-		debugKubernetes()
-		selectPackageCluster()
-
-	case "Install FHIR package":
-		selectUtil()
-
-	case "Quit":
-		quit()
-	}
-
-}
-
-func selectUtil() {
+func selectUtil() error {
 	fmt.Println("Enter URL for the published package")
 	// prompt for url
 	prompt := promptui.Prompt{
 		Label: "URL",
 	}
 
-	ig_url, err := prompt.Run()
-
+	_, err := prompt.Run()
 	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
-		return
+		return errors.Wrap(err, "Prompt failed at selectUtil()")
 	}
 
-	fhir_server, params := selectFHIR()
+	fhir_server, _ := selectFHIR()
 	fmt.Println("FHIR Server target:", fhir_server)
-	loadIGpackage(ig_url, fhir_server, params)
-	selectSetup()
+
+	return nil
 }
 
-func selectDefaultOrCustom() {
+func selectDefaultOrCustom() error {
 	prompt := promptui.Select{
 		Label: "Great, now choose an installation type",
 		Items: []string{"Default Install Options", "Custom Install Options", "Quit", "Back"},
 		Size:  12,
 	}
 	_, result, err := prompt.Run()
-
 	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
-		return
+		return errors.Wrap(err, "default/custom prompt failed")
 	}
 
 	fmt.Printf("You chose %q\n========================================\n", result)
@@ -93,9 +56,11 @@ func selectDefaultOrCustom() {
 	case "Back":
 		selectSetup()
 	}
+
+	return nil
 }
 
-func selectCustomOptions() {
+func selectCustomOptions() error {
 	prompt := promptui.Select{
 		Label: "Great, now choose an action",
 		Items: []string{
@@ -117,15 +82,16 @@ func selectCustomOptions() {
 	}
 
 	_, result, err := prompt.Run()
-
 	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
-		return
+		return errors.Wrap(err, "Custom options prompt failed")
 	}
 
 	switch result {
 	case "Choose deploy action (default is init)":
-		setStartupAction()
+		err = setStartupAction()
+		if err != nil {
+			fmt.Println(err)
+		}
 	case "Specify deploy packages":
 		setStartupPackages()
 	case "Specify environment variable file location":
@@ -153,6 +119,8 @@ func selectCustomOptions() {
 	case "Back":
 		selectDefaultOrCustom()
 	}
+
+	return nil
 }
 
 func resetAll() {
@@ -167,7 +135,7 @@ func resetAll() {
 	fmt.Println("\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\nAll custom options have been reset to default.\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 }
 
-func setStartupAction() {
+func setStartupAction() error {
 	prompt := promptui.Select{
 		Label: "Great, now choose a deploy action",
 		Items: []string{"init", "destroy", "up", "down", "test", "Quit", "Back"},
@@ -175,10 +143,8 @@ func setStartupAction() {
 	}
 
 	_, result, err := prompt.Run()
-
 	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
-		return
+		return errors.Wrap(err, "Startup action prompt failed")
 	}
 
 	fmt.Printf("You chose %q\n========================================\n", result)
@@ -438,11 +404,11 @@ func fileExists(path string) (bool, error) {
 	if os.IsNotExist(err) {
 		return false, err
 	}
+
 	return false, err
 }
 
-func selectDefaultInstall() {
-
+func selectDefaultInstall() error {
 	prompt := promptui.Select{
 		Label: "Great, now choose an action (Packages will start up their dependencies automatically)",
 		Items: []string{
@@ -472,10 +438,8 @@ func selectDefaultInstall() {
 	}
 
 	_, result, err := prompt.Run()
-
 	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
-		return
+		return errors.Wrap(err, "Default install prompt failed")
 	}
 
 	fmt.Printf("You chose %q\n========================================\n", result)
@@ -588,10 +552,10 @@ func selectDefaultInstall() {
 		selectDefaultOrCustom()
 	}
 
+	return nil
 }
 
-func selectPackageCluster() {
-
+func selectPackageCluster() error {
 	prompt := promptui.Select{
 		Label: "Great, now choose an action",
 		Items: []string{"Initialise Core (Required, Start Here)", "Launch Facility Registry", "Launch Workforce", "Stop and Cleanup Core", "Stop and Cleanup Facility Registry", "Stop and Cleanup Workforce", "Stop All Services and Cleanup Kubernetes", "Quit", "Back"},
@@ -599,10 +563,8 @@ func selectPackageCluster() {
 	}
 
 	_, result, err := prompt.Run()
-
 	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
-		return
+		return errors.Wrap(err, "Package cluster prompt failed")
 	}
 
 	fmt.Printf("\nYou chose %q\n========================================\n", result)
@@ -657,6 +619,7 @@ func selectPackageCluster() {
 		selectSetup()
 	}
 
+	return nil
 }
 
 func selectFHIR() (result_url string, params *Params) {

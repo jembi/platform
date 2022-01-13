@@ -45,7 +45,11 @@ func gracefulPanic(err error, message string) {
 }
 
 func main() {
-	data, _ := f.ReadFile("banner.txt")
+	data, err := f.ReadFile("banner.txt")
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	color.Green(string(data))
 
 	color.Cyan("Version: 1.02b")
