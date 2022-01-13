@@ -92,8 +92,6 @@ func extractCommands(startupCommands []string) (environmentVariables []string, d
 		switch {
 		case sliceContains([]string{"init", "up", "down", "destroy"}, option):
 			deployCommand = option
-		case sliceContains([]string{"docker", "kubernetes", "k8s"}, option):
-			deployEnvironment = option
 		case strings.HasPrefix(option, "-c=") || strings.HasPrefix(option, "--custom-package="):
 			customPackagePaths = append(customPackagePaths, option)
 		case strings.HasPrefix(option, "-e=") || strings.HasPrefix(option, "--env-file="):

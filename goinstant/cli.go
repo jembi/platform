@@ -3,8 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-
-	"github.com/fatih/color"
 )
 
 func CLI() {
@@ -17,8 +15,6 @@ func CLI() {
 		}
 
 		RunDirectDockerCommand(startupCommands)
-	case "k8s", "kubernetes":
-		color.Red("\nKubernetes not supported for now :(")
 	case "help":
 		fmt.Println(`
 Commands: 
@@ -31,13 +27,6 @@ Commands:
 				docker core destroy
 
 				note: only one package can be instantiated at a time using the CLI
-
-	kubernetes	manage package in kubernetes, can also use k8s
-				usage: k8s/kubernetes <package> <state>
-
-				k8s core init
-				kubernetes core up
-				kubernetes core destroy
 
 	`)
 

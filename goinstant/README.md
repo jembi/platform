@@ -2,7 +2,7 @@
 
 This is a Go CLI app and is provided as a native binary for the AMD64 architecture on Windows, macOS, and Linux.
 
-> Warning: This app is not meant to be used for container and cluster management in production or with sensitive data. It is meant for demos, training sessions, and by developers. In production and with sensitive data, administrators should use the purpose-built tools like the Docker and Kubernetes CLIs to manage resources directly and according to best practices which are outside the scope of this app.
+> Warning: This app is not meant to be used for container and cluster management in production or with sensitive data. It is meant for demos, training sessions, and by developers. In production and with sensitive data, administrators should use the purpose-built tool like the Docker CLI to manage resources directly and according to best practices which are outside the scope of this app.
 
 ## Usage
 
@@ -15,14 +15,13 @@ Without arguments, the CLI defaults to interactive mode. The CLI can also be use
 Commands: 
 	help 		this menu
 	docker		manage package in docker, usage: docker <package> <state> e.g. docker core init
-	kubernetes	manage package in kubernetes, usage: k8s/kubernetes <package> <state>, e.g. k8s core init
 ```
 
 ## Security
 
-This desktop app is meant as a prototype and may change. This app resides in userspace but it invokes the command line for containers and clusters. The apps it invokes, Docker and Kubernetes CLI, launch and manage containers and may have admin/root privileges.
+This desktop app is meant as a prototype and may change. This app resides in userspace but it invokes the command line for containers and clusters. The apps it invokes, Docker CLI, launch and manage containers and may have admin/root privileges.
 
-Therefore, this app is not meant to be used for container and cluster management in production or with sensitive data. It is meant for demos, training sessions, and by developers. In production and with sensitive data, administrators should use the purpose-built tools like the Docker and Kubernetes CLIs to manage resources directly and according to best practices which are outside the scope of this app.
+Therefore, this app is not meant to be used for container and cluster management in production or with sensitive data. It is meant for demos, training sessions, and by developers. In production and with sensitive data, administrators should use the purpose-built tools like the Docker and CLI to manage resources directly and according to best practices which are outside the scope of this app.
 
 ## Developers
 
