@@ -45,17 +45,17 @@ To shut down the services run:
 ￼./fhir-datastore-hapi-fhir/swarm.sh down
 ￼```
 ￼
-￼To start the services when they have been stopped run:
+To start the services when they have been stopped run:
 ￼
 ￼```bash
 ￼./fhir-datastore-hapi-fhir/swarm.sh up
 ￼```
 ￼
-￼To run in dev mode in which the ports are exposed pass the flag `--dev` as done below
+To run in dev mode in which the ports are exposed pass the flag `--dev` as done below
 ￼
 ￼```bash
-./interoperabilty-layer-openhim/swarm.sh init --dev
-```
+￼./fhir-datastore-hapi-fhir/swarm.sh init --dev
+￼```
 
 ## Accessing the services
 
