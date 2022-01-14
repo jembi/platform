@@ -2,11 +2,19 @@ image: jembi/platform
 defaultEnvironment: swarm
 disableKubernetes: true
 packages:
-  - id: core
-    name: Core package
-  - id: client
-    name: client
-  - id: elastic-analytics
-    name: Data Analytics package using the elastic stack
-  - id: elastic-pipeline
-    name: Data pipeline package using the elastic stack
+    - id: iol-openhim
+      name: IOL - OpenHIM
+    - id: reverse-proxy-nginx
+      name: Reverse Proxy - NGINX
+    - id: fhir-datastore-hapi-fhir
+      name: FHIR Data Store - HAPI-FHIR
+    - id: message-bus-kafka
+      name: Message Bus - Kafka
+    - id: elastic-analytics-elasticsearch-kibana
+      name: Elastic-Analytics - ElasticSearch and Kibana
+    - id: elastic-pipeline-logstash
+      name: Elastic-Pipeline - LogStash
+    - id: elastic-monitoring-metricbeats-filebeats
+      name: Elastic Monitoring - MetricBeats and FileBeats
+    - id: system-monitoring-prometheus-grafana
+      name: System Monitoring - Prometheus and Grafana
