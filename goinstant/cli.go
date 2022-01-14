@@ -1,20 +1,24 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 )
 
-func CLI() {
+func CLI() error {
 	startupCommands := os.Args[1:]
 
 	switch startupCommands[0] {
 	case "docker":
 		if len(startupCommands) < 3 {
-			gracefulPanic(nil, "Incorrect arguments list passed to CLI. Requires at least 3 arguments when in non-interactive mode.")
+			return errors.New("Incorrect arguments list passed to CLI. Requires at least 3 arguments when in non-interactive mode.")
 		}
 
-		RunDirectDockerCommand(startupCommands)
+		err := RunDirectDockerCommand(startupCommands)
+		if err != nil {
+			return err
+		}
 	case "help":
 		fmt.Println(`
 Commands: 
@@ -34,4 +38,5 @@ Commands:
 		fmt.Println("The deploy command is not recognized: ", startupCommands)
 	}
 
+	return nil
 }

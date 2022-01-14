@@ -23,23 +23,23 @@ func selectDefaultOrCustom() error {
 	}
 	_, result, err := prompt.Run()
 	if err != nil {
-		return errors.Wrap(err, "default/custom prompt failed")
+		return errors.Wrap(err, "selectDefaultOrCustom prompt failed")
 	}
 
 	fmt.Printf("You chose %q\n========================================\n", result)
 
 	switch result {
 	case "Default Install Options":
-		selectDefaultInstall()
+		err = selectDefaultInstall()
 	case "Custom Install Options":
-		selectCustomOptions()
+		err = selectCustomOptions()
 	case "Quit":
 		quit()
 	case "Back":
-		selectDefaultOrCustom()
+		err = selectDefaultOrCustom()
 	}
 
-	return nil
+	return err
 }
 
 func selectCustomOptions() error {
@@ -71,38 +71,38 @@ func selectCustomOptions() error {
 	switch result {
 	case "Choose deploy action (default is init)":
 		err = setStartupAction()
-		if err != nil {
-			fmt.Println(err)
-		}
 	case "Specify deploy packages":
-		setStartupPackages()
+		err = setStartupPackages()
 	case "Specify environment variable file location":
-		setEnvVarFileLocation()
+		err = setEnvVarFileLocation()
 	case "Specify environment variables":
-		setEnvVars()
+		err = setEnvVars()
 	case "Specify custom package locations":
-		setCustomPackages()
+		err = setCustomPackages()
 	case "Toggle only flag":
-		toggleOnlyFlag()
+		err = toggleOnlyFlag()
 	case "Toggle dev mode (default mode is prod)":
-		toggleDevMode()
+		err = toggleDevMode()
 	case "Specify Instant Version":
-		setInstantVersion()
+		err = setInstantVersion()
 	case "Execute with current options":
-		printAll(false)
-		executeCommand()
+		err = printAll(false)
+		if err != nil {
+			return err
+		}
+		err = executeCommand()
 	case "View current options set":
-		printAll(true)
+		err = printAll(true)
 	case "Reset to default options":
 		resetAll()
-		printAll(true)
+		err = printAll(true)
 	case "Quit":
 		quit()
 	case "Back":
-		selectDefaultOrCustom()
+		err = selectDefaultOrCustom()
 	}
 
-	return nil
+	return err
 }
 
 func resetAll() {
@@ -126,7 +126,7 @@ func setStartupAction() error {
 
 	_, result, err := prompt.Run()
 	if err != nil {
-		return errors.Wrap(err, "Startup action prompt failed")
+		return errors.Wrap(err, "setStartupAction() prompt failed")
 	}
 
 	fmt.Printf("You chose %q\n========================================\n", result)
@@ -134,17 +134,17 @@ func setStartupAction() error {
 	switch result {
 	case "init", "destroy", "up", "down", "test":
 		customOptions.startupAction = result
-		selectCustomOptions()
+		err = selectCustomOptions()
 	case "Quit":
 		quit()
 	case "Back":
-		selectCustomOptions()
+		err = selectCustomOptions()
 	}
 
-	return nil
+	return err
 }
 
-func executeCommand() {
+func executeCommand() error {
 	startupCommands := []string{"docker", customOptions.startupAction}
 
 	if len(customOptions.startupPackages) == 0 {
@@ -175,7 +175,7 @@ func executeCommand() {
 		startupCommands = append(startupCommands, "--dev")
 	}
 	startupCommands = append(startupCommands, "--instant-version="+customOptions.instantVersion)
-	RunDirectDockerCommand(startupCommands)
+	return RunDirectDockerCommand(startupCommands)
 }
 
 func printSlice(slice []string) {
@@ -185,7 +185,7 @@ func printSlice(slice []string) {
 	fmt.Println()
 }
 
-func printAll(loopback bool) {
+func printAll(loopback bool) error {
 	fmt.Println("\nCurrent Custom Options Specified\n---------------------------------")
 	fmt.Println("Startup Action:")
 	fmt.Printf("-%q\n", customOptions.startupAction)
@@ -220,12 +220,16 @@ func printAll(loopback bool) {
 	} else {
 		fmt.Printf("-%q\n\n", "Off")
 	}
+
+	var err error
 	if loopback {
-		selectCustomOptions()
+		err = selectCustomOptions()
 	}
+
+	return err
 }
 
-func setStartupPackages() {
+func setStartupPackages() error {
 	if customOptions.startupPackages != nil && len(customOptions.startupPackages) > 0 {
 		fmt.Println("\nCurrent Startup Packages Specified:")
 		printSlice(customOptions.startupPackages)
@@ -235,8 +239,7 @@ func setStartupPackages() {
 	}
 	packageList, err := prompt.Run()
 	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
-		selectCustomOptions()
+		return errors.Wrap(err, "setStartupPackages() prompt failed")
 	}
 
 	startupPackages := strings.Split(packageList, ",")
@@ -248,10 +251,11 @@ func setStartupPackages() {
 			fmt.Printf(p + " package already exists in the list.\n")
 		}
 	}
-	selectCustomOptions()
+
+	return selectCustomOptions()
 }
 
-func setCustomPackages() {
+func setCustomPackages() error {
 	if customOptions.customPackageFileLocations != nil && len(customOptions.customPackageFileLocations) > 0 {
 		fmt.Println("Current Custom Packages Specified:")
 		printSlice(customOptions.customPackageFileLocations)
@@ -261,8 +265,7 @@ func setCustomPackages() {
 	}
 	customPackageList, err := prompt.Run()
 	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
-		selectCustomOptions()
+		return errors.Wrap(err, "setCustomPackages() prompt failed")
 	}
 
 	newCustomPackages := strings.Split(customPackageList, ",")
@@ -288,10 +291,11 @@ func setCustomPackages() {
 			}
 		}
 	}
-	selectCustomOptions()
+
+	return selectCustomOptions()
 }
 
-func setEnvVarFileLocation() {
+func setEnvVarFileLocation() error {
 	if customOptions.envVarFileLocation != "" && len(customOptions.envVarFileLocation) > 0 {
 		fmt.Println("Current Environment Variable File Location Specified:")
 		fmt.Printf("-%q\n", customOptions.envVarFileLocation)
@@ -301,8 +305,7 @@ func setEnvVarFileLocation() {
 	}
 	envVarFileLocation, err := prompt.Run()
 	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
-		selectCustomOptions()
+		return errors.Wrap(err, "setEnvVarFileLocation() prompt failed")
 	}
 	exists, fileErr := fileExists(envVarFileLocation)
 	if exists {
@@ -311,10 +314,11 @@ func setEnvVarFileLocation() {
 		fmt.Printf("\nFile at location %q could not be found due to error: %v\n", envVarFileLocation, fileErr)
 		fmt.Println("\n-----------------\nPlease try again.\n-----------------")
 	}
-	selectCustomOptions()
+
+	return selectCustomOptions()
 }
 
-func setInstantVersion() {
+func setInstantVersion() error {
 	if customOptions.instantVersion != "latest" && len(customOptions.instantVersion) > 0 {
 		fmt.Println("Current Instant OpenHIE Image Version Specified:")
 		fmt.Printf("-%q\n", customOptions.instantVersion)
@@ -323,17 +327,16 @@ func setInstantVersion() {
 		Label: "Instant OpenHIE Image Version e.g. 0.0.9",
 	}
 	instantVersion, err := prompt.Run()
-
 	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
-		selectCustomOptions()
+		return errors.Wrap(err, "setInstantVersion() prompt failed")
 	}
 
 	customOptions.instantVersion = instantVersion
-	selectCustomOptions()
+
+	return selectCustomOptions()
 }
 
-func setEnvVars() {
+func setEnvVars() error {
 	if customOptions.envVars != nil && len(customOptions.envVars) > 0 {
 		fmt.Println("Current Environment Variables Specified:")
 		printSlice(customOptions.envVars)
@@ -343,8 +346,7 @@ func setEnvVars() {
 	}
 	envVarList, err := prompt.Run()
 	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
-		selectCustomOptions()
+		return errors.Wrap(err, "setEnvVars() prompt failed")
 	}
 
 	newEnvVars := strings.Split(envVarList, ",")
@@ -356,27 +358,30 @@ func setEnvVars() {
 			fmt.Printf(env + " environment variable already exists in the list.\n")
 		}
 	}
-	selectCustomOptions()
+
+	return selectCustomOptions()
 }
 
-func toggleOnlyFlag() {
+func toggleOnlyFlag() error {
 	customOptions.onlyFlag = !customOptions.onlyFlag
 	if customOptions.onlyFlag {
 		fmt.Println("Only flag is now on")
 	} else {
 		fmt.Println("Only flag is now off")
 	}
-	selectCustomOptions()
+
+	return selectCustomOptions()
 }
 
-func toggleDevMode() {
+func toggleDevMode() error {
 	customOptions.devMode = !customOptions.devMode
 	if customOptions.devMode {
 		fmt.Println("Dev mode is now on")
 	} else {
 		fmt.Println("Dev mode is now off")
 	}
-	selectCustomOptions()
+
+	return selectCustomOptions()
 }
 
 // fileExists returns whether the given file or directory exists
@@ -422,7 +427,7 @@ func selectDefaultInstall() error {
 
 	_, result, err := prompt.Run()
 	if err != nil {
-		return errors.Wrap(err, "Default install prompt failed")
+		return errors.Wrap(err, "selectDefaultInstall() prompt failed")
 	}
 
 	fmt.Printf("You chose %q\n========================================\n", result)
@@ -430,100 +435,154 @@ func selectDefaultInstall() error {
 	switch result {
 	case "Initialise All Packages":
 		fmt.Println("...Setting up All Packages")
-		RunDirectDockerCommand([]string{"docker", "init"})
-		selectDefaultInstall()
+		err = RunDirectDockerCommand([]string{"docker", "init"})
+		if err != nil {
+			return err
+		}
+		err = selectDefaultInstall()
 
 	case "Initialise IOL - OpenHIM":
 		fmt.Println("...Setting up IOL - OpenHIM Package")
-		RunDirectDockerCommand([]string{"docker", "iol-openhim", "init"})
-		selectDefaultInstall()
+		err = RunDirectDockerCommand([]string{"docker", "iol-openhim", "init"})
+		if err != nil {
+			return err
+		}
+		err = selectDefaultInstall()
 
 	case "Initialise Reverse Proxy - NGINX":
 		fmt.Println("...Setting up Reverse Proxy - NGINX Package")
-		RunDirectDockerCommand([]string{"docker", "reverse-proxy-nginx", "init"})
-		selectDefaultInstall()
+		err = RunDirectDockerCommand([]string{"docker", "reverse-proxy-nginx", "init"})
+		if err != nil {
+			return err
+		}
+		err = selectDefaultInstall()
 
 	case "Initialise FHIR Datastore - HAPI-FHIR":
 		fmt.Println("...Setting up FHIR Datastore - HAPI-FHIR Package")
-		RunDirectDockerCommand([]string{"docker", "fhir-datastore-hapi-fhir", "init"})
-		selectDefaultInstall()
+		err = RunDirectDockerCommand([]string{"docker", "fhir-datastore-hapi-fhir", "init"})
+		if err != nil {
+			return err
+		}
+		err = selectDefaultInstall()
 
 	case "Initialise Message Bus - Kafka":
 		fmt.Println("...Setting up Message Bus - Kafka Package")
-		RunDirectDockerCommand([]string{"docker", "message-bus-kafka", "init"})
-		selectDefaultInstall()
+		err = RunDirectDockerCommand([]string{"docker", "message-bus-kafka", "init"})
+		if err != nil {
+			return err
+		}
+		err = selectDefaultInstall()
 
 	case "Initialise Elastic-Analytics - ElasticSearch and Kibana":
 		fmt.Println("...Setting up Elastic-Analytics - ElasticSearch and Kibana Package")
-		RunDirectDockerCommand([]string{"docker", "elastic-analytics-elasticsearch-kibana", "init"})
-		selectDefaultInstall()
+		err = RunDirectDockerCommand([]string{"docker", "elastic-analytics-elasticsearch-kibana", "init"})
+		if err != nil {
+			return err
+		}
+		err = selectDefaultInstall()
 
 	case "Initialise Elastic-Pipeline - LogStash":
 		fmt.Println("...Setting up Elastic-Pipeline - LogStash Package")
-		RunDirectDockerCommand([]string{"docker", "elastic-pipeline-logstash", "init"})
-		selectDefaultInstall()
+		err = RunDirectDockerCommand([]string{"docker", "elastic-pipeline-logstash", "init"})
+		if err != nil {
+			return err
+		}
+		err = selectDefaultInstall()
 
 	case "Initialise Elastic Monitoring - MetricBeats and FileBeats":
 		fmt.Println("...Setting up Elastic Monitoring - MetricBeats and FileBeats Package")
-		RunDirectDockerCommand([]string{"docker", "elastic-monitoring-metricbeats-filebeats", "init"})
-		selectDefaultInstall()
+		err = RunDirectDockerCommand([]string{"docker", "elastic-monitoring-metricbeats-filebeats", "init"})
+		if err != nil {
+			return err
+		}
+		err = selectDefaultInstall()
 
 	case "Initialise System Monitoring - Prometheus and Grafana":
 		fmt.Println("...Setting up System Monitoring - Prometheus and Grafana Package")
-		RunDirectDockerCommand([]string{"docker", "system-monitoring-prometheus-grafana", "init"})
-		selectDefaultInstall()
+		err = RunDirectDockerCommand([]string{"docker", "system-monitoring-prometheus-grafana", "init"})
+		if err != nil {
+			return err
+		}
+		err = selectDefaultInstall()
 
 	case "Stop All Services and Cleanup Docker":
 		fmt.Println("Stopping and Cleaning Up Everything...")
-		RunDirectDockerCommand([]string{"docker", "destroy"})
-		selectDefaultInstall()
+		err = RunDirectDockerCommand([]string{"docker", "destroy"})
+		if err != nil {
+			return err
+		}
+		err = selectDefaultInstall()
 
 	case "Stop and Cleanup IOL - OpenHIM":
 		fmt.Println("Stopping and Cleaning Up IOL - OpenHIM...")
-		RunDirectDockerCommand([]string{"docker", "iol-openhim", "destroy"})
-		selectDefaultInstall()
+		err = RunDirectDockerCommand([]string{"docker", "iol-openhim", "destroy"})
+		if err != nil {
+			return err
+		}
+		err = selectDefaultInstall()
 
 	case "Stop and Cleanup Reverse Proxy - NGINX":
 		fmt.Println("Stopping and Cleaning Up Reverse Proxy - NGINX...")
-		RunDirectDockerCommand([]string{"docker", "reverse-proxy-nginx", "destroy"})
-		selectDefaultInstall()
+		err = RunDirectDockerCommand([]string{"docker", "reverse-proxy-nginx", "destroy"})
+		if err != nil {
+			return err
+		}
+		err = selectDefaultInstall()
 
 	case "Stop and Cleanup FHIR Datastore - HAPI-FHIR":
 		fmt.Println("Stopping and Cleaning Up FHIR Datastore - HAPI-FHIR...")
-		RunDirectDockerCommand([]string{"docker", "fhir-datastore-hapi-fhir", "destroy"})
-		selectDefaultInstall()
+		err = RunDirectDockerCommand([]string{"docker", "fhir-datastore-hapi-fhir", "destroy"})
+		if err != nil {
+			return err
+		}
+		err = selectDefaultInstall()
 
 	case "Stop and Cleanup Message Bus - Kafka":
 		fmt.Println("Stopping and Cleaning Up Message Bus - Kafka...")
-		RunDirectDockerCommand([]string{"docker", "message-bus-kafka", "destroy"})
-		selectDefaultInstall()
+		err = RunDirectDockerCommand([]string{"docker", "message-bus-kafka", "destroy"})
+		if err != nil {
+			return err
+		}
+		err = selectDefaultInstall()
 
 	case "Stop and Cleanup Elastic-Analytics - ElasticSearch and Kibana":
 		fmt.Println("Stopping and Cleaning Up Elastic-Analytics - ElasticSearch and Kibana...")
-		RunDirectDockerCommand([]string{"docker", "elastic-analytics-elasticsearch-kibana", "destroy"})
-		selectDefaultInstall()
+		err = RunDirectDockerCommand([]string{"docker", "elastic-analytics-elasticsearch-kibana", "destroy"})
+		if err != nil {
+			return err
+		}
+		err = selectDefaultInstall()
 
 	case "Stop and Cleanup Elastic-Pipeline - LogStash":
 		fmt.Println("Stopping and Cleaning Up Elastic-Pipeline - LogStash...")
-		RunDirectDockerCommand([]string{"docker", "elastic-pipeline-logstash", "destroy"})
-		selectDefaultInstall()
+		err = RunDirectDockerCommand([]string{"docker", "elastic-pipeline-logstash", "destroy"})
+		if err != nil {
+			return err
+		}
+		err = selectDefaultInstall()
 
 	case "Stop and Cleanup Elastic Monitoring - MetricBeats and FileBeats":
 		fmt.Println("Stopping and Cleaning Up Elastic Monitoring - MetricBeats and FileBeats...")
-		RunDirectDockerCommand([]string{"docker", "elastic-monitoring-metricbeats-filebeats", "destroy"})
-		selectDefaultInstall()
+		err = RunDirectDockerCommand([]string{"docker", "elastic-monitoring-metricbeats-filebeats", "destroy"})
+		if err != nil {
+			return err
+		}
+		err = selectDefaultInstall()
 
 	case "Stop and Cleanup System Monitoring - Prometheus and Grafana":
 		fmt.Println("Stopping and Cleaning Up System Monitoring - Prometheus and Grafana...")
-		RunDirectDockerCommand([]string{"docker", "system-monitoring-prometheus-grafana", "destroy"})
-		selectDefaultInstall()
+		err = RunDirectDockerCommand([]string{"docker", "system-monitoring-prometheus-grafana", "destroy"})
+		if err != nil {
+			return err
+		}
+		err = selectDefaultInstall()
 
 	case "Quit":
 		quit()
 
 	case "Back":
-		selectDefaultOrCustom()
+		err = selectDefaultOrCustom()
 	}
 
-	return nil
+	return err
 }

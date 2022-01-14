@@ -33,7 +33,10 @@ var customOptions = customOption{
 func stopContainer() {
 	commandSlice := []string{"stop", "instant-openhie"}
 	suppressErrors := []string{"Error response from daemon: No such container: instant-openhie"}
-	runCommand("docker", suppressErrors, commandSlice...)
+	_, err := runCommand("docker", suppressErrors, commandSlice...)
+	if err != nil {
+		gracefulPanic(err, "")
+	}
 }
 
 //Gracefully shut down the instant container and then kill the go cli with the panic error or message passed.
@@ -58,9 +61,16 @@ func main() {
 
 	// mainMenu()
 	if len(os.Args) > 1 {
-		CLI()
+		if CLI() != nil {
+			gracefulPanic(err, "")
+		}
 	} else {
-		debugDocker()
-		selectDefaultOrCustom()
+		if debugDocker() != nil {
+			gracefulPanic(err, "")
+		}
+
+		if selectDefaultOrCustom() != nil {
+			gracefulPanic(err, "")
+		}
 	}
 }
