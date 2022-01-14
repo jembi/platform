@@ -61,15 +61,18 @@ func main() {
 
 	// mainMenu()
 	if len(os.Args) > 1 {
-		if CLI() != nil {
+		err = CLI()
+		if err != nil {
 			gracefulPanic(err, "")
 		}
 	} else {
-		if debugDocker() != nil {
+		err = debugDocker()
+		if err != nil {
 			gracefulPanic(err, "")
 		}
 
-		if selectDefaultOrCustom() != nil {
+		err = selectDefaultOrCustom()
+		if err != nil {
 			gracefulPanic(err, "")
 		}
 	}

@@ -206,7 +206,8 @@ func runCommand(commandName string, suppressErrors []string, commandSlice ...str
 		}
 	}()
 
-	if cmd.Start() != nil {
+	err = cmd.Start()
+	if err != nil {
 		if suppressErrors != nil && sliceContains(suppressErrors, strings.TrimSpace(stderr.String())) {
 			return pathToPackage, nil
 		}
@@ -214,7 +215,8 @@ func runCommand(commandName string, suppressErrors []string, commandSlice ...str
 		return pathToPackage, errors.Wrap(err, "Error starting Cmd")
 	}
 
-	if cmd.Wait() != nil {
+	err = cmd.Wait()
+	if err != nil {
 		if suppressErrors != nil && sliceContains(suppressErrors, strings.TrimSpace(stderr.String())) {
 			return pathToPackage, nil
 		}
@@ -382,7 +384,8 @@ func untarPackage(tarContent io.ReadCloser) (pathToPackage string, err error) {
 		if err != nil {
 			return filePath, errors.Wrap(err, "Error in untaring file:")
 		}
-		if _, err := io.Copy(dest, tarReader); err != nil {
+		_, err = io.Copy(dest, tarReader)
+		if err != nil {
 			return "", errors.Wrap(err, "Error in extracting tar file:")
 		}
 	}
