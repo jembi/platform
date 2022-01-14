@@ -61,6 +61,30 @@ To take down the core run:
 ./interoperabilty-layer-openhim/swarm.sh destroy
 ```
 
+To shut down the services run:
+
+```bash
+./interoperabilty-layer-openhim/swarm.sh down
+```
+
+To start the services when they have been stopped run:
+
+```bash
+./interoperabilty-layer-openhim/swarm.sh up
+```
+
+To run in dev mode in which the ports are exposed pass the flag `--dev` as done below
+
+```bash
+./interoperabilty-layer-openhim/swarm.sh init --dev
+```
+
+To mount the console config for easy development, run the command below
+
+```bash
+./interoperabilty-layer-openhim/bindConfig.sh
+```
+
 ## Accessing the services
 
 ### OpenHIM
