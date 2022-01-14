@@ -5,6 +5,7 @@ goinstant/bin/goinstant*
 goinstant/data
 goinstant/hapi.properties
 goinstant/pkged.go
+goinstant-tmp
 
 # Logs
 logs

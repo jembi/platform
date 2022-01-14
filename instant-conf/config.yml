@@ -1,0 +1,12 @@
+image: jembi/platform
+defaultEnvironment: swarm
+disableKubernetes: true
+packages:
+  - id: core
+    name: Core package
+  - id: client
+    name: client
+  - id: elastic-analytics
+    name: Data Analytics package using the elastic stack
+  - id: elastic-pipeline
+    name: Data pipeline package using the elastic stack
