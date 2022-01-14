@@ -242,6 +242,10 @@ func setStartupPackages() error {
 		return errors.Wrap(err, "setStartupPackages() prompt failed")
 	}
 
+	if strings.Contains(packageList, " ") {
+		return errors.New("Whitespace found in package list. Please seperate packages with a comma.")
+	}
+
 	startupPackages := strings.Split(packageList, ",")
 
 	for _, p := range startupPackages {
