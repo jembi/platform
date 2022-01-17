@@ -13,6 +13,8 @@ services:
   openhim-console:
     ports:
         - "9000:80"
+    volumes:
+      - 'openhim-console-volume:/usr/share/nginx/html/config'
 
   hapi-fhir:
     ports:
@@ -21,3 +23,7 @@ services:
   hapi-db:
     ports:
       - "5432:5432"
+
+volumes:
+  openhim-console-volume:
+    external: true

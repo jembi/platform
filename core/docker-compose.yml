@@ -13,9 +13,6 @@ services:
     image: jembi/openhim-console:1.14.4
     depends_on:
       - openhim-core
-    configs:
-      - source: console.config
-        target: /usr/share/nginx/html/config/default.json
 
   hapi-fhir:
     image: hapiproject/hapi:v5.5.1
@@ -57,7 +54,3 @@ volumes:
   hapi-db-volume:
   instant:
     external: true
-
-configs:
-  console.config:
-    file: ./importer/volume/default.json
