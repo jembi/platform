@@ -1,8 +1,8 @@
 {
-  "id": "hapi-fhir",
-  "name": "Fhir datastore package",
-  "description": "",
-  "version": "",
+  "id": "fhir-datastore-hapi-fhir",
+  "name": "Fhir Datastore Package - HAPI-FHIR",
+  "description": "A FHIR compliant server for the platform",
+  "version": "0.0.1",
   "environmentVariables": {
     "spring.datasource.url": "jdbc:postgresql://hapi-db:5432/hapi",
     "spring.datasource.username": "admin",
