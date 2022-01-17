@@ -1,0 +1,9 @@
+version: '3.3'
+
+services:
+  openhim-console:
+    image: jembi/openhim-console:1.14.4
+    ports:
+      - "9000:80"
+    volumes:
+      - './importer/volume/default.json:/usr/share/nginx/html/config/default.json'

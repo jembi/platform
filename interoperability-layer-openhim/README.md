@@ -1,7 +1,7 @@
 
-# Instant OpenHIE Core Component - docker-compose
+# Instant OpenHIE interoperability Component - docker-compose
 
-The Instant OpenHIE Core Component is the base of the Instant OpenHIE architecture.
+The Instant OpenHIE interoperability Component is the base of the Instant OpenHIE architecture.
 
 This component consists of two services:
 
@@ -10,14 +10,14 @@ This component consists of two services:
 
 ## Getting Started
 
-> **The below instructions are only to be used for starting up the Core services manually for local testing outside of the usual Instant OpenHIE start instructions.**
+> **The below instructions are only to be used for starting up the interoperability services manually for local testing outside of the usual Instant OpenHIE start instructions.**
 
 Proceed with care. This very manual deployment can get complicated.
 For the regular start up, please see the [README.md](../../README.md).
 
 ### Prerequisites
 
-Ensure that docker and docker-compose are installed. For details on how to install docker click [here](https://linuxize.com/post/how-to-install-and-use-docker-compose-on-ubuntu-18-04/).
+Ensure that docker is installed. For details on how to install docker click [here](https://linuxize.com/post/how-to-install-and-use-docker-compose-on-ubuntu-18-04/).
 For installing docker click [here](https://linuxize.com/post/how-to-install-and-use-docker-on-ubuntu-18-04/).
 
 For our compose scripts to work, one needs to be able to run docker commands without the `sudo` preface. You can configure your system to run without needing the `sudo` preface by running the following command
@@ -28,7 +28,7 @@ For our compose scripts to work, one needs to be able to run docker commands wit
 
 #### Create the Instant OpenHIE Volume
 
-Before creating the Core Component services, we need to create a volume containing data used by the Core docker containers.
+Before creating the IL Component services, we need to create a volume containing data used by the IL docker containers.
 
 > This step is only necessary as we are setting up the core **very manually** instead of using the [Instant OpenHIE docker image](https://hub.docker.com/r/openhie/instant).
 
@@ -47,26 +47,42 @@ docker rm instant-openhie-helper
 
 Once the volume is created you can continue with the rest of the start up scripts.
 
-### Start Up Core Services
+### Start Up Interoperability Services
 
-#### Configuring Kafka
-
-To create kafka topics, use the environment variable KAFKA_TOPICS. The topics should be seperated by a "#" as shown in the example below.
+From the instant root directory, run the following command to start up the service.
 
 ```bash
-KAFKA_TOPICS="Topic1:1:3#Topic2:1:1:compact"
-```
-
-From the instant root directory, run the following command to start up the core.
-
-```bash
-./core/docker/compose.sh init
+./interoperabilty-layer-openhim/swarm.sh init
 ```
 
 To take down the core run:
 
 ```bash
-./core/docker/compose.sh destroy
+./interoperabilty-layer-openhim/swarm.sh destroy
+```
+
+To shut down the services run:
+
+```bash
+./interoperabilty-layer-openhim/swarm.sh down
+```
+
+To start the services when they have been stopped run:
+
+```bash
+./interoperabilty-layer-openhim/swarm.sh up
+```
+
+To run in dev mode in which the ports are exposed pass the flag `--dev` as done below
+
+```bash
+./interoperabilty-layer-openhim/swarm.sh init --dev
+```
+
+To mount the console config for easy development, run the command below
+
+```bash
+./interoperabilty-layer-openhim/bindConfig.sh
 ```
 
 ## Accessing the services
@@ -77,21 +93,13 @@ To take down the core run:
 * Username: **root@openhim.org**
 * Password: **instant101**
 
-### HAPI FHIR
+## Testing the Interoperability Component
 
-This service is accessible for testing.
-
-<http://localhost:3447>
-
-In a publicly accessible deployment this port should not be exposed. The OpenHIM should be used to access HAPI-FHIR.
-
-## Testing the Core Component
-
-As part of the Core Component setup we also do some initial config import for connecting the services together.
+As part of the Interoperability Component setup we also do some initial config import for connecting the services together.
 
 * OpenHIM: Import a channel configuration that routes requests to the HAPI FHIR service
 
-For testing this Core Component we will be making use of `curl` for sending our request, but any client could be used to achieve the same result.
+For testing this Component we will be making use of `curl` for sending our request, but any client could be used to achieve the same result.
 
 Execute the below `curl` request to successfully route a request through the OpenHIM to query the HAPI FHIR server.
 
