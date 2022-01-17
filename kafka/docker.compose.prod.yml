@@ -1,27 +1,20 @@
 version: '3.3'
 
 services:
-  openhim-core:
+  zookeeper:
     deploy:
       placement:
         constraints:
           - "node.labels.name==primary-1"
 
-  openhim-console:
-    deploy:
-      placement:
-        constraints:
-          - "node.labels.name==primary-2"
-    configs:
-      - source: console.config
-        target: /usr/share/nginx/html/config/default.json
-
-  hapi-proxy:
+  kafka:
     deploy:
       placement:
         constraints:
           - "node.labels.name==primary-1"
 
-configs:
-  console.config:
-    file: ./importer/volume/default.json
+  kafdrop:
+    deploy:
+      placement:
+        constraints:
+          - "node.labels.name==primary-1"

@@ -1,0 +1,14 @@
+version: '3.3'
+
+services:
+  zookeeper:
+    deploy:
+      replicas: 1
+
+  kafka:
+    deploy:
+      replicas: 1
+
+  kafdrop:
+    deploy:
+      replicas: 1
