@@ -5,9 +5,11 @@ composeFilePath=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 if [ "$1" == "init" ]; then
     if  [ "$2" == "dev" ]; then
         docker stack deploy -c "$composeFilePath"/docker-compose.yml instant
+        sleep 30
         docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.stack.yml instant
     else
         docker stack deploy -c "$composeFilePath"/docker-compose.yml instant
+        sleep 30
         docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.prod.yml -c "$composeFilePath"/docker-compose.stack.yml instant
     fi
 elif [ "$1" == "up" ]; then
