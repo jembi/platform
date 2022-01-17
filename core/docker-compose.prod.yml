@@ -16,18 +16,6 @@ services:
       - source: console.config
         target: /usr/share/nginx/html/config/default.json
 
-  hapi-fhir:
-    deploy:
-      placement:
-        constraints:
-          - "node.labels.name==primary-1"
-
-  hapi-db:
-    deploy:
-      placement:
-        constraints:
-          - "node.labels.name==primary-2"
-
   hapi-proxy:
     deploy:
       placement:
