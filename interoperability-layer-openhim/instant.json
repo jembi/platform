@@ -1,6 +1,6 @@
 {
   "id": "interoperability-layer-openhim",
-  "name": "Interoperability Layer openhim package",
+  "name": "Interoperability Layer Package - Openhim",
   "description": "This is the interoperability layer",
   "version": "",
   "environmentVariables": {
