@@ -16,7 +16,6 @@ elif [ "$1" == "up" ]; then
     else
         docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.prod.yml -c "$composeFilePath"/docker-compose.stack.yml instant
     fi
-    docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.stack.yml instant
 elif [ "$1" == "down" ]; then
     docker service scale instant_zookeeper=0 instant_kafka=0 instant_kafdrop=0
 elif [ "$1" == "destroy" ]; then
