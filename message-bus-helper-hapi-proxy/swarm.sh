@@ -20,7 +20,7 @@ elif [ "$1" == "up" ]; then
 elif [ "$1" == "down" ]; then
   docker service scale instant_hapi-proxy=0
 elif [ "$1" == "destroy" ]; then
-  docker service rm instant_proxy-hapi
+  docker service rm instant_hapi-proxy
 else
   echo "Valid options are: init, up, down, or destroy"
 fi
