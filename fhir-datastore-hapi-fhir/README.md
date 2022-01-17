@@ -25,21 +25,37 @@ For our compose scripts to work, one needs to be able to run docker commands wit
 ./configure-docker.sh
 ```
 
-Once the volume is created you can continue with the rest of the start up scripts.
-
 ### Start Up Hapi Fhir Services
 
 From the instant root directory, run the following command to start up the fhir data store.
 
 ```bash
-./core/docker/swarm.sh init
+./fhir-datastore-hapi-fhir/swarm.sh init
 ```
 
 To take down the service run:
 
 ```bash
-./core/docker/swarm.sh destroy
+./fhir-datastore-hapi-fhir/swarm.sh destroy
 ```
+
+To shut down the services run:
+￼
+￼```bash
+￼./fhir-datastore-hapi-fhir/swarm.sh down
+￼```
+￼
+To start the services when they have been stopped run:
+￼
+￼```bash
+￼./fhir-datastore-hapi-fhir/swarm.sh up
+￼```
+￼
+To run in dev mode in which the ports are exposed pass the flag `--dev` as done below
+￼
+￼```bash
+￼./fhir-datastore-hapi-fhir/swarm.sh init --dev
+￼```
 
 ## Accessing the services
 

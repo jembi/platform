@@ -13,9 +13,6 @@ services:
     image: jembi/openhim-console:1.14.4
     depends_on:
       - openhim-core
-    configs:
-      - source: console.config
-        target: /usr/share/nginx/html/config/default.json
 
   hapi-proxy:
     image: jembi/springproxyserver:20211217-170809.3f57ef5
@@ -28,7 +25,3 @@ services:
 volumes:
   instant:
     external: true
-
-configs:
-  console.config:
-    file: ./importer/volume/default.json
