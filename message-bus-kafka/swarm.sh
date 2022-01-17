@@ -23,8 +23,8 @@ elif [ "$1" == "down" ]; then
 elif [ "$1" == "destroy" ]; then
     docker service rm instant_zookeeper instant_kafka instant_kafdrop
 
-    echo "Sleep 10 Seconds to allow services to shut down before deleting volumes"
-    sleep 10
+    echo "Sleep 20 Seconds to allow services to shut down before deleting volumes"
+    sleep 20
 
     docker volume rm instant_kafka-volume
 else
