@@ -1,6 +1,7 @@
 image: jembi/platform
 defaultEnvironment: swarm
 disableKubernetes: true
+disableIG: true
 packages:
     - id: iol-openhim
       name: IOL - OpenHIM
