@@ -13,15 +13,6 @@ services:
     image: jembi/openhim-console:1.14.4
     depends_on:
       - openhim-core
-
-  hapi-proxy:
-    image: jembi/springproxyserver:20211217-170809.3f57ef5
-    hostname: hapi-proxy
-    environment:
-      HAPI_SERVER_URL: 'http://hapi-fhir:8080/fhir'
-      KAFKA_BOOTSTRAP_SERVERS: 'kafka:9092'
-      HAPI_SERVER_VALIDATE_FORMAT: 'NONE'
-
 volumes:
   instant:
     external: true

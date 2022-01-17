@@ -8,7 +8,3 @@ services:
   openhim-console:
     deploy:
       replicas: 1
-
-  hapi-proxy:
-    deploy:
-      replicas: 1
