@@ -55,7 +55,7 @@ From the instant root directory, run the following command to start up the servi
 ./interoperabilty-layer-openhim/swarm.sh init
 ```
 
-To take down the core run:
+To take down the services run:
 
 ```bash
 ./interoperabilty-layer-openhim/swarm.sh destroy
@@ -101,7 +101,7 @@ As part of the Interoperability Component setup we also do some initial config i
 
 For testing this Component we will be making use of `curl` for sending our request, but any client could be used to achieve the same result.
 
-Execute the below `curl` request to successfully route a request through the OpenHIM to query the HAPI FHIR server.
+Execute the below `curl` request to successfully route a request through the OpenHIM to query the HAPI FHIR server. This only works when the FHIR server is up and running.
 
 ```bash
 curl http://localhost:5001/fhir/Patient -H 'Authorization: Custom test'
