@@ -1,27 +1,22 @@
 module.exports = {
-  title: 'Instant OpenHIE',
-  tagline: 'Simplifying OpenHIE Setup',
-  url: 'https://openhie.github.io',
-  baseUrl: '/instant/',
+  title: 'Jembi Platform',
+  tagline: 'An easy CDR solution',
+  url: 'https://jembi.github.io',
+  baseUrl: '/platform/',
   favicon: 'img/favicon.ico',
-  organizationName: 'openhie',
-  projectName: 'instant',
+  organizationName: 'jembi',
+  projectName: 'platform',
   themeConfig: {
-    algolia: {
-      apiKey: '43dfdd6f76217eafc0e68ada109a0251',
-      indexName: 'instant',
-      algoliaOptions: {} // Optional, if provided by Algolia
-    },
     navbar: {
-      title: 'Instant OpenHIE',
+      title: 'Jembi Platform',
       logo: {
-        alt: 'Instant OpenHIE Logo',
-        src: 'img/IOHIE-icon-medium.png'
+        alt: 'Jembi Platform Logo',
+        src: 'img/jembi_icon.png'
       },
       items: [
-        { to: 'docs/introduction/vision', label: 'Docs', position: 'left' },
+        { to: 'docs/introduction/overview', label: 'Docs', position: 'left' },
         {
-          href: 'https://github.com/openhie/instant',
+          href: 'https://github.com/jembi/platform',
           label: 'GitHub',
           position: 'right'
         }
@@ -29,17 +24,6 @@ module.exports = {
     },
     footer: {
       style: 'dark',
-      links: [
-        {
-          title: 'Community',
-          items: [
-            {
-              label: 'OpenHIE',
-              href: 'https://ohie.org/'
-            }
-          ]
-        }
-      ],
       copyright: `<a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons Licence" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.`
     },
     prism: {
@@ -52,7 +36,7 @@ module.exports = {
       {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-          editUrl: 'https://github.com/openhie/instant/tree/master/docs/'
+          editUrl: 'https://github.com/jembi/platform/tree/master/docs/'
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css')
