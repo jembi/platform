@@ -3,8 +3,8 @@ defaultEnvironment: swarm
 disableKubernetes: true
 disableIG: true
 packages:
-    - id: iol-openhim
-      name: IOL - OpenHIM
+    - id: interoperability-layer-openhim
+      name: Interoperability Layer - OpenHIM
     - id: reverse-proxy-nginx
       name: Reverse Proxy - NGINX
     - id: fhir-datastore-hapi-fhir
