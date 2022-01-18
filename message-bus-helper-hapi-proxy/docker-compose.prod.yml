@@ -1,0 +1,8 @@
+version: '3.3'
+
+services:
+  hapi-proxy:
+    deploy:
+      placement:
+        constraints:
+          - "node.labels.name==primary-1"
