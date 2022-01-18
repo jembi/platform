@@ -1,31 +1,19 @@
 version: '3.3'
 
 services:
-  openhim-core:
+  zookeeper:
     deploy:
       placement:
         constraints:
           - "node.labels.name==primary-1"
 
-  openhim-console:
-    deploy:
-      placement:
-        constraints:
-          - "node.labels.name==primary-2"
-
-  hapi-fhir:
+  kafka:
     deploy:
       placement:
         constraints:
           - "node.labels.name==primary-1"
 
-  hapi-db:
-    deploy:
-      placement:
-        constraints:
-          - "node.labels.name==primary-2"
-
-  hapi-proxy:
+  kafdrop:
     deploy:
       placement:
         constraints:

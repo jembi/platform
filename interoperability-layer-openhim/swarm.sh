@@ -9,6 +9,11 @@ if [ "$1" == "init" ]; then
         # Set up the replica set
         "$composeFilePath"/initiateReplicaSet.sh
 
+        # Create volume for the openhim console
+        docker create --name openhim-console-helper -v openhim-console-volume:/config busybox
+        docker cp "$composeFilePath"/importer/volume/default.json openhim-console-helper:/config/default.json
+        docker rm openhim-console-helper
+
         docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.dev.yml -c "$composeFilePath"/docker-compose.stack-0.yml instant
 
         echo "Sleep 60 seconds to give OpenHIM Core and Postgres time to start up before OpenHIM Console and HAPI-FHIR run"
@@ -49,14 +54,14 @@ elif [ "$1" == "up" ]; then
         docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.stack-1.yml instant
     fi 
 elif [ "$1" == "down" ]; then
-    docker service scale instant_openhim-core=0 instant_openhim-console=0 instant_hapi-proxy=0 instant_hapi-fhir=0 instant_hapi-db=0 instant_mongo-1=0 instant_mongo-2=0 instant_mongo-3=0
+    docker service scale instant_openhim-core=0 instant_openhim-console=0 instant_hapi-proxy=0 instant_mongo-1=0 instant_mongo-2=0 instant_mongo-3=0
 elif [ "$1" == "destroy" ]; then
-    docker service rm instant_openhim-core instant_openhim-console instant_hapi-proxy instant_hapi-fhir instant_hapi-db instant_mongo-1 instant_mongo-2 instant_mongo-3
+    docker service rm instant_openhim-core instant_openhim-console instant_hapi-proxy instant_mongo-1 instant_mongo-2 instant_mongo-3
 
     echo "Sleep 10 Seconds to allow services to shut down before deleting volumes"
     sleep 10
 
-    docker volume rm instant_hapi-db-volume instant_openhim-mongo1 instant_openhim-mongo2 instant_openhim-mongo3
+    docker volume rm instant_openhim-mongo1 instant_openhim-mongo2 instant_openhim-mongo3
     docker config rm instant_console.config
 else
     echo "Valid options are: init, up, down, or destroy"

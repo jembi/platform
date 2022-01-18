@@ -9,14 +9,6 @@ services:
     deploy:
       replicas: 1
 
-  hapi-fhir:
-    deploy:
-      replicas: 1
-
-  hapi-db:
-    deploy:
-      replicas: 1
-
   hapi-proxy:
     deploy:
       replicas: 1
