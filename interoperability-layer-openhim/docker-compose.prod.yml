@@ -16,12 +16,6 @@ services:
       - source: console.config
         target: /usr/share/nginx/html/config/default.json
 
-  hapi-proxy:
-    deploy:
-      placement:
-        constraints:
-          - "node.labels.name==primary-1"
-
 configs:
   console.config:
     file: ./importer/volume/default.json
