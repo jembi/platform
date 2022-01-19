@@ -1,0 +1,81 @@
+---
+- name: "pre : install python-simplejson and python3-pip"
+  raw: sudo apt install -y python-simplejson python3-pip virtualenv
+
+- name: install certain python modules for docker
+  pip:
+    name: "{{ item.name }}"
+    version: "{{ item.version }}"
+    state: present
+  with_items:
+  - { name: docker, version: 3.3.0 }
+
+- name: "install docker dependency : apt-transport-https"
+  apt:
+    name: apt-transport-https
+    state: latest
+
+- name: "install docker dependency : ca-certificates"
+  apt:
+    name: ca-certificates
+    state: latest
+
+- name: Add Docker GPG apt Key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add Docker Repository
+  apt_repository:
+    repo: deb https://download.docker.com/linux/ubuntu bionic stable
+    state: present
+
+- name: Update apt and install docker-ce
+  apt: update_cache=yes name=docker-ce state=latest
+
+- name: accept ufw forwarding policy
+  replace:
+    dest: /etc/default/ufw
+    backup: yes
+    regexp: ^DEFAULT_FORWARD_POLICY="DROP"
+    replace: DEFAULT_FORWARD_POLICY="ACCEPT"
+  notify:
+    - reload ufw
+
+- name: add docker network to ufw before.rules
+  blockinfile:
+    dest: /etc/ufw/before.rules
+    backup: yes
+    insertbefore: "^[*]filter"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK"
+    block: |
+      *nat
+      :POSTROUTING ACCEPT [0:0]
+      -A POSTROUTING ! -o docker0 -s 172.17.0.0/16 -j MASQUERADE
+      COMMIT
+  notify:
+    - reload ufw
+
+- name: reload docker
+  service:
+    name: docker
+    state: reloaded
+
+- name: adding existing user ubuntu to group sudo
+  user:
+    name: ubuntu
+    groups:
+      - docker
+    append: yes
+
+- name: reset ssh connection to allow user changes to affect ansible user
+  meta: reset_connection
+
+- name: log in to docker hub using ubuntu user
+  become: yes
+  become_user: ubuntu
+  docker_login:
+    username: '{{ docker_username }}'
+    email: '{{ docker_email }}'
+    password: '{{ docker_password }}'
+    state: present

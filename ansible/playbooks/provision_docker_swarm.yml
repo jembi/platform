@@ -1,0 +1,26 @@
+---
+- hosts: leader
+  tasks:
+  # These tasks are not split into roles as the swarm token context is lost between roles
+    - name: Init a new swarm with default parameters
+      community.docker.docker_swarm:
+        state: present
+        advertise_addr: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}:2377"
+      register: swarm_info
+    - name: Add dummy host
+      add_host:
+        name: 'DUMMY_HOST'
+        workerToken: '{{ swarm_info.swarm_facts.JoinTokens.Worker }}'
+        managerToken: '{{ swarm_info.swarm_facts.JoinTokens.Manager }}'
+        managerAddr: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}:2377"
+
+- hosts: managers
+  tasks:
+    # This task is not split into a role as the swarm token context is lost outside of this playbook
+    - name: Add manager nodes to swarm network
+      community.docker.docker_swarm:
+        state: join
+        join_token: "{{ hostvars['DUMMY_HOST']['managerToken'] }}"
+        remote_addrs: ["{{ hostvars['DUMMY_HOST']['managerAddr'] }}"]
+    - name: Show Manager Token
+      debug: "{{ hostvars['DUMMY_HOST']['managerToken'] }}"
