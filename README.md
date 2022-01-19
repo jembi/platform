@@ -4,6 +4,8 @@
 
 - Docker installed
 - Golang (cli dev)
+- Terraform (remote cluster setup)
+- Ansible (remote cluster setup)
 
 ## Quick Start for devs (local single node)
 
@@ -16,6 +18,29 @@
     - Mac. From terminal run: `./platform-macos`
         > Warning: Mac has an issue with the binary as it views the file as a security risk
     - Windows. Double click: `platform.exe`
+1. Choose your options and deploy!
+
+## Quick Start for devs (remote cluster)
+
+To set up a remote cluster environment, see [mercury readme](https://github.com/jembi/cloud/blob/main/aws/mercury-team/README.md) in the [cloud repo](https://github.com/jembi/cloud).
+
+1. Ensure that you have the latest instant repository checked out in the same folder that this repo is in.
+1. `./build-image.sh` - builds the platform image
+1. Add `.env.prod` file with your remote env vars option set.
+*Make sure to add the `DOCKER_HOST` variable indicating your **lead Swarm manager***
+
+    > Each Package contains a `metadata.json` file which lists the configurable Env vars and their default values
+
+1. Run `go cli` binary to launch the project:
+
+    - **Linux**. From terminal run: `./platform-linux`
+    - Mac. From terminal run: `./platform-macos`
+        > Warning: Mac has an issue with the binary as it views the file as a security risk
+    - Windows. Double click: `platform.exe`
+
+1. Choose the **Custom Setup** option
+1. Specify your environment variable file (or type them all out :| )
+1. Add your package IDs, etc. and deploy!
 
 ## Go Cli Dev
 
