@@ -1,7 +1,7 @@
 ---
 - hosts: leader
   tasks:
-  # These tasks are not split into roles as the swarm token context is lost between roles
+    # This task is not split into a role as the swarm token context is lost outside of this playbook
     - name: Init a new swarm with default parameters
       community.docker.docker_swarm:
         state: present
@@ -24,3 +24,14 @@
         remote_addrs: ["{{ hostvars['DUMMY_HOST']['managerAddr'] }}"]
     - name: Show Manager Token
       debug: "{{ hostvars['DUMMY_HOST']['managerToken'] }}"
+
+- hosts: workers
+  tasks:
+    # This task is not split into a role as the swarm token context is lost outside of this playbook
+    - name: Add worker nodes to swarm network
+      community.docker.docker_swarm:
+        state: join
+        join_token: "{{ hostvars['DUMMY_HOST']['workerToken'] }}"
+        remote_addrs: ["{{ hostvars['DUMMY_HOST']['managerAddr'] }}"]
+    - name: Show Worker Token
+      debug: "{{ hostvars['DUMMY_HOST']['workerToken'] }}"
