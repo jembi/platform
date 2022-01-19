@@ -1,14 +1,15 @@
 # Jembi Platform
 
-## Quick Start for devs (local)
-
-### Prerequisites
+## Prerequisites
 
 - Docker installed
-- Initialise Docker Swarm mode `docker swarm init`
+- Golang (cli dev)
+
+## Quick Start for devs (local single node)
 
 1. Ensure that you have the latest instant repository checked out in the same folder that this repo is in.
 1. `./build-image.sh` - builds the platform image
+1. Initialise Docker Swarm mode: `docker swarm init`
 1. Run `go cli` binary to launch the project:
 
     - **Linux**. From terminal run: `./platform-linux`
