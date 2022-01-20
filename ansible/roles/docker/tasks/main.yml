@@ -79,3 +79,4 @@
     email: '{{ docker_email }}'
     password: '{{ docker_password }}'
     state: present
+    
