@@ -22,8 +22,6 @@
         state: join
         join_token: "{{ hostvars['DUMMY_HOST']['managerToken'] }}"
         remote_addrs: ["{{ hostvars['DUMMY_HOST']['managerAddr'] }}"]
-    - name: Show Manager Token
-      debug: "{{ hostvars['DUMMY_HOST']['managerToken'] }}"
 
 - hosts: workers
   tasks:
@@ -33,5 +31,3 @@
         state: join
         join_token: "{{ hostvars['DUMMY_HOST']['workerToken'] }}"
         remote_addrs: ["{{ hostvars['DUMMY_HOST']['managerAddr'] }}"]
-    - name: Show Worker Token
-      debug: "{{ hostvars['DUMMY_HOST']['workerToken'] }}"
