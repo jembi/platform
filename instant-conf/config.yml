@@ -1,6 +1,6 @@
 ---
 image: jembi/platform
-defaultEnvironment: swarm
+defaultTargetLauncher: swarm
 disableKubernetes: true
 disableIG: true
 packages:
