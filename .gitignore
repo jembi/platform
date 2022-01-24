@@ -84,3 +84,11 @@ typings/
 
 # vscode config
 .vscode
+
+# Built Go Binaries
+platform-linux
+platform.exe
+platform-macos
+
+# Temporary folder for GO Run
+goinstant-run-tmp

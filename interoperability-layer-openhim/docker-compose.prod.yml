@@ -4,14 +4,10 @@ services:
   openhim-core:
     deploy:
       placement:
-        constraints:
-          - "node.labels.name==primary-1"
+        max_replicas_per_node: 1
+      replicas: 2
 
   openhim-console:
-    deploy:
-      placement:
-        constraints:
-          - "node.labels.name==primary-2"
     configs:
       - source: console.config
         target: /usr/share/nginx/html/config/default.json
