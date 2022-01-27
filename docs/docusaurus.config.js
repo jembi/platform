@@ -36,7 +36,7 @@ module.exports = {
       {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-          editUrl: 'https://github.com/jembi/platform/tree/master/docs/'
+          editUrl: 'https://github.com/jembi/platform/tree/main/docs/'
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css')
