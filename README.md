@@ -16,7 +16,7 @@
 
     - **Linux**. From terminal run: `./platform-linux`
     - Mac. From terminal run: `./platform-macos`
-        > Warning: Mac has an issue with the binary as it views the file as a security risk
+        > Warning: Mac has an issue with the binary as it views the file as a security risk. See [this article](https://www.lifewire.com/fix-developer-cannot-be-verified-error-5183898) to bypass warning
     - Windows. Double click: `platform.exe`
 1. Choose your options and deploy!
 
