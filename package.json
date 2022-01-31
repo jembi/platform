@@ -1,39 +1,12 @@
 {
   "name": "instant-platform",
-  "version": "0.0.12",
-  "main": "instant.ts",
+  "version": "0.0.0",
   "repository": "git@github.com:jembi/platform.git",
   "author": "Jembi",
   "license": "Apache-2.0",
-  "dependencies": {
-    "@types/command-line-args": "^5.0.0",
-    "@types/glob": "^7.1.3",
-    "@types/node": "^14.0.22",
-    "command-line-args": "^5.1.1",
-    "env-cmd": "^10.1.0",
-    "glob": "^7.1.6",
-    "ts-node": "^8.10.2",
-    "typescript": "^3.9.6"
-  },
   "scripts": {
-    "instant": "ts-node instant.ts",
-    "test:local": "docker run --rm --name test-helper -v instant:/instant --network instant_default openhie/package-test local",
-    "test:local:dev": "docker run --rm --name test-helper -v </absolute/path/to/instant>:/instant --network instant_default openhie/package-test local",
-    "test:remote": "docker run --rm --name test-helper --network host -v instant:/instant -v </absolute/path/to/instant/.env.remote>:/instant/.env.remote openhie/package-test remote",
-    "test:remote:dev": "docker run --rm --name test-helper --network host -v </absolute/path/to/instant>:/instant openhie/package-test remote",
-    "test:container": "./test.sh",
     "docker:build": "docker build -t jembi/platform:latest .",
-    "docker:instant": "./deploy.sh",
-    "docker:instant:win": "docker volume rm instant & docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v %USERPROFILE%\\.kube:/root/.kube/config:ro  --mount='type=volume,src=instant,dst=/instant' --network host jembi/platform:latest",
-    "docker:instant:aws": "docker volume rm instant ; docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock -v ~/.kube/config:/root/.kube/config:ro -v ~/.minikube:/home/$USER/.minikube:ro --mount='type=volume,src=instant,dst=/instant' --network host -v ~/.aws:/root/.aws jembi/platform:latest",
-    "docker:test": "yarn docker:instant test",
-    "eks:cluster:create": "eksctl create cluster -n instant-openhie -r af-south-1 -t t3.medium -N 2 --version=1.17",
-    "eks:cluster:destroy": "eksctl delete cluster -n instant-openhie -r af-south-1 -w"
-  },
-  "devDependencies": {
-    "@cucumber/cucumber": "^7.0.0",
-    "axios": "^0.21.4",
-    "chai": "^4.2.0",
-    "prettier": "^2.0.5"
+    "docker:platform:win": "docker volume rm instant & docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v %USERPROFILE%\\.kube:/root/.kube/config:ro  --mount='type=volume,src=instant,dst=/instant' --network host jembi/platform:latest",
+    "docker:platform:aws": "docker volume rm instant ; docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock -v ~/.kube/config:/root/.kube/config:ro -v ~/.minikube:/home/$USER/.minikube:ro --mount='type=volume,src=instant,dst=/instant' --network host -v ~/.aws:/root/.aws jembi/platform:latest"
   }
 }
