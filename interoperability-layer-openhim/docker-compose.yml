@@ -8,6 +8,9 @@ services:
       - mongo_atnaUrl=mongodb://mongo-1:27017,mongo-2:27017,mongo-3:27017/openhim?replicaSet=mongo-set
       - api_authenticationTypes=["token", "basic"]
       - authentication_enableCustomTokenAuthentication=true
+    deploy:
+      placement:
+        max_replicas_per_node: 1
 
   openhim-console:
     image: jembi/openhim-console:1.14.4
