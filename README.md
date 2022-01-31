@@ -55,3 +55,13 @@ To build the go cli for the `platform` project run:
 This requires the Instant OpenHIE project to build the binary files. The binary files in the root directory here will be overwritten.
 
 > Only commit your new binary files after your task has been reviewed and approved.
+
+## Platform Package Dev
+
+The Go Cli runs all services from the `jembi/platform` docker image. When developing packages you will need to build your dev image locally with the following command:
+
+```sh
+./build-image.sh
+```
+
+As you add new packages to the platform remember to list them in `/platform-cli-conf/config.yml` file. This config file controls what packages the Go Cli can launch from the UI.
