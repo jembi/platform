@@ -1,8 +1,8 @@
 # Jembi Platform
 
-## Prerequisites
+## Tech Used
 
-- Docker installed
+- Docker
 - Golang (cli dev)
 - Terraform (remote cluster setup)
 - Ansible (remote cluster setup)
