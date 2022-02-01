@@ -52,9 +52,7 @@ To build the go cli for the `platform` project run:
 ./build-cli.sh
 ```
 
-This requires the Instant OpenHIE project to build the binary files. The binary files in the root directory here will be overwritten.
-
-> Only commit your new binary files after your task has been reviewed and approved.
+This requires the Instant OpenHIE project to build the binary files.
 
 ## Platform Package Dev
 
