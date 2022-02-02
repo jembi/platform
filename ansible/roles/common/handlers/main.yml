@@ -1,0 +1,9 @@
+---
+- name: restart sshd
+  service:
+    name: sshd
+    state: restarted
+
+- name: reload ufw
+  ufw:
+    state: reloaded
