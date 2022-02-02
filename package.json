@@ -6,7 +6,7 @@
   "license": "Apache-2.0",
   "scripts": {
     "docker:build": "docker build -t jembi/platform:latest .",
-    "docker:platform:win": "docker volume rm instant & docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v %USERPROFILE%\\.kube:/root/.kube/config:ro  --mount='type=volume,src=instant,dst=/instant' --network host jembi/platform:latest",
-    "docker:platform:aws": "docker volume rm instant ; docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock -v ~/.kube/config:/root/.kube/config:ro -v ~/.minikube:/home/$USER/.minikube:ro --mount='type=volume,src=instant,dst=/instant' --network host -v ~/.aws:/root/.aws jembi/platform:latest"
+    "docker:platform:win": "docker volume rm instant & docker run --rm -v /var/run/docker.sock:/var/run/docker.sock  --mount='type=volume,src=instant,dst=/instant' --network host jembi/platform:latest",
+    "docker:platform:aws": "docker volume rm instant ; docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock --mount='type=volume,src=instant,dst=/instant' --network host -v ~/.aws:/root/.aws jembi/platform:latest"
   }
 }
