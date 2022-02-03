@@ -10,9 +10,6 @@ services:
       ofelia.enabled: "true"
       ofelia.job-exec.reload-nginx.schedule: "0 30 0 * * *"
       ofelia.job-exec.reload-nginx.command: "nginx -s reload"
-    ports:
-      - 443:443
-      - 80:80
 
   # Runs certbot to renew TLS certificates
   ofelia:
