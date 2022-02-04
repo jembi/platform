@@ -4,5 +4,4 @@ services:
   hapi-proxy:
     deploy:
       placement:
-        constraints:
-          - "node.labels.name==primary-1"
+        max_replicas_per_node: 1
