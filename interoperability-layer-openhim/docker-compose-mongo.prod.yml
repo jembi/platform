@@ -5,16 +5,16 @@ services:
     deploy:
       placement:
         constraints:
-          - "node.labels.name==primary-1"
+          - "node.labels.name==node-1"
 
   mongo-2:
     deploy:
       placement:
         constraints:
-          - "node.labels.name==primary-2"
+          - "node.labels.name==node-2"
 
   mongo-3:
     deploy:
       placement:
         constraints:
-          - "node.labels.name==secondary"
+          - "node.labels.name==node-3"
