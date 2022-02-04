@@ -1,6 +1,8 @@
 [leader]
-13.246.10.242
+{ip_1} name=node-1
 
 [managers]
-13.245.77.28
+{ip_2} name=node-2
+{ip_3} name=node-3
+
 [workers]
