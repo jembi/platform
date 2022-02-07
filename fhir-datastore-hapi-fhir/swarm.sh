@@ -1,29 +1,39 @@
 #!/bin/bash
 
+statefulNodes = ${STATEFUL_NODES:-"cluster"}
+
 composeFilePath=$(
   cd "$(dirname "${BASH_SOURCE[0]}")"
   pwd -P
 )
 
-if [ "$2" == "true" ]; then
-  printf "\nRunning FHIR Datastore HAPI FHIR package in PROD mode\n"
-  postgresDevComposeParam=""
-  hapiFhirDevComposeParam=""
+if [ $statefulNodes == "cluster" ]; then
+  printf "\nRunning FHIR Datastore HAPI FHIR package in Cluster node mode\n"
+  postgresClusterComposeParam="-c ${composeFilePath}/docker-compose-postgres.cluster.yml"
 else
+  printf "\nRunning FHIR Datastore HAPI FHIR package in Single node mode\n"
+  postgresClusterComposeParam=""
+fi
+
+if [ "$2" == "dev" ]; then
   printf "\nRunning FHIR Datastore HAPI FHIR package in DEV mode\n"
   postgresDevComposeParam="-c ${composeFilePath}/docker-compose-postgres.dev.yml"
   hapiFhirDevComposeParam="-c ${composeFilePath}/docker-compose.dev.yml"
+else
+  printf "\nRunning FHIR Datastore HAPI FHIR package in PROD mode\n"
+  postgresDevComposeParam=""
+  hapiFhirDevComposeParam=""
 fi
 
 if [ "$1" == "init" ]; then
-  docker stack deploy -c "$composeFilePath"/docker-compose-postgres.yml -c "$composeFilePath"/docker-compose-postgres.cluster.yml $postgresDevComposeParam instant
+  docker stack deploy -c "$composeFilePath"/docker-compose-postgres.yml $postgresClusterComposeParam $postgresDevComposeParam instant
 
   echo "Sleep 60 seconds to give Postgres time to start up before HAPI-FHIR"
   sleep 60
 
   docker stack deploy -c "$composeFilePath"/docker-compose.yml $hapiFhirDevComposeParam instant
 elif [ "$1" == "up" ]; then
-  docker stack deploy -c "$composeFilePath"/docker-compose-postgres.yml -c "$composeFilePath"/docker-compose-postgres.cluster.yml $postgresDevComposeParam instant
+  docker stack deploy -c "$composeFilePath"/docker-compose-postgres.yml $postgresClusterComposeParam $postgresDevComposeParam instant
 
   echo "Sleep 20 seconds to give Postgres time to start up before HAPI-FHIR"
   sleep 20
