@@ -18,6 +18,9 @@ users:
   - name: barry.dwyer@jembi.org
     state: present
     key: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICw4vvV33xxrTzxAiPoRhuwyWUzmgrP5NPo2n4bmKx7P
+  - name: mark.labuschagne@jembi.org
+    state: present
+    key: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHa1ghm9JsRl6JDtWU8AV+U70jehqlWaXmpjRg3afqB4
 
 firewall_subnet_restriction: '10.1.10.0/16'
 
