@@ -31,6 +31,9 @@ if [ "$1" == "init" ]; then
   # Set up the replica set
   "$composeFilePath"/initiateReplicaSet.sh
 
+  # Set host in OpenHIM console config
+  sed -i "s/localhost/$OPENHIM_CORE_MEDIATOR_HOSTNAME/g; s/8080/$OPENHIM_MEDIATOR_API_PORT/g" /instant/interoperability-layer-openhim/importer/volume/default.json
+
   docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.stack-0.yml $openhimDevComposeParam instant
 
   echo "Sleep 60 seconds to give OpenHIM Core time to start up before OpenHIM Console run"
