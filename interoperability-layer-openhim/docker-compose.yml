@@ -1,4 +1,4 @@
-version: '3.3'
+version: '3.9'
 
 services:
   openhim-core:
@@ -8,11 +8,21 @@ services:
       - mongo_atnaUrl=mongodb://mongo-1:27017,mongo-2:27017,mongo-3:27017/openhim?replicaSet=mongo-set
       - api_authenticationTypes=["token", "basic"]
       - authentication_enableCustomTokenAuthentication=true
+    deploy:
+      placement:
+        max_replicas_per_node: 1
 
   openhim-console:
     image: jembi/openhim-console:1.14.4
     depends_on:
       - openhim-core
-volumes:
-  instant:
-    external: true
+    configs:
+      - source: console.config
+        target: /usr/share/nginx/html/config/default.json
+    deploy:
+      placement:
+        max_replicas_per_node: 1
+
+configs:
+  console.config:
+    file: ./importer/volume/default.json

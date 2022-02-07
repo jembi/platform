@@ -9,11 +9,6 @@ if [ "$1" == "init" ]; then
         # Set up the replica set
         "$composeFilePath"/initiateReplicaSet.sh
 
-        # Create volume for the openhim console
-        docker create --name openhim-console-helper -v openhim-console-volume:/config busybox
-        docker cp "$composeFilePath"/importer/volume/default.json openhim-console-helper:/config/default.json
-        docker rm openhim-console-helper
-
         docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.dev.yml -c "$composeFilePath"/docker-compose.stack-0.yml instant
 
         echo "Sleep 60 seconds to give OpenHIM Core and Postgres time to start up before OpenHIM Console and HAPI-FHIR run"
