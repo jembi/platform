@@ -34,26 +34,27 @@ if [ "$1" == "init" ]; then
         printf "\nRunning reverse-proxy package in SECURE mode\n"
 
         echo "Setting up Nginx reverse-proxy with the following domain name: $domainName"
+        sleep 5000
         
         docker run --rm \
         --network host \
         -p 443:443 -p 80:80 --name letsencrypt \
-        -v "temp-volume:/etc/letsencrypt/live/$domainName" \
-        -v "temp-volume:/var/lib/letsencrypt/live/$domainName" \
+        -v "data-certbot-conf:/etc/letsencrypt/live/$domainName" \
+        -v "data-certbot-conf:/var/lib/letsencrypt/live/$domainName" \
         certbot/certbot certonly -n \
         --staging \
         -m "$renewalEmail" \
         -d "$domainName" \
         --standalone --agree-tos
 
-        docker run --network host --name certbot-helper -v data-certbot-conf:/etc/letsencrypt -v instant:/temp-certificates --entrypoint "\
-        cp /etc/letsencrypt/live/$domainName /temp-certificates/certificates" busybox
+        docker run --rm --network host --name certbot-helper -w /temp  -v data-certbot-conf:/etc/letsencrypt -v instant:/temp busybox sh -c "mkdir certificates && cp -r /etc/letsencrypt/jembi-mercury.org /temp/certificates"
+        # docker run --network host --name certbot-helper -v data-certbot-conf:/etc/letsencrypt -v instant:/temp --entrypoint "\
+        # 'mkdir' '-p' '/temp/certificates' '&&' 'cp' '-r' '/etc/letsencrypt/jembi-mercury.org' '/temp/certificates'" busybox
         #check logs of instant
         docker rm certbot-helper
 
         docker secret create "$timestamp-fullchain.pem" "/instant/certificates/fullchain.pem"
         docker secret create "$timestamp-privkey.pem" "/instant/certificates/privkey.pem"
-        sleep 5000
         #create copy of nginx-temp-secure.conf to ensure sed will always work correctly
         cp "$composeFilePath"/config/nginx-temp-secure.conf "$composeFilePath"/config/nginx.conf
         sed -i "s/domain_name/$domainName/g;" "$composeFilePath"/config/nginx.conf
