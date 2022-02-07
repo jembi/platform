@@ -1,4 +1,4 @@
-version: '3.3'
+version: '3.9'
 
 services:
   # Proxies requests to internal services
@@ -6,6 +6,8 @@ services:
     image: nginx:stable
     deploy:
       replicas: ${REVERSE_PROXY_INSTANCES:-1}
+      placement:
+        max_replicas_per_node: 1
     labels:
       ofelia.enabled: "true"
       ofelia.job-exec.reload-nginx.schedule: "0 30 0 * * *"

@@ -32,54 +32,43 @@ if [ "$1" == "init" ]; then
         #TODO: cleanup old docker configs if they become a space hog
     else
         printf "\nRunning reverse-proxy package in SECURE mode\n"
-
-        echo "Setting up Nginx reverse-proxy with the following domain name: $domainName"
-        sleep 5000
+        #TODO: Add certificate config copying for secure mode as part of PLAT-85 work
         
-        docker run --rm \
-        --network host \
-        -p 443:443 -p 80:80 --name letsencrypt \
-        -v "data-certbot-conf:/etc/letsencrypt/live/$domainName" \
-        -v "data-certbot-conf:/var/lib/letsencrypt/live/$domainName" \
-        certbot/certbot certonly -n \
-        --staging \
-        -m "$renewalEmail" \
-        -d "$domainName" \
-        --standalone --agree-tos
+        # echo "Setting up Nginx reverse-proxy with the following domain name: $domainName"
+        # # sleep 5000
+        
+        # docker run --rm \
+        # --network host \
+        # -p 443:443 -p 80:80 --name letsencrypt \
+        # -v "data-certbot-conf:/etc/letsencrypt/live/$domainName" \
+        # -v "data-certbot-conf:/var/lib/letsencrypt/live/$domainName" \
+        # certbot/certbot certonly -n \
+        # --staging \
+        # -m "$renewalEmail" \
+        # -d "$domainName" \
+        # --standalone --agree-tos
 
-        docker run --rm --network host --name certbot-helper -w /temp  -v data-certbot-conf:/etc/letsencrypt -v instant:/temp busybox sh -c "mkdir certificates && cp -r /etc/letsencrypt/jembi-mercury.org /temp/certificates"
-        # docker run --network host --name certbot-helper -v data-certbot-conf:/etc/letsencrypt -v instant:/temp --entrypoint "\
-        # 'mkdir' '-p' '/temp/certificates' '&&' 'cp' '-r' '/etc/letsencrypt/jembi-mercury.org' '/temp/certificates'" busybox
-        #check logs of instant
-        docker rm certbot-helper
+        # docker run --rm --network host --name certbot-helper -w /temp  -v data-certbot-conf:/etc/letsencrypt -v instant:/temp busybox sh -c "mkdir certificates && cp -r /etc/letsencrypt/jembi-mercury.org /temp/certificates"
+        # # docker run --network host --name certbot-helper -v data-certbot-conf:/etc/letsencrypt -v instant:/temp --entrypoint "\
+        # # 'mkdir' '-p' '/temp/certificates' '&&' 'cp' '-r' '/etc/letsencrypt/jembi-mercury.org' '/temp/certificates'" busybox
+        # #check logs of instant
+        # docker rm certbot-helper
 
-        docker secret create "$timestamp-fullchain.pem" "/instant/certificates/fullchain.pem"
-        docker secret create "$timestamp-privkey.pem" "/instant/certificates/privkey.pem"
-        #create copy of nginx-temp-secure.conf to ensure sed will always work correctly
-        cp "$composeFilePath"/config/nginx-temp-secure.conf "$composeFilePath"/config/nginx.conf
-        sed -i "s/domain_name/$domainName/g;" "$composeFilePath"/config/nginx.conf
+        # docker secret create "$timestamp-fullchain.pem" "/instant/certificates/fullchain.pem"
+        # docker secret create "$timestamp-privkey.pem" "/instant/certificates/privkey.pem"
+        # #create copy of nginx-temp-secure.conf to ensure sed will always work correctly
+        # cp "$composeFilePath"/config/nginx-temp-secure.conf "$composeFilePath"/config/nginx.conf
+        # sed -i "s/domain_name/$domainName/g;" "$composeFilePath"/config/nginx.conf
 
-        docker config create "$timestampedNginx" "$composeFilePath"/config/nginx.conf
-        docker service update \
-            --config-add source="$timestampedNginx",target=/etc/nginx/nginx.conf \
-            --secret-add source="$timestamp-fullchain.pem",target=/run/secrets/fullchain.pem \
-            --secret-add source="$timestamp-privkey.pem",target=/run/secrets/privkey.pem \
-            --publish-add published=80,target=80
-            --publish-add published=443,target=443
-            instant_reverse-proxy-nginx
+        # docker config create "$timestampedNginx" "$composeFilePath"/config/nginx.conf
+        # docker service update \
+        #     --config-add source="$timestampedNginx",target=/etc/nginx/nginx.conf \
+        #     --secret-add source="$timestamp-fullchain.pem",target=/run/secrets/fullchain.pem \
+        #     --secret-add source="$timestamp-privkey.pem",target=/run/secrets/privkey.pem \
+        #     --publish-add published=80,target=80
+        #     --publish-add published=443,target=443
+        #     instant_reverse-proxy-nginx
     fi
-elif [ "$1" == "up" ]; then
-    if [ "$2" == "dev" ]; then
-        docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.stack.dev.yml instant
-    else
-        docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.stack.prod.yml instant
-    fi
-elif [ "$1" == "down" ]; then
-    docker service scale instant_reverse-proxy=0
-    docker service scale instant_ofelia=0
-elif [ "$1" == "destroy" ]; then
-    docker service rm instant_reverse-proxy
-    docker service rm instant_ofelia
 else
     echo "Valid options are: init, up, down, or destroy"
 fi
