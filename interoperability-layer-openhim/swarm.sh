@@ -1,6 +1,6 @@
 #!/bin/bash
 
-statefulNodes = ${STATEFUL_NODES:-"cluster"}
+statefulNodes=${STATEFUL_NODES:-"cluster"}
 
 composeFilePath=$(
   cd "$(dirname "${BASH_SOURCE[0]}")"
