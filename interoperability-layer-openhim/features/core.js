@@ -6,7 +6,7 @@ const { AfterAll, Given, Then, When } = require('@cucumber/cucumber')
 const { expect } = require('chai')
 
 const OPENHIM_PROTOCOL = process.env.OPENHIM_PROTOCOL || 'http'
-const OPENHIM_API_HOSTNAME = process.env.OPENHIM_API_HOSTNAME || 'localhost'
+const OPENHIM_CORE_SERVICE_NAME = process.env.OPENHIM_CORE_SERVICE_NAME || 'localhost'
 const OPENHIM_TRANSACTION_API_PORT =
   process.env.OPENHIM_TRANSACTION_API_PORT || '5001'
 const OPENHIM_MEDIATOR_API_PORT =
@@ -20,7 +20,7 @@ let hapiFhirPatientID
 
 Given('a patient, Jane Doe, exists in the FHIR server', async function () {
   const checkPatientExistsOptions = {
-    url: `${OPENHIM_PROTOCOL}://${OPENHIM_API_HOSTNAME}:${OPENHIM_TRANSACTION_API_PORT}/fhir/Patient?identifier:value=test`,
+    url: `${OPENHIM_PROTOCOL}://${OPENHIM_CORE_SERVICE_NAME}:${OPENHIM_TRANSACTION_API_PORT}/fhir/Patient?identifier:value=test`,
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -36,7 +36,7 @@ Given('a patient, Jane Doe, exists in the FHIR server', async function () {
       `\nPatient record for Jane Doe does not exist. Creating Patient`
     )
     const options = {
-      url: `${OPENHIM_PROTOCOL}://${OPENHIM_API_HOSTNAME}:${OPENHIM_TRANSACTION_API_PORT}/fhir/Patient`,
+      url: `${OPENHIM_PROTOCOL}://${OPENHIM_CORE_SERVICE_NAME}:${OPENHIM_TRANSACTION_API_PORT}/fhir/Patient`,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -85,7 +85,7 @@ Given('a patient, Jane Doe, exists in the FHIR server', async function () {
 Given('an authorised client, Alice, exists in the OpenHIM', async function () {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0
   const checkClientExistsOptions = {
-    url: `https://${OPENHIM_API_HOSTNAME}:${OPENHIM_MEDIATOR_API_PORT}/clients`,
+    url: `https://${OPENHIM_CORE_SERVICE_NAME}:${OPENHIM_MEDIATOR_API_PORT}/clients`,
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -108,7 +108,7 @@ Given('an authorised client, Alice, exists in the OpenHIM', async function () {
   if (createClient) {
     console.log(`\nThe test Harness Client does not exist. Creating Client`)
     const options = {
-      url: `https://${OPENHIM_API_HOSTNAME}:${OPENHIM_MEDIATOR_API_PORT}/clients`,
+      url: `https://${OPENHIM_CORE_SERVICE_NAME}:${OPENHIM_MEDIATOR_API_PORT}/clients`,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -131,7 +131,7 @@ Given('an authorised client, Alice, exists in the OpenHIM', async function () {
 
 When('Alice searches for a patient', async function () {
   const checkPatientExistsOptions = {
-    url: `${OPENHIM_PROTOCOL}://${OPENHIM_API_HOSTNAME}:${OPENHIM_TRANSACTION_API_PORT}/fhir/Patient?identifier:value=test`,
+    url: `${OPENHIM_PROTOCOL}://${OPENHIM_CORE_SERVICE_NAME}:${OPENHIM_TRANSACTION_API_PORT}/fhir/Patient?identifier:value=test`,
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -153,7 +153,7 @@ Then('Alice is able to get a result', function () {
 
 When('Malice searches for a patient', async function () {
   const checkPatientExistsOptions = {
-    url: `${OPENHIM_PROTOCOL}://${OPENHIM_API_HOSTNAME}:${OPENHIM_TRANSACTION_API_PORT}/fhir/Patient?identifier:value=test`,
+    url: `${OPENHIM_PROTOCOL}://${OPENHIM_CORE_SERVICE_NAME}:${OPENHIM_TRANSACTION_API_PORT}/fhir/Patient?identifier:value=test`,
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -177,7 +177,7 @@ AfterAll(async function () {
   if (hapiFhirPatientID) {
     console.log(`\nDeleting FHIR test Patient record`)
     const deletePatientOptions = {
-      url: `${OPENHIM_PROTOCOL}://${OPENHIM_API_HOSTNAME}:${OPENHIM_TRANSACTION_API_PORT}/fhir/Patient/${hapiFhirPatientID}`,
+      url: `${OPENHIM_PROTOCOL}://${OPENHIM_CORE_SERVICE_NAME}:${OPENHIM_TRANSACTION_API_PORT}/fhir/Patient/${hapiFhirPatientID}`,
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -192,7 +192,7 @@ AfterAll(async function () {
 
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0
   const checkClientExistsOptions = {
-    url: `https://${OPENHIM_API_HOSTNAME}:${OPENHIM_MEDIATOR_API_PORT}/clients`,
+    url: `https://${OPENHIM_CORE_SERVICE_NAME}:${OPENHIM_MEDIATOR_API_PORT}/clients`,
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -214,7 +214,7 @@ AfterAll(async function () {
   if (clientObjectId) {
     console.log(`\nDeleting OpenHIM test Client record`)
     const deleteClientOptions = {
-      url: `https://${OPENHIM_API_HOSTNAME}:${OPENHIM_MEDIATOR_API_PORT}/clients/${clientObjectId}`,
+      url: `https://${OPENHIM_CORE_SERVICE_NAME}:${OPENHIM_MEDIATOR_API_PORT}/clients/${clientObjectId}`,
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
