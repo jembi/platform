@@ -3,4 +3,6 @@ version: '3.9'
 services:
   postgres-1:
     ports:
-      - "5432:5432"
+      - target: 5432
+        published: 5432
+        mode: host
