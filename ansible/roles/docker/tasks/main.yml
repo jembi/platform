@@ -78,4 +78,3 @@
     username: '{{ docker_username }}'
     password: '{{ docker_password }}'
     state: present
-    
