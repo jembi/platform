@@ -42,7 +42,7 @@ elif [ "$1" == "up" ]; then
 elif [ "$1" == "down" ]; then
   docker service scale instant_hapi-fhir=0 instant_postgres-1=0 instant_postgres-2=0 instant_postgres-3=0
 elif [ "$1" == "destroy" ]; then
-  docker service rm instant_hapi-fhir instant_postgres-1 instant_postgres-2 instant_postgres-3
+  docker service rm instant_hapi-fhir instant_postgres1 instant_postgres2 instant_postgres3
 
   echo "Sleep 10 Seconds to allow services to shut down before deleting volumes"
   sleep 10
