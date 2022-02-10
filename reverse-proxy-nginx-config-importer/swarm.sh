@@ -8,7 +8,7 @@ timestamp="$(date "+%Y%m%d%H%M%S")"
 
 timestampedNginx="$timestamp-nginx.conf"
 
-if [ "$1" == "init" ]; then
+if [ "$1" == "init" ] || [ "$1" == "up" ]; then
     if [ "$INSECURE" == "true" ] || [ "$2" == "dev" ]; then
         printf "\nRunning reverse-proxy package in INSECURE mode\n"
         if [ "$INSECURE_PORTS" != "" ]; then
@@ -32,7 +32,7 @@ if [ "$1" == "init" ]; then
         #TODO: cleanup old docker configs if they become a space hog
     else
         printf "\nRunning reverse-proxy package in SECURE mode\n"
-        #TODO: Add certificate config copying for secure mode as part of PLAT-85 work
+        #TODO: Add certificate secret copying for secure mode as part of PLAT-85 work
         
         # echo "Setting up Nginx reverse-proxy with the following domain name: $domainName"
         # # sleep 5000
@@ -69,6 +69,11 @@ if [ "$1" == "init" ]; then
         #     --publish-add published=443,target=443
         #     instant_reverse-proxy-nginx
     fi
+elif [ "$1" == "destroy" ]; then
+    # TODO: Remove docker configs as part of PLAT-85 work
+    # conf=$(docker config ls --filter "nginx.conf")
+    # docker rm $conf
+    echo "$1 not implemented yet"
 else
-    echo "Valid options are: init, up, down, or destroy"
+    echo "Valid options are: init, up or destroy"
 fi

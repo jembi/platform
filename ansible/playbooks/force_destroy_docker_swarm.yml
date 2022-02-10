@@ -1,7 +1,6 @@
 ---
 - hosts: leader
   tasks:
-    # This task is not split into a role as the swarm token context is lost outside of this playbook
     - name: Destroy an existing swarm
       community.docker.docker_swarm:
         state: absent
