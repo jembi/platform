@@ -13,6 +13,15 @@
         workerToken: '{{ swarm_info.swarm_facts.JoinTokens.Worker }}'
         managerToken: '{{ swarm_info.swarm_facts.JoinTokens.Manager }}'
         managerAddr: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}:2377"
+    - name: Get info on host if it is Swarm Manager
+      docker_node_info:
+        self: true
+      register: result
+    - name: 'Label Leader Node'
+      community.docker.docker_node:
+        hostname: '{{ result.nodes[0].Description.Hostname }}'
+        labels:
+          name: '{{hostvars[inventory_hostname].name}}'
 
 - hosts: managers
   tasks:
@@ -22,6 +31,15 @@
         state: join
         join_token: "{{ hostvars['DUMMY_HOST']['managerToken'] }}"
         remote_addrs: ["{{ hostvars['DUMMY_HOST']['managerAddr'] }}"]
+    - name: Get info on host if it is Swarm Manager
+      docker_node_info:
+        self: true
+      register: result
+    - name: 'Label Manager Node'
+      community.docker.docker_node:
+        hostname: '{{ result.nodes[0].Description.Hostname }}'
+        labels:
+          name: '{{hostvars[inventory_hostname].name}}'
 
 - hosts: workers
   tasks:

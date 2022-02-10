@@ -1,26 +1,34 @@
 #!/bin/bash
 
+statefulNodes=${STATEFUL_NODES:-"cluster"}
+
 composeFilePath=$(
   cd "$(dirname "${BASH_SOURCE[0]}")"
   pwd -P
 )
 
+if [ $statefulNodes == "cluster" ]; then
+  printf "\nRunning Message Bus Kafka package in Cluster node mode\n"
+  kafkaClusterComposeParam="-c ${composeFilePath}/docker-compose.cluster.yml"
+else
+  printf "\nRunning Message Bus Kafka package in Single node mode\n"
+  kafkaClusterComposeParam=""
+fi
+
+if [ "$2" == "dev" ]; then
+  printf "\nRunning Message Bus Kafka package in DEV mode\n"
+  kafkaDevComposeParam="-c ${composeFilePath}/docker-compose.dev.yml"
+else
+  printf "\nRunning Message Bus Kafka package in PROD mode\n"
+  kafkaDevComposeParam=""
+fi
+
 if [ "$1" == "init" ]; then
-  if [ "$2" == "dev" ]; then
-    docker stack deploy -c "$composeFilePath"/docker-compose.yml instant
-    sleep 30
-    docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.stack.yml instant
-  else
-    docker stack deploy -c "$composeFilePath"/docker-compose.yml instant
-    sleep 30
-    docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.prod.yml -c "$composeFilePath"/docker-compose.stack.yml instant
-  fi
+  docker stack deploy -c "$composeFilePath"/docker-compose.yml $kafkaClusterComposeParam $kafkaDevComposeParam instant
+  sleep 30
+  docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.stack.yml $kafkaClusterComposeParam $kafkaDevComposeParam instant
 elif [ "$1" == "up" ]; then
-  if [ "$2" == "dev" ]; then
-    docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.stack.yml instant
-  else
-    docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.prod.yml -c "$composeFilePath"/docker-compose.stack.yml instant
-  fi
+  docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.stack.yml $kafkaClusterComposeParam $kafkaDevComposeParam instant
 elif [ "$1" == "down" ]; then
   docker service scale instant_zookeeper=0 instant_kafka=0 instant_kafdrop=0
 elif [ "$1" == "destroy" ]; then

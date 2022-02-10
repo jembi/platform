@@ -1,4 +1,4 @@
-version: '3.3'
+version: '3.9'
 
 services:
   zookeeper:
@@ -14,7 +14,7 @@ services:
     command: [start-kafka.sh]
     hostname: kafka
     environment:
-      KAFKA_CREATE_TOPICS: ${KAFKA_TOPICS:-'2xx:1:1#3xx:1:1#4xx:1:1#5xx:1:1#yxx:1:1'} # topic:partition:replicas
+      KAFKA_CREATE_TOPICS: ${KAFKA_TOPICS:-2xx:1:1#3xx:1:1#4xx:1:1#5xx:1:1#yxx:1:1} # topic:partition:replicas
       KAFKA_CREATE_TOPICS_SEPARATOR: '#'
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'FALSE'
       KAFKA_ADVERTISED_HOST_NAME: kafka
