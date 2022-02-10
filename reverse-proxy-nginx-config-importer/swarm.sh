@@ -16,8 +16,10 @@ if [ "$1" == "init" ] || [ "$1" == "up" ]; then
             for i in "${PORTS[@]}"; do
                 IFS=':' read -ra PORTS_SPLIT <<< "$i"
                 if [ "${PORTS_SPLIT[0]}" != "" ] && [ "${PORTS_SPLIT[1]}" != "" ]; then
-                    printf "\nExposing ports:\n"
                     portsArray+="--publish-add published=${PORTS_SPLIT[0]},target=${PORTS_SPLIT[1]} "
+                    printf "\nExposing ports: published=${PORTS_SPLIT[0]},target=${PORTS_SPLIT[1]}\n"
+                else
+                    printf "\nFailed to expose ports: published=${PORTS_SPLIT[0]},target=${PORTS_SPLIT[1]}\n"
                 fi
             done
             docker service update \
