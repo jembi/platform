@@ -76,7 +76,5 @@
   become_user: ubuntu
   docker_login:
     username: '{{ docker_username }}'
-    email: '{{ docker_email }}'
     password: '{{ docker_password }}'
     state: present
-    

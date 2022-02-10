@@ -1,0 +1,30 @@
+version: '3.9'
+
+services:
+  # Proxies requests to internal services
+  reverse-proxy-nginx:
+    image: nginx:stable
+    deploy:
+      replicas: ${REVERSE_PROXY_INSTANCES:-1}
+      placement:
+        max_replicas_per_node: 1
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-exec.reload-nginx.schedule: "0 30 0 * * *"
+      ofelia.job-exec.reload-nginx.command: "nginx -s reload"
+
+  # Runs certbot to renew TLS certificates
+  ofelia:
+    image: mcuadros/ofelia:latest
+    deploy:
+      replicas: 0
+    command: daemon --docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - reverse-proxy-nginx
+    labels:
+      ofelia.job-run.renew-certs.schedule: "0 0 0 * * *"
+      ofelia.job-run.renew-certs.image: "certbot/certbot:v1.22.0"
+      ofelia.job-run.renew-certs.command: "renew"
+      ofelia.job-run.renew-certs.volume: '["data-certbot-conf:/etc/letsencrypt", "data-certbot-conf:/var/www/certbot"]'
