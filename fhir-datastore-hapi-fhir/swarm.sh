@@ -47,7 +47,7 @@ elif [ "$1" == "destroy" ]; then
   echo "Sleep 10 Seconds to allow services to shut down before deleting volumes"
   sleep 10
 
-  docker volume rm hapi-postgres-1-data hapi-postgres-2-data hapi-postgres-3-data
+  docker volume rm instant_hapi-postgres-1-data instant_hapi-postgres-2-data instant_hapi-postgres-3-data
 else
   echo "Valid options are: init, up, down, or destroy"
 fi
