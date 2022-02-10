@@ -7,6 +7,7 @@
   "environmentVariables": {
     "HAPI_SERVER_URL": "http://hapi-fhir:8080/fhir",
     "KAFKA_BOOTSTRAP_SERVERS": "kafka:9092",
-    "HAPI_SERVER_VALIDATE_FORMAT": "NONE"
+    "HAPI_SERVER_VALIDATE_FORMAT": "NONE",
+    "HAPI_PROXY_INSTANCES": 1
   }
 }

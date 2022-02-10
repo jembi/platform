@@ -1,0 +1,21 @@
+---
+- hosts: leader
+  tasks:
+    - name: Destroy an existing swarm
+      community.docker.docker_swarm:
+        state: absent
+        force: true
+
+- hosts: managers
+  tasks:
+    - name: Remove manager nodes from swarm network
+      community.docker.docker_swarm:
+        state: absent
+        force: true
+
+- hosts: workers
+  tasks:
+    - name: Remove worker nodes from swarm network
+      community.docker.docker_swarm:
+        state: absent
+        force: true
