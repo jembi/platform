@@ -29,47 +29,57 @@ if [ "$1" == "init" ] || [ "$1" == "up" ]; then
 
         docker config create "$timestampedNginx" "$composeFilePath"/config/nginx-temp-insecure.conf
         docker service update \
-            --config-add source="$timestampedNginx",target=/etc/nginx/nginx.conf \
+            --config-add source="$timestampedNginx", target=/etc/nginx/nginx.conf \
             instant_reverse-proxy-nginx
-        #TODO: cleanup old docker configs if they become a space hog
     else
         printf "\nRunning reverse-proxy package in SECURE mode\n"
-        #TODO: Add certificate secret copying for secure mode as part of PLAT-85 work
+        #TODO: Add certificate secret copying for secure mode as part of PLAT-85 work 
         
-        # echo "Setting up Nginx reverse-proxy with the following domain name: $domainName"
-        # # sleep 5000
+        echo "Setting up Nginx reverse-proxy with the following domain name: $domainName"
+        #TODO: remove sleep, just using it to test the copy command
+        sleep 5000
         
-        # docker run --rm \
-        # --network host \
-        # -p 443:443 -p 80:80 --name letsencrypt \
-        # -v "data-certbot-conf:/etc/letsencrypt/live/$domainName" \
-        # -v "data-certbot-conf:/var/lib/letsencrypt/live/$domainName" \
-        # certbot/certbot certonly -n \
-        # --staging \
-        # -m "$renewalEmail" \
-        # -d "$domainName" \
-        # --standalone --agree-tos
+        docker run --rm \
+        --network host \
+        --name letsencrypt \
+        -v "data-certbot-conf:/etc/letsencrypt/live/$domainName" \
+        certbot/certbot certonly -n \
+        --staging \
+        -m "$renewalEmail" \
+        -d "$domainName" \
+        --standalone --agree-tos
 
-        # docker run --rm --network host --name certbot-helper -w /temp  -v data-certbot-conf:/etc/letsencrypt -v instant:/temp busybox sh -c "mkdir certificates && cp -r /etc/letsencrypt/jembi-mercury.org /temp/certificates"
-        # # docker run --network host --name certbot-helper -v data-certbot-conf:/etc/letsencrypt -v instant:/temp --entrypoint "\
-        # # 'mkdir' '-p' '/temp/certificates' '&&' 'cp' '-r' '/etc/letsencrypt/jembi-mercury.org' '/temp/certificates'" busybox
-        # #check logs of instant
-        # docker rm certbot-helper
+        docker run --rm --network host --name certbot-helper -w /temp -v data-certbot-conf:/etc/letsencrypt/live/$domainName -v instant:/temp busybox sh -c "rm -rf certificates; mkdir certificates; cp -r /etc/letsencrypt/live/$domainName/* /temp/certificates"
+        docker volume rm data-certbot-conf
 
-        # docker secret create "$timestamp-fullchain.pem" "/instant/certificates/fullchain.pem"
-        # docker secret create "$timestamp-privkey.pem" "/instant/certificates/privkey.pem"
-        # #create copy of nginx-temp-secure.conf to ensure sed will always work correctly
-        # cp "$composeFilePath"/config/nginx-temp-secure.conf "$composeFilePath"/config/nginx.conf
-        # sed -i "s/domain_name/$domainName/g;" "$composeFilePath"/config/nginx.conf
-
-        # docker config create "$timestampedNginx" "$composeFilePath"/config/nginx.conf
-        # docker service update \
-        #     --config-add source="$timestampedNginx",target=/etc/nginx/nginx.conf \
-        #     --secret-add source="$timestamp-fullchain.pem",target=/run/secrets/fullchain.pem \
-        #     --secret-add source="$timestamp-privkey.pem",target=/run/secrets/privkey.pem \
-        #     --publish-add published=80,target=80
-        #     --publish-add published=443,target=443
-        #     instant_reverse-proxy-nginx
+        #TODO: The secret creation fails here due to the fullchain file not being found. (Might just be a symlink file due to the way we copy it)
+        docker secret create "$timestamp-fullchain.pem" "/instant/certificates/fullchain.pem"
+        docker secret create "$timestamp-privkey.pem" "/instant/certificates/privkey.pem"
+        
+        #create copy of nginx-temp-secure.conf to ensure sed will always work correctly
+        cp "$composeFilePath"/config/nginx-temp-secure.conf "$composeFilePath"/config/nginx.conf
+        sed -i "s/domain_name/$domainName/g;" "$composeFilePath"/config/nginx.conf
+        #Update nginx to use the new certificate
+        docker config create "$timestampedNginx" "$composeFilePath"/config/nginx.conf
+        docker service update \
+            --config-add source="$timestampedNginx",target=/etc/nginx/nginx.conf \
+            --secret-add source="$timestamp-fullchain.pem",target=/run/secrets/fullchain.pem \
+            --secret-add source="$timestamp-privkey.pem",target=/run/secrets/privkey.pem \
+            --publish-add published=80,target=80
+            --publish-add published=443,target=443
+            instant_reverse-proxy-nginx
+        #generate real certificate
+        docker run --rm \
+        --network host \
+        --name letsencrypt \
+        -v "data-certbot-conf:/etc/letsencrypt/live/$domainName" \
+        certbot/certbot certonly -n \
+        --staging \
+        -m "$renewalEmail" \
+        -d "$domainName" \
+        --standalone --agree-tos
+        docker run --rm --network host --name certbot-helper -w /temp -v data-certbot-conf:/etc/letsencrypt/live/$domainName -v instant:/temp busybox sh -c "rm -rf certificates; mkdir certificates; cp -r /etc/letsencrypt/live/$domainName/* /temp/certificates"
+        docker volume rm data-certbot-conf
     fi
 elif [ "$1" == "destroy" ]; then
     # TODO: Remove docker configs as part of PLAT-85 work
