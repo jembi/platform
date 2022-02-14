@@ -1,0 +1,14 @@
+version: '3.9'
+
+services:
+  kafka:
+    ports:
+    - target: 9092
+      published: 9092
+      mode: host
+
+  kafdrop:
+    ports:
+      - target: 9013
+        published: 9013
+        mode: host

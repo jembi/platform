@@ -1,7 +1,6 @@
 
 # Instant OpenHIE FHIR Data Store Component - docker-swarm
 
-
 This component consists of two services:
 
 * Postgres
@@ -40,22 +39,22 @@ To take down the service run:
 ```
 
 To shut down the services run:
-￼
-￼```bash
-￼./fhir-datastore-hapi-fhir/swarm.sh down
-￼```
-￼
+
+```bash
+./fhir-datastore-hapi-fhir/swarm.sh down
+```
+
 To start the services when they have been stopped run:
-￼
-￼```bash
-￼./fhir-datastore-hapi-fhir/swarm.sh up
-￼```
-￼
+
+```bash
+./fhir-datastore-hapi-fhir/swarm.sh up
+```
+
 To run in dev mode in which the ports are exposed pass the flag `--dev` as done below
-￼
-￼```bash
-￼./fhir-datastore-hapi-fhir/swarm.sh init --dev
-￼```
+
+```bash
+./fhir-datastore-hapi-fhir/swarm.sh init --dev
+```
 
 ## Accessing the services
 
@@ -63,7 +62,7 @@ To run in dev mode in which the ports are exposed pass the flag `--dev` as done 
 
 This service is accessible for testing.
 
-<http://localhost:3447>
+<http://{BROAD_CAST_IP}:3447>
 
 In a publicly accessible deployment this port should not be exposed. The OpenHIM should be used to access HAPI-FHIR.
 
@@ -74,5 +73,5 @@ For testing this Component we will be making use of `curl` for sending our reque
 Execute the command below
 
 ```bash
-curl http://localhost:3447/fhir/Patient
+curl http://{BROAD_CAST_IP}:3447/fhir/Patient
 ```

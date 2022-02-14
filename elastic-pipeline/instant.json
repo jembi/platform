@@ -12,8 +12,9 @@
     "OPENHIM_PASSWORD": "instant101",
     "OPENHIM_USERNAME": "root@openhim.org",
     "OPENHIM_URL": "https://openhim-core:8080",
-    "OPENHIM_API_HOSTNAME": "openhim-core",
-    "OPENHIM_API_PORT": "8080",
+    "OPENHIM_CORE_SERVICE_NAME": "openhim-core",
+    "OPENHIM_CORE_MEDIATOR_HOSTNAME": "localhost",
+    "OPENHIM_MEDIATOR_API_PORT": "8080",
     "NODE_TLS_REJECT_UNAUTHORIZED": "0"
   }
 }
