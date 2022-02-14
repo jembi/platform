@@ -65,8 +65,8 @@ if [ "$1" == "init" ] || [ "$1" == "up" ]; then
             --config-add source="$timestampedNginx",target=/etc/nginx/nginx.conf \
             --secret-add source="$timestamp-fullchain.pem",target=/run/secrets/fullchain.pem \
             --secret-add source="$timestamp-privkey.pem",target=/run/secrets/privkey.pem \
-            --publish-add published=80,target=80
-            --publish-add published=443,target=443
+            --publish-add published=80,target=80 \
+            --publish-add published=443,target=443 \
             instant_reverse-proxy-nginx
         #generate real certificate
         docker run --rm \
