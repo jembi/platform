@@ -42,7 +42,7 @@ if [ "$1" == "init" ] || [ "$1" == "up" ]; then
         docker run --rm \
         --network host \
         --name letsencrypt \
-        -v "data-certbot-conf:/etc/letsencrypt/live/$domainName" \
+        -v "data-certbot-conf:/etc/letsencrypt/archive/$domainName" \
         certbot/certbot certonly -n \
         --staging \
         -m "$renewalEmail" \
@@ -53,8 +53,8 @@ if [ "$1" == "init" ] || [ "$1" == "up" ]; then
         docker volume rm data-certbot-conf
 
         #TODO: The secret creation fails here due to the fullchain file not being found. (Might just be a symlink file due to the way we copy it)
-        docker secret create "$timestamp-fullchain.pem" "/instant/certificates/fullchain.pem"
-        docker secret create "$timestamp-privkey.pem" "/instant/certificates/privkey.pem"
+        docker secret create "$timestamp-fullchain.pem" "/instant/certificates/fullchain1.pem"
+        docker secret create "$timestamp-privkey.pem" "/instant/certificates/privkey1.pem"
         
         #create copy of nginx-temp-secure.conf to ensure sed will always work correctly
         cp "$composeFilePath"/config/nginx-temp-secure.conf "$composeFilePath"/config/nginx.conf
