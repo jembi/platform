@@ -49,7 +49,7 @@ if [ "$1" == "init" ] || [ "$1" == "up" ]; then
         -d "$domainName" \
         --standalone --agree-tos
 
-        docker run --rm --network host --name certbot-helper -w /temp -v data-certbot-conf:/etc/letsencrypt/live/$domainName -v instant:/temp busybox sh -c "rm -rf certificates; mkdir certificates; cp -r /etc/letsencrypt/live/$domainName/* /temp/certificates"
+        docker run --rm --network host --name certbot-helper -w /temp -v data-certbot-conf:/temp-certificates -v instant:/temp busybox sh -c "rm -rf certificates; mkdir certificates; cp -r /temp-certificates/* /temp/certificates"
         docker volume rm data-certbot-conf
 
         #TODO: The secret creation fails here due to the fullchain file not being found. (Might just be a symlink file due to the way we copy it)
