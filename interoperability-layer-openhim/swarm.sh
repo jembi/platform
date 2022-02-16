@@ -61,6 +61,10 @@ elif [ "$1" == "destroy" ]; then
 
   docker volume rm instant_openhim-mongo1 instant_openhim-mongo2 instant_openhim-mongo3
   docker config rm instant_console.config
+
+  if [ $statefulNodes == "cluster" ]; then
+    echo "Volumes are only deleted on the host on which the command is run. Mongo volumes on other nodes are not deleted"
+  fi
 else
   echo "Valid options are: init, up, down, or destroy"
 fi
