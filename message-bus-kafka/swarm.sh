@@ -38,6 +38,10 @@ elif [ "$1" == "destroy" ]; then
   sleep 20
 
   docker volume rm instant_kafka-volume
+
+  if [ $statefulNodes == "cluster" ]; then
+    echo "Volumes are only deleted on the host on which the command is run. Kafka volumes on other nodes are not deleted"
+  fi
 else
   echo "Valid options are: init, up, down, or destroy"
 fi

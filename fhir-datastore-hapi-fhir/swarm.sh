@@ -48,6 +48,10 @@ elif [ "$1" == "destroy" ]; then
   sleep 10
 
   docker volume rm instant_hapi-postgres-1-data instant_hapi-postgres-2-data instant_hapi-postgres-3-data
+
+  if [ $statefulNodes == "cluster" ]; then
+    echo "Volumes are only deleted on the host on which the command is run. Postgres volumes on other nodes are not deleted"
+  fi
 else
   echo "Valid options are: init, up, down, or destroy"
 fi
