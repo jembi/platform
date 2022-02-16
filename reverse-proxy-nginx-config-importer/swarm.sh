@@ -43,15 +43,15 @@ if [ "$1" == "init" ] || [ "$1" == "up" ]; then
     docker run --rm \
       --network host \
       --name letsencrypt \
-      -v "data-certbot-conf:/etc/letsencrypt/archive/$domainName" \
+      -v "dummy-data-certbot-conf:/etc/letsencrypt/archive/$domainName" \
       certbot/certbot certonly -n \
       --staging \
       -m "$renewalEmail" \
       -d "$domainName" \
       --standalone --agree-tos
 
-    docker run --rm --network host --name certbot-helper -w /temp -v data-certbot-conf:/temp-certificates -v instant:/temp busybox sh -c "rm -rf certificates; mkdir certificates; cp -r /temp-certificates/* /temp/certificates"
-    docker volume rm data-certbot-conf
+    docker run --rm --network host --name certbot-helper -w /temp -v dummy-data-certbot-conf:/temp-certificates -v instant:/temp busybox sh -c "rm -rf certificates; mkdir certificates; cp -r /temp-certificates/* /temp/certificates"
+    docker volume rm dummy-data-certbot-conf
 
     docker secret create "$timestamp-fullchain.pem" "/instant/certificates/fullchain1.pem"
     docker secret create "$timestamp-privkey.pem" "/instant/certificates/privkey1.pem"
@@ -69,19 +69,46 @@ if [ "$1" == "init" ] || [ "$1" == "up" ]; then
       --publish-add published=80,target=80 \
       --publish-add published=443,target=443 \
       instant_reverse-proxy-nginx
-
+    sleep 5000
+    
     #generate real certificate
-    docker run --rm \
-      --network host \
-      --name letsencrypt \
-      -v "data-certbot-conf:/etc/letsencrypt/live/$domainName" \
-      certbot/certbot certonly -n \
-      --staging \
-      -m "$renewalEmail" \
-      -d "$domainName" \
-      --standalone --agree-tos
-    docker run --rm --network host --name certbot-helper -w /temp -v data-certbot-conf:/etc/letsencrypt/live/$domainName -v instant:/temp busybox sh -c "rm -rf certificates; mkdir certificates; cp -r /etc/letsencrypt/live/$domainName/* /temp/certificates"
-    docker volume rm data-certbot-conf
+    # docker run --rm \
+    #   --network host \
+    #   --name letsencrypt \
+    #   -v "data-certbot-conf:/etc/letsencrypt/archive/$domainName" \
+    #   -v "nginx-certbot:/var/www/certbot" \
+    #   certbot/certbot certonly --nginx -n \
+    #   --standalone --staging \
+    #   -m "$renewalEmail" \
+    #   -d "$domainName" \
+    #   --agree-tos
+
+    docker service update --entrypoint "\
+      sleep 20 ; certbot certonly -n --standalone \
+      --staging -m "$renewalEmail" \
+      -d "$domainName" --agree-tos -vvv" instant_certbot
+    docker service update --args "certonly -n --standalone --staging -m 'michael.loosen@jembi.org' -d 'jembi-mercury.org' --agree-tos -vv" instant_certbot
+    docker service scale instant_certbot=1
+
+    timestamp="$(date "+%Y%m%d%H%M%S")"
+
+    timestampedNginx="$timestamp-nginx.conf"
+
+    docker run --rm --network host --name certbot-helper -w /temp -v real-data-certbot-conf:/temp-certificates -v instant:/temp busybox sh -c "rm -rf certificates; mkdir certificates; cp -r /temp-certificates/* /temp/certificates"
+    docker volume rm real-data-certbot-conf
+
+    docker secret create "$timestamp-fullchain.pem" "/instant/certificates/fullchain1.pem"
+    docker secret create "$timestamp-privkey.pem" "/instant/certificates/privkey1.pem"
+    
+    currentFullchainName=$(docker service inspect instant_reverse-proxy-nginx --format "{{(index .Spec.TaskTemplate.ContainerSpec.Secrets 0).SecretName}}")
+    currentPrivkeyName=$(docker service inspect instant_reverse-proxy-nginx --format "{{(index .Spec.TaskTemplate.ContainerSpec.Secrets 1).SecretName}}")
+
+    docker service update \
+      --secret-rm "$currentFullchainName" \
+      --secret-rm "$currentPrivkeyName" \
+      --secret-add source="$timestamp-fullchain.pem",target=/run/secrets/fullchain.pem \
+      --secret-add source="$timestamp-privkey.pem",target=/run/secrets/privkey.pem \
+      instant_reverse-proxy-nginx
   fi
 elif [ "$1" == "destroy" ]; then
   # TODO: Remove docker configs as part of PLAT-85 work
