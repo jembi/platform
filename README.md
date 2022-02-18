@@ -27,11 +27,10 @@ To set up a remote cluster environment, see [mercury readme](https://github.com/
 1. Ensure that you have the latest instant repository checked out in the same folder that this repo is in.
 1. `./build-image.sh` - builds the platform image
 1. Add `.env.prod` file with your remote env vars option set.
-*Make sure to add the `DOCKER_HOST` variable indicating your **lead Swarm manager***
 
     > Each Package contains a `metadata.json` file which lists the configurable Env vars and their default values
 
-1. Run `go cli` binary to launch the project:
+1. Run `go cli` binary to launch the project (*Make sure to add the `DOCKER_HOST` variable indicating your **lead Swarm manager***, i.e. DOCKER_HOST=ssh://{lead_ip} ./platform-linux):
 
     - **Linux**. From terminal run: `./platform-linux`
     - Mac. From terminal run: `./platform-macos`
