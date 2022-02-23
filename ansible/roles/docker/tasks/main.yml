@@ -78,3 +78,13 @@
     username: '{{ docker_username }}'
     password: '{{ docker_password }}'
     state: present
+
+- name: configure docker logs rotation
+  copy:
+    src: docker-daemon.json
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+    mode: 0600
+  notify:
+    - restart docker
