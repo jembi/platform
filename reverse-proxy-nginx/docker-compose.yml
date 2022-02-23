@@ -21,7 +21,7 @@ services:
       - reverse-proxy-nginx
     labels:
       ofelia.enabled: "true"
-      ofelia.job-run.renew-certs.schedule: "@every 120s" #TODO: update to real timeframe
+      ofelia.job-run.renew-certs.schedule: "@every 1440h" #60 days
       ofelia.job-run.renew-certs.image: "jembi/swarm-nginx-renewal:v1.0.0"
       ofelia.job-run.renew-certs.volume: '["renew-certbot-conf:/instant","/var/run/docker.sock:/var/run/docker.sock:ro"]'
       ofelia.job-run.renew-certs.environment: '["RENEWAL_EMAIL=${RENEWAL_EMAIL}", "STAGING=${STAGING}", "DOMAIN_NAME=${DOMAIN_NAME}", "SUBDOMAINS=${SUBDOMAINS}"]'
