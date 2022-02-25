@@ -8,14 +8,10 @@ services:
       replicas: ${REVERSE_PROXY_INSTANCES:-1}
       placement:
         max_replicas_per_node: 1
-    labels:
-      ofelia.enabled: "true"
-      ofelia.job-exec.reload-nginx.schedule: "0 30 0 * * *"
-      ofelia.job-exec.reload-nginx.command: "nginx -s reload"
 
   # Runs certbot to renew TLS certificates
   ofelia:
-    image: mcuadros/ofelia:latest
+    image: mcuadros/ofelia:v0.3.6
     deploy:
       replicas: 0
     command: daemon --docker
@@ -24,7 +20,9 @@ services:
     depends_on:
       - reverse-proxy-nginx
     labels:
-      ofelia.job-run.renew-certs.schedule: "0 0 0 * * *"
-      ofelia.job-run.renew-certs.image: "certbot/certbot:v1.22.0"
-      ofelia.job-run.renew-certs.command: "renew"
-      ofelia.job-run.renew-certs.volume: '["data-certbot-conf:/etc/letsencrypt", "data-certbot-conf:/var/www/certbot"]'
+      ofelia.enabled: "true"
+      ofelia.job-run.renew-certs.schedule: "@every 1440h" #60 days
+      ofelia.job-run.renew-certs.image: "jembi/swarm-nginx-renewal:v1.0.0"
+      ofelia.job-run.renew-certs.volume: '["renew-certbot-conf:/instant","/var/run/docker.sock:/var/run/docker.sock:ro"]'
+      ofelia.job-run.renew-certs.environment: '["RENEWAL_EMAIL=${RENEWAL_EMAIL}", "STAGING=${STAGING}", "DOMAIN_NAME=${DOMAIN_NAME}", "SUBDOMAINS=${SUBDOMAINS}"]'
+      ofelia.job-run.renew-certs.delete: "true"
