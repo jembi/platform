@@ -23,6 +23,31 @@ checkCoreInstances () {
   sleep 5
 }
 
+removeConfigImporter () {
+  notRunning="true"
+  while [ $notRunning != "false" ]
+  do
+      for i in $(docker service ls -f name=instant_core-config-importer)
+      do
+          if [ $i = "1/1" ]; then
+              notRunning="false"
+          fi
+      done
+  done
+
+  running="false"
+  while [ $running != "true" ]
+  do
+      for i in $(docker service ls -f name=instant_core-config-importer)
+      do
+          if [ $i = "0/1" ]; then
+              running="true"
+          fi
+      done
+  done
+  docker service rm instant_core-config-importer
+}
+
 if [ $statefulNodes == "cluster" ]; then
   printf "\nRunning Interoperability Layer OpenHIM package in Cluster node mode\n"
   mongoClusterComposeParam="-c ${composeFilePath}/docker-compose-mongo.cluster.yml"
@@ -59,10 +84,11 @@ if [ "$1" == "init" ]; then
 
   docker stack deploy -c "$composeFilePath"/importer/docker-compose.config.yml instant
 
-  echo "Sleep 60 seconds to give core config importer time to run before cleaning up service"
-  sleep 60
+  echo "Sleeping to give core config importer time to run before cleaning up service"
+  removeConfigImporter
 
-  docker service rm instant_core-config-importer
+  # Sleep to ensure config importer is removed
+  sleep 5
 elif [ "$1" == "up" ]; then
   docker stack deploy -c "$composeFilePath"/docker-compose.mongo.yml $mongoClusterComposeParam $mongoDevComposeParam instant
   sleep 20
