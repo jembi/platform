@@ -1,23 +1,25 @@
-version: '3.3'
+version: '3.9'
 
 services:
   es-analytics:
-    container_name: es-analytics
     image: docker.elastic.co/elasticsearch/elasticsearch:7.13.0
     environment:
       node.name: es01
       discovery.type: single-node
       bootstrap.memory_lock: 'true'
       xpack.security.enabled: 'true'
-      ES_JAVA_OPTS: -Xms512m -Xmx512m
+      xpack.monitoring.collection.enabled: 'true'
+      ES_JAVA_OPTS: ${ES_HEAP_SIZE:-'-Xms512m -Xmx512m'}
+      search.max_buckets: 1000000
+      search.default_search_timeout: -1
+      path.repo: /backups/elasticsearch
     ulimits:
       memlock:
         soft: -1
         hard: -1
     volumes:
       - es-data:/usr/share/elasticsearch/data
-    ports:
-      - 9201:9200
+      - /backups/elasticsearch:/backups/elasticsearch
 
 volumes:
   es-data:
