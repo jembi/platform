@@ -9,3 +9,6 @@ services:
       ELASTICSEARCH_HOSTS: http://es-analytics:9200
       ELASTICSEARCH_USERNAME: 'kibana_system'
       ELASTICSEARCH_PASSWORD: ${ES_KIBANA_SYSTEM}
+    deploy:
+      replicas: ${KIBANA_INSTANCES:-1}
+

@@ -9,6 +9,7 @@
     "ELASTICSEARCH_URL": "http://es-analytics:9200",
     "ELASTICSEARCH_HOSTS": "http://es-analytics:9200",
     "ELASTICSEARCH_USERNAME": "kibana_system",
-    "ELASTICSEARCH_PASSWORD": "dev_password_only"
+    "ELASTICSEARCH_PASSWORD": "dev_password_only",
+    "KIBANA_INSTANCES": 1
   }
 }
