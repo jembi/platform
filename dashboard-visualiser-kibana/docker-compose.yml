@@ -11,4 +11,3 @@ services:
       ELASTICSEARCH_PASSWORD: ${ES_KIBANA_SYSTEM}
     deploy:
       replicas: ${KIBANA_INSTANCES:-1}
-
