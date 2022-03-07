@@ -1,0 +1,10 @@
+{
+  "id": "data-mapper-logstash",
+  "name": "Data Mapper Logstash",
+  "description": "Generic Logstash pipeline",
+  "type": "infrastructure",
+  "version": "v0.0.1",
+  "dependencies": ["analytics-datastore-elastic-search", "fhir-datastore-hapi-fhir"],
+  "environmentVariables": {
+  }
+}
