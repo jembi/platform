@@ -7,6 +7,22 @@ composeFilePath=$(
   pwd -P
 )
 
+checkCoreInstances () {
+  coreInstances=${OPENHIM_CORE_INSTANCES}
+  running="false"
+  while [ $running != "true" ]
+  do
+      for i in $(docker service ls -f name=instant_openhim-core)
+      do
+          if [ $i = "$coreInstances/$coreInstances" ]; then
+              running="true"
+          fi
+      done
+  done
+  # This sleep ensures that all core instance are reachable
+  sleep 5
+}
+
 if [ $statefulNodes == "cluster" ]; then
   printf "\nRunning Interoperability Layer OpenHIM package in Cluster node mode\n"
   mongoClusterComposeParam="-c ${composeFilePath}/docker-compose-mongo.cluster.yml"
@@ -36,8 +52,8 @@ if [ "$1" == "init" ]; then
 
   docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.stack-0.yml $openhimDevComposeParam instant
 
-  echo "Sleep 60 seconds to give OpenHIM Core time to start up before OpenHIM Console run"
-  sleep 60
+  echo "Sleeping to give OpenHIM Core time to start up before OpenHIM Console run"
+  checkCoreInstances
 
   docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.stack-1.yml $openhimDevComposeParam instant
 
