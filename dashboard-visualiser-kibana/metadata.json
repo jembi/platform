@@ -6,8 +6,8 @@
   "version": "v0.0.1",
   "dependencies": ["analytics-datastore-elastic-search"],
   "environmentVariables": {
-    "ELASTICSEARCH_URL": "http://es-analytics:9200",
-    "ELASTICSEARCH_HOSTS": "http://es-analytics:9200",
+    "ELASTICSEARCH_URL": "http://analytics-datastore-elastic-search:9200",
+    "ELASTICSEARCH_HOSTS": "http://analytics-datastore-elastic-search:9200",
     "ELASTICSEARCH_USERNAME": "kibana_system",
     "ELASTICSEARCH_PASSWORD": "dev_password_only",
     "KIBANA_INSTANCES": 1

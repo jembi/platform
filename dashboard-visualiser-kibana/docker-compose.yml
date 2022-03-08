@@ -5,8 +5,8 @@ services:
     container_name: kibana
     image: docker.elastic.co/kibana/kibana:7.13.0
     environment:
-      ELASTICSEARCH_URL: http://es-analytics:9200
-      ELASTICSEARCH_HOSTS: http://es-analytics:9200
+      ELASTICSEARCH_URL: http://analytics-datastore-elastic-search:9200
+      ELASTICSEARCH_HOSTS: http://analytics-datastore-elastic-search:9200
       ELASTICSEARCH_USERNAME: 'kibana_system'
       ELASTICSEARCH_PASSWORD: ${ES_KIBANA_SYSTEM}
     deploy:

@@ -4,7 +4,7 @@ const axios = require('axios')
 const { Then } = require('@cucumber/cucumber')
 
 const ANALYTICS_PROTOCOL = process.env.ANALYTICS_PROTOCOL || 'http'
-const ES_ANALYTICS_HOSTNAME = process.env.ES_ANALYTICS_HOSTNAME || 'es-analytics'
+const ES_ANALYTICS_HOSTNAME = process.env.ES_ANALYTICS_HOSTNAME || 'analytics-datastore-elastic-search'
 const KIBANA_HOSTNAME = process.env.KIBANA_HOSTNAME || 'kibana'
 const KIBANA_API_PORT =
   process.env.KIBANA_API_PORT || '5601'

@@ -43,7 +43,7 @@ if {$force_conservative} {
 
 
 set timeout -1
-spawn docker exec -it es-analytics /bin/bash -c {bin/elasticsearch-setup-passwords interactive}
+spawn docker exec -it analytics-datastore-elastic-search /bin/bash -c {bin/elasticsearch-setup-passwords interactive}
 match_max 100000
 expect -exact "Initiating the setup of passwords for reserved users elastic,apm_system,kibana,kibana_system,logstash_system,beats_system,remote_monitoring_user.\r
 You will be prompted to enter passwords as the process progresses.\r

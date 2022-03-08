@@ -11,7 +11,7 @@ export ES_KIBANA_SYSTEM=${ES_KIBANA_SYSTEM:-dev_password_only}
 export ES_BEATS_SYSTEM=${ES_BEATS_SYSTEM:-dev_password_only}
 
 if [ "$1" == "init" ]; then
-    docker-compose -p instant -f "$composeFilePath"/docker-compose.yml up -d es-analytics
+    docker-compose -p instant -f "$composeFilePath"/docker-compose.yml up -d analytics-datastore-elastic-search
 
     # echo "Waiting for elasticsearch to start before automatically setting built-in passwords..."
     sleep 40
