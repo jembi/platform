@@ -1,15 +1,19 @@
-version: '3.3'
+version: '3.9'
 
 services:
-  logstash:
+  data-mapper-logstash:
     image: docker.elastic.co/logstash/logstash:7.12.1
-    container_name: logstash
-    volumes:
-      - logstash-pipeline:/usr/share/logstash/pipeline/
-      - logstash-config:/usr/share/logstash/config/
 
-volumes:
-  logstash-pipeline:
-    external: true
-  logstash-config:
-    external: true
+configs:
+  logstash-log4j2.properties:
+    file: ./log4j2.properties
+    labels: 
+      name: logstash
+  logstash-jvm.options:
+    file: ./jvm.options
+    labels: 
+      name: logstash
+  logstash-logstash.yml:
+    file: ./logstash.yml
+    labels: 
+      name: logstash
