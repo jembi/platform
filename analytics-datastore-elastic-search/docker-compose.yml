@@ -9,10 +9,12 @@ services:
       bootstrap.memory_lock: 'true'
       xpack.security.enabled: 'true'
       xpack.monitoring.collection.enabled: 'true'
-      ES_JAVA_OPTS: ${ES_HEAP_SIZE:-'-Xms512m -Xmx512m'}
+      ES_JAVA_OPTS: -Xms4096m -Xmx4096m
       search.max_buckets: 1000000
       search.default_search_timeout: -1
       path.repo: /backups/elasticsearch
+      ELASTIC_PASSWORD: ${ES_ELASTIC:-dev_password_only}
+      KIBANA_PASSWORD: ${ES_KIBANA_SYSTEM:-dev_password_only}
     ulimits:
       memlock:
         soft: -1
