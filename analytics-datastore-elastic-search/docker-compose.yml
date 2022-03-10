@@ -13,8 +13,12 @@ services:
       search.max_buckets: 1000000
       search.default_search_timeout: -1
       path.repo: /backups/elasticsearch
-      ELASTIC_PASSWORD: ${ES_ELASTIC:-dev_password_only}
-      KIBANA_PASSWORD: ${ES_KIBANA_SYSTEM:-dev_password_only}
+      ES_LOGSTASH_SYSTEM: ${ES_LOGSTASH_SYSTEM:-dev_password_only}
+      ES_APM_SYSTEM: ${ES_APM_SYSTEM:-dev_password_only}
+      ES_REMOTE_MONITORING_USER: ${ES_REMOTE_MONITORING_USER:-dev_password_only}
+      ES_ELASTIC: ${ES_ELASTIC:-dev_password_only}
+      ES_KIBANA_SYSTEM: ${ES_KIBANA_SYSTEM:-dev_password_only}
+      ES_BEATS_SYSTEM: ${ES_BEATS_SYSTEM:-dev_password_only}
     ulimits:
       memlock:
         soft: -1

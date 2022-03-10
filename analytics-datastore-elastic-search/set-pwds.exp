@@ -43,8 +43,8 @@ if {$force_conservative} {
 
 
 set timeout -1
-elasticSearchContainerId=$(docker ps -f name=instant_analytics-datastore-elastic-search --format "{{.ID}}")
-spawn docker exec --privileged -it $elasticSearchContainerId /bin/bash -c { bin/elasticsearch-setup-passwords interactive }
+set elasticSearchContainerId [lindex $argv 0]
+spawn docker exec -it $elasticSearchContainerId /bin/bash -c { bin/elasticsearch-setup-passwords interactive }
 match_max 100000
 expect -exact "Initiating the setup of passwords for reserved users elastic,apm_system,kibana,kibana_system,logstash_system,beats_system,remote_monitoring_user.\r
 You will be prompted to enter passwords as the process progresses.\r

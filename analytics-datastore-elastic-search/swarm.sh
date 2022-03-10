@@ -25,12 +25,20 @@ fi
 
 if [ "$1" == "init" ]; then
   docker stack deploy -c "$composeFilePath"/docker-compose.yml $elasticSearchClusterComposeParam $elasticSearchDevComposeParam instant
+
+  echo "Waiting for elasticsearch to start before automatically setting built-in passwords..."
+  sleep 40
+  apt-get install -y expect >/dev/null 2>&1
+  echo "Setting passwords..."
+  elasticSearchContainerId=$(docker ps -f name=instant_analytics-datastore-elastic-search --format "{{.ID}}")
+  "$composeFilePath"/set-pwds.exp $elasticSearchContainerId > /dev/null 2>&1
+  echo "Done"
 elif [ "$1" == "up" ]; then
   docker stack deploy -c "$composeFilePath"/docker-compose.yml $elasticSearchClusterComposeParam $elasticSearchDevComposeParam instant
 elif [ "$1" == "down" ]; then
   docker service scale instant_analytics-datastore-elastic-search=0
 elif [ "$1" == "destroy" ]; then
-  docker service rm instant_analytics-datastore-elastic-search #rename
+  docker service rm instant_analytics-datastore-elastic-search
 
   echo "Sleep 20 Seconds to allow services to shut down before deleting volumes"
   sleep 20
