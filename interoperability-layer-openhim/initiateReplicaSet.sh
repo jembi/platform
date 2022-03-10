@@ -19,21 +19,30 @@ config=$(printf '%s]}' $config)
 
 echo '\nSleep to ensure all the mongo instances for the replica set are up and running'
 runningInstanceCount="0"
-while [ $runningInstanceCount != "3" ]
+startTime=$(date +%s)
+while [ $runningInstanceCount != $mongoCount ]
 do
     runningInstanceCount="0"
-    for i in $(docker service ls -f name=instant_mongo)
+    for i in $(docker service ls -f name=instant_mongo --format "{{.Replicas}}")
     do
         if [ $i = "1/1" ]; then
-            runningInstanceCount=`expr $runningInstanceCount + 1`   
+            runningInstanceCount=`expr $runningInstanceCount + 1`
         fi
     done
+
+    currentTime=$(date +%s)
+    if [ `expr $currentTime - $startTime` -ge "300" ]; then
+        echo "Waited 5 minutes for mongo set to start. This is taking longer than it should..."
+        startTime=$(date +%s)
+    fi
+
+    # Sleep to decrease the resource consumption of this loop
+    sleep 0.5
 done
 # This sleep ensures that the replica sets are reachable
-sleep 5
+sleep 10
 
 containerName='mongo-1'
-
 if [ "$(docker ps -f name=instant_mongo-1 --format "{{.ID}}")" ]; then
   containerName="$(docker ps -f name=instant_mongo-1 --format "{{.ID}}")"
 fi
