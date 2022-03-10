@@ -4,8 +4,18 @@ set -eu
 
 echo 'Initiating the mongo replica set'
 
-config='{"_id":"mongo-set","members":[{"_id":0,"priority":1,"host":"mongo-1:27017"},
-{"_id":1,"priority":0.5,"host":"mongo-2:27017"},{"_id":2,"priority":0.5,"host":"mongo-3:27017"}]}'
+mongoCount=$MONGO_SET_COUNT
+config='{"_id":"mongo-set","members":['
+priority="1"
+for i in $(seq 1 $mongoCount)
+do
+    config=$(printf '%s{"_id":%s,"priority":%s,"host":"mongo-%s:27017"}' $config `expr $i - 1` $priority $i)
+    if [ $i != $mongoCount ]; then
+        config=$(printf '%s,' $config)
+    fi
+    priority="0.5"
+done
+config=$(printf '%s]}' $config)
 
 echo '\nSleep to ensure all the mongo instances for the replica set are up and running'
 runningInstanceCount="0"
