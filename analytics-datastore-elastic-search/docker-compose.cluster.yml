@@ -1,7 +1,7 @@
 version: '3.9'
 
 services:
-  elasticsearch-1:
+  analytics-datastore-elastic-search:
     deploy:
       placement:
         constraints:
