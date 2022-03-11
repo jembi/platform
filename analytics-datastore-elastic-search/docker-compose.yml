@@ -23,6 +23,12 @@ services:
       memlock:
         soft: -1
         hard: -1
+    healthcheck:
+      test: curl -u elastic:${ES_ELASTIC:-dev_password_only} -s -f elasticsearch:9200/_cat/health >/dev/null || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 1m
     volumes:
       - es-data:/usr/share/elasticsearch/data
       - /backups/elasticsearch:/backups/elasticsearch
