@@ -1,8 +1,8 @@
 version: '3.9'
 
 services:
-  kibana:
-    container_name: kibana
+  dashboard-visualiser-kibana:
+    container_name: dashboard-visualiser-kibana
     image: docker.elastic.co/kibana/kibana:7.13.0
     environment:
       ELASTICSEARCH_URL: http://analytics-datastore-elastic-search:9200

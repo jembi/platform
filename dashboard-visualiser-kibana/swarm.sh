@@ -23,12 +23,12 @@ else
   kibanaDevComposeParam=""
 fi
 
-if [ "$1" == "init"] || ["$1" == "up" ]; then
+if [ "$1" == "init" ] || [ "$1" == "up" ]; then
   docker stack deploy -c "$composeFilePath"/docker-compose.yml $kibanaClusterComposeParam $kibanaDevComposeParam instant
 elif [ "$1" == "down" ]; then
-  docker service scale instant_kibana=0
+  docker service scale instant_dashboard-visualiser-kibana=0
 elif [ "$1" == "destroy" ]; then
-  docker service rm instant_kibana
+  docker service rm instant_dashboard-visualiser-kibana
 else
   echo "Valid options are: init, up, down, or destroy"
 fi
