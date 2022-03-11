@@ -9,7 +9,7 @@ services:
       bootstrap.memory_lock: 'true'
       xpack.security.enabled: 'true'
       xpack.monitoring.collection.enabled: 'true'
-      ES_JAVA_OPTS: -Xms4096m -Xmx4096m
+      ES_JAVA_OPTS: ${ES_HEAP_SIZE:--Xms4096m -Xmx4096m}
       search.max_buckets: 1000000
       search.default_search_timeout: -1
       path.repo: /backups/elasticsearch
