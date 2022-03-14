@@ -7,20 +7,42 @@ composeFilePath=$(
   pwd -P
 )
 
-checkCoreInstances () {
+verifyCore () {
   coreInstances=${OPENHIM_CORE_INSTANCES}
   running="false"
   while [ $running != "true" ]
   do
-      for i in $(docker service ls -f name=instant_openhim-core)
-      do
-          if [ $i = "$coreInstances/$coreInstances" ]; then
-              running="true"
-          fi
-      done
+    for i in $(docker service ls -f name=instant_openhim-core --format "{{.Replicas}}")
+    do
+      if [ $i = "$coreInstances/$coreInstances" ]; then
+        running="true"
+      fi
+    done
   done
-  # This sleep ensures that all core instance are reachable
-  sleep 5
+
+  complete="false"
+  startTime=$(date +%s)
+  while [ $complete != "true" ]
+  do
+    for i in $(docker service ps instant_await-helper --format "{{.CurrentState}}")
+    do
+      if [ $i = "Complete" ]; then
+        complete="true"
+      elif [ $i = "Failed" ]; then
+        echo "Failed to verify state of openhim-core"
+        exit 1
+      fi
+    done
+
+    currentTime=$(date +%s)
+    if [ `expr $currentTime - $startTime` -ge "300" ]; then
+        echo "Waited 5 minutes for openhim-core to start. This is taking longer than it should..."
+        startTime=$(date +%s)
+    fi
+    sleep 0.5
+  done
+
+  docker service rm instant_await-helper
 }
 
 removeConfigImporter () {
@@ -77,8 +99,10 @@ if [ "$1" == "init" ]; then
 
   docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.stack-0.yml $openhimDevComposeParam instant
 
+  docker stack deploy -c "$composeFilePath"/docker-compose.await-helper.yml instant
+
   echo "Sleeping to give OpenHIM Core time to start up before OpenHIM Console run"
-  checkCoreInstances
+  verifyCore
 
   docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.stack-1.yml $openhimDevComposeParam instant
 
