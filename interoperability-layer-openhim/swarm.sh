@@ -47,26 +47,27 @@ verifyCore () {
 
 removeConfigImporter () {
   notRunning="true"
-  while [ $notRunning != "false" ]
+  startTime=$(date +%s)
+  while [ $complete != "true" ]
   do
-      for i in $(docker service ls -f name=instant_core-config-importer)
-      do
-          if [ $i = "1/1" ]; then
-              notRunning="false"
-          fi
-      done
+    for i in $(docker service ps instant_core-config-importer --format "{{.CurrentState}}")
+    do
+      if [ $i = "Complete" ]; then
+        complete="true"
+      elif [ $i = "Failed" ]; then
+        echo "Failed to import core config"
+        exit 1
+      fi
+    done
+
+    currentTime=$(date +%s)
+    if [ `expr $currentTime - $startTime` -ge "300" ]; then
+        echo "Waited 5 minutes for core-config-importer to run. This is taking longer than it should..."
+        startTime=$(date +%s)
+    fi
+    sleep 0.5
   done
 
-  running="false"
-  while [ $running != "true" ]
-  do
-      for i in $(docker service ls -f name=instant_core-config-importer)
-      do
-          if [ $i = "0/1" ]; then
-              running="true"
-          fi
-      done
-  done
   docker service rm instant_core-config-importer
 }
 
