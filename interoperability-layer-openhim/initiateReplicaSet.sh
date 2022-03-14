@@ -49,6 +49,4 @@ fi
 
 docker exec -i $containerName mongo --eval "rs.initiate($config)"
 
-sleep 30
-
 echo 'Replica set successfully set up'
