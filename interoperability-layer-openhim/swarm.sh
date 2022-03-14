@@ -28,9 +28,11 @@ verifyCore () {
     do
       if [ $i = "Complete" ]; then
         complete="true"
-      elif [ $i = "Failed" ]; then
-        echo "Failed to verify state of openhim-core"
-        exit 1
+      elif [ $i = "Failed" ] || [ $i = "Rejected" ]; then
+        err=$(docker service ps instant_await-helper --no-trunc --format "{{.Error}}")
+        echo "Failed to verify state of openhim-core. Err: $err"
+        docker service rm instant_await-helper
+        criticalFail
       fi
     done
 
@@ -54,9 +56,11 @@ removeConfigImporter () {
     do
       if [ $i = "Complete" ]; then
         complete="true"
-      elif [ $i = "Failed" ]; then
-        echo "Failed to import core config"
-        exit 1
+      elif [ $i = "Failed" ] || [ $i = "Rejected" ]; then
+        err=$(docker service ps instant_core-config-importer --no-trunc --format "{{.Error}}")
+        echo "Core config importer failed with err: $err"
+        docker service rm instant_core-config-importer
+        criticalFail
       fi
     done
 
@@ -69,6 +73,16 @@ removeConfigImporter () {
   done
 
   docker service rm instant_core-config-importer
+}
+
+criticalFail () {
+  docker service rm instant_openhim-core instant_openhim-console instant_hapi-proxy instant_mongo-1 instant_mongo-2 instant_mongo-3
+
+  sleep 10
+  docker volume rm instant_openhim-mongo1 instant_openhim-mongo2 instant_openhim-mongo3
+  docker config rm instant_console.config
+
+  exit 1
 }
 
 if [ $statefulNodes == "cluster" ]; then
