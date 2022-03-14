@@ -48,7 +48,7 @@ verifyCore () {
 }
 
 removeConfigImporter () {
-  notRunning="true"
+  complete="false"
   startTime=$(date +%s)
   while [ $complete != "true" ]
   do
