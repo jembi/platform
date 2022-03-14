@@ -1,9 +1,8 @@
 version: '3.9'
 
 services:
-  
   await-helper:
-    image: await-helper:temp
+    image: jembi/await-helper:latest
     deploy:
       replicas: 1
       restart_policy:
