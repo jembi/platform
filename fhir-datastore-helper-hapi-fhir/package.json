@@ -1,0 +1,11 @@
+{
+  "name": "fhir-datastore-helper-hapi-fhir",
+  "version": "0.0.1",
+  "author": "Jembi",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "adm-zip": "0.5.4",
+    "axios": "0.26.1",
+    "env-cmd": "^10.1.0"
+  }
+}

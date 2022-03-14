@@ -1,0 +1,19 @@
+version: '3.9'
+
+services:
+  hapi-fhir-config-importer:
+    image: jembi/instantohie-config-importer:v1.0.0
+    restart: on-failure
+    environment:
+      HAPI_FHIR_BASE_URL: ${HAPI_FHIR_BASE_URL:-http://hapi-fhir:8080/fhir}
+      FHIR_IG_URL: ${FHIR_IG_URL}
+      NODE_ENV: 'production'
+    volumes:
+      - type: volume
+        source: instant
+        target: /instant
+    command: sh -c "wait-on -t 60000 http-get://hapi-fhir:8080 && sleep 1 && npm install --prefix /instant/fhir-datastore-helper-hapi-fhir/ && node /instant/fhir-datastore-helper-hapi-fhir/fhirConfig.js"
+
+volumes:
+  instant:
+    external: true
