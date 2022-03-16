@@ -19,6 +19,9 @@ services:
         target: /openhim-import.json
     deploy:
       replicas: 1
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
 
 configs:
   openhim-config-importer-openhimConfig.js:
