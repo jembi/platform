@@ -11,22 +11,21 @@ services:
       OPENHIM_API_PASSWORD: 'openhim-password'
       # Reject unauthorised is only needed if the OpenHIM's SSL is not setup
       NODE_TLS_REJECT_UNAUTHORIZED: 0
-    # This command will only attempt to import the OpenHIM config when the heartbeat responds with a 2xx
     command: sh -c "node openhimConfig.js"
     configs:
       - source: openhim-config-importer-openhimConfig.js
         target: /openhimConfig.js
       - source: openhim-config-importer-openhim-import.json
-        target: openhim-import.json
+        target: /openhim-import.json
     deploy:
       replicas: 1
 
 configs:
   openhim-config-importer-openhimConfig.js:
-    file: ./openhimConfig.js
+    file: ./volume/openhimConfig.js
     labels:
       name: openhim
   openhim-config-importer-openhim-import.json:
-    file: ./openhim-import.json
+    file: ./volume/openhim-import.json
     labels:
       name: openhim
