@@ -10,3 +10,24 @@ docs
 # Dependency directories
 node_modules/
 .editorconfig
+
+# Binaries
+platform-linux
+platform.exe
+platform-macos
+
+#Docekrfiles
+PackageTest.dockerfile
+Dockerfile
+
+run-cli.sh
+
+.env.*
+.github/
+.gitignore
+
+README.md
+
+ansible/
+
+platform-cli-conf/
