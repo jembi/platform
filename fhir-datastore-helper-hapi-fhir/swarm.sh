@@ -1,14 +1,14 @@
 #!/bin/bash
 
 hapiFhirReplicas=${HAPI_FHIR_INSTANCES:-1}
-fhirIG=${FHIR_IG_URL}
+fhirIgUrl=${FHIR_IG_URL}
 
 composeFilePath=$(
   cd "$(dirname "${BASH_SOURCE[0]}")"
   pwd -P
 )
 
-if [ -n "$fhirIgUrl" ]; then
+if [ -z "$fhirIgUrl" ]; then
   echo "FHIR IG url should be specified using the env variable 'FHIR_IG_URL'"
 else
   if [ "$1" == "init" ]; then
