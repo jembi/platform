@@ -19,11 +19,11 @@
   "Clients": [
     {
       "roles": [
-        "instant"
+        "{{TEST_ROLE}}"
       ],
       "customTokenID": "{{OPENHIM_CLIENT_TOKEN}}",
-      "clientID": "instant-client",
-      "name": "Instant Client"
+      "clientID": "{{TEST_CLIENT_ID}}",
+      "name": "{{TEST_CLIENT_NAME}}"
     }
   ]
 }
