@@ -12,7 +12,6 @@ services:
       ES_JAVA_OPTS: ${ES_HEAP_SIZE:--Xms4096m -Xmx4096m}
       search.max_buckets: 1000000
       search.default_search_timeout: -1
-      path.repo: /backups/elasticsearch
       ES_LOGSTASH_SYSTEM: ${ES_LOGSTASH_SYSTEM:-dev_password_only}
       ES_APM_SYSTEM: ${ES_APM_SYSTEM:-dev_password_only}
       ES_REMOTE_MONITORING_USER: ${ES_REMOTE_MONITORING_USER:-dev_password_only}
