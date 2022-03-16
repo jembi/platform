@@ -23,7 +23,7 @@ services:
         soft: -1
         hard: -1
     healthcheck:
-      test: curl -u elastic:${ES_ELASTIC:-dev_password_only} -s -f analytics-datastore-elastic-search:9200/_cat/health >/dev/null || exit 1
+      test: curl -u elastic:${ES_ELASTIC:-dev_password_only} -s -f localhost:9200/_cat/health >/dev/null || exit 1
       interval: 10s
       timeout: 5s
       retries: 5

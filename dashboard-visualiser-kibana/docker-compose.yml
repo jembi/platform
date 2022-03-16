@@ -4,7 +4,7 @@ services:
   dashboard-visualiser-kibana:
     image: docker.elastic.co/kibana/kibana:7.13.0
     healthcheck:
-      test: curl --fail http://dashboard-visualiser-kibana:5601 || exit 1
+      test: curl --fail http://localhost:5601 || exit 1
       interval: 10s
       timeout: 5s
       retries: 5
