@@ -6,7 +6,6 @@
   "dependencies": ["fhir-datastore-hapi-fhir"],
   "environmentVariables": {
     "HAPI_FHIR_INSTANCES": 1,
-    "HAPI_FHIR_BASE_URL": "http://hapi-fhir:8080/fhir",
     "FHIR_IG_URL": ""
   }
 }

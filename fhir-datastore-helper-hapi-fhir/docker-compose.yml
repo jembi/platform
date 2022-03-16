@@ -4,7 +4,7 @@ services:
   hapi-fhir-config-importer:
     image: jembi/instantohie-config-importer:v1.0.0
     environment:
-      HAPI_FHIR_BASE_URL: ${HAPI_FHIR_BASE_URL:-http://hapi-fhir:8080/fhir}
+      HAPI_FHIR_BASE_URL: http://hapi-fhir:8080/fhir
       FHIR_IG_URL: ${FHIR_IG_URL}
       NODE_ENV: 'production'
     volumes:
