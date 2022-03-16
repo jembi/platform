@@ -52,27 +52,27 @@ removeConfigImporter () {
   startTime=$(date +%s)
   while [ $complete != "true" ]
   do
-    for i in $(docker service ps instant_core-config-importer --format "{{.CurrentState}}")
+    for i in $(docker service ps instant_interoperability-layer-openhim-config-importer --format "{{.CurrentState}}")
     do
       if [ $i = "Complete" ]; then
         complete="true"
       elif [ $i = "Failed" ] || [ $i = "Rejected" ]; then
-        err=$(docker service ps instant_core-config-importer --no-trunc --format "{{.Error}}")
+        err=$(docker service ps instant_interoperability-layer-openhim-config-importer --no-trunc --format "{{.Error}}")
         echo "Core config importer failed with err: $err"
-        docker service rm instant_core-config-importer
+        docker service rm instant_interoperability-layer-openhim-config-importer
         criticalFail
       fi
     done
 
     currentTime=$(date +%s)
     if [ `expr $currentTime - $startTime` -ge "300" ]; then
-        echo "Waited 5 minutes for core-config-importer to run. This is taking longer than it should..."
+        echo "Waited 5 minutes for interoperability-layer-openhim-config-importer to run. This is taking longer than it should..."
         startTime=$(date +%s)
     fi
     sleep 0.5
   done
 
-  docker service rm instant_core-config-importer
+  docker service rm instant_interoperability-layer-openhim-config-importer
 }
 
 criticalFail () {
