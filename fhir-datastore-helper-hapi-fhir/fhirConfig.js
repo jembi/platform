@@ -7,7 +7,7 @@ const HAPI_FHIR_BASE_URL = process.env.HAPI_FHIR_BASE_URL
 const FHIR_IG_URL = process.env.FHIR_IG_URL
 const resourceTypes = ['CodeSystem', 'ConceptMap', 'ValueSet']
 
-const postToFHIRServer = ({resourceName, data}) =>
+const createOrUpdateResource = ({resourceName, data}) =>
   new Promise((resolve, reject) => {
     const url = `${HAPI_FHIR_BASE_URL}/${resourceName}/${JSON.parse(data).id}`
 
@@ -63,7 +63,7 @@ async function sendResources(resources) {
     resourceTypes
   })
   const data = resource.getData().toString('utf-8')
-  await postToFHIRServer({resourceName, data})
+  await createOrUpdateResource({resourceName, data})
 
   await sendResources(resources)
 }
