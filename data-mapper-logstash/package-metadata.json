@@ -4,7 +4,6 @@
   "description": "Generic Logstash pipeline",
   "type": "infrastructure",
   "version": "v0.0.1",
-  "dependencies": ["analytics-datastore-elastic-search", "fhir-datastore-hapi-fhir"],
-  "environmentVariables": {
-  }
+  "dependencies": ["analytics-datastore-elastic-search"],
+  "environmentVariables": {}
 }
