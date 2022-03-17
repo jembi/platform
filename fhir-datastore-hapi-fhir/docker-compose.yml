@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   hapi-fhir:
-    image: hapiproject/hapi:v5.5.2
+    image: hapiproject/hapi:v5.7.0
     environment:
       - spring.datasource.url=jdbc:postgresql://${POSTGRES_REPLICA_SET:-postgres-1:5432,postgres-2:5432,postgres-3:5432}/hapi
       - spring.datasource.username=admin
@@ -11,6 +11,7 @@ services:
       - spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQL95Dialect
       - hapi.fhir.allow_external_references=true
       - hapi.fhir.bulk_export_enabled=true
+      - hapi.fhir.enable_repository_validating_interceptor=true
       - JAVA_TOOL_OPTIONS=-Xmx2g
       - CATALINA_OPTS=-Xmx2g
     deploy:
