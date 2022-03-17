@@ -1,9 +1,11 @@
 #!/bin/sh
 
+serviceCallParam=$SERVICE_CALL_PARAM
+
 responseOK="false"
 while [ $responseOK != "true" ]
 do
-    response=$(curl -k --write-out "%{http_code}\n" --silent --output /dev/null https://openhim-core:8080/heartbeat)
+    response=$(curl --write-out "%{http_code}\n" --silent --output /dev/null $serviceCallParam)
     if [ "$response" = "200" ]; then
         responseOK="true"
     fi

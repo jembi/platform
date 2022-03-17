@@ -8,4 +8,6 @@ services:
       restart_policy:
         condition: on-failure
         max_attempts: 3
+    environment:
+      SERVICE_CALL_PARAM: '-k https://openhim-core:8080/heartbeat'
 
