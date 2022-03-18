@@ -27,12 +27,16 @@ if [ "$1" == "init" ]; then
   docker stack deploy -c "$composeFilePath"/docker-compose.yml $elasticSearchClusterComposeParam $elasticSearchDevComposeParam instant
 
   echo "Waiting for elasticsearch to start before automatically setting built-in passwords..."
-  sleep 40
+  echo "Waiting for elasticsearch container to start up"
+  until test ! -z $(docker ps -qlf name=instant_analytics-datastore-elastic-search); do echo "Waiting..." && sleep 0.25; done;
+  echo "Waiting for elasticsearch container to be in ready state"
+  until test "$(docker inspect -f '{{.State.Status}}' $(docker ps -qlf name=instant_analytics-datastore-elastic-search))" = "running"; do echo "$(docker inspect -f '{{.State.Status}}' $(docker ps -qlf name=instant_analytics-datastore-elastic-search))" && sleep 0.25; done
+
   # >/dev/null 2>&1 throws all terminal input and output text away
   apt-get install -y expect >/dev/null 2>&1
   echo "Setting passwords..."
-  elasticSearchContainerId=$(docker ps -f name=instant_analytics-datastore-elastic-search --format "{{.ID}}")
-  "$composeFilePath"/set-elastic-passwords.exp $elasticSearchContainerId > /dev/null 2>&1
+  elasticSearchContainerId=$(docker ps -qlf name=instant_analytics-datastore-elastic-search)
+  "$composeFilePath"/set-elastic-passwords.exp $elasticSearchContainerId >/dev/null 2>&1
   echo "Done"
 
 elif [ "$1" == "up" ]; then
