@@ -28,9 +28,9 @@ if [ "$1" == "init" ]; then
 
   echo "Waiting for elasticsearch to start before automatically setting built-in passwords..."
   echo "Waiting for elasticsearch container to start up"
-  until test ! -z $(docker ps -qlf name=instant_analytics-datastore-elastic-search); do echo "Waiting..." && sleep 0.25; done;
+  until [[ ! -z $(docker ps -qlf name=instant_analytics-datastore-elastic-search) ]]; do sleep 0.25; done;
   echo "Waiting for elasticsearch container to be in ready state"
-  until test "$(docker inspect -f '{{.State.Status}}' $(docker ps -qlf name=instant_analytics-datastore-elastic-search))" = "running"; do echo "$(docker inspect -f '{{.State.Status}}' $(docker ps -qlf name=instant_analytics-datastore-elastic-search))" && sleep 0.25; done
+  until [[ "$(docker inspect -f '{{.State.Status}}' $(docker ps -qlf name=instant_analytics-datastore-elastic-search))" = "running" ]]; do sleep 0.25; done
 
   # >/dev/null 2>&1 throws all terminal input and output text away
   apt-get install -y expect >/dev/null 2>&1
@@ -46,8 +46,8 @@ elif [ "$1" == "down" ]; then
 elif [ "$1" == "destroy" ]; then
   docker service rm instant_analytics-datastore-elastic-search
 
-  echo "Sleep 20 Seconds to allow services to shut down before deleting volumes"
-  sleep 20
+  echo "Waiting for services to shut down before deleting volumes"
+  until [[ -z $(docker ps -qlf name=instant_analytics-datastore-elastic-search) ]]; do sleep 0.25; done;
 
   docker volume rm instant_es-data
 
