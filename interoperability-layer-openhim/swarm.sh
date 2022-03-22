@@ -7,13 +7,11 @@ composeFilePath=$(
   pwd -P
 )
 
-verifyCore () {
+verifyCore() {
   coreInstances=${OPENHIM_CORE_INSTANCES}
   running="false"
-  while [ $running != "true" ]
-  do
-    for i in $(docker service ls -f name=instant_openhim-core --format "{{.Replicas}}")
-    do
+  while [ $running != "true" ]; do
+    for i in $(docker service ls -f name=instant_openhim-core --format "{{.Replicas}}"); do
       if [ $i = "$coreInstances/$coreInstances" ]; then
         running="true"
       fi
@@ -22,10 +20,8 @@ verifyCore () {
 
   complete="false"
   startTime=$(date +%s)
-  while [ $complete != "true" ]
-  do
-    for i in $(docker service ps instant_await-helper --format "{{.CurrentState}}")
-    do
+  while [ $complete != "true" ]; do
+    for i in $(docker service ps instant_await-helper --format "{{.CurrentState}}"); do
       if [ $i = "Complete" ]; then
         complete="true"
       elif [ $i = "Failed" ] || [ $i = "Rejected" ]; then
@@ -37,9 +33,9 @@ verifyCore () {
     done
 
     currentTime=$(date +%s)
-    if [ `expr $currentTime - $startTime` -ge "300" ]; then
-        echo "Waited 5 minutes for openhim-core to start. This is taking longer than it should..."
-        startTime=$(date +%s)
+    if [ $(expr $currentTime - $startTime) -ge "300" ]; then
+      echo "Waited 5 minutes for openhim-core to start. This is taking longer than it should..."
+      startTime=$(date +%s)
     fi
     sleep 0.5
   done
@@ -47,13 +43,11 @@ verifyCore () {
   docker service rm instant_await-helper
 }
 
-removeConfigImporter () {
+removeConfigImporter() {
   complete="false"
   startTime=$(date +%s)
-  while [ $complete != "true" ]
-  do
-    for i in $(docker service ps instant_interoperability-layer-openhim-config-importer --format "{{.CurrentState}}")
-    do
+  while [ $complete != "true" ]; do
+    for i in $(docker service ps instant_interoperability-layer-openhim-config-importer --format "{{.CurrentState}}"); do
       if [ $i = "Complete" ]; then
         complete="true"
       elif [ $i = "Failed" ] || [ $i = "Rejected" ]; then
@@ -65,9 +59,9 @@ removeConfigImporter () {
     done
 
     currentTime=$(date +%s)
-    if [ `expr $currentTime - $startTime` -ge "300" ]; then
-        echo "Waited 5 minutes for interoperability-layer-openhim-config-importer to run. This is taking longer than it should..."
-        startTime=$(date +%s)
+    if [ $(expr $currentTime - $startTime) -ge "300" ]; then
+      echo "Waited 5 minutes for interoperability-layer-openhim-config-importer to run. This is taking longer than it should..."
+      startTime=$(date +%s)
     fi
     sleep 0.5
   done
@@ -75,7 +69,7 @@ removeConfigImporter () {
   docker service rm instant_interoperability-layer-openhim-config-importer
 }
 
-criticalFail () {
+criticalFail() {
   docker service rm instant_openhim-core instant_openhim-console instant_hapi-proxy instant_mongo-1 instant_mongo-2 instant_mongo-3
 
   sleep 10
