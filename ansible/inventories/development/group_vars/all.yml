@@ -21,6 +21,9 @@ users:
   - name: mark.labuschagne@jembi.org
     state: present
     key: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHa1ghm9JsRl6JDtWU8AV+U70jehqlWaXmpjRg3afqB4
+  - name: castello.govender@jembi.org
+    state: present
+    key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDWl3Vc+v0fiuVBIVTDehGGUgZqfvn0JG2oNS7oMV9X2s3p8VwndKm6/oa5bOO4+sp9Z/8ychvo7S2MNXBRQAzTEXo5Oej5E/aZqaFzvpjgI79cnSidIHTzOUw0rUk2EwpSCpJVSXCjSjxGLbbLI35+KltLVoNXGmpNFq4Xi7XwT9aXIm5KQcbumV1NFRGPl+XiaRHioo37gFtub9XjODdQFfs9KGMS2oEuzzFFaXj5unUDZo+lZlEp67HHwq6EpDLR5xf7l96xBvMpQ/MS2pTxCoHVqXx3IDL5CXBBrgUKS8lUuhPPUJxPeARz4DuU7SmWxhNwTDspAEROQ8Rsq6M+kvdslFVeJ4O5M2Rs75mDTUCAkmZTixkTMuMmWqBuQT3zPA7d8Gf0YLhKfwgyH8y5YeJgpU01o2wbH6em/n2isI+pSIatdUFQAKuFdzJiawQJEB5UobKwN2tKVP8ImjrfN+q8nuqHZwTTGW0AaCrb985aQFTgMbYwQeR3mkBNOE0=
 
 firewall_subnet_restriction: '10.1.10.0/16'
 
