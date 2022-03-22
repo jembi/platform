@@ -16,9 +16,9 @@ packages:
     - id: analytics-datastore-elastic-search
       name: Analytics Datastore - ElasticSearch
     - id: dashboard-visualiser-kibana
-      name: Dashboard Visualiser Kibana
+      name: Dashboard Visualiser - Kibana
     - id: data-mapper-logstash
-      name: Data Mapper Logstash
+      name: Data Mapper - Logstash
     - id: elastic-monitoring-metricbeats-filebeats
       name: Elastic Monitoring - MetricBeats and FileBeats
     - id: system-monitoring-prometheus-grafana
