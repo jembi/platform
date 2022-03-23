@@ -102,6 +102,10 @@ if [ "$1" == "init" ]; then
 
   # Set up the replica set
   "$composeFilePath"/initiateReplicaSet.sh
+  if [ $? -eq 1 ]; then
+    echo "Fatal: Initate Mongo replica set failed."
+    exit 1
+  fi
 
   # Set host in OpenHIM console config
   sed -i "s/localhost/$OPENHIM_CORE_MEDIATOR_HOSTNAME/g; s/8080/$OPENHIM_MEDIATOR_API_PORT/g" /instant/interoperability-layer-openhim/importer/volume/default.json
