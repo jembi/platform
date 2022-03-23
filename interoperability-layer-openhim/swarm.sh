@@ -129,7 +129,7 @@ elif [ "$1" == "up" ]; then
 elif [ "$1" == "down" ]; then
   docker service scale instant_openhim-core=0 instant_openhim-console=0 instant_hapi-proxy=0 instant_mongo-1=0 instant_mongo-2=0 instant_mongo-3=0
 elif [ "$1" == "destroy" ]; then
-  docker service rm instant_openhim-core instant_openhim-console instant_hapi-proxy instant_mongo-1 instant_mongo-2 instant_mongo-3
+  docker service rm instant_openhim-core instant_openhim-console instant_hapi-proxy instant_mongo-1 instant_mongo-2 instant_mongo-3 instant_await-helper
 
   echo "Sleep 10 Seconds to allow services to shut down before deleting volumes"
   sleep 10
