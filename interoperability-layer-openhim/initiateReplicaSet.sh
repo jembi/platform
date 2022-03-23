@@ -2,7 +2,7 @@
 
 echo 'Initiating the mongo replica set'
 
-mongoCount=$MONGO_SET_COUNT
+mongoCount=${MONGO_SET_COUNT:-3}
 config='{"_id":"mongo-set","members":['
 priority="1"
 for i in $(seq 1 $mongoCount); do
