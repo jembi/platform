@@ -21,6 +21,7 @@ verifyCore() {
   complete="false"
   startTime=$(date +%s)
   while [ $complete != "true" ]; do
+    sleep 1
     for i in $(docker service ps instant_await-helper --format "{{.CurrentState}}"); do
       if [ $i = "Complete" ]; then
         complete="true"
@@ -37,7 +38,6 @@ verifyCore() {
       echo "Waited 5 minutes for openhim-core to start. This is taking longer than it should..."
       startTime=$(date +%s)
     fi
-    sleep 0.5
   done
 
   docker service rm instant_await-helper
@@ -47,6 +47,7 @@ removeConfigImporter() {
   complete="false"
   startTime=$(date +%s)
   while [ $complete != "true" ]; do
+    sleep 1
     for i in $(docker service ps instant_interoperability-layer-openhim-config-importer --format "{{.CurrentState}}"); do
       if [ $i = "Complete" ]; then
         complete="true"
@@ -63,7 +64,6 @@ removeConfigImporter() {
       echo "Waited 5 minutes for interoperability-layer-openhim-config-importer to run. This is taking longer than it should..."
       startTime=$(date +%s)
     fi
-    sleep 0.5
   done
 
   docker service rm instant_interoperability-layer-openhim-config-importer

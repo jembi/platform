@@ -19,6 +19,8 @@ runningInstanceCount="0"
 startTime=$(date +%s)
 warned="false"
 while [ $runningInstanceCount != $mongoCount ]; do
+    sleep 1
+
     runningInstanceCount="0"
     for i in $(docker service ls -f name=instant_mongo --format "{{.Replicas}}"); do
         if [ $i = "1/1" ]; then
@@ -37,9 +39,6 @@ while [ $runningInstanceCount != $mongoCount ]; do
             exit 1
         fi
     fi
-
-    # Sleep to decrease the resource consumption of this loop
-    sleep 0.5
 done
 # This sleep ensures that the replica sets are reachable
 sleep 10
