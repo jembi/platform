@@ -37,7 +37,7 @@ if [ "$1" == "init" ]; then
   echo "Setting passwords..."
   elasticSearchContainerId=$(docker ps -qlf name=instant_analytics-datastore-elastic-search)
   "$composeFilePath"/set-elastic-passwords.exp $elasticSearchContainerId >/dev/null 2>&1
-  echo "Done"
+  echo "New Elastic Search passwords set"
 
 elif [ "$1" == "up" ]; then
   docker stack deploy -c "$composeFilePath"/docker-compose.yml $elasticSearchClusterComposeParam $elasticSearchDevComposeParam instant
