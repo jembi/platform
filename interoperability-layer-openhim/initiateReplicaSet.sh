@@ -1,7 +1,5 @@
 #!/bin/sh
 
-set -eu
-
 echo 'Initiating the mongo replica set'
 
 mongoCount=$MONGO_SET_COUNT
