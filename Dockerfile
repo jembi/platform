@@ -1,2 +1,2 @@
-FROM instant-base
+FROM openhie/package-base
 ADD . .
