@@ -8,7 +8,7 @@ composeFilePath=$(
 )
 
 verifyCore() {
-  coreInstances=${OPENHIM_CORE_INSTANCES}
+  coreInstances=${OPENHIM_CORE_INSTANCES:-1}
   running="false"
   while [ $running != "true" ]; do
     for i in $(docker service ls -f name=instant_openhim-core --format "{{.Replicas}}"); do
