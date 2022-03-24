@@ -31,11 +31,11 @@ while [ $runningInstanceCount != $mongoCount ]; do
     currentTime=$(date +%s)
     if [ $(expr $currentTime - $startTime) -ge "60" ]; then
         if [ $warned = "false" ]; then
-            echo "Waited 1 minute for mongo set to start. This is taking longer than it should..."
+            echo "Warning: Waited 1 minute for mongo set to start. This is taking longer than it should..."
             warned="true"
             startTime=$(date +%s)
         else
-            echo "Waited 2 minutes for mongo set to start. Exiting..."
+            echo "Fatal: Waited 2 minutes for mongo set to start. Exiting..."
             exit 1
         fi
     fi
