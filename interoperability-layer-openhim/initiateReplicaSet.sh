@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 echo 'Initiating the mongo replica set'
 
@@ -14,7 +14,7 @@ for i in $(seq 1 $mongoCount); do
 done
 config=$(printf '%s]}' $config)
 
-echo '\nSleep to ensure all the mongo instances for the replica set are up and running'
+echo 'Sleep to ensure all the mongo instances for the replica set are up and running'
 runningInstanceCount="0"
 startTime=$(date +%s)
 warned="false"
@@ -43,7 +43,7 @@ done
 # This sleep ensures that the replica sets are reachable
 sleep 10
 
-containerName='mongo-1'
+containerName=""
 if [ "$(docker ps -f name=instant_mongo-1 --format "{{.ID}}")" ]; then
     containerName="$(docker ps -f name=instant_mongo-1 --format "{{.ID}}")"
 fi
