@@ -73,15 +73,12 @@ timeoutCheck() {
   warned=$2
   message=$3
   currentTime=$(date +%s)
-  if [ $(expr $currentTime - $startTime) -ge 60 ]; then
-    if [ $warned == "false" ]; then
-      echo "Warning: Waited 1m minute for $message. This is taking longer than it should..."
-      warned="true"
-      startTime=$(date +%s)
-    else
-      echo "Fatal: Waited 2m minutes for $message. Exiting..."
-      exit 1
-    fi
+  if [ $(expr $currentTime - $startTime) -ge 60 ] && [ $warned == "false" ]; then
+    echo "Warning: Waited 1m minute for $message. This is taking longer than it should..."
+    warned="true"
+  elif [ $(expr $currentTime - $startTime) -ge 120 ] && [ $warned == "true" ]; then
+    echo "Fatal: Waited 2m minutes for $message. Exiting..."
+    exit 1
   fi
 }
 

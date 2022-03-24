@@ -29,15 +29,12 @@ while [ $runningInstanceCount != $mongoCount ]; do
     done
 
     currentTime=$(date +%s)
-    if [ $(expr $currentTime - $startTime) -ge "60" ]; then
-        if [ $warned = "false" ]; then
-            echo "Warning: Waited 1 minute for mongo set to start. This is taking longer than it should..."
-            warned="true"
-            startTime=$(date +%s)
-        else
-            echo "Fatal: Waited 2 minutes for mongo set to start. Exiting..."
-            exit 1
-        fi
+    if [ $(expr $currentTime - $startTime) -ge 60 ] && [ $warned == "false" ]; then
+        echo "Warning: Waited 1 minute for mongo set to start. This is taking longer than it should..."
+        warned="true"
+    elif [ $(expr $currentTime - $startTime) -ge 120 ] && [ $warned == "true" ]; then
+        echo "Fatal: Waited 2 minutes for mongo set to start. Exiting..."
+        exit 1
     fi
 done
 # This sleep ensures that the replica sets are reachable
