@@ -10,33 +10,49 @@ composeFilePath=$(
 verifyCore() {
   coreInstances=${OPENHIM_CORE_INSTANCES:-1}
   running="false"
+  startTime=$(date +%s)
+  warned="false"
   while [ $running != "true" ]; do
-    for i in $(docker service ls -f name=instant_openhim-core --format "{{.Replicas}}"); do
-      if [ $i = "$coreInstances/$coreInstances" ]; then
-        running="true"
+    sleep 1
+
+    if [[ $(docker service ls -f name=instant_openhim-core --format "{{.Replicas}}") == *"$coreInstances/$coreInstances"* ]]; then
+      running="true"
+    fi
+
+    currentTime=$(date +%s)
+    if [ $(expr $currentTime - $startTime) -ge "60" ]; then
+      if [ $warned == "false" ]; then
+        echo "Warning: Waited 1 minute for openhim-core to start. This is taking longer than it should..."
+        warned="true"
+        startTime=$(date +%s)
+      else
+        echo "Fatal: Waited 2 minutes for openhim-core to start. Exiting..."
+        exit 1
       fi
-    done
+    fi
   done
 
   complete="false"
-  startTime=$(date +%s)
   while [ $complete != "true" ]; do
-    sleep 1
-    for i in $(docker service ps instant_await-helper --format "{{.CurrentState}}"); do
-      if [ $i = "Complete" ]; then
-        complete="true"
-      elif [ $i = "Failed" ] || [ $i = "Rejected" ]; then
-        err=$(docker service ps instant_await-helper --no-trunc --format "{{.Error}}")
-        echo "Failed to verify state of openhim-core. Err: $err"
-        docker service rm instant_await-helper
-        criticalFail
-      fi
-    done
+    awaitHelperState=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
+    if [[ $awaitHelperState == *"Complete"* ]]; then
+      complete="true"
+    elif [[ $awaitHelperState == *"Failed"* ]] || [ $awaitHelperState == *"Rejected"* ]; then
+      err=$(docker service ps instant_await-helper --no-trunc --format "{{.Error}}")
+      echo "Fatal: Received error when trying to verify state of openhim-core. Error: $err"
+      exit 1
+    fi
 
     currentTime=$(date +%s)
-    if [ $(expr $currentTime - $startTime) -ge "300" ]; then
-      echo "Waited 5 minutes for openhim-core to start. This is taking longer than it should..."
-      startTime=$(date +%s)
+    if [ $(expr $currentTime - $startTime) -ge "70" ]; then
+      if [ $warned == "false" ]; then
+        echo "Warning: Waited 1m10s minute for openhim-core to start. This is taking longer than it should..."
+        warned="true"
+        startTime=$(date +%s)
+      else
+        echo "Fatal: Waited 2m20s minutes for openhim-core to start. Exiting..."
+        exit 1
+      fi
     fi
   done
 
