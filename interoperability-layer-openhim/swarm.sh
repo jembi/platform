@@ -63,23 +63,28 @@ verifyCore() {
 removeConfigImporter() {
   complete="false"
   startTime=$(date +%s)
+  warned="false"
   while [ $complete != "true" ]; do
     sleep 1
-    for i in $(docker service ps instant_interoperability-layer-openhim-config-importer --format "{{.CurrentState}}"); do
-      if [ $i = "Complete" ]; then
+    configImporterState=$(docker service ps instant_interoperability-layer-openhim-config-importer --format "{{.CurrentState}}")
+      if [[ $configImporterState = *"Complete"* ]]; then
         complete="true"
-      elif [ $i = "Failed" ] || [ $i = "Rejected" ]; then
+      elif [[ $configImporterState = *"Failed"* ]] || [[ $configImporterState = *"Rejected"* ]]; then
         err=$(docker service ps instant_interoperability-layer-openhim-config-importer --no-trunc --format "{{.Error}}")
-        echo "Core config importer failed with err: $err"
-        docker service rm instant_interoperability-layer-openhim-config-importer
-        criticalFail
+        echo "Fatal: Core config importer failed with error: $err"
+        exit 1
       fi
-    done
 
     currentTime=$(date +%s)
-    if [ $(expr $currentTime - $startTime) -ge "300" ]; then
-      echo "Waited 5 minutes for interoperability-layer-openhim-config-importer to run. This is taking longer than it should..."
-      startTime=$(date +%s)
+    if [ $(expr $currentTime - $startTime) -ge "60" ]; then
+      if [ $warned == "false" ]; then
+        echo "Warning: Waited 1m minute for interoperability-layer-openhim-config-importer to run. This is taking longer than it should..."
+        warned="true"
+        startTime=$(date +%s)
+      else
+        echo "Fatal: Waited 2m minutes for interoperability-layer-openhim-config-importer to run. Exiting..."
+        exit 1
+      fi
     fi
   done
 

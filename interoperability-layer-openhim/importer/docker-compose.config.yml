@@ -20,8 +20,7 @@ services:
     deploy:
       replicas: 1
       restart_policy:
-        condition: on-failure
-        max_attempts: 3
+        condition: none
 
 configs:
   openhim-config-importer-openhimConfig.js:
