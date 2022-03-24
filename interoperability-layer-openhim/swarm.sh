@@ -91,16 +91,6 @@ removeConfigImporter() {
   docker service rm instant_interoperability-layer-openhim-config-importer
 }
 
-criticalFail() {
-  docker service rm instant_openhim-core instant_openhim-console instant_hapi-proxy instant_mongo-1 instant_mongo-2 instant_mongo-3
-
-  sleep 10
-  docker volume rm instant_openhim-mongo1 instant_openhim-mongo2 instant_openhim-mongo3
-  docker config rm instant_console.config
-
-  exit 1
-}
-
 if [ $statefulNodes == "cluster" ]; then
   printf "\nRunning Interoperability Layer OpenHIM package in Cluster node mode\n"
   mongoClusterComposeParam="-c ${composeFilePath}/docker-compose-mongo.cluster.yml"
