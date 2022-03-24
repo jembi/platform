@@ -4,6 +4,8 @@ statefulNodes=${STATEFUL_NODES:-"cluster"}
 openhimCoreMediatorHostname=${OPENHIM_CORE_MEDIATOR_HOSTNAME:-"localhost"}
 openhimMediatorApiPort=${OPENHIM_MEDIATOR_API_PORT:-"8080"}
 coreInstances=${OPENHIM_CORE_INSTANCES:-1}
+startTime=""
+warned="false"
 
 composeFilePath=$(
   cd "$(dirname "${BASH_SOURCE[0]}")"
@@ -21,22 +23,14 @@ verifyCore() {
       running="true"
     fi
 
-    currentTime=$(date +%s)
-    if [ $(expr $currentTime - $startTime) -ge "60" ]; then
-      if [ $warned == "false" ]; then
-        echo "Warning: Waited 1 minute for openhim-core to start. This is taking longer than it should..."
-        warned="true"
-        startTime=$(date +%s)
-      else
-        echo "Fatal: Waited 2 minutes for openhim-core to start. Exiting..."
-        exit 1
-      fi
-    fi
+    timeoutCheck $startTime $warned "openhim-core to start"
   done
 
   complete="false"
   warned="false"
   while [ $complete != "true" ]; do
+    sleep 1
+
     awaitHelperState=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
     if [[ $awaitHelperState == *"Complete"* ]]; then
       complete="true"
@@ -46,17 +40,7 @@ verifyCore() {
       exit 1
     fi
 
-    currentTime=$(date +%s)
-    if [ $(expr $currentTime - $startTime) -ge "70" ]; then
-      if [ $warned == "false" ]; then
-        echo "Warning: Waited 1m10s minute for openhim-core to start. This is taking longer than it should..."
-        warned="true"
-        startTime=$(date +%s)
-      else
-        echo "Fatal: Waited 2m20s minutes for openhim-core to start. Exiting..."
-        exit 1
-      fi
-    fi
+    timeoutCheck $startTime $warned "openhim-core heartbeat check"
   done
 
   docker service rm instant_await-helper
@@ -68,29 +52,37 @@ removeConfigImporter() {
   warned="false"
   while [ $complete != "true" ]; do
     sleep 1
-    configImporterState=$(docker service ps instant_interoperability-layer-openhim-config-importer --format "{{.CurrentState}}")
-      if [[ $configImporterState == *"Complete"* ]]; then
-        complete="true"
-      elif [[ $configImporterState == *"Failed"* ]] || [[ $configImporterState == *"Rejected"* ]]; then
-        err=$(docker service ps instant_interoperability-layer-openhim-config-importer --no-trunc --format "{{.Error}}")
-        echo "Fatal: Core config importer failed with error: $err"
-        exit 1
-      fi
 
-    currentTime=$(date +%s)
-    if [ $(expr $currentTime - $startTime) -ge "60" ]; then
-      if [ $warned == "false" ]; then
-        echo "Warning: Waited 1m minute for interoperability-layer-openhim-config-importer to run. This is taking longer than it should..."
-        warned="true"
-        startTime=$(date +%s)
-      else
-        echo "Fatal: Waited 2m minutes for interoperability-layer-openhim-config-importer to run. Exiting..."
-        exit 1
-      fi
+    configImporterState=$(docker service ps instant_interoperability-layer-openhim-config-importer --format "{{.CurrentState}}")
+    if [[ $configImporterState == *"Complete"* ]]; then
+      complete="true"
+    elif [[ $configImporterState == *"Failed"* ]] || [[ $configImporterState == *"Rejected"* ]]; then
+      err=$(docker service ps instant_interoperability-layer-openhim-config-importer --no-trunc --format "{{.Error}}")
+      echo "Fatal: Core config importer failed with error: $err"
+      exit 1
     fi
+
+    timeoutCheck $startTime $warned "interoperability-layer-openhim-config-importer to run"
   done
 
   docker service rm instant_interoperability-layer-openhim-config-importer
+}
+
+timeoutCheck() {
+  startTime=$(($1))
+  warned=$2
+  message=$3
+  currentTime=$(date +%s)
+  if [ $(expr $currentTime - $startTime) -ge 60 ]; then
+    if [ $warned == "false" ]; then
+      echo "Warning: Waited 1m minute for $message. This is taking longer than it should..."
+      warned="true"
+      startTime=$(date +%s)
+    else
+      echo "Fatal: Waited 2m minutes for $message. Exiting..."
+      exit 1
+    fi
+  fi
 }
 
 if [ $statefulNodes == "cluster" ]; then
