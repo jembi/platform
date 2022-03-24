@@ -1,6 +1,9 @@
 #!/bin/bash
 
 statefulNodes=${STATEFUL_NODES:-"cluster"}
+openhimCoreMediatorHostname=${OPENHIM_CORE_MEDIATOR_HOSTNAME:-"localhost"}
+openhimMediatorApiPort=${OPENHIM_MEDIATOR_API_PORT:-"8080"}
+coreInstances=${OPENHIM_CORE_INSTANCES:-1}
 
 composeFilePath=$(
   cd "$(dirname "${BASH_SOURCE[0]}")"
@@ -8,7 +11,6 @@ composeFilePath=$(
 )
 
 verifyCore() {
-  coreInstances=${OPENHIM_CORE_INSTANCES:-1}
   running="false"
   startTime=$(date +%s)
   warned="false"
@@ -120,7 +122,7 @@ if [ "$1" == "init" ]; then
   fi
 
   # Set host in OpenHIM console config
-  sed -i "s/localhost/$OPENHIM_CORE_MEDIATOR_HOSTNAME/g; s/8080/$OPENHIM_MEDIATOR_API_PORT/g" /instant/interoperability-layer-openhim/importer/volume/default.json
+  sed -i "s/localhost/$openhimCoreMediatorHostname/g; s/8080/$openhimMediatorApiPort/g" /instant/interoperability-layer-openhim/importer/volume/default.json
 
   docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.stack-0.yml $openhimDevComposeParam instant
 
