@@ -69,9 +69,9 @@ removeConfigImporter() {
   while [ $complete != "true" ]; do
     sleep 1
     configImporterState=$(docker service ps instant_interoperability-layer-openhim-config-importer --format "{{.CurrentState}}")
-      if [[ $configImporterState = *"Complete"* ]]; then
+      if [[ $configImporterState == *"Complete"* ]]; then
         complete="true"
-      elif [[ $configImporterState = *"Failed"* ]] || [[ $configImporterState = *"Rejected"* ]]; then
+      elif [[ $configImporterState == *"Failed"* ]] || [[ $configImporterState == *"Rejected"* ]]; then
         err=$(docker service ps instant_interoperability-layer-openhim-config-importer --no-trunc --format "{{.Error}}")
         echo "Fatal: Core config importer failed with error: $err"
         exit 1
