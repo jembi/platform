@@ -10,6 +10,10 @@ services:
       retries: 5
       start_period: 30s
     configs:
+      - target: /usr/share/logstash/config/log4j2.properties
+        source: logstash-log4j2.properties
+      - target: /usr/share/logstash/config/jvm.options
+        source: logstash-jvm.options
       - target: /usr/share/logstash/config/logstash.yml
         source: logstash-logstash.yml
       - target: /usr/share/logstash/config/pipelines.yml
