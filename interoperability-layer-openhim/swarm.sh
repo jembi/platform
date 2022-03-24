@@ -131,7 +131,7 @@ elif [ "$1" == "up" ]; then
   sleep 20
   docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.stack-1.yml instant
 elif [ "$1" == "down" ]; then
-  docker service scale instant_openhim-core=0 instant_openhim-console=0 instant_hapi-proxy=0 instant_mongo-1=0 instant_mongo-2=0 instant_mongo-3=0
+  docker service scale instant_openhim-core=0 instant_openhim-console=0 instant_mongo-1=0 instant_mongo-2=0 instant_mongo-3=0
 elif [ "$1" == "destroy" ]; then
   docker service rm instant_openhim-core instant_openhim-console instant_mongo-1 instant_mongo-2 instant_mongo-3 instant_await-helper
   docker service rm instant_interoperability-layer-openhim-config-importer
