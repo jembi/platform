@@ -17,18 +17,18 @@ verifyCore() {
   startTime=$(date +%s)
   warned="false"
   while [ $running != "true" ]; do
+    timeoutCheck $startTime $warned "openhim-core to start"
     sleep 1
 
     if [[ $(docker service ls -f name=instant_openhim-core --format "{{.Replicas}}") == *"$coreInstances/$coreInstances"* ]]; then
       running="true"
     fi
-
-    timeoutCheck $startTime $warned "openhim-core to start"
   done
 
   complete="false"
   warned="false"
   while [ $complete != "true" ]; do
+    timeoutCheck $startTime $warned "openhim-core heartbeat check"
     sleep 1
 
     awaitHelperState=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
@@ -39,8 +39,6 @@ verifyCore() {
       echo "Fatal: Received error when trying to verify state of openhim-core. Error: $err"
       exit 1
     fi
-
-    timeoutCheck $startTime $warned "openhim-core heartbeat check"
   done
 
   docker service rm instant_await-helper
@@ -51,6 +49,7 @@ removeConfigImporter() {
   startTime=$(date +%s)
   warned="false"
   while [ $complete != "true" ]; do
+    timeoutCheck $startTime $warned "interoperability-layer-openhim-config-importer to run"
     sleep 1
 
     configImporterState=$(docker service ps instant_interoperability-layer-openhim-config-importer --format "{{.CurrentState}}")
@@ -61,8 +60,6 @@ removeConfigImporter() {
       echo "Fatal: Core config importer failed with error: $err"
       exit 1
     fi
-
-    timeoutCheck $startTime $warned "interoperability-layer-openhim-config-importer to run"
   done
 
   docker service rm instant_interoperability-layer-openhim-config-importer

@@ -19,15 +19,6 @@ runningInstanceCount="0"
 startTime=$(date +%s)
 warned="false"
 while [ $runningInstanceCount != $mongoCount ]; do
-    sleep 1
-
-    runningInstanceCount="0"
-    for i in $(docker service ls -f name=instant_mongo --format "{{.Replicas}}"); do
-        if [ $i = "1/1" ]; then
-            runningInstanceCount=$(expr $runningInstanceCount + 1)
-        fi
-    done
-
     currentTime=$(date +%s)
     if [ $(expr $currentTime - $startTime) -ge 60 ] && [ $warned == "false" ]; then
         echo "Warning: Waited 1 minute for mongo set to start. This is taking longer than it should..."
@@ -36,6 +27,15 @@ while [ $runningInstanceCount != $mongoCount ]; do
         echo "Fatal: Waited 2 minutes for mongo set to start. Exiting..."
         exit 1
     fi
+
+    sleep 1
+
+    runningInstanceCount="0"
+    for i in $(docker service ls -f name=instant_mongo --format "{{.Replicas}}"); do
+        if [ $i = "1/1" ]; then
+            runningInstanceCount=$(expr $runningInstanceCount + 1)
+        fi
+    done
 done
 # This sleep ensures that the replica sets are reachable
 sleep 10
