@@ -9,6 +9,14 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+    configs:
+      - target: /usr/share/logstash/config/logstash.yml
+        source: logstash-logstash.yml
+      - target: /usr/share/logstash/config/pipelines.yml
+        source: logstash-pipelines.yml
+      - target: /usr/share/logstash/pipeline/fhir-extractor.logstash.conf
+        source: logstash-fhir-extractor.conf
+
 configs:
   logstash-log4j2.properties:
     file: ./log4j2.properties
@@ -20,5 +28,13 @@ configs:
       name: logstash
   logstash-logstash.yml:
     file: ./logstash.yml
+    labels: 
+      name: logstash
+  logstash-pipelines.yml:
+    file: ./pipelines.yml
+    labels: 
+      name: logstash
+  logstash-fhir-extractor.conf:
+    file: ./pipeline/fhir-extractor.logstash.conf
     labels: 
       name: logstash

@@ -138,6 +138,6 @@ elif [ "$1" == "destroy" ]; then
   if [ "$statefulNodes" == "cluster" ]; then
     echo "Volumes are only deleted on the host on which the command is run. Elastic Search volumes on other nodes are not deleted"
   fi
-elsehttps://stackoverflow.com/questions/69252733/bash-local-variable-scope-best-practice
+else
   echo "Valid options are: init, up, down, or destroy"
 fi
