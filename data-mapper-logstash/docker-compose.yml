@@ -9,6 +9,9 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+    environment:
+      ES_ELASTIC: ${ES_ELASTIC},
+      LS_JAVA_OPTS: ${LS_JAVA_OPTS:--Xmx2g -Xms2g}
     configs:
       - target: /usr/share/logstash/config/log4j2.properties
         source: logstash-log4j2.properties
