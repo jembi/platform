@@ -33,6 +33,7 @@ verifyCore() {
   done
 
   complete="false"
+  warned="false"
   while [ $complete != "true" ]; do
     awaitHelperState=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
     if [[ $awaitHelperState == *"Complete"* ]]; then
