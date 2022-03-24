@@ -48,6 +48,10 @@ if [ "$(docker ps -f name=instant_mongo-1 --format "{{.ID}}")" ]; then
     containerName="$(docker ps -f name=instant_mongo-1 --format "{{.ID}}")"
 fi
 
-docker exec -i $containerName mongo --eval "rs.initiate($config)"
-
-echo 'Replica set successfully set up'
+initiateRepSetResponse=$(docker exec -i $containerName mongo --eval "rs.initiate($config)")
+if [[ $initiateRepSetResponse == *"{ \"ok\" : 1 }"* ]] || [[ $initiateRepSetResponse == *"already initialized"* ]]; then
+    echo "Replica set successfully set up"
+else
+    echo "Fatal: Unable to set up replica set"
+    exit 1
+fi
