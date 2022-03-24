@@ -1,23 +1,26 @@
 #!/bin/bash
 
-composeFilePath=$(
+Action=$1
+Mode=$2
+
+COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")"
   pwd -P
 )
 
-if [ "$2" == "dev" ]; then
+if [[ "$Mode" == "dev" ]]; then
   printf "\nRunning Data Mapper Logstash package in DEV mode\n"
-  logstashDevComposeParam="-c ${composeFilePath}/docker-compose.dev.yml"
+  LogstashDevComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
 else
   printf "\nRunning Data Mapper Logstash package in PROD mode\n"
-  logstashDevComposeParam=""
+  LogstashDevComposeParam=""
 fi
 
-if [ "$1" == "init" ] || [ "$1" == "up" ]; then
-  docker stack deploy -c "$composeFilePath"/docker-compose.yml $logstashDevComposeParam instant
-elif [ "$1" == "down" ]; then
+if [[ "$Action" == "init" ]] || [[ "$Action" == "up" ]]; then
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $LogstashDevComposeParam instant
+elif [[ "$Action" == "down" ]]; then
   docker service scale instant_data-mapper-logstash=0
-elif [ "$1" == "destroy" ]; then
+elif [[ "$Action" == "destroy" ]]; then
   docker service rm instant_data-mapper-logstash
 else
   echo "Valid options are: init, up, down, or destroy"
