@@ -1,0 +1,11 @@
+{
+  "id": "fhir-datastore-helper-hapi-fhir",
+  "name": "Fhir Datastore Helper Package - HAPI-FHIR",
+  "description": "This is a helper package that imports a Fhir IG and configures validation on Hapi Fhir",
+  "version": "0.0.1",
+  "dependencies": ["fhir-datastore-hapi-fhir"],
+  "environmentVariables": {
+    "HAPI_FHIR_INSTANCES": 1,
+    "FHIR_IG_URL": ""
+  }
+}

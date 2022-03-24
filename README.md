@@ -32,6 +32,7 @@ To set up a remote cluster environment, see [mercury readme](https://github.com/
 
 1. Run `go cli` binary to launch the project (*Make sure to add the `DOCKER_HOST` variable indicating your **lead Swarm manager***, i.e. DOCKER_HOST=ssh://{lead_ip} ./platform-linux):
 
+1. Check the current cli version in `./get-cli.sh` and run to download binaries
     - **Linux**. From terminal run: `./platform-linux`
     - Mac. From terminal run: `./platform-macos`
         > Warning: Mac has an issue with the binary as it views the file as a security risk
@@ -43,15 +44,9 @@ To set up a remote cluster environment, see [mercury readme](https://github.com/
 
 ## Go Cli Dev
 
-The Go Cli scripts are kept in the [Instant OpenHIE Repo](https://github.com/openhie/instant/tree/master/goinstant). To make changes to the Cli clone the Instant repo and make your changes in the `goinstant` directory.
+The Go Cli scripts are kept in the [OpenHIE Package Start Kit Repo](https://github.com/openhie/package-starter-kit/tree/main/cli). To make changes to the Cli clone the repo and make your changes in the `cli` directory.
 
-To build the go cli for the `platform` project run:
-
-```sh
-./build-cli.sh
-```
-
-This requires the Instant OpenHIE project to build the binary files.
+To create new binaries, create a new tag and release and then change the cli version in `./get-cli.sh` in the platform repo and run the script to download the latest.
 
 ## Platform Package Dev
 
