@@ -12,7 +12,7 @@ for i in $(seq 1 $MONGO_SET_COUNT); do
     fi
     Priority="0.5"
 done
-Config=$(printf '%s]}' $Config)
+Config=$(printf '%s]}' "$Config")
 
 echo 'Sleep to ensure all the mongo instances for the replica set are up and running'
 RunningInstanceCount="0"
@@ -46,7 +46,7 @@ if [[ "$(docker ps -f name=instant_mongo-1 --format "{{.ID}}")" ]]; then
     ContainerName="$(docker ps -f name=instant_mongo-1 --format "{{.ID}}")"
 fi
 
-InitiateRepSetResponse=$(docker exec -i $ContainerName mongo --eval "rs.initiate($Config)")
+InitiateRepSetResponse=$(docker exec -i "$ContainerName" mongo --eval "rs.initiate($Config)")
 if [[ $InitiateRepSetResponse == *"{ \"ok\" : 1 }"* ]] || [[ $InitiateRepSetResponse == *"already initialized"* ]]; then
     echo "Replica set successfully set up"
 else

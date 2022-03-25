@@ -31,7 +31,8 @@ VerifyCore() {
     TimeoutCheck $startTime $Warned "openhim-core heartbeat check"
     sleep 1
 
-    local awaitHelperState=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
+    local awaitHelperState
+    awaitHelperState=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
     if [[ $awaitHelperState == *"Complete"* ]]; then
       complete="true"
     elif [[ $awaitHelperState == *"Failed"* ]] || [ $awaitHelperState == *"Rejected"* ]]; then
