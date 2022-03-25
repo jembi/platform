@@ -25,18 +25,17 @@ fi
 
 if [ "$1" == "init" ]; then
   docker stack deploy -c "$composeFilePath"/docker-compose.yml $kafkaClusterComposeParam $kafkaDevComposeParam instant
-  sleep 30
-  docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.stack.yml $kafkaClusterComposeParam $kafkaDevComposeParam instant
 elif [ "$1" == "up" ]; then
-  docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.stack.yml $kafkaClusterComposeParam $kafkaDevComposeParam instant
+  docker stack deploy -c "$composeFilePath"/docker-compose.yml -c $kafkaClusterComposeParam $kafkaDevComposeParam instant
 elif [ "$1" == "down" ]; then
-  docker service scale instant_zookeeper=0 instant_kafka=0 instant_kafdrop=0
+  docker service scale instant_zookeeper=0 instant_kafka=0 instant_kafdrop=0 
 elif [ "$1" == "destroy" ]; then
   docker service rm instant_zookeeper instant_kafka instant_kafdrop
 
   echo "Sleep 20 Seconds to allow services to shut down before deleting volumes"
   sleep 20
 
+  # TODO remove from all nodes
   docker volume rm instant_kafka-volume
 
   if [ $statefulNodes == "cluster" ]; then

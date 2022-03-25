@@ -9,12 +9,4 @@ services:
 
   kafka:
     deploy:
-      placement:
-        constraints:
-          - "node.labels.name==node-1"
-
-  kafdrop:
-    deploy:
-      placement:
-        constraints:
-          - "node.labels.name==node-1"
+      mode: global
