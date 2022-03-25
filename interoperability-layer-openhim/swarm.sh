@@ -7,16 +7,17 @@ OPENHIM_CORE_INSTANCES=${OPENHIM_CORE_INSTANCES:-1}
 Warned="false"
 
 composeFilePath=$(
-  cd "$(dirname "${BASH_SOURCE[0]}")"
+  cd "$(dirname "${BASH_SOURCE[0]}")" || exit 1
   pwd -P
 )
 
 VerifyCore() {
   local running="false"
-  local startTime=$(date +%s)
+  local startTime
+  startTime=$(date +%s)
   Warned="false"
-  while [ $running != "true" ]; do
-    timeoutCheck $startTime $Warned "openhim-core to start"
+  while [[ $running != "true" ]]; do
+    timeoutCheck "$startTime" $Warned "openhim-core to start"
     sleep 1
 
     if [[ $(docker service ls -f name=instant_openhim-core --format "{{.Replicas}}") == *"$OPENHIM_CORE_INSTANCES/$OPENHIM_CORE_INSTANCES"* ]]; then
@@ -26,11 +27,12 @@ VerifyCore() {
 
   local complete="false"
   Warned="false"
-  while [ $complete != "true" ]; do
-    timeoutCheck $startTime $Warned "openhim-core heartbeat check"
+  while [[ $complete != "true" ]]; do
+    timeoutCheck "$startTime" $Warned "openhim-core heartbeat check"
     sleep 1
 
-    local awaitHelperState=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
+    local awaitHelperState
+    awaitHelperState=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
     if [[ $awaitHelperState == *"Complete"* ]]; then
       complete="true"
     elif [[ $awaitHelperState == *"Failed"* ]] || [[ $awaitHelperState == *"Rejected"* ]]; then
@@ -45,10 +47,11 @@ VerifyCore() {
 
 RemoveConfigImporter() {
   local complete="false"
-  local startTime=$(date +%s)
+  local startTime
+  startTime=$(date +%s)
   Warned="false"
-  while [ $complete != "true" ]; do
-    timeoutCheck $startTime $Warned "interoperability-layer-openhim-config-importer to run"
+  while [[ $complete != "true" ]]; do
+    timeoutCheck "$startTime" $Warned "interoperability-layer-openhim-config-importer to run"
     sleep 1
 
     configImporterState=$(docker service ps instant_interoperability-layer-openhim-config-importer --format "{{.CurrentState}}")
@@ -68,11 +71,12 @@ TimeoutCheck() {
   local startTime=$(($1))
   Warned=$2
   local message=$3
-  local currentTime=$(date +%s)
-  if [[ $(expr $currentTime - $startTime) -ge 60 ]] && [[ $Warned == "false" ]]; then
+  local currentTime
+  currentTime=$(date +%s)
+  if [[ $(("$currentTime" - "$startTime")) -ge 60 ]] && [[ $Warned == "false" ]]; then
     echo "Warning: Waited 1m minute for $message. This is taking longer than it should..."
     Warned="true"
-  elif [[ $(expr $currentTime - $startTime) -ge 120 ]] && [[ $Warned == "true" ]]; then
+  elif [[ $(("$currentTime" - "$startTime")) -ge 120 ]] && [[ $Warned == "true" ]]; then
     echo "Fatal: Waited 2m minutes for $message. Exiting..."
     exit 1
   fi
@@ -97,7 +101,7 @@ else
 fi
 
 if [[ "$1" == "init" ]]; then
-  docker stack deploy -c "$composeFilePath"/docker-compose-mongo.yml $mongoClusterComposeParam $mongoDevComposeParam instant
+  docker stack deploy -c "$composeFilePath"/docker-compose-mongo.yml "$mongoClusterComposeParam" "$mongoDevComposeParam" instant
 
   # Set up the replica set
   "$composeFilePath"/initiateReplicaSet.sh
@@ -109,14 +113,14 @@ if [[ "$1" == "init" ]]; then
   # Set host in OpenHIM console config
   sed -i "s/localhost/$OPENHIM_CORE_MEDIATOR_HOSTNAME/g; s/8080/$OPENHIM_MEDIATOR_API_PORT/g" /instant/interoperability-layer-openhim/importer/volume/default.json
 
-  docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.stack-0.yml $openhimDevComposeParam instant
+  docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.stack-0.yml "$openhimDevComposeParam" instant
 
   docker stack deploy -c "$composeFilePath"/docker-compose.await-helper.yml instant
 
   echo "Sleeping to give OpenHIM Core time to start up before OpenHIM Console run"
   verifyCore
 
-  docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.stack-1.yml $openhimDevComposeParam instant
+  docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.stack-1.yml "$openhimDevComposeParam "instant
 
   docker stack deploy -c "$composeFilePath"/importer/docker-compose.config.yml instant
 
@@ -126,8 +130,8 @@ if [[ "$1" == "init" ]]; then
   # Sleep to ensure config importer is removed
   sleep 5
 elif [[ "$1" == "up" ]]; then
-  docker stack deploy -c "$composeFilePath"/docker-compose-mongo.yml $mongoClusterComposeParam $mongoDevComposeParam instant
-  sleep 20
+  docker stack deploy -c "$composeFilePath"/docker-compose-mongo.yml "$mongoClusterComposeParam" "$mongoDevComposeParam" instant
+  sleep" 20"
   docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.stack-1.yml instant
 elif [[ "$1" == "down" ]]; then
   docker service scale instant_openhim-core=0 instant_openhim-console=0 instant_mongo-1=0 instant_mongo-2=0 instant_mongo-3=0
