@@ -18,10 +18,10 @@ AwaitContainerStartup() {
   local timer=0
 
   until [[ -n $(docker ps -qlf name=instant_analytics-datastore-elastic-search) ]]; do
-    if [[ $timer == $warningTime ]]; then
+    if [[ "$timer" == "$warningTime" ]]; then
       echo "Warning: container is taking unusually long to start"
     fi
-    if [[ $timer == $errorTime ]]; then
+    if [[ "$timer" == "$errorTime" ]]; then
       echo "Fatal: Elasticsearch container took too long to start up"
       exit 124 # exit code for timeout is 124
     fi
@@ -39,10 +39,10 @@ AwaitContainerReady() {
   local timer=0
 
   until [[ "$(docker inspect -f '{{.State.Status}}' $(docker ps -qlf name=instant_analytics-datastore-elastic-search))" = "running" ]]; do
-    if [[ $timer == $warningTime ]]; then
+    if [[ "$timer" == "$warningTime" ]]; then
       echo "Warning: container is taking unusually long to start"
     fi
-    if [[ $timer == $errorTime ]]; then
+    if [[ "$timer" == "$errorTime" ]]; then
       echo "Fatal: Elasticsearch container took too long to start up"
       exit 124 # exit code for timeout is 124
     fi
@@ -65,7 +65,8 @@ InstallExpect() {
 
 SetElasticsearchPasswords() {
   echo "Setting passwords..."
-  local elasticSearchContainerId=$(docker ps -qlf name=instant_analytics-datastore-elastic-search)
+  local elasticSearchContainerId=""
+  elasticSearchContainerId=$(docker ps -qlf name=instant_analytics-datastore-elastic-search)
   "$COMPOSE_FILE_PATH"/set-elastic-passwords.exp "$elasticSearchContainerId" >/dev/null 2>&1
   if [[ $? -eq 1 ]]; then
     echo "Fatal: Failed to set elastic passwords. Cannot update Elastic Search passwords"
@@ -82,10 +83,10 @@ AwaitContainerDestroy() {
   local timer=0
 
   until [[ -z $(docker ps -qlf name=instant_analytics-datastore-elastic-search) ]]; do
-    if [[ $timer == $warningTime ]]; then
+    if [[ "$timer" == "$warningTime" ]]; then
       echo "Warning: container is taking unusually long to be destroyed"
     fi
-    if [[ $timer == $errorTime ]]; then
+    if [[ "$timer" == "$errorTime" ]]; then
       echo "Fatal: Elasticsearch container took too long to be destroyed"
       exit 124 # exit code for timeout is 124
     fi
