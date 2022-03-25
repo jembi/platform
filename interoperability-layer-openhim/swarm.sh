@@ -118,14 +118,14 @@ if [[ "$1" == "init" ]]; then
 
   docker stack deploy -c "$ComposeFilePath"/docker-compose.await-helper.yml instant
 
-  echo "Sleeping to give OpenHIM Core time to start up before OpenHIM Console run"
+  echo "Waiting to give OpenHIM Core time to start up before OpenHIM Console run"
   VerifyCore
 
   docker stack deploy -c "$ComposeFilePath"/docker-compose.yml -c "$ComposeFilePath"/docker-compose.stack-1.yml $OpenhimDevComposeParam instant
 
   docker stack deploy -c "$ComposeFilePath"/importer/docker-compose.config.yml instant
 
-  echo "Sleeping to give core config importer time to run before cleaning up service"
+  echo "Waiting to give core config importer time to run before cleaning up service"
   RemoveConfigImporter
 
   # Sleep to ensure config importer is removed

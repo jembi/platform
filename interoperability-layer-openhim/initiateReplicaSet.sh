@@ -14,7 +14,7 @@ for i in $(seq 1 $MONGO_SET_COUNT); do
 done
 Config=$(printf '%s]}' "$Config")
 
-echo 'Sleep to ensure all the mongo instances for the replica set are up and running'
+echo 'Waiting to ensure all the mongo instances for the replica set are up and running'
 RunningInstanceCount="0"
 StartTime=$(date +%s)
 Warned="false"
