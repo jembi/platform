@@ -1,37 +1,36 @@
 #!/bin/bash
 
-statefulNodes=${STATEFUL_NODES:-"cluster"}
-openhimCoreMediatorHostname=${OPENHIM_CORE_MEDIATOR_HOSTNAME:-"localhost"}
-openhimMediatorApiPort=${OPENHIM_MEDIATOR_API_PORT:-"8080"}
-coreInstances=${OPENHIM_CORE_INSTANCES:-1}
-startTime=""
-warned="false"
+STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
+OPENHIM_CORE_MEDIATOR_HOSTNAME=${OPENHIM_CORE_MEDIATOR_HOSTNAME:-"localhost"}
+OPENHIM_MEDIATOR_API_PORT=${OPENHIM_MEDIATOR_API_PORT:-"8080"}
+OPENHIM_CORE_INSTANCES=${OPENHIM_CORE_INSTANCES:-1}
+Warned="false"
 
 composeFilePath=$(
   cd "$(dirname "${BASH_SOURCE[0]}")"
   pwd -P
 )
 
-verifyCore() {
-  running="false"
-  startTime=$(date +%s)
-  warned="false"
+VerifyCore() {
+  local running="false"
+  local startTime=$(date +%s)
+  Warned="false"
   while [ $running != "true" ]; do
-    timeoutCheck $startTime $warned "openhim-core to start"
+    timeoutCheck $startTime $Warned "openhim-core to start"
     sleep 1
 
-    if [[ $(docker service ls -f name=instant_openhim-core --format "{{.Replicas}}") == *"$coreInstances/$coreInstances"* ]]; then
+    if [[ $(docker service ls -f name=instant_openhim-core --format "{{.Replicas}}") == *"$OPENHIM_CORE_INSTANCES/$OPENHIM_CORE_INSTANCES"* ]]; then
       running="true"
     fi
   done
 
-  complete="false"
-  warned="false"
+  local complete="false"
+  Warned="false"
   while [ $complete != "true" ]; do
-    timeoutCheck $startTime $warned "openhim-core heartbeat check"
+    timeoutCheck $startTime $Warned "openhim-core heartbeat check"
     sleep 1
 
-    awaitHelperState=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
+    local awaitHelperState=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
     if [[ $awaitHelperState == *"Complete"* ]]; then
       complete="true"
     elif [[ $awaitHelperState == *"Failed"* ]] || [ $awaitHelperState == *"Rejected"* ]; then
@@ -44,12 +43,12 @@ verifyCore() {
   docker service rm instant_await-helper
 }
 
-removeConfigImporter() {
-  complete="false"
-  startTime=$(date +%s)
-  warned="false"
+RemoveConfigImporter() {
+  local complete="false"
+  local startTime=$(date +%s)
+  Warned="false"
   while [ $complete != "true" ]; do
-    timeoutCheck $startTime $warned "interoperability-layer-openhim-config-importer to run"
+    timeoutCheck $startTime $Warned "interoperability-layer-openhim-config-importer to run"
     sleep 1
 
     configImporterState=$(docker service ps instant_interoperability-layer-openhim-config-importer --format "{{.CurrentState}}")
@@ -65,21 +64,21 @@ removeConfigImporter() {
   docker service rm instant_interoperability-layer-openhim-config-importer
 }
 
-timeoutCheck() {
-  startTime=$(($1))
-  warned=$2
-  message=$3
-  currentTime=$(date +%s)
-  if [ $(expr $currentTime - $startTime) -ge 60 ] && [ $warned == "false" ]; then
+TimeoutCheck() {
+  local startTime=$(($1))
+  Warned=$2
+  local message=$3
+  local currentTime=$(date +%s)
+  if [ $(expr $currentTime - $startTime) -ge 60 ] && [ $Warned == "false" ]; then
     echo "Warning: Waited 1m minute for $message. This is taking longer than it should..."
-    warned="true"
-  elif [ $(expr $currentTime - $startTime) -ge 120 ] && [ $warned == "true" ]; then
+    Warned="true"
+  elif [ $(expr $currentTime - $startTime) -ge 120 ] && [ $Warned == "true" ]; then
     echo "Fatal: Waited 2m minutes for $message. Exiting..."
     exit 1
   fi
 }
 
-if [ $statefulNodes == "cluster" ]; then
+if [ $STATEFUL_NODES == "cluster" ]; then
   printf "\nRunning Interoperability Layer OpenHIM package in Cluster node mode\n"
   mongoClusterComposeParam="-c ${composeFilePath}/docker-compose-mongo.cluster.yml"
 else
@@ -108,7 +107,7 @@ if [ "$1" == "init" ]; then
   fi
 
   # Set host in OpenHIM console config
-  sed -i "s/localhost/$openhimCoreMediatorHostname/g; s/8080/$openhimMediatorApiPort/g" /instant/interoperability-layer-openhim/importer/volume/default.json
+  sed -i "s/localhost/$OPENHIM_CORE_MEDIATOR_HOSTNAME/g; s/8080/$OPENHIM_MEDIATOR_API_PORT/g" /instant/interoperability-layer-openhim/importer/volume/default.json
 
   docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.stack-0.yml $openhimDevComposeParam instant
 
@@ -142,7 +141,7 @@ elif [ "$1" == "destroy" ]; then
   docker volume rm instant_openhim-mongo1 instant_openhim-mongo2 instant_openhim-mongo3
   docker config rm instant_console.config
 
-  if [ $statefulNodes == "cluster" ]; then
+  if [ $STATEFUL_NODES == "cluster" ]; then
     echo "Volumes are only deleted on the host on which the command is run. Mongo volumes on other nodes are not deleted"
   fi
 else
