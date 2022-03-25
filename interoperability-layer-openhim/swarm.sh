@@ -33,7 +33,7 @@ VerifyCore() {
     local awaitHelperState=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
     if [[ $awaitHelperState == *"Complete"* ]]; then
       complete="true"
-    elif [[ $awaitHelperState == *"Failed"* ]] || [[ $awaitHelperState == *"Rejected"* ]]; then
+    elif [[ $awaitHelperState == *"Failed"* ]] || [ $awaitHelperState == *"Rejected"* ]; then
       err=$(docker service ps instant_await-helper --no-trunc --format "{{.Error}}")
       echo "Fatal: Received error when trying to verify state of openhim-core. Error: $err"
       exit 1
@@ -69,16 +69,16 @@ TimeoutCheck() {
   Warned=$2
   local message=$3
   local currentTime=$(date +%s)
-  if [[ $(expr $currentTime - $startTime) -ge 60 ]] && [[ $Warned == "false" ]]; then
+  if [ $(expr $currentTime - $startTime) -ge 60 ] && [ $Warned == "false" ]; then
     echo "Warning: Waited 1m minute for $message. This is taking longer than it should..."
     Warned="true"
-  elif [[ $(expr $currentTime - $startTime) -ge 120 ]] && [[ $Warned == "true" ]]; then
+  elif [ $(expr $currentTime - $startTime) -ge 120 ] && [ $Warned == "true" ]; then
     echo "Fatal: Waited 2m minutes for $message. Exiting..."
     exit 1
   fi
 }
 
-if [[ $STATEFUL_NODES == "cluster" ]]; then
+if [ $STATEFUL_NODES == "cluster" ]; then
   printf "\nRunning Interoperability Layer OpenHIM package in Cluster node mode\n"
   mongoClusterComposeParam="-c ${composeFilePath}/docker-compose-mongo.cluster.yml"
 else
@@ -86,7 +86,7 @@ else
   mongoClusterComposeParam=""
 fi
 
-if [[ "$2" == "dev" ]]; then
+if [ "$2" == "dev" ]; then
   printf "\nRunning Interoperability Layer OpenHIM package in DEV mode\n"
   mongoDevComposeParam="-c ${composeFilePath}/docker-compose-mongo.dev.yml"
   openhimDevComposeParam="-c ${composeFilePath}/docker-compose.dev.yml"
@@ -96,12 +96,12 @@ else
   openhimDevComposeParam=""
 fi
 
-if [[ "$1" == "init" ]]; then
+if [ "$1" == "init" ]; then
   docker stack deploy -c "$composeFilePath"/docker-compose-mongo.yml $mongoClusterComposeParam $mongoDevComposeParam instant
 
   # Set up the replica set
   "$composeFilePath"/initiateReplicaSet.sh
-  if [[ $? -eq 1 ]]; then
+  if [ $? -eq 1 ]; then
     echo "Fatal: Initate Mongo replica set failed."
     exit 1
   fi
@@ -125,13 +125,13 @@ if [[ "$1" == "init" ]]; then
 
   # Sleep to ensure config importer is removed
   sleep 5
-elif [[ "$1" == "up" ]]; then
+elif [ "$1" == "up" ]; then
   docker stack deploy -c "$composeFilePath"/docker-compose-mongo.yml $mongoClusterComposeParam $mongoDevComposeParam instant
   sleep 20
   docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.stack-1.yml instant
-elif [[ "$1" == "down" ]]; then
+elif [ "$1" == "down" ]; then
   docker service scale instant_openhim-core=0 instant_openhim-console=0 instant_mongo-1=0 instant_mongo-2=0 instant_mongo-3=0
-elif [[ "$1" == "destroy" ]]; then
+elif [ "$1" == "destroy" ]; then
   docker service rm instant_openhim-core instant_openhim-console instant_mongo-1 instant_mongo-2 instant_mongo-3 instant_await-helper
   docker service rm instant_interoperability-layer-openhim-config-importer
 
@@ -141,7 +141,7 @@ elif [[ "$1" == "destroy" ]]; then
   docker volume rm instant_openhim-mongo1 instant_openhim-mongo2 instant_openhim-mongo3
   docker config rm instant_console.config
 
-  if [[ $STATEFUL_NODES == "cluster" ]]; then
+  if [ $STATEFUL_NODES == "cluster" ]; then
     echo "Volumes are only deleted on the host on which the command is run. Mongo volumes on other nodes are not deleted"
   fi
 else
