@@ -19,7 +19,6 @@ RunningInstanceCount="0"
 StartTime=$(date +%s)
 Warned="false"
 while [[ $RunningInstanceCount != $MONGO_SET_COUNT ]]; do
-    local currentTime
     currentTime=$(date +%s)
     if [[ $(($currentTime - $StartTime)) -ge 60 ]] && [[ $Warned == "false" ]]; then
         echo "Warning: Waited 1 minute for mongo set to start. This is taking longer than it should..."
