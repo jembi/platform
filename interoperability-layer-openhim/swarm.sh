@@ -4,6 +4,7 @@ STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
 OPENHIM_CORE_MEDIATOR_HOSTNAME=${OPENHIM_CORE_MEDIATOR_HOSTNAME:-"localhost"}
 OPENHIM_MEDIATOR_API_PORT=${OPENHIM_MEDIATOR_API_PORT:-"8080"}
 OPENHIM_CORE_INSTANCES=${OPENHIM_CORE_INSTANCES:-1}
+MONGO_SET_COUNT=${MONGO_SET_COUNT:-3}
 Warned="false"
 
 ComposeFilePath=$(
@@ -83,6 +84,26 @@ TimeoutCheck() {
   fi
 }
 
+VerifyMongos() {
+  echo 'Waiting to ensure all the mongo instances for the replica set are up and running'
+  RunningInstanceCount="0"
+  local startTime
+  startTime=$(date +%s)
+  Warned="false"
+  while [[ $RunningInstanceCount != $MONGO_SET_COUNT ]]; do
+    TimeoutCheck $startTime $Warned "mongo set to start"
+
+    sleep 1
+
+    RunningInstanceCount="0"
+    for i in $(docker service ls -f name=instant_mongo --format "{{.Replicas}}"); do
+      if [[ $i = "1/1" ]]; then
+        RunningInstanceCount=$(($RunningInstanceCount + 1))
+      fi
+    done
+  done
+}
+
 if [[ $STATEFUL_NODES == "cluster" ]]; then
   printf "\nRunning Interoperability Layer OpenHIM package in Cluster node mode\n"
   MongoClusterComposeParam="-c ${ComposeFilePath}/docker-compose-mongo.cluster.yml"
@@ -132,7 +153,7 @@ if [[ "$1" == "init" ]]; then
   sleep 5
 elif [[ "$1" == "up" ]]; then
   docker stack deploy -c "$ComposeFilePath"/docker-compose-mongo.yml $MongoClusterComposeParam $MongoDevComposeParam instant
-  sleep 20
+  VerifyMongos
   docker stack deploy -c "$ComposeFilePath"/docker-compose.yml -c "$ComposeFilePath"/docker-compose.stack-1.yml instant
 elif [[ "$1" == "down" ]]; then
   docker service scale instant_openhim-core=0 instant_openhim-console=0 instant_mongo-1=0 instant_mongo-2=0 instant_mongo-3=0
