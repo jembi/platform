@@ -35,6 +35,17 @@ ansible-playbook \
   playbooks/<PLAYBOOK>.yml
 ```
 
+OR to run all provisioning playbooks with the development inventory (most common for setting up dev server), use:
+
+```bash
+ansible-playbook \
+  --ask-vault-pass \
+  --become \
+  --inventory=inventories/development \
+  --user=ubuntu \
+  playbooks/provision.yml
+```
+
 ### Vault
 
 The vault password required for running the playbooks can be found in the `database.kdbx` KeePass file.
