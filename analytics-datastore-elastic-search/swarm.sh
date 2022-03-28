@@ -113,7 +113,7 @@ else
 fi
 
 if [[ "$Action" == "init" ]]; then
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml "$ElasticSearchClusterComposeParam" "$ElasticSearchDevComposeParam" instant
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $ElasticSearchClusterComposeParam $ElasticSearchDevComposeParam instant
 
   echo "Waiting for elasticsearch to start before automatically setting built-in passwords..."
   AwaitContainerStartup
@@ -124,7 +124,7 @@ if [[ "$Action" == "init" ]]; then
 
   echo "Done initialising"
 elif [[ "$Action" == "up" ]]; then
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml "$ElasticSearchClusterComposeParam" "$ElasticSearchDevComposeParam" instant
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $ElasticSearchClusterComposeParam $ElasticSearchDevComposeParam instant
 elif [[ "$Action" == "down" ]]; then
   docker service scale instant_analytics-datastore-elastic-search=0
 elif [[ "$Action" == "destroy" ]]; then
