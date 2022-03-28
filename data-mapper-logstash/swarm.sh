@@ -4,7 +4,7 @@ Action=$1
 Mode=$2
 
 COMPOSE_FILE_PATH=$(
-  cd "$(dirname "${BASH_SOURCE[0]}")"
+  cd "$(dirname "${BASH_SOURCE[0]}")" || exit
   pwd -P
 )
 
