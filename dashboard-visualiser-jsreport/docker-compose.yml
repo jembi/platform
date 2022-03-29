@@ -1,73 +1,17 @@
 version: '2.4'
 
 services:
-  es-analytics:
-    container_name: es-analytics
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.13.0
-    environment:
-      node.name: es01
-      discovery.type: single-node
-      bootstrap.memory_lock: 'true'
-      xpack.security.enabled: 'true'
-      xpack.monitoring.collection.enabled: 'true'
-      ES_JAVA_OPTS: ${ES_HEAP_SIZE}
-      search.max_buckets: 1000000
-      search.default_search_timeout: -1
-      path.repo: /backups/elasticsearch
-    labels:
-      co.elastic.metrics/module: 'elasticsearch'
-      co.elastic.metrics/hosts: 'http://es-analytics:9200'
-      co.elastic.metrics/metricsets: 'node_stats,node'
-      co.elastic.metrics/1.module: 'docker'
-      co.elastic.metrics/1.metricsets: 'cpu,memory,diskio'
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - es-data:/usr/share/elasticsearch/data
-      - /backups/elasticsearch:/backups/elasticsearch
-    restart: unless-stopped
-
-  kibana:
-    container_name: kibana
-    image: docker.elastic.co/kibana/kibana:7.13.0
-    environment:
-      ELASTICSEARCH_URL: http://es-analytics:9200
-      ELASTICSEARCH_HOSTS: http://es-analytics:9200
-      ELASTICSEARCH_USERNAME: 'kibana_system'
-      ELASTICSEARCH_PASSWORD: ${ES_KIBANA_SYSTEM}
-    restart: unless-stopped
-
   jsreport:
-    container_name: jsreport
-    image: jembi/eth-jsreport:${JS_REPORT_ETH_REPORT_VERSION:-latest}
+    image: jsreport/jsreport:3.4.1
     labels:
       co.elastic.metrics/module: 'docker'
       co.elastic.metrics/metricsets: 'cpu,memory,diskio,info,healthcheck,container'
     environment:
       allowLocalFilesAccess: 'true'
       extensions_fs-store_dataDirectory: '/data'
-      extensions_authentication_cookieSession_secret: ${JS_REPORT_SECRET}
+      extensions_authentication_cookieSession_secret: ${JS_REPORT_SECRET:-dev_secret_only}
       extensions_authentication_admin_username: 'admin'
-      extensions_authentication_admin_password: ${JS_REPORT}
-      ES_PASSWORD: ${ES_ELASTIC}
-      licenseKey: ${JS_REPORT_LICENSE_KEY}
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
+      extensions_authentication_admin_password: ${JS_REPORT:-dev_password_only}
+      ES_PASSWORD: ${ES_ELASTIC:-dev_password_only}
     restart: unless-stopped
-    mem_limit: 6G
-
-volumes:
-  es-data:
-  instant:
-    external: true
-  metricbeat-data01:
+    mem_limit: 4G
