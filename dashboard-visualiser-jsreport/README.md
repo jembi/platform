@@ -1,22 +1,7 @@
+# Dashboard Visualiser - JS Reports
 
-# Interoperability Layer - OpenHIM
-
-The Interoperability Layer is the base of the Platform architecture.
-
-This component consists of two services:
-
-* Interoperability Layer - [OpenHIM](http://openhim.org/)
+JS Reports is a visualisation tool, which in our use case, is querying information from Elasticsearch.
 
 ## Accessing the services
 
-### OpenHIM
-
-* Console: <http://localhost:9000>
-* Username: **root@openhim.org**
-* Password: **instant101**
-
-## Testing the Interoperability Component
-
-As part of the Interoperability Layer setup we also do some initial config import for connecting the services together.
-
-* OpenHIM: Import a channel configuration that routes requests to the Data Store - HAPI FHIR service
+- JS Reports <http://localhost:5488/> - (u: admin p: dev_password_only) - for pixel-perfect PDF reporting
