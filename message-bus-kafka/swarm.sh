@@ -41,7 +41,6 @@ elif [[ $1 == "destroy" ]]; then
   echo "Sleep 20 Seconds to allow services to shut down before deleting volumes"
   sleep 20
 
-  # TODO remove from all nodes
   docker volume rm instant_kafka-volume
   docker volume rm instant_zookeeper-1-volume
 
