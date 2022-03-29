@@ -1,0 +1,8 @@
+version: '3.9'
+
+services:
+  data-mapper-logstash:
+    ports:
+      - target: 5055
+        published: 5055
+        mode: host

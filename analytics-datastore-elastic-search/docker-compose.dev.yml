@@ -1,0 +1,8 @@
+version: '3.9'
+
+services:
+  analytics-datastore-elastic-search:
+    ports:
+      - target: 9200
+        published: 9201
+        mode: host

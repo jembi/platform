@@ -1,0 +1,15 @@
+{
+  "id": "dashboard-visualiser-kibana",
+  "name": "Dashboard Visualiser Kibana",
+  "description": "A dashboard to interpret the data from the ElasticSearch data store",
+  "type": "infrastructure",
+  "version": "v0.0.1",
+  "dependencies": ["analytics-datastore-elastic-search"],
+  "environmentVariables": {
+    "ELASTICSEARCH_URL": "http://analytics-datastore-elastic-search:9200",
+    "ELASTICSEARCH_HOSTS": "http://analytics-datastore-elastic-search:9200",
+    "ELASTICSEARCH_USERNAME": "kibana_system",
+    "ELASTICSEARCH_PASSWORD": "dev_password_only",
+    "KIBANA_INSTANCES": 1
+  }
+}
