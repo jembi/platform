@@ -1,0 +1,47 @@
+version: '3.9'
+
+services:
+  data-mapper-logstash:
+    image: docker.elastic.co/logstash/logstash:7.12.1
+    healthcheck:
+      test: curl --fail http://localhost:9600 || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    environment:
+      ES_ELASTIC: ${ES_ELASTIC},
+      LS_JAVA_OPTS: ${LS_JAVA_OPTS:--Xmx2g -Xms2g}
+    configs:
+      - target: /usr/share/logstash/config/log4j2.properties
+        source: logstash-log4j2.properties
+      - target: /usr/share/logstash/config/jvm.options
+        source: logstash-jvm.options
+      - target: /usr/share/logstash/config/logstash.yml
+        source: logstash-logstash.yml
+      - target: /usr/share/logstash/config/pipelines.yml
+        source: logstash-pipelines.yml
+      - target: /usr/share/logstash/pipeline/fhir-extractor.logstash.conf
+        source: logstash-fhir-extractor.conf
+
+configs:
+  logstash-log4j2.properties:
+    file: ./log4j2.properties
+    labels: 
+      name: logstash
+  logstash-jvm.options:
+    file: ./jvm.options
+    labels: 
+      name: logstash
+  logstash-logstash.yml:
+    file: ./logstash.yml
+    labels: 
+      name: logstash
+  logstash-pipelines.yml:
+    file: ./pipelines.yml
+    labels: 
+      name: logstash
+  logstash-fhir-extractor.conf:
+    file: ./pipeline/fhir-extractor.logstash.conf
+    labels: 
+      name: logstash
