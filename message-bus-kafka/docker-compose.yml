@@ -3,7 +3,6 @@ version: '3.9'
 services:
   zookeeper-1:
     image: bitnami/zookeeper:3.7.0
-    container_name: zookeeper-1
     environment:
      - ALLOW_ANONYMOUS_LOGIN=yes
     volumes:
@@ -11,7 +10,6 @@ services:
 
   kafka:
     image: bitnami/kafka:3.1.0
-    container_name: kafka
     environment:
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper-1:2181
       - ALLOW_PLAINTEXT_LISTENER=yes
@@ -22,7 +20,6 @@ services:
 
   kafdrop:
     image: obsidiandynamics/kafdrop:3.27.0
-    container_name: kafdrop
     depends_on:
       - kafka
     environment:
