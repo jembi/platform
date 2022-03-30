@@ -1,0 +1,8 @@
+version: '3.9'
+
+services:
+  dashboard-visualiser-kibana:
+    ports:
+      - target: 5601
+        published: 5601
+        mode: host
