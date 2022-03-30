@@ -20,9 +20,9 @@ if [[ "$1" == "init" ]]; then
 elif [[ "$1" == "up" ]]; then
   docker stack deploy -c "$ComposeFilePath"/docker-compose.yml $JsReportDevComposeParam instant
 elif [[ "$1" == "down" ]]; then
-  docker service scale instant_jsreport=0
+  docker service scale instant_dashboard-visualiser-jsreport=0
 elif [[ "$1" == "destroy" ]]; then
-  docker service rm instant_jsreport
+  docker service rm instant_dashboard-visualiser-jsreport
 else
   echo "Valid options are: init, up, down, or destroy"
 fi
