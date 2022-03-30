@@ -1,7 +1,7 @@
 version: '3.9'
 
 services:
-  jsreport:
+  dashboard-visualiser-jsreport:
     image: jsreport/jsreport:3.4.1
     deploy:
       placement:
