@@ -154,7 +154,7 @@ if [[ "$1" == "init" ]]; then
 elif [[ "$1" == "up" ]]; then
   docker stack deploy -c "$ComposeFilePath"/docker-compose-mongo.yml $MongoClusterComposeParam $MongoDevComposeParam instant
   VerifyMongos
-  docker stack deploy -c "$ComposeFilePath"/docker-compose.yml -c "$ComposeFilePath"/docker-compose.stack-1.yml instant
+  docker stack deploy -c "$ComposeFilePath"/docker-compose.yml -c "$ComposeFilePath"/docker-compose.stack-1.yml $OpenhimDevComposeParam instant
 elif [[ "$1" == "down" ]]; then
   docker service scale instant_openhim-core=0 instant_openhim-console=0 instant_mongo-1=0 instant_mongo-2=0 instant_mongo-3=0
 elif [[ "$1" == "destroy" ]]; then
