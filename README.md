@@ -22,7 +22,7 @@
 
 ## Quick Start for devs (remote cluster)
 
-To set up a remote cluster environment, see [mercury readme](https://github.com/jembi/cloud/blob/main/aws/mercury-team/README.md) in the [cloud repo](https://github.com/jembi/cloud).
+To set up a remote cluster environment, see [readme](https://github.com/jembi/cloud/blob/main/aws/mercury-team/README.md) in the [cloud repo](https://github.com/jembi/cloud).
 
 1. Ensure that you have the latest instant repository checked out in the same folder that this repo is in.
 1. `./build-image.sh` - builds the platform image
@@ -56,4 +56,4 @@ The Go Cli runs all services from the `jembi/platform` docker image. When develo
 ./build-image.sh
 ```
 
-As you add new packages to the platform remember to list them in `/platform-cli-conf/config.yml` file. This config file controls what packages the Go Cli can launch from the UI.
+As you add new packages to the platform remember to list them in `config.yml` file. This config file controls what packages the Go Cli can launch from the UI.
