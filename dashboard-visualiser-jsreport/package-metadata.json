@@ -12,6 +12,6 @@
     "extensions_authentication_admin_username": "'admin'",
     "extensions_authentication_admin_password": "${JS_REPORT:-dev_password_only}",
     "ES_PASSWORD": "${ES_ELASTIC:-dev_password_only}",
-    "extensions_fs-store_dataDirectory": "'/data'"
+    "extensions_fs-store_dataDirectory": "'jsreport/data'"
   }
 }
