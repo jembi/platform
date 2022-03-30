@@ -29,3 +29,5 @@ jobs:
           ./platform-linux
           ./platform-macos
           ./platform.exe
+          ./config.yml
+          ./banner.txt
