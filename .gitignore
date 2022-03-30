@@ -1,11 +1,6 @@
 # go-instant
 *-packr.go
 packrd
-goinstant/bin/goinstant*
-goinstant/data
-goinstant/hapi.properties
-goinstant/pkged.go
-goinstant-tmp
 
 # Logs
 logs
@@ -89,6 +84,3 @@ typings/
 platform-linux
 platform.exe
 platform-macos
-
-# Temporary folder for GO Run
-goinstant-run-tmp
