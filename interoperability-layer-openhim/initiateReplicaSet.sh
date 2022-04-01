@@ -15,22 +15,20 @@ done
 Config=$(printf '%s]}' "$Config")
 
 echo 'Waiting to ensure all the mongo instances for the replica set are up and running'
-RunningInstanceCount="0"
+RunningInstanceCount=0
 StartTime=$(date +%s)
-Warned="false"
-while [[ $RunningInstanceCount != $MONGO_SET_COUNT ]]; do
-    currentTime=$(date +%s)
-    if [[ $(($currentTime - $StartTime)) -ge 60 ]] && [[ $Warned == "false" ]]; then
+until [[ $RunningInstanceCount -eq $MONGO_SET_COUNT ]]; do
+    TimeDiff=$(($(date +%s) - $StartTime))
+    if [[ $TimeDiff -ge 60 ]] && [[ $TimeDiff -lt 61 ]]; then
         echo "Warning: Waited 1 minute for mongo set to start. This is taking longer than it should..."
-        Warned="true"
-    elif [[ $(($currentTime - $StartTime)) -ge 120 ]] && [[ $Warned == "true" ]]; then
+    elif [[ $TimeDiff -ge 120 ]]; then
         echo "Fatal: Waited 2 minutes for mongo set to start. Exiting..."
         exit 1
     fi
 
     sleep 1
 
-    RunningInstanceCount="0"
+    RunningInstanceCount=0
     for i in $(docker service ls -f name=instant_mongo --format "{{.Replicas}}"); do
         if [[ $i = "1/1" ]]; then
             RunningInstanceCount=$(($RunningInstanceCount + 1))
