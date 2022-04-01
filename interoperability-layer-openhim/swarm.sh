@@ -57,9 +57,9 @@ TimeoutCheck() {
   local startTime=$(($1))
   local message=$2
   local timeDiff=$(($(date +%s) - $startTime))
-  if [[ timeDiff -ge 60 ]] && [[ timeDiff -lt 61 ]]; then
+  if [[ $timeDiff -ge 60 ]] && [[ $timeDiff -lt 61 ]]; then
     echo "Warning: Waited 1 minute for $message. This is taking longer than it should..."
-  elif [[ timeDiff -ge 120 ]]; then
+  elif [[ $timeDiff -ge 120 ]]; then
     echo "Fatal: Waited 2 minutes for $message. Exiting..."
     exit 1
   fi
