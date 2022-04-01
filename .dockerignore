@@ -16,11 +16,11 @@ platform-linux
 platform.exe
 platform-macos
 
-#Docekrfiles
-PackageTest.dockerfile
+# Dockerfiles
+platform-test-harness/PackageTest.dockerfile
 Dockerfile
 
-run-cli.sh
+get-cli.sh
 
 .env.*
 .github/
@@ -30,4 +30,7 @@ README.md
 
 ansible/
 
-platform-cli-conf/
+# Go CLI Conf
+
+banner.txt
+config.yml
