@@ -5,38 +5,26 @@ OPENHIM_CORE_MEDIATOR_HOSTNAME=${OPENHIM_CORE_MEDIATOR_HOSTNAME:-"localhost"}
 OPENHIM_MEDIATOR_API_PORT=${OPENHIM_MEDIATOR_API_PORT:-"8080"}
 OPENHIM_CORE_INSTANCES=${OPENHIM_CORE_INSTANCES:-1}
 MONGO_SET_COUNT=${MONGO_SET_COUNT:-3}
-Warned="false"
 
 ComposeFilePath=$(
-  cd "$(dirname "${BASH_SOURCE[0]}")"
+  cd "$(dirname "${BASH_SOURCE[0]}")" || exit
   pwd -P
 )
 
 VerifyCore() {
-  local running="false"
-  local startTime
-  startTime=$(date +%s)
-  Warned="false"
-  while [[ $running != "true" ]]; do
-    TimeoutCheck $startTime $Warned "openhim-core to start"
+  local startTime=$(date +%s)
+  until [[ $(docker service ls -f name=instant_openhim-core --format "{{.Replicas}}") == *"$OPENHIM_CORE_INSTANCES/$OPENHIM_CORE_INSTANCES"* ]]; do
+    TimeoutCheck $startTime "openhim-core to start"
     sleep 1
-
-    if [[ $(docker service ls -f name=instant_openhim-core --format "{{.Replicas}}") == *"$OPENHIM_CORE_INSTANCES/$OPENHIM_CORE_INSTANCES"* ]]; then
-      running="true"
-    fi
   done
 
-  local complete="false"
-  Warned="false"
-  while [[ $complete != "true" ]]; do
-    TimeoutCheck $startTime $Warned "openhim-core heartbeat check"
+  local awaitHelperState=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
+  until [[ $awaitHelperState == *"Complete"* ]]; do
+    TimeoutCheck $startTime "openhim-core heartbeat check"
     sleep 1
 
-    local awaitHelperState
     awaitHelperState=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
-    if [[ $awaitHelperState == *"Complete"* ]]; then
-      complete="true"
-    elif [[ $awaitHelperState == *"Failed"* ]] || [[ $awaitHelperState == *"Rejected"* ]]; then
+    if [[ $awaitHelperState == *"Failed"* ]] || [[ $awaitHelperState == *"Rejected"* ]]; then
       err=$(docker service ps instant_await-helper --no-trunc --format "{{.Error}}")
       echo "Fatal: Received error when trying to verify state of openhim-core. Error: $err"
       exit 1
@@ -48,18 +36,14 @@ VerifyCore() {
 
 RemoveConfigImporter() {
   local complete="false"
-  local startTime
-  startTime=$(date +%s)
-  Warned="false"
-  while [[ $complete != "true" ]]; do
-    TimeoutCheck $startTime $Warned "interoperability-layer-openhim-config-importer to run"
+  local startTime=$(date +%s)
+  local configImporterState=$(docker service ps instant_interoperability-layer-openhim-config-importer --format "{{.CurrentState}}")
+  until [[ $configImporterState == *"Complete"* ]]; do
+    TimeoutCheck $startTime "interoperability-layer-openhim-config-importer to run"
     sleep 1
 
-    local configImporterState
     configImporterState=$(docker service ps instant_interoperability-layer-openhim-config-importer --format "{{.CurrentState}}")
-    if [[ $configImporterState == *"Complete"* ]]; then
-      complete="true"
-    elif [[ $configImporterState == *"Failed"* ]] || [[ $configImporterState == *"Rejected"* ]]; then
+    if [[ $configImporterState == *"Failed"* ]] || [[ $configImporterState == *"Rejected"* ]]; then
       err=$(docker service ps instant_interoperability-layer-openhim-config-importer --no-trunc --format "{{.Error}}")
       echo "Fatal: Core config importer failed with error: $err"
       exit 1
@@ -71,34 +55,28 @@ RemoveConfigImporter() {
 
 TimeoutCheck() {
   local startTime=$(($1))
-  Warned=$2
-  local message=$3
-  local currentTime
-  currentTime=$(date +%s)
-  if [[ $(($currentTime - $startTime)) -ge 60 ]] && [[ $Warned == "false" ]]; then
-    echo "Warning: Waited 1m minute for $message. This is taking longer than it should..."
-    Warned="true"
-  elif [[ $(($currentTime - $startTime)) -ge 120 ]] && [[ $Warned == "true" ]]; then
-    echo "Fatal: Waited 2m minutes for $message. Exiting..."
+  local message=$2
+  local timeDiff=$(($(date +%s) - $startTime))
+  if [[ timeDiff -ge 60 ]] && [[ timeDiff -lt 61 ]]; then
+    echo "Warning: Waited 1 minute for $message. This is taking longer than it should..."
+  elif [[ timeDiff -ge 120 ]]; then
+    echo "Fatal: Waited 2 minutes for $message. Exiting..."
     exit 1
   fi
 }
 
 VerifyMongos() {
   echo 'Waiting to ensure all the mongo instances for the replica set are up and running'
-  RunningInstanceCount="0"
-  local startTime
-  startTime=$(date +%s)
-  Warned="false"
-  while [[ $RunningInstanceCount != $MONGO_SET_COUNT ]]; do
-    TimeoutCheck $startTime $Warned "mongo set to start"
-
+  local runningInstanceCount=0
+  local startTime=$(date +%s)
+  until [[ $runningInstanceCount -eq $MONGO_SET_COUNT ]]; do
+    TimeoutCheck $startTime "mongo set to start"
     sleep 1
 
-    RunningInstanceCount="0"
+    runningInstanceCount=0
     for i in $(docker service ls -f name=instant_mongo --format "{{.Replicas}}"); do
       if [[ $i = "1/1" ]]; then
-        RunningInstanceCount=$(($RunningInstanceCount + 1))
+        runningInstanceCount=$(($runningInstanceCount + 1))
       fi
     done
   done
