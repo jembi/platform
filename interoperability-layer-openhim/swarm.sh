@@ -25,8 +25,8 @@ VerifyCore() {
 
     awaitHelperState=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
     if [[ $awaitHelperState == *"Failed"* ]] || [[ $awaitHelperState == *"Rejected"* ]]; then
-      err=$(docker service ps instant_await-helper --no-trunc --format "{{.Error}}")
-      echo "Fatal: Received error when trying to verify state of openhim-core. Error: $err"
+      echo "Fatal: Received error when trying to verify state of openhim-core. Error:
+       $(docker service ps instant_await-helper --no-trunc --format \"{{.Error}}\")"
       exit 1
     fi
   done
@@ -44,8 +44,8 @@ RemoveConfigImporter() {
 
     configImporterState=$(docker service ps instant_interoperability-layer-openhim-config-importer --format "{{.CurrentState}}")
     if [[ $configImporterState == *"Failed"* ]] || [[ $configImporterState == *"Rejected"* ]]; then
-      err=$(docker service ps instant_interoperability-layer-openhim-config-importer --no-trunc --format "{{.Error}}")
-      echo "Fatal: Core config importer failed with error: $err"
+      echo "Fatal: Core config importer failed with error:
+       $(docker service ps instant_interoperability-layer-openhim-config-importer --no-trunc --format \"{{.Error}}\")"
       exit 1
     fi
   done
