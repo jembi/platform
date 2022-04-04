@@ -3,7 +3,7 @@ version: '3.9'
 services:
   openhim-core:
     deploy:
-      replicas: ${OPENHIM_CORE_INSTANCES:-2}
+      replicas: ${OPENHIM_CORE_INSTANCES:-1}
 
   openhim-console:
     deploy:
