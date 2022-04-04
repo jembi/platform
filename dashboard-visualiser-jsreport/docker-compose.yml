@@ -14,8 +14,6 @@ services:
         reservations:
           cpus: '0.1'
           memory: 1G
-      restart_policy:
-        condition: on-failure
     labels:
       co.elastic.metrics/module: 'docker'
       co.elastic.metrics/metricsets: 'cpu,memory,diskio,info,healthcheck,container'
