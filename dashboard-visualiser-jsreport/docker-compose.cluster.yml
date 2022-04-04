@@ -1,0 +1,10 @@
+version: '3.9'
+
+services:
+  dashboard-visualiser-jsreport:
+    deploy:
+      placement:
+        constraints:
+          - "node.labels.name==node-1"
+    volumes:
+      - /mnt/dashboard-visualiser-jsreport:/app/jsreport/data
