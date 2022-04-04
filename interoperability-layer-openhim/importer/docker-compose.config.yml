@@ -1,9 +1,9 @@
-version: '3.3'
+version: '3.9'
 
 services:
   # container for executing config import scripts for setting up initial config
-  core-config-importer:
-    image: jembi/instantohie-config-importer
+  interoperability-layer-openhim-config-importer:
+    image: node:erbium-alpine
     environment:
       OPENHIM_CORE_SERVICE_NAME: 'openhim-core'
       OPENHIM_MEDIATOR_API_PORT: 8080
@@ -11,18 +11,23 @@ services:
       OPENHIM_API_PASSWORD: 'openhim-password'
       # Reject unauthorised is only needed if the OpenHIM's SSL is not setup
       NODE_TLS_REJECT_UNAUTHORIZED: 0
-    volumes:
-      - type: volume
-        source: instant
-        target: /instant
-    # This command will only attempt to import the OpenHIM config when the heartbeat responds with a 2xx
-    command: sh -c "wait-on -t 60000 https-get://openhim-core:8080/heartbeat && node /instant/interoperability-layer-openhim/importer/volume/openhimConfig.js"
-    # ensure all relevant services are running before executing the importer
-    depends_on:
-      - openhim-core
+    command: sh -c "node openhimConfig.js"
+    configs:
+      - source: openhim-config-importer-openhimConfig.js
+        target: /openhimConfig.js
+      - source: openhim-config-importer-openhim-import.json
+        target: /openhim-import.json
     deploy:
       replicas: 1
+      restart_policy:
+        condition: none
 
-volumes:
-  instant:
-    external: true
+configs:
+  openhim-config-importer-openhimConfig.js:
+    file: ./volume/openhimConfig.js
+    labels:
+      name: openhim
+  openhim-config-importer-openhim-import.json:
+    file: ./volume/openhim-import.json
+    labels:
+      name: openhim

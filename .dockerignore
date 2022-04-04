@@ -10,3 +10,27 @@ docs
 # Dependency directories
 node_modules/
 .editorconfig
+
+# Binaries
+platform-linux
+platform.exe
+platform-macos
+
+# Dockerfiles
+platform-test-harness/PackageTest.dockerfile
+Dockerfile
+
+get-cli.sh
+
+.env.*
+.github/
+.gitignore
+
+README.md
+
+ansible/
+
+# Go CLI Conf
+
+banner.txt
+config.yml
