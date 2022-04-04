@@ -9,11 +9,11 @@ services:
       replicas: ${JS_REPORT_INSTANCES:-1}
       resources:
         limits:
-          cpus: '0.25'
-          memory: 4G
+          cpus: ${JS_REPORT_CPU_LIMIT:-0.25}
+          memory: ${JS_REPORT_MEMORY_LIMIT:-4G}
         reservations:
-          cpus: '0.1'
-          memory: 1G
+          cpus: ${JS_REPORT_CPU_RESERVE:-0.1}
+          memory: ${JS_REPORT_MEMORY_RESERVE:-1G}
     labels:
       co.elastic.metrics/module: 'docker'
       co.elastic.metrics/metricsets: 'cpu,memory,diskio,info,healthcheck,container'
