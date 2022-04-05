@@ -1,7 +1,5 @@
 #!/bin/bash
 
-STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
-
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
   pwd -P
@@ -41,14 +39,6 @@ TimeoutCheck() {
     exit 1
   fi
 }
-
-if [[ "$STATEFUL_NODES" == "cluster" ]]; then
-  printf "\nRunning Analytics Datastore Elastic Search package in Cluster node mode\n"
-  JsReportsClusterComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.cluster.yml"
-else
-  printf "\nRunning Analytics Datastore Elastic Search package in Single node mode\n"
-  JsReportsClusterComposeParam=""
-fi
 
 if [[ "$2" == "dev" ]]; then
   printf "\nRunning JS Reports package in DEV mode\n"
