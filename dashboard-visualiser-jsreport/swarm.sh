@@ -61,7 +61,7 @@ if [[ "$1" == "init" ]]; then
 
   docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml -c "$COMPOSE_FILE_PATH"/docker-compose.stack-1.yml $JsReportDevComposeParam instant
 elif [[ "$1" == "up" ]]; then
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $JsReportDevComposeParam $JsReportsClusterComposeParam instant
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml -c "$COMPOSE_FILE_PATH"/docker-compose.stack-1.yml $JsReportDevComposeParam instant
 elif [[ "$1" == "down" ]]; then
   docker service scale instant_dashboard-visualiser-jsreport=0
 elif [[ "$1" == "destroy" ]]; then
