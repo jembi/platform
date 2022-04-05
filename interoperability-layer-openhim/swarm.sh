@@ -1,6 +1,7 @@
 #!/bin/bash
 
 statefulNodes=${STATEFUL_NODES:-"cluster"}
+timestamp="$(date "+%Y%m%d%H%M%S")"
 
 composeFilePath=$(
   cd "$(dirname "${BASH_SOURCE[0]}")"
@@ -47,6 +48,20 @@ if [ "$1" == "init" ]; then
   sleep 60
 
   docker service rm instant_core-config-importer
+
+  if [ "$INSECURE" == "true" ] || [ "$2" == "dev" ]; then
+    docker config create --label name=nginx "$timestamp-http-openhim-insecure.conf" "$composeFilePath"/config/http-openhim-insecure.conf
+    docker config create --label name=nginx "$timestamp-stream-openhim-insecure.conf" "$composeFilePath"/config/stream-openhim-insecure.conf
+    docker service update \
+      --config-add source="$timestamp-http-openhim-insecure.conf",target=/etc/nginx/conf.d/http-openhim-insecure.conf \
+      --config-add source="$timestamp-stream-openhim-insecure.conf",target=/etc/nginx/conf.d/stream-openhim-insecure.conf \
+      instant_reverse-proxy-nginx
+  else
+    docker config create --label name=nginx "$timestamp-http-openhim-secure.conf" "$composeFilePath"/config/http-openhim-secure.conf
+    docker service update \
+      --config-add source="$timestamp-http-openhim-secure.conf",target=/etc/nginx/conf.d/http-openhim-secure.conf \
+      instant_reverse-proxy-nginx
+  fi
 elif [ "$1" == "up" ]; then
   docker stack deploy -c "$composeFilePath"/docker-compose.mongo.yml $mongoClusterComposeParam $mongoDevComposeParam instant
   sleep 20
