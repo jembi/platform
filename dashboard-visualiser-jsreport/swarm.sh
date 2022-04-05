@@ -30,6 +30,18 @@ VerifyJsReport() {
   docker service rm instant_await-helper
 }
 
+TimeoutCheck() {
+  local startTime=$(($1))
+  local message=$2
+  local timeDiff=$(($(date +%s) - $startTime))
+  if [[ $timeDiff -ge 60 ]] && [[ $timeDiff -lt 61 ]]; then
+    echo "Warning: Waited 1 minute for $message. This is taking longer than it should..."
+  elif [[ $timeDiff -ge 120 ]]; then
+    echo "Fatal: Waited 2 minutes for $message. Exiting..."
+    exit 1
+  fi
+}
+
 if [[ "$STATEFUL_NODES" == "cluster" ]]; then
   printf "\nRunning Analytics Datastore Elastic Search package in Cluster node mode\n"
   JsReportsClusterComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.cluster.yml"
