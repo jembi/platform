@@ -9,7 +9,7 @@ COMPOSE_FILE_PATH=$(
 
 VerifyJsReport() {
   local startTime=$(date +%s)
-  until [[ $(docker service ls -f name=instant_dashboard-visualiser-jsreport --format "{{.Replicas}}") == *"$JS_REPORT_INSTANCES/$JS_REPORT_INSTANCES"* ]]; do
+  until [[ $(docker service ls -f name=instant_dashboard-visualiser-jsreport --format "{{.Replicas}}") == *"1/1"* ]]; do
     TimeoutCheck $startTime "dashboard-visualiser-jsreport to start"
     sleep 1
   done
@@ -59,7 +59,7 @@ else
 fi
 
 if [[ "$1" == "init" ]]; then
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $JsReportDevComposeParam $JsReportsClusterComposeParam instant
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml -c "$COMPOSE_FILE_PATH"/docker-compose.stack-0.yml $JsReportDevComposeParam instant
   docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.await-helper.yml instant
 
   echo "Waiting for JS Reports to start before loading configs..."
@@ -68,6 +68,8 @@ if [[ "$1" == "init" ]]; then
   echo "Importing JS Reports config files."
   docker exec -i $(docker ps -qf name=instant_dashboard-visualiser-jsreport) jsreport import export.jsrexport
   docker exec -iw /app/jsreport/data $(docker ps -qf name=instant_dashboard-visualiser-jsreport) sh -c 'chown 100 $(ls) && chgrp 101 $(ls)'
+
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml -c "$COMPOSE_FILE_PATH"/docker-compose.stack-1.yml $JsReportDevComposeParam instant
 elif [[ "$1" == "up" ]]; then
   docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $JsReportDevComposeParam $JsReportsClusterComposeParam instant
 elif [[ "$1" == "down" ]]; then

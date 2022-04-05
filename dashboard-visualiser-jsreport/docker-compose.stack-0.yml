@@ -6,5 +6,6 @@ services:
       placement:
         constraints:
           - "node.labels.name==node-1"
+      replicas: 1
     volumes:
       - /mnt/dashboard-visualiser-jsreport:/app/jsreport/data

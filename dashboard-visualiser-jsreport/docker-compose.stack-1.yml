@@ -1,0 +1,8 @@
+version: '3.9'
+
+services:
+  dashboard-visualiser-jsreport:
+    deploy:
+      replicas: ${JS_REPORT_INSTANCES:-1}
+    volumes:
+      - /mnt/dashboard-visualiser-jsreport:/app/jsreport/data

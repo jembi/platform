@@ -6,7 +6,6 @@ services:
     deploy:
       placement:
         max_replicas_per_node: 1
-      replicas: ${JS_REPORT_INSTANCES:-1}
       resources:
         limits:
           cpus: ${JS_REPORT_CPU_LIMIT:-0.25}
