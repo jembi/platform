@@ -1,0 +1,16 @@
+{
+  "id": "dashboard-visualiser-jsreport",
+  "name": "Dashboard Visualiser - JS Reports",
+  "description": "A dashboard to interpret data from ElasticSearch data store",
+  "type": "infrastructure",
+  "version": "v0.0.1",
+  "dependencies": [],
+  "environmentVariables": {
+    "allowLocalFilesAccess": "true",
+    "extensions_authentication_cookieSession_secret": "${JS_REPORT_SECRET:-dev_secret_only}",
+    "extensions_authentication_admin_username": "admin",
+    "extensions_authentication_admin_password": "${JS_REPORT:-dev_password_only}",
+    "ES_PASSWORD": "${ES_ELASTIC:-dev_password_only}",
+    "extensions_fs-store_dataDirectory": "jsreport/data"
+  }
+}
