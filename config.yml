@@ -23,3 +23,5 @@ packages:
       name: Elastic Monitoring - MetricBeats and FileBeats
     - id: system-monitoring-prometheus-grafana
       name: System Monitoring - Prometheus and Grafana
+    - id: dashboard-visualiser-jsreport
+      name: Dashboard Visualiser - JS Reports
