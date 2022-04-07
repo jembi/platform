@@ -17,7 +17,11 @@ else
 fi
 
 if [[ "$Action" == "init" ]] || [[ "$Action" == "up" ]]; then
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $LogstashDevComposeParam instant
+  apt install wget -y
+  wget https://github.com/mikefarah/yq/releases/download/v4.23.1/yq_linux_amd64 -O /usr/bin/yq && chmod +x /usr/bin/yq
+  . "$COMPOSE_FILE_PATH"/config-raft.sh "$COMPOSE_FILE_PATH"/docker-compose.yml
+
+  docker stack deploy --prune -c "$COMPOSE_FILE_PATH"/docker-compose.yml $LogstashDevComposeParam instant
 elif [[ "$Action" == "down" ]]; then
   docker service scale instant_data-mapper-logstash=0
 elif [[ "$Action" == "destroy" ]]; then
