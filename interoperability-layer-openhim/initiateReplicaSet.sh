@@ -38,6 +38,7 @@ done
 # This sleep ensures that the replica sets are reachable
 sleep 10
 
+# TODO: only works if deploying to node-1 labeled node
 ContainerName=""
 if [[ "$(docker ps -f name=instant_mongo-1 --format "{{.ID}}")" ]]; then
     ContainerName="$(docker ps -f name=instant_mongo-1 --format "{{.ID}}")"

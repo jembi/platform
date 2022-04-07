@@ -1,34 +1,36 @@
 #!/bin/bash
 
-STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
-OPENHIM_CORE_MEDIATOR_HOSTNAME=${OPENHIM_CORE_MEDIATOR_HOSTNAME:-"localhost"}
-OPENHIM_MEDIATOR_API_PORT=${OPENHIM_MEDIATOR_API_PORT:-"8080"}
-OPENHIM_CORE_INSTANCES=${OPENHIM_CORE_INSTANCES:-1}
-MONGO_SET_COUNT=${MONGO_SET_COUNT:-3}
-
-timestamp="$(date "+%Y%m%d%H%M%S")"
-
-composeFilePath=$(
+readonly STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
+readonly OPENHIM_CORE_MEDIATOR_HOSTNAME=${OPENHIM_CORE_MEDIATOR_HOSTNAME:-"localhost"}
+readonly OPENHIM_MEDIATOR_API_PORT=${OPENHIM_MEDIATOR_API_PORT:-"8080"}
+readonly OPENHIM_CORE_INSTANCES=${OPENHIM_CORE_INSTANCES:-1}
+readonly MONGO_SET_COUNT=${MONGO_SET_COUNT:-3}
+TIMESTAMP="$(date "+%Y%m%d%H%M%S")"
+readonly TIMESTAMP
+COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
   pwd -P
 )
+readonly COMPOSE_FILE_PATH
 
-VerifyCore() {
-  local startTime=$(date +%s)
-  until [[ $(docker service ls -f name=instant_openhim-core --format "{{.Replicas}}") == *"$OPENHIM_CORE_INSTANCES/$OPENHIM_CORE_INSTANCES"* ]]; do
-    TimeoutCheck $startTime "openhim-core to start"
+verify_core() {
+  local start_time
+  start_time=$(date +%s)
+  until [[ $(docker service ls -f name=instant_openhim-core --format "{{.Replicas}}") == *"${OPENHIM_CORE_INSTANCES}/${OPENHIM_CORE_INSTANCES}"* ]]; do
+    timeout_check "${start_time}" "openhim-core to start"
     sleep 1
   done
 
-  local awaitHelperState=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
-  until [[ $awaitHelperState == *"Complete"* ]]; do
-    TimeoutCheck $startTime "openhim-core heartbeat check"
+  local await_helper_state
+  await_helper_state=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
+  until [[ "${await_helper_state}" == *"Complete"* ]]; do
+    timeout_check "${start_time}" "openhim-core heartbeat check"
     sleep 1
 
-    awaitHelperState=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
-    if [[ $awaitHelperState == *"Failed"* ]] || [[ $awaitHelperState == *"Rejected"* ]]; then
+    await_helper_state=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
+    if [[ "${await_helper_state}" == *"Failed"* ]] || [[ "${await_helper_state}" == *"Rejected"* ]]; then
       echo "Fatal: Received error when trying to verify state of openhim-core. Error:
-       $(docker service ps instant_await-helper --no-trunc --format \"{{.Error}}\")"
+       $(docker service ps instant_await-helper --no-trunc --format '{{.Error}}')"
       exit 1
     fi
   done
@@ -36,18 +38,19 @@ VerifyCore() {
   docker service rm instant_await-helper
 }
 
-RemoveConfigImporter() {
-  local complete="false"
-  local startTime=$(date +%s)
-  local configImporterState=$(docker service ps instant_interoperability-layer-openhim-config-importer --format "{{.CurrentState}}")
-  until [[ $configImporterState == *"Complete"* ]]; do
-    TimeoutCheck $startTime "interoperability-layer-openhim-config-importer to run"
+remove_config_importer() {
+  local start_time
+  start_time=$(date +%s)
+  local config_importer_state
+  config_importer_state=$(docker service ps instant_interoperability-layer-openhim-config-importer --format "{{.CurrentState}}")
+  until [[ "${config_importer_state}" == *"Complete"* ]]; do
+    timeout_check "${start_time}" "interoperability-layer-openhim-config-importer to run"
     sleep 1
 
-    configImporterState=$(docker service ps instant_interoperability-layer-openhim-config-importer --format "{{.CurrentState}}")
-    if [[ $configImporterState == *"Failed"* ]] || [[ $configImporterState == *"Rejected"* ]]; then
+    config_importer_state=$(docker service ps instant_interoperability-layer-openhim-config-importer --format "{{.CurrentState}}")
+    if [[ "${config_importer_state}" == *"Failed"* ]] || [[ ${config_importer_state} == *"Rejected"* ]]; then
       echo "Fatal: Core config importer failed with error:
-       $(docker service ps instant_interoperability-layer-openhim-config-importer --no-trunc --format \"{{.Error}}\")"
+       $(docker service ps instant_interoperability-layer-openhim-config-importer --no-trunc --format '{{.Error}}')"
       exit 1
     fi
   done
@@ -55,115 +58,120 @@ RemoveConfigImporter() {
   docker service rm instant_interoperability-layer-openhim-config-importer
 }
 
-TimeoutCheck() {
-  local startTime=$(($1))
+timeout_check() {
+  local start_time=$(($1))
   local message=$2
-  local timeDiff=$(($(date +%s) - $startTime))
-  if [[ $timeDiff -ge 60 ]] && [[ $timeDiff -lt 61 ]]; then
-    echo "Warning: Waited 1 minute for $message. This is taking longer than it should..."
-  elif [[ $timeDiff -ge 120 ]]; then
-    echo "Fatal: Waited 2 minutes for $message. Exiting..."
+  local timeDiff=$(($(date +%s) - start_time))
+  if [[ "${timeDiff}" -ge 60 ]] && [[ "${timeDiff}" -lt 61 ]]; then
+    echo "Warning: Waited 1 minute for ${message}. This is taking longer than it should..."
+  elif [[ "${timeDiff}" -ge 120 ]]; then
+    echo "Fatal: Waited 2 minutes for ${message}. Exiting..."
     exit 1
   fi
 }
 
-VerifyMongos() {
+verify_mongos() {
   echo 'Waiting to ensure all the mongo instances for the replica set are up and running'
-  local runningInstanceCount=0
-  local startTime=$(date +%s)
-  until [[ $runningInstanceCount -eq $MONGO_SET_COUNT ]]; do
-    TimeoutCheck $startTime "mongo set to start"
+  local running_instance_count=0
+  local start_time
+  start_time=$(date +%s)
+  until [[ "${running_instance_count}" -eq "${MONGO_SET_COUNT}" ]]; do
+    timeout_check "${start_time}" "mongo set to start"
     sleep 1
 
-    runningInstanceCount=0
+    running_instance_count=0
     for i in $(docker service ls -f name=instant_mongo --format "{{.Replicas}}"); do
-      if [[ $i = "1/1" ]]; then
-        runningInstanceCount=$(($runningInstanceCount + 1))
+      if [[ "${i}" = "1/1" ]]; then
+        running_instance_count=$((running_instance_count + 1))
       fi
     done
   done
 }
 
-if [[ $STATEFUL_NODES == "cluster" ]]; then
-  printf "\nRunning Interoperability Layer OpenHIM package in Cluster node mode\n"
-  MongoClusterComposeParam="-c ${composeFilePath}/docker-compose-mongo.cluster.yml"
-else
-  printf "\nRunning Interoperability Layer OpenHIM package in Single node mode\n"
-  MongoClusterComposeParam=""
-fi
-
-if [[ "$2" == "dev" ]]; then
-  printf "\nRunning Interoperability Layer OpenHIM package in DEV mode\n"
-  MongoDevComposeParam="-c ${composeFilePath}/docker-compose-mongo.dev.yml"
-  OpenhimDevComposeParam="-c ${composeFilePath}/docker-compose.dev.yml"
-else
-  printf "\nRunning Interoperability Layer OpenHIM package in PROD mode\n"
-  MongoDevComposeParam=""
-  OpenhimDevComposeParam=""
-fi
-
-if [[ "$1" == "init" ]]; then
-  docker stack deploy -c "$composeFilePath"/docker-compose-mongo.yml $MongoClusterComposeParam $MongoDevComposeParam instant
-
-  # Set up the replica set
-  "$composeFilePath"/initiateReplicaSet.sh
-  if [[ $? -eq 1 ]]; then
-    echo "Fatal: Initate Mongo replica set failed."
-    exit 1
-  fi
-
-  # Set host in OpenHIM console config
-  sed -i "s/localhost/$OPENHIM_CORE_MEDIATOR_HOSTNAME/g; s/8080/$OPENHIM_MEDIATOR_API_PORT/g" /instant/interoperability-layer-openhim/importer/volume/default.json
-
-  docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.stack-0.yml $OpenhimDevComposeParam instant
-
-  docker stack deploy -c "$composeFilePath"/docker-compose.await-helper.yml instant
-
-  echo "Waiting to give OpenHIM Core time to start up before OpenHIM Console run"
-  VerifyCore
-
-  docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.stack-1.yml $OpenhimDevComposeParam instant
-
-  docker stack deploy -c "$composeFilePath"/importer/docker-compose.config.yml instant
-
-  echo "Waiting to give core config importer time to run before cleaning up service"
-  RemoveConfigImporter
-
-  # Sleep to ensure config importer is removed
-  sleep 5
-
-  if [[ "$INSECURE" == "true" ]] || [[ "$2" == "dev" ]]; then
-    docker config create --label name=nginx "$timestamp-http-openhim-insecure.conf" "$composeFilePath"/config/http-openhim-insecure.conf
-    docker config create --label name=nginx "$timestamp-stream-openhim-insecure.conf" "$composeFilePath"/config/stream-openhim-insecure.conf
-    docker service update \
-      --config-add source="$timestamp-http-openhim-insecure.conf",target=/etc/nginx/conf.d/http-openhim-insecure.conf \
-      --config-add source="$timestamp-stream-openhim-insecure.conf",target=/etc/nginx/conf.d/stream-openhim-insecure.conf \
-      instant_reverse-proxy-nginx
+main() {
+  if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
+    printf "\nRunning Interoperability Layer OpenHIM package in Cluster node mode\n"
+    mongo_cluster_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose-mongo.cluster.yml"
   else
-    docker config create --label name=nginx "$timestamp-http-openhim-secure.conf" "$composeFilePath"/config/http-openhim-secure.conf
-    docker service update \
-      --config-add source="$timestamp-http-openhim-secure.conf",target=/etc/nginx/conf.d/http-openhim-secure.conf \
-      instant_reverse-proxy-nginx
+    printf "\nRunning Interoperability Layer OpenHIM package in Single node mode\n"
+    mongo_cluster_compose_param=""
   fi
-elif [[ "$1" == "up" ]]; then
-  docker stack deploy -c "$composeFilePath"/docker-compose-mongo.yml $MongoClusterComposeParam $MongoDevComposeParam instant
-  VerifyMongos
-  docker stack deploy -c "$composeFilePath"/docker-compose.yml -c "$composeFilePath"/docker-compose.stack-1.yml $OpenhimDevComposeParam instant
-elif [[ "$1" == "down" ]]; then
-  docker service scale instant_openhim-core=0 instant_openhim-console=0 instant_mongo-1=0 instant_mongo-2=0 instant_mongo-3=0
-elif [[ "$1" == "destroy" ]]; then
-  docker service rm instant_openhim-core instant_openhim-console instant_mongo-1 instant_mongo-2 instant_mongo-3 instant_await-helper
-  docker service rm instant_interoperability-layer-openhim-config-importer
 
-  echo "Sleep 10 Seconds to allow services to shut down before deleting volumes"
-  sleep 10
-
-  docker volume rm instant_openhim-mongo1 instant_openhim-mongo2 instant_openhim-mongo3
-  docker config rm instant_console.config
-
-  if [[ $STATEFUL_NODES == "cluster" ]]; then
-    echo "Volumes are only deleted on the host on which the command is run. Mongo volumes on other nodes are not deleted"
+  if [[ "$2" == "dev" ]]; then
+    printf "\nRunning Interoperability Layer OpenHIM package in DEV mode\n"
+    local mongo_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose-mongo.dev.yml"
+    local openhim_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
+  else
+    printf "\nRunning Interoperability Layer OpenHIM package in PROD mode\n"
+    local mongo_dev_compose_param=""
+    local openhim_dev_compose_param=""
   fi
-else
-  echo "Valid options are: init, up, down, or destroy"
-fi
+
+  if [[ "$1" == "init" ]]; then
+    echo "${mongo_cluster_compose_param} ${mongo_dev_compose_param} instant" | xargs docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose-mongo.yml
+
+    # Set up the replica set
+    "${COMPOSE_FILE_PATH}"/initiateReplicaSet.sh
+    if [[ $? -eq 1 ]]; then
+      echo "Fatal: Initate Mongo replica set failed."
+      exit 1
+    fi
+
+    # Set host in OpenHIM console config
+    sed -i "s/localhost/${OPENHIM_CORE_MEDIATOR_HOSTNAME}/g; s/8080/${OPENHIM_MEDIATOR_API_PORT}/g" /instant/interoperability-layer-openhim/importer/volume/default.json
+
+    echo "${openhim_dev_compose_param}" instant | xargs docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.yml -c "${COMPOSE_FILE_PATH}"/docker-compose.stack-0.yml
+
+    docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml instant
+
+    echo "Waiting to give OpenHIM Core time to start up before OpenHIM Console run"
+    verify_core
+
+    echo "${openhim_dev_compose_param}" instant | xargs docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.yml -c "${COMPOSE_FILE_PATH}"/docker-compose.stack-1.yml
+
+    docker stack deploy -c "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml instant
+
+    echo "Waiting to give core config importer time to run before cleaning up service"
+    remove_config_importer
+
+    # Sleep to ensure config importer is removed
+    sleep 5
+
+    if [[ "${INSECURE}" == "true" ]] || [[ "$2" == "dev" ]]; then
+      docker config create --label name=nginx "${TIMESTAMP}-http-openhim-insecure.conf" "${COMPOSE_FILE_PATH}"/config/http-openhim-insecure.conf
+      docker config create --label name=nginx "${TIMESTAMP}-stream-openhim-insecure.conf" "${COMPOSE_FILE_PATH}"/config/stream-openhim-insecure.conf
+      docker service update \
+        --config-add source="${TIMESTAMP}-http-openhim-insecure.conf",target=/etc/nginx/conf.d/http-openhim-insecure.conf \
+        --config-add source="${TIMESTAMP}-stream-openhim-insecure.conf",target=/etc/nginx/conf.d/stream-openhim-insecure.conf \
+        instant_reverse-proxy-nginx
+    else
+      docker config create --label name=nginx "${TIMESTAMP}-http-openhim-secure.conf" "${COMPOSE_FILE_PATH}"/config/http-openhim-secure.conf
+      docker service update \
+        --config-add source="${TIMESTAMP}-http-openhim-secure.conf",target=/etc/nginx/conf.d/http-openhim-secure.conf \
+        instant_reverse-proxy-nginx
+    fi
+  elif [[ "$1" == "up" ]]; then
+    echo "${mongo_cluster_compose_param}" "${mongo_dev_compose_param}" instant | xargs docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose-mongo.yml
+    verify_mongos
+    echo "${openhim_dev_compose_param}" instant | xargs docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.yml -c "${COMPOSE_FILE_PATH}"/docker-compose.stack-1.yml
+  elif [[ "$1" == "down" ]]; then
+    docker service scale instant_openhim-core=0 instant_openhim-console=0 instant_mongo-1=0 instant_mongo-2=0 instant_mongo-3=0
+  elif [[ "$1" == "destroy" ]]; then
+    docker service rm instant_openhim-core instant_openhim-console instant_mongo-1 instant_mongo-2 instant_mongo-3 instant_await-helper
+    docker service rm instant_interoperability-layer-openhim-config-importer
+
+    echo "Sleep 10 Seconds to allow services to shut down before deleting volumes"
+    sleep 10
+
+    docker volume rm instant_openhim-mongo1 instant_openhim-mongo2 instant_openhim-mongo3
+    docker config rm instant_console.config
+
+    if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
+      echo "Volumes are only deleted on the host on which the command is run. Mongo volumes on other nodes are not deleted"
+    fi
+  else
+    echo "Valid options are: init, up, down, or destroy"
+  fi
+}
+
+main "$@"
