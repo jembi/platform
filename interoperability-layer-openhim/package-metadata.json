@@ -16,6 +16,9 @@
     "OPENHIM_API_USERNAME": "root@openhim.org",
     "OPENHIM_API_PASSWORD": "openhim-password",
     "NODE_TLS_REJECT_UNAUTHORIZED": "0",
-    "NODE_ENV": "production"
+    "NODE_ENV": "production",
+    "MONGO_SET_COUNT": "3",
+    "OPENHIM_CORE_INSTANCES": "1",
+    "OPENHIM_CORE_MEDIATOR_HOSTNAME": "localhost"
   }
 }
