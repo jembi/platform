@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Constants
 readonly STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
 readonly OPENHIM_CORE_MEDIATOR_HOSTNAME=${OPENHIM_CORE_MEDIATOR_HOSTNAME:-"localhost"}
 readonly OPENHIM_MEDIATOR_API_PORT=${OPENHIM_MEDIATOR_API_PORT:-"8080"}
@@ -12,6 +13,9 @@ COMPOSE_FILE_PATH=$(
   pwd -P
 )
 readonly COMPOSE_FILE_PATH
+
+# Gloabls
+CONSOLE_CFG_DIGEST=""
 
 verify_core() {
   local start_time
@@ -88,27 +92,50 @@ verify_mongos() {
   done
 }
 
+prepare_console_config() {
+  # Set host in OpenHIM console config
+  sed -i "s/localhost/${OPENHIM_CORE_MEDIATOR_HOSTNAME}/g; s/8080/${OPENHIM_MEDIATOR_API_PORT}/g" /instant/interoperability-layer-openhim/importer/volume/default.json
+  # generate digest for docker configs
+  CONSOLE_CFG_DIGEST=$(cksum </instant/interoperability-layer-openhim/importer/volume/default.json | cut -d " " -f 1)
+}
+
+configure_nginx() {
+  if [[ "${INSECURE}" == "true" ]] || [[ "$2" == "dev" ]]; then
+    docker config create --label name=nginx "${TIMESTAMP}-http-openhim-insecure.conf" "${COMPOSE_FILE_PATH}"/config/http-openhim-insecure.conf
+    docker config create --label name=nginx "${TIMESTAMP}-stream-openhim-insecure.conf" "${COMPOSE_FILE_PATH}"/config/stream-openhim-insecure.conf
+    docker service update \
+      --config-add source="${TIMESTAMP}-http-openhim-insecure.conf",target=/etc/nginx/conf.d/http-openhim-insecure.conf \
+      --config-add source="${TIMESTAMP}-stream-openhim-insecure.conf",target=/etc/nginx/conf.d/stream-openhim-insecure.conf \
+      instant_reverse-proxy-nginx
+  else
+    docker config create --label name=nginx "${TIMESTAMP}-http-openhim-secure.conf" "${COMPOSE_FILE_PATH}"/config/http-openhim-secure.conf
+    docker service update \
+      --config-add source="${TIMESTAMP}-http-openhim-secure.conf",target=/etc/nginx/conf.d/http-openhim-secure.conf \
+      instant_reverse-proxy-nginx
+  fi
+}
+
 main() {
   if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
     printf "\nRunning Interoperability Layer OpenHIM package in Cluster node mode\n"
-    mongo_cluster_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose-mongo.cluster.yml"
+    mongo_cluster_compose_param=(-c "${COMPOSE_FILE_PATH}"/docker-compose-mongo.cluster.yml)
   else
     printf "\nRunning Interoperability Layer OpenHIM package in Single node mode\n"
-    mongo_cluster_compose_param=""
+    mongo_cluster_compose_param=()
   fi
 
   if [[ "$2" == "dev" ]]; then
     printf "\nRunning Interoperability Layer OpenHIM package in DEV mode\n"
-    local mongo_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose-mongo.dev.yml"
-    local openhim_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
+    local mongo_dev_compose_param=(-c "${COMPOSE_FILE_PATH}"/docker-compose-mongo.dev.yml)
+    local openhim_dev_compose_param=(-c "${COMPOSE_FILE_PATH}"/docker-compose.dev.yml)
   else
     printf "\nRunning Interoperability Layer OpenHIM package in PROD mode\n"
-    local mongo_dev_compose_param=""
-    local openhim_dev_compose_param=""
+    local mongo_dev_compose_param=()
+    local openhim_dev_compose_param=()
   fi
 
   if [[ "$1" == "init" ]]; then
-    echo "${mongo_cluster_compose_param} ${mongo_dev_compose_param} instant" | xargs docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose-mongo.yml
+    docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose-mongo.yml "${mongo_cluster_compose_param[@]}" "${mongo_dev_compose_param[@]}" instant
 
     # Set up the replica set
     "${COMPOSE_FILE_PATH}"/initiateReplicaSet.sh
@@ -117,17 +144,16 @@ main() {
       exit 1
     fi
 
-    # Set host in OpenHIM console config
-    sed -i "s/localhost/${OPENHIM_CORE_MEDIATOR_HOSTNAME}/g; s/8080/${OPENHIM_MEDIATOR_API_PORT}/g" /instant/interoperability-layer-openhim/importer/volume/default.json
+    prepare_console_config
 
-    echo "${openhim_dev_compose_param}" instant | xargs docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.yml -c "${COMPOSE_FILE_PATH}"/docker-compose.stack-0.yml
+    CONSOLE_CFG_DIGEST="${CONSOLE_CFG_DIGEST}" docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.yml -c "${COMPOSE_FILE_PATH}"/docker-compose.stack-0.yml "${openhim_dev_compose_param[@]}" instant
 
     docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml instant
 
     echo "Waiting to give OpenHIM Core time to start up before OpenHIM Console run"
     verify_core
 
-    echo "${openhim_dev_compose_param}" instant | xargs docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.yml -c "${COMPOSE_FILE_PATH}"/docker-compose.stack-1.yml
+    CONSOLE_CFG_DIGEST="${CONSOLE_CFG_DIGEST}" docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.yml -c "${COMPOSE_FILE_PATH}"/docker-compose.stack-1.yml "${openhim_dev_compose_param[@]}" instant
 
     docker stack deploy -c "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml instant
 
@@ -137,23 +163,15 @@ main() {
     # Sleep to ensure config importer is removed
     sleep 5
 
-    if [[ "${INSECURE}" == "true" ]] || [[ "$2" == "dev" ]]; then
-      docker config create --label name=nginx "${TIMESTAMP}-http-openhim-insecure.conf" "${COMPOSE_FILE_PATH}"/config/http-openhim-insecure.conf
-      docker config create --label name=nginx "${TIMESTAMP}-stream-openhim-insecure.conf" "${COMPOSE_FILE_PATH}"/config/stream-openhim-insecure.conf
-      docker service update \
-        --config-add source="${TIMESTAMP}-http-openhim-insecure.conf",target=/etc/nginx/conf.d/http-openhim-insecure.conf \
-        --config-add source="${TIMESTAMP}-stream-openhim-insecure.conf",target=/etc/nginx/conf.d/stream-openhim-insecure.conf \
-        instant_reverse-proxy-nginx
-    else
-      docker config create --label name=nginx "${TIMESTAMP}-http-openhim-secure.conf" "${COMPOSE_FILE_PATH}"/config/http-openhim-secure.conf
-      docker service update \
-        --config-add source="${TIMESTAMP}-http-openhim-secure.conf",target=/etc/nginx/conf.d/http-openhim-secure.conf \
-        instant_reverse-proxy-nginx
-    fi
-  elif [[ "$1" == "up" ]]; then
-    echo "${mongo_cluster_compose_param}" "${mongo_dev_compose_param}" instant | xargs docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose-mongo.yml
+    configure_nginx "$@"
+  elif
+    [[ "$1" == "up" ]]
+  then
+    docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose-mongo.yml "${mongo_cluster_compose_param[@]}" "${mongo_dev_compose_param[@]}" instant
     verify_mongos
-    echo "${openhim_dev_compose_param}" instant | xargs docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.yml -c "${COMPOSE_FILE_PATH}"/docker-compose.stack-1.yml
+    prepare_console_config
+    CONSOLE_CFG_DIGEST="${CONSOLE_CFG_DIGEST}" docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.yml -c "${COMPOSE_FILE_PATH}"/docker-compose.stack-1.yml "${openhim_dev_compose_param[@]}" instant
+    configure_nginx "$@"
   elif [[ "$1" == "down" ]]; then
     docker service scale instant_openhim-core=0 instant_openhim-console=0 instant_mongo-1=0 instant_mongo-2=0 instant_mongo-3=0
   elif [[ "$1" == "destroy" ]]; then
@@ -164,7 +182,9 @@ main() {
     sleep 10
 
     docker volume rm instant_openhim-mongo1 instant_openhim-mongo2 instant_openhim-mongo3
-    docker config rm instant_console.config
+
+    # shellcheck disable=SC2046 # intensional word splitting
+    docker config rm $(docker config ls -qf label=name=openhim)
 
     if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
       echo "Volumes are only deleted on the host on which the command is run. Mongo volumes on other nodes are not deleted"

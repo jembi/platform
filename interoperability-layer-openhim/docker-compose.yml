@@ -17,12 +17,15 @@ services:
     depends_on:
       - openhim-core
     configs:
-      - source: console.config
+      - source: console-default.json
         target: /usr/share/nginx/html/config/default.json
     deploy:
       placement:
         max_replicas_per_node: 1
 
 configs:
-  console.config:
+  console-default.json:
+    name: console-default.json-${CONSOLE_CFG_DIGEST}
     file: ./importer/volume/default.json
+    labels:
+      name: openhim
