@@ -8,7 +8,7 @@
 #
 # Requirements:
 # - All configs must have a file and name property
-# - The name property must end in ${DIGEST_VAR_NAME} (eg. name: my-file-${MY_FILE_DIGEST})
+# - The name property must end in ${DIGEST_VAR_NAME:?err} (eg. name: my-file-${MY_FILE_DIGEST:?err})
 #
 # Arguments:
 # $1 : docker compose directory path (eg. /home/user/project/docker-compose.yml)
@@ -37,10 +37,10 @@ config::set_config_digests() {
 
         composeFolderPath="${DOCKER_COMPOSE_PATH%/*}"
         fileName="${composeFolderPath}${file//\.\///}" # TODO: Throw an error if the file name is too long to allow for a unique enough digest
-        envVarName=$(echo "${name}" | grep -P -o "{.*}" | sed 's/[{}]//g')
+        envVarName=$(echo "${name}" | grep -P -o "{.*:?err}" | sed 's/[{}]//g' | sed 's/:?err//g')
 
         # generate and truncate the digest to conform to the 64 character restriction on docker config names
-        remainder=$((64 - (${#name} - ${#envVarName} - 3))) # '${}' = 3 (for env var declaration characters)
+        remainder=$((64 - (${#name} - ${#envVarName} - 5))) # '${:?err}' = 5 (for env var declaration characters)
         export "${envVarName}"="$(cksum "${fileName}" | awk '{print $1}' | cut -c -${remainder})"
     done
 }
