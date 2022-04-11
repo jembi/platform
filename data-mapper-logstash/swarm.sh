@@ -27,6 +27,10 @@ if [[ "$Action" == "init" ]] || [[ "$Action" == "up" ]]; then
 
   docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $LogstashDevComposeParam instant
 
+  echo "Removing stale configs..."
+  config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "logstash"
+
+  echo "Done"
 elif [[ "$Action" == "down" ]]; then
   docker service scale instant_data-mapper-logstash=0
 elif [[ "$Action" == "destroy" ]]; then

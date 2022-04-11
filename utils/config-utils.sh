@@ -7,7 +7,7 @@
 #
 # Requirements:
 # - All configs must have a file and name property
-# - The name property must end in ${DIGEST_VAR_NAME:?err} (eg. name: my-file-${MY_FILE_DIGEST:?err})
+# - The name property must end in -${DIGEST_VAR_NAME:?err} (eg. name: my-file-${MY_FILE_DIGEST:?err})
 #
 # Arguments:
 # $1 : docker compose directory path (eg. /home/user/project/docker-compose.yml)
@@ -39,7 +39,75 @@ config::set_config_digests() {
         envVarName=$(echo "${name}" | grep -P -o "{.*:?err}" | sed 's/[{}]//g' | sed 's/:?err//g')
 
         # generate and truncate the digest to conform to the 64 character restriction on docker config names
-        remainder=$((64 - (${#name} - ${#envVarName} - 5))) # '${:?err}' = 5 (for env var declaration characters)
+        remainder=$((64 - (${#name} - ${#envVarName} - 5))) # '${:?err}' = 5 characters (for env var declaration characters)
         export "${envVarName}"="$(cksum "${fileName}" | awk '{print $1}' | cut -c -${remainder})"
     done
+}
+
+# Removes stale docker configs based on the provided docker-compose file
+#
+# Requirements:
+# - All configs must have a file and name property
+# - The name property must end in -${DIGEST_VAR_NAME:?err} (eg. name: my-file-${MY_FILE_DIGEST:?err})
+#
+# Arguments:
+# $1 : docker compose directory path (eg. /home/user/project/docker-compose.yml)
+# $2 : config label (eg. logstash)
+config::remove_stale_service_configs() {
+
+    local -r DOCKER_COMPOSE_PATH=$1
+    local -r CONFIG_LABEL=$2
+
+    # install dependencies
+    if [[ -z $(command -v wget) ]]; then
+        apt install wget -y >/dev/null 2>&1
+    fi
+    if [[ -z $(command -v yq) ]]; then
+        wget https://github.com/mikefarah/yq/releases/download/v4.23.1/yq_linux_amd64 -O /usr/bin/yq >/dev/null 2>&1
+        chmod +x /usr/bin/yq
+    fi
+
+    local -r composeNames=($(yq '.configs."*.*".name' "${DOCKER_COMPOSE_PATH}"))
+    local configsToRemove=()
+
+    for ((i = 0; i < ${#composeNames[@]}; i++)); do
+        composeName=${composeNames[$i]}
+        composeNameWithoutEnv=$(echo "${composeName}" | sed 's/-\${.*//g')
+
+        composeNameOccurences=$(for word in "${composeNames[@]}"; do echo "${word}"; done | grep -c "${composeNameWithoutEnv}")
+        if [[ $composeNameOccurences -gt "1" ]]; then
+            echo >&2 "Warning: Duplicate config name (${composeNameWithoutEnv}) was found in ${DOCKER_COMPOSE_PATH}"
+        fi
+
+        raftIds=($(docker config ls -f "label=name=${CONFIG_LABEL}" -f "name=${composeNameWithoutEnv}" --format "{{.ID}}"))
+
+        # Only keep the most recent of all configs with the same name
+        if [[ ${#raftIds[@]} -gt 1 ]]; then
+            mostRecentRaftId=${raftIds[0]}
+            for ((j = 1; j < ${#raftIds[@]}; j++)); do
+                raftId=${raftIds[$j]}
+                mostRecentRaftCreatedDate=$(docker config inspect -f "{{.CreatedAt}}" "${mostRecentRaftId}")
+                raftCreatedDate=$(docker config inspect -f "{{.CreatedAt}}" "${raftId}")
+                if [[ $raftCreatedDate > $mostRecentRaftCreatedDate ]]; then
+                    configsToRemove+=("${mostRecentRaftId}")
+                    mostRecentRaftId="${raftId}"
+                else
+                    configsToRemove+=("${raftId}")
+                fi
+            done
+        fi
+    done
+
+    # Remove configs without a reference
+    configRaftNames=($(docker config ls -f "label=name=${CONFIG_LABEL}" --format "{{.Name}}"))
+    for configRaftName in "${configRaftNames[@]}"; do
+        nameWithoutDigest=$(echo $configRaftName | sed 's/-[a-f0-9]*$//g')
+        raftOccurencesInCompose=$(for word in "${composeNames[@]}"; do echo "${word}"; done | grep -c "${nameWithoutDigest}")
+
+        if [[ "${raftOccurencesInCompose}" == 0 ]]; then
+            configsToRemove+=("${configRaftName}")
+        fi
+    done
+
+    docker config rm "${configsToRemove[@]}"
 }
