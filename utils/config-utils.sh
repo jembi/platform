@@ -2,7 +2,6 @@
 #
 # Library name: config
 # This is a library that contains functions to assist with docker configs
-#
 
 # Sets the digest variables for the conf raft files in the provided docker compose file
 #
@@ -19,10 +18,10 @@ config::set_config_digests() {
     local -r DOCKER_COMPOSE_PATH=$1
 
     # install dependencies
-    if [[ -z $(command -v wget >/dev/null 2>&1) ]]; then
+    if [[ -z $(command -v wget) ]]; then
         apt install wget -y >/dev/null 2>&1
     fi
-    if [[ -z $(command -v yq >/dev/null 2>&1) ]]; then
+    if [[ -z $(command -v yq) ]]; then
         wget https://github.com/mikefarah/yq/releases/download/v4.23.1/yq_linux_amd64 -O /usr/bin/yq >/dev/null 2>&1
         chmod +x /usr/bin/yq
     fi
