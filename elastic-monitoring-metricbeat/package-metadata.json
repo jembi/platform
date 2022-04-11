@@ -1,0 +1,11 @@
+{
+  "id": "elastic-monitoring-metricbeat",
+  "name": "Elastic Monitoring - Metricbeat",
+  "description": "A metrics monitoring package for Elasticsearch",
+  "type": "infrastructure",
+  "version": "v0.0.1",
+  "dependencies": ["elastic-monitoring-metricbeat"],
+  "environmentVariables": {
+
+  }
+}
