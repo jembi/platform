@@ -54,7 +54,6 @@ config::set_config_digests() {
 # $1 : docker compose directory path (eg. /home/user/project/docker-compose.yml)
 # $2 : config label (eg. logstash)
 config::remove_stale_service_configs() {
-
     local -r DOCKER_COMPOSE_PATH=$1
     local -r CONFIG_LABEL=$2
 
@@ -70,8 +69,7 @@ config::remove_stale_service_configs() {
     local -r composeNames=($(yq '.configs."*.*".name' "${DOCKER_COMPOSE_PATH}"))
     local configsToRemove=()
 
-    for ((i = 0; i < ${#composeNames[@]}; i++)); do
-        composeName=${composeNames[$i]}
+    for composeName in "${composeNames[@]}"; do
         composeNameWithoutEnv=$(echo "${composeName}" | sed 's/-\${.*//g')
 
         composeNameOccurences=$(for word in "${composeNames[@]}"; do echo "${word}"; done | grep -c "${composeNameWithoutEnv}")
@@ -84,8 +82,8 @@ config::remove_stale_service_configs() {
         # Only keep the most recent of all configs with the same name
         if [[ ${#raftIds[@]} -gt 1 ]]; then
             mostRecentRaftId="${raftIds[0]}"
-            for ((j = 1; j < ${#raftIds[@]}; j++)); do
-                raftId=${raftIds[$j]}
+            for ((i = 1; i < ${#raftIds[@]}; i++)); do
+                raftId=${raftIds[$i]}
                 mostRecentRaftCreatedDate=$(docker config inspect -f "{{.CreatedAt}}" "${mostRecentRaftId}")
                 raftCreatedDate=$(docker config inspect -f "{{.CreatedAt}}" "${raftId}")
                 if [[ $raftCreatedDate > $mostRecentRaftCreatedDate ]]; then
