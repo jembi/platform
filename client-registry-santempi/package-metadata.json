@@ -1,0 +1,8 @@
+{
+  "id": "client-registry-santempi",
+  "name": "Client Registry Package - SanteMPI",
+  "description": "A patient matching and deduplicater for the platform",
+  "version": "0.0.1",
+  "environmentVariables": {
+  }
+}
