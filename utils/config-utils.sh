@@ -19,22 +19,22 @@ config::set_config_digests() {
 
     # install dependencies
     if [[ -z $(command -v wget) ]]; then
-        apt install wget -y >/dev/null 2>&1
+        apt install wget -y &>/dev/null
     fi
     if [[ -z $(command -v yq) ]]; then
-        wget https://github.com/mikefarah/yq/releases/download/v4.23.1/yq_linux_amd64 -O /usr/bin/yq >/dev/null 2>&1
+        wget https://github.com/mikefarah/yq/releases/download/v4.23.1/yq_linux_amd64 -O /usr/bin/yq &>/dev/null
         chmod +x /usr/bin/yq
     fi
 
     # Get configs files and names from yml file
-    local files=($(yq '.configs."*.*".file' "${DOCKER_COMPOSE_PATH}"))
-    local names=($(yq '.configs."*.*".name' "${DOCKER_COMPOSE_PATH}"))
+    local -r files=($(yq '.configs."*.*".file' "${DOCKER_COMPOSE_PATH}"))
+    local -r names=($(yq '.configs."*.*".name' "${DOCKER_COMPOSE_PATH}"))
+    local -r composeFolderPath="${DOCKER_COMPOSE_PATH%/*}"
 
     for ((i = 0; i < ${#files[@]}; i++)); do
         file=${files[$i]}
         name=${names[$i]}
 
-        composeFolderPath="${DOCKER_COMPOSE_PATH%/*}"
         fileName="${composeFolderPath}${file//\.\///}" # TODO: Throw an error if the file name is too long to allow for a unique enough digest
         envVarName=$(echo "${name}" | grep -P -o "{.*:?err}" | sed 's/[{}]//g' | sed 's/:?err//g')
 
@@ -60,10 +60,10 @@ config::remove_stale_service_configs() {
 
     # install dependencies
     if [[ -z $(command -v wget) ]]; then
-        apt install wget -y >/dev/null 2>&1
+        apt install wget -y &>/dev/null
     fi
     if [[ -z $(command -v yq) ]]; then
-        wget https://github.com/mikefarah/yq/releases/download/v4.23.1/yq_linux_amd64 -O /usr/bin/yq >/dev/null 2>&1
+        wget https://github.com/mikefarah/yq/releases/download/v4.23.1/yq_linux_amd64 -O /usr/bin/yq &>/dev/null
         chmod +x /usr/bin/yq
     fi
 
@@ -83,7 +83,7 @@ config::remove_stale_service_configs() {
 
         # Only keep the most recent of all configs with the same name
         if [[ ${#raftIds[@]} -gt 1 ]]; then
-            mostRecentRaftId=${raftIds[0]}
+            mostRecentRaftId="${raftIds[0]}"
             for ((j = 1; j < ${#raftIds[@]}; j++)); do
                 raftId=${raftIds[$j]}
                 mostRecentRaftCreatedDate=$(docker config inspect -f "{{.CreatedAt}}" "${mostRecentRaftId}")
