@@ -14,10 +14,10 @@ ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/config-utils.sh"
 
 if [[ "$Mode" == "dev" ]]; then
-  printf "\nRunning Data Mapper Logstash package in DEV mode\n"
+  echo -e "\nRunning Data Mapper Logstash package in DEV mode\n"
   LogstashDevComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
 else
-  printf "\nRunning Data Mapper Logstash package in PROD mode\n"
+  echo -e "\nRunning Data Mapper Logstash package in PROD mode\n"
   LogstashDevComposeParam=""
 fi
 
