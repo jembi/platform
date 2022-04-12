@@ -27,21 +27,26 @@ services:
 configs:
   logstash-log4j2.properties:
     file: ./log4j2.properties
+    name: logstash-log4j2.properties-${logstash_log4j2_properties_DIGEST:?err}
     labels: 
       name: logstash
   logstash-jvm.options:
     file: ./jvm.options
+    name: logstash-jvm.options-${logstash_jvm_options_DIGEST:?err}
     labels: 
       name: logstash
   logstash-logstash.yml:
     file: ./logstash.yml
+    name: logstash-logstash.yml-${logstash_logstash_yml_DIGEST:?err}
     labels: 
       name: logstash
   logstash-pipelines.yml:
     file: ./pipelines.yml
+    name: logstash-pipelines.yml-${logstash_pipelines_yml_DIGEST:?err}
     labels: 
       name: logstash
   logstash-fhir-extractor.conf:
     file: ./pipeline/fhir-extractor.logstash.conf
+    name: logstash-fhir-extractor.conf-${logstash_fhir_extractor_conf_DIGEST:?err}
     labels: 
       name: logstash

@@ -1,3 +1,5 @@
+#!/bin/bash
+
 cliVersion=0.1.0
 
 curl -L https://github.com/openhie/package-starter-kit/releases/download/$cliVersion/gocli-linux -o platform-linux
