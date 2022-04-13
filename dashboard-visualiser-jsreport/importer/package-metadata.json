@@ -1,0 +1,17 @@
+{
+  "id": "jsreport-config-importer",
+  "name": "JS Reports Config Importer",
+  "description": "A config importer service",
+  "type": "custom package",
+  "version": "v0.0.1",
+  "dependencies": ["dashboard-visualiser-jsreport"],
+  "environmentVariables": {
+    "JS_REPORT_INSTANCES": "${JS_REPORT_INSTANCES}",
+    "STATEFUL_NODES": "${STATEFUL_NODES}",
+    "JS_REPORT_SUB_DOMAIN": "${JS_REPORT_SUB_DOMAIN}",
+    "DOMAIN_NAME": "${DOMAIN_NAME}",
+    "INSECURE": "${INSECURE}",
+    "JS_REPORT": "${JS_REPORT}"
+  }
+}
+
