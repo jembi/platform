@@ -1,0 +1,36 @@
+version: '3.9'
+
+services:
+  jsreport-config-importer:
+    image: jembi/config-importer:temp
+    environment:
+      SERVICE_NAME: 'dashboard-visualiser-jsreport'
+      SERVICE_API_PORT: 5488
+      API_USERNAME: ${JS_REPORT_USERNAME:-admin}
+      API_PASSWORD: ${JS_REPORT:-dev_password_only}
+      INSECURE: ${INSECURE:-false}
+      API_PATH: '/api/import'
+      CALLER_ID: 'jsr_config_importer'
+    # command: sh -c "node config.js"
+    configs:
+      # - source: jsreport-config-importer-openhimConfig.js
+      #   target: /openhimConfig.js
+      - source: jsreport-config-importer-export.jsrexport
+        target: /export.jsrexport
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: none
+
+configs:
+  # jsreport-config-importer-openhimConfig.js:
+  #   file: ./openhimConfig.js
+  #   labels:
+  #     name: JSR
+  jsreport-config-importer-export.jsrexport:
+    file: ./export.jsrexport
+    labels:
+      name: JSR
+
+
+
