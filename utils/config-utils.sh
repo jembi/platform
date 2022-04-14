@@ -110,6 +110,12 @@ config::remove_stale_service_configs() {
     docker config rm "${configsToRemove[@]}"
 }
 
+# A function that exists in a loop to see how long that loop has run for, providing a warning
+# at 1 minute, and exits with code 124 after 2 minutes.
+#
+# Arguments:
+# $1 : start time of the timeout check
+# $2 : a message containing reference to the loop that timed out
 config::timeout_check() {
     local startTime=$(($1))
     local message=$2
@@ -118,6 +124,6 @@ config::timeout_check() {
         echo "Warning: Waited 1 minute for $message. This is taking longer than it should..."
     elif [[ $timeDiff -ge 120 ]]; then
         echo "Fatal: Waited 2 minutes for $message. Exiting..."
-        exit 1
+        exit 124
     fi
 }
