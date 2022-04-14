@@ -1,5 +1,8 @@
 #!/bin/bash
 
+Action=$1
+Mode=$2
+
 STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
 
 COMPOSE_FILE_PATH=$(
@@ -10,14 +13,13 @@ COMPOSE_FILE_PATH=$(
 ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/config-utils.sh"
 
-if [[ "$2" == "dev" ]]; then
+if [[ "$Mode" == "dev" ]]; then
   printf "\nRunning JS Reports package in DEV mode\n"
   JsReportDevComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
 else
   printf "\nRunning JS Reports package in PROD mode\n"
   JsReportDevComposeParam=""
 fi
-
 
 VerifyJsrServiceStatus() {
   local startTime=$(date +%s)
@@ -42,7 +44,7 @@ VerifyJsrServiceStatus() {
   docker service rm instant_await-helper
 }
 
-if [[ "$1" == "init" ]]; then
+if [[ "$Action" == "init" ]]; then
   docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $JsReportDevComposeParam instant
 
   docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml instant
@@ -51,11 +53,11 @@ if [[ "$1" == "init" ]]; then
   VerifyJsrServiceStatus
 
   docker stack deploy -c "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml instant
-elif [[ "$1" == "up" ]]; then
+elif [[ "$Action" == "up" ]]; then
   docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $JsReportDevComposeParam instant
-elif [[ "$1" == "down" ]]; then
+elif [[ "$Action" == "down" ]]; then
   docker service scale instant_dashboard-visualiser-jsreport=0
-elif [[ "$1" == "destroy" ]]; then
+elif [[ "$Action" == "destroy" ]]; then
   docker service rm instant_dashboard-visualiser-jsreport
 else
   echo "Valid options are: init, up, down, or destroy"
