@@ -24,7 +24,4 @@ configs:
   jsreport-config-importer-export.jsrexport:
     file: ./export.jsrexport
     labels:
-      name: JSR
-
-
-
+      name: jsreport
