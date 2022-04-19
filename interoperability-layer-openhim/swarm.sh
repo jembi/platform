@@ -6,10 +6,14 @@ OPENHIM_MEDIATOR_API_PORT=${OPENHIM_MEDIATOR_API_PORT:-"8080"}
 OPENHIM_CORE_INSTANCES=${OPENHIM_CORE_INSTANCES:-1}
 MONGO_SET_COUNT=${MONGO_SET_COUNT:-3}
 
-ComposeFilePath=$(
+COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
   pwd -P
 )
+
+# Import libraries
+ROOT_PATH="${COMPOSE_FILE_PATH}/.."
+. "${ROOT_PATH}/utils/config-utils.sh"
 
 VerifyCore() {
   local startTime=$(date +%s)
@@ -84,7 +88,7 @@ VerifyMongos() {
 
 if [[ $STATEFUL_NODES == "cluster" ]]; then
   printf "\nRunning Interoperability Layer OpenHIM package in Cluster node mode\n"
-  MongoClusterComposeParam="-c ${ComposeFilePath}/docker-compose-mongo.cluster.yml"
+  MongoClusterComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose-mongo.cluster.yml"
 else
   printf "\nRunning Interoperability Layer OpenHIM package in Single node mode\n"
   MongoClusterComposeParam=""
@@ -92,8 +96,8 @@ fi
 
 if [[ "$2" == "dev" ]]; then
   printf "\nRunning Interoperability Layer OpenHIM package in DEV mode\n"
-  MongoDevComposeParam="-c ${ComposeFilePath}/docker-compose-mongo.dev.yml"
-  OpenhimDevComposeParam="-c ${ComposeFilePath}/docker-compose.dev.yml"
+  MongoDevComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose-mongo.dev.yml"
+  OpenhimDevComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
 else
   printf "\nRunning Interoperability Layer OpenHIM package in PROD mode\n"
   MongoDevComposeParam=""
@@ -101,10 +105,13 @@ else
 fi
 
 if [[ "$1" == "init" ]]; then
-  docker stack deploy -c "$ComposeFilePath"/docker-compose-mongo.yml $MongoClusterComposeParam $MongoDevComposeParam instant
+  config::set_config_digests "$COMPOSE_FILE_PATH"/docker-compose.yml
+  config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
+
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose-mongo.yml $MongoClusterComposeParam $MongoDevComposeParam instant
 
   # Set up the replica set
-  "$ComposeFilePath"/initiateReplicaSet.sh
+  "$COMPOSE_FILE_PATH"/initiateReplicaSet.sh
   if [[ $? -eq 1 ]]; then
     echo "Fatal: Initate Mongo replica set failed."
     exit 1
@@ -113,26 +120,32 @@ if [[ "$1" == "init" ]]; then
   # Set host in OpenHIM console config
   sed -i "s/localhost/$OPENHIM_CORE_MEDIATOR_HOSTNAME/g; s/8080/$OPENHIM_MEDIATOR_API_PORT/g" /instant/interoperability-layer-openhim/importer/volume/default.json
 
-  docker stack deploy -c "$ComposeFilePath"/docker-compose.yml -c "$ComposeFilePath"/docker-compose.stack-0.yml $OpenhimDevComposeParam instant
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml -c "$COMPOSE_FILE_PATH"/docker-compose.stack-0.yml $OpenhimDevComposeParam instant
 
-  docker stack deploy -c "$ComposeFilePath"/docker-compose.await-helper.yml instant
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.await-helper.yml instant
 
   echo "Waiting to give OpenHIM Core time to start up before OpenHIM Console run"
   VerifyCore
 
-  docker stack deploy -c "$ComposeFilePath"/docker-compose.yml -c "$ComposeFilePath"/docker-compose.stack-1.yml $OpenhimDevComposeParam instant
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml -c "$COMPOSE_FILE_PATH"/docker-compose.stack-1.yml $OpenhimDevComposeParam instant
 
-  docker stack deploy -c "$ComposeFilePath"/importer/docker-compose.config.yml instant
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml instant
 
   echo "Waiting to give core config importer time to run before cleaning up service"
   RemoveConfigImporter
 
   # Sleep to ensure config importer is removed
   sleep 5
-elif [[ "$1" == "up" ]]; then
-  docker stack deploy -c "$ComposeFilePath"/docker-compose-mongo.yml $MongoClusterComposeParam $MongoDevComposeParam instant
+
+  echo "Removing stale configs..."
+  config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "openhim"
+
+elif
+  [[ "$1" == "up" ]]
+then
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose-mongo.yml $MongoClusterComposeParam $MongoDevComposeParam instant
   VerifyMongos
-  docker stack deploy -c "$ComposeFilePath"/docker-compose.yml -c "$ComposeFilePath"/docker-compose.stack-1.yml $OpenhimDevComposeParam instant
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml -c "$COMPOSE_FILE_PATH"/docker-compose.stack-1.yml $OpenhimDevComposeParam instant
 elif [[ "$1" == "down" ]]; then
   docker service scale instant_openhim-core=0 instant_openhim-console=0 instant_mongo-1=0 instant_mongo-2=0 instant_mongo-3=0
 elif [[ "$1" == "destroy" ]]; then
@@ -143,7 +156,6 @@ elif [[ "$1" == "destroy" ]]; then
   sleep 10
 
   docker volume rm instant_openhim-mongo1 instant_openhim-mongo2 instant_openhim-mongo3
-  docker config rm instant_console.config
 
   if [[ $STATEFUL_NODES == "cluster" ]]; then
     echo "Volumes are only deleted on the host on which the command is run. Mongo volumes on other nodes are not deleted"
