@@ -111,12 +111,12 @@ config::remove_stale_service_configs() {
 }
 
 # A function that exists in a loop to see how long that loop has run for, providing a warning
-# at 1 minute, and exits with code 124 after 2 minutes.
+# at the time specified in argument $3, and exits with code 124 after the time specified in argument $4.
 #
 # Arguments:
 # $1 : start time of the timeout check
 # $2 : a message containing reference to the loop that timed out
-# $3 : elapsed time to issue longer-than-expected-startup warning (in seconds)
+# $3 : elapsed time to issue running-for-longer-than-expected warning (in seconds)
 # $4 : timeout time in seconds
 config::timeout_check() {
     local startTime=$(($1))
