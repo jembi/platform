@@ -24,13 +24,13 @@ fi
 AwaitJsrRunning() {
   local startTime=$(date +%s)
   until [[ $(docker service ls -f name=instant_dashboard-visualiser-jsreport --format "{{.Replicas}}") == *"${JS_REPORT_INSTANCES}/${JS_REPORT_INSTANCES}"* ]]; do
-    config::timeout_check $startTime "dashboard-visualiser-jsreport to start"
+    config::timeout_check $startTime "dashboard-visualiser-jsreport to start" "60" "300"
     sleep 1
   done
 
   local awaitHelperState=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
   until [[ $awaitHelperState == *"Complete"* ]]; do
-    config::timeout_check $startTime "dashboard-visualiser-jsreport status check"
+    config::timeout_check $startTime "dashboard-visualiser-jsreport status check" "60" "300"
     sleep 1
 
     awaitHelperState=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
@@ -49,7 +49,7 @@ RemoveConfigImporter() {
   local startTime=$(date +%s)
   local configImporterState=$(docker service ps instant_jsreport-config-importer --format "{{.CurrentState}}")
   until [[ $configImporterState == *"Complete"* ]]; do
-    config::timeout_check $startTime "jsreport-config-importer to run"
+    config::timeout_check $startTime "jsreport-config-importer to run" "60" "300"
     sleep 1
 
     configImporterState=$(docker service ps instant_jsreport-config-importer --format "{{.CurrentState}}")

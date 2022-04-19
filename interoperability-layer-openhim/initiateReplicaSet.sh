@@ -2,6 +2,14 @@
 
 echo 'Initiating the mongo replica set'
 
+COMPOSE_FILE_PATH=$(
+    cd "$(dirname "${BASH_SOURCE[0]}")" || exit
+    pwd -P
+)
+
+ROOT_PATH="${COMPOSE_FILE_PATH}/.."
+. "${ROOT_PATH}/utils/config-utils.sh"
+
 MONGO_SET_COUNT=${MONGO_SET_COUNT:-3}
 Config='{"_id":"mongo-set","members":['
 Priority="1"
@@ -18,14 +26,7 @@ echo 'Waiting to ensure all the mongo instances for the replica set are up and r
 RunningInstanceCount=0
 StartTime=$(date +%s)
 until [[ $RunningInstanceCount -eq $MONGO_SET_COUNT ]]; do
-    TimeDiff=$(($(date +%s) - $StartTime))
-    if [[ $TimeDiff -ge 60 ]] && [[ $TimeDiff -lt 61 ]]; then
-        echo "Warning: Waited 1 minute for mongo set to start. This is taking longer than it should..."
-    elif [[ $TimeDiff -ge 120 ]]; then
-        echo "Fatal: Waited 2 minutes for mongo set to start. Exiting..."
-        exit 1
-    fi
-
+    config::timeout_check $StartTime "mongo replica set to run" "60" "300"
     sleep 1
 
     RunningInstanceCount=0
