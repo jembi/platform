@@ -109,3 +109,25 @@ config::remove_stale_service_configs() {
 
     docker config rm "${configsToRemove[@]}"
 }
+
+# Copies sharedConfigs into a package's root directory
+#
+# Requirements:
+# - The package-metadata.json file requires a sharedConfigs property with an array of shared directories/files
+#
+# Arguments:
+# $1 : package metadata path (eg. /home/user/project/platform-implementation/packages/package/package-metadata.json)
+# $2 : container destination (eg. /usr/share/logstash/)
+config::copy_shared_configs() {
+    local -r PACKAGE_METADATA_PATH=$1
+    local -r CONTAINER_DESTINATION=$2
+
+    local -r sharedConfigs=($(jq '.sharedConfigs' "${PACKAGE_METADATA_PATH}"))
+    local -r packageBaseDir=$(basename "${PACKAGE_METADATA_PATH}")
+    local -r serviceName=$(jq '.id' "${PACKAGE_METADATA_PATH}")
+    local -r containerId=$(docker ps -qlf name=instant_"${serviceName}")
+
+    for sharedConfig in "${sharedConfigs[@]}"; do
+        docker cp "${packageBaseDir}"/"${sharedConfig}" "${containerId}":"${CONTAINER_DESTINATION}"
+    done
+}
