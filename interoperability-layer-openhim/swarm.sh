@@ -101,9 +101,6 @@ if [[ "$1" == "init" ]]; then
     exit 1
   fi
 
-  echo "Sleeping"
-  sleep 5000
-
   # Set host in OpenHIM console config
   sed -i "s/localhost/$OPENHIM_CORE_MEDIATOR_HOSTNAME/g; s/8080/$OPENHIM_MEDIATOR_API_PORT/g" /instant/interoperability-layer-openhim/importer/volume/default.json
 
