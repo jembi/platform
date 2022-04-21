@@ -112,7 +112,7 @@ if [[ "$1" == "init" ]]; then
 
   # Set up the replica set
   "$COMPOSE_FILE_PATH"/initiateReplicaSet.sh
-  if [[ $? -eq 1 ]]; then
+  if [[ $? -ne 0 ]]; then
     echo "Fatal: Initate Mongo replica set failed."
     exit 1
   fi
@@ -139,10 +139,9 @@ if [[ "$1" == "init" ]]; then
 
   echo "Removing stale configs..."
   config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "openhim"
+  config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "openhim"
 
-elif
-  [[ "$1" == "up" ]]
-then
+elif [[ "$1" == "up" ]]; then
   docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose-mongo.yml $MongoClusterComposeParam $MongoDevComposeParam instant
   VerifyMongos
   docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml -c "$COMPOSE_FILE_PATH"/docker-compose.stack-1.yml $OpenhimDevComposeParam instant
