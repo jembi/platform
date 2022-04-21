@@ -12,16 +12,17 @@ services:
       JS_REPORT_SSL: ${JS_REPORT_SSL:-true}
       API_PATH: '/api/import'
       CALLER_ID: 'jsr_config_importer'
-    configs:
-      - source: jsreport-config-importer-export.jsrexport
-        target: /export.jsrexport
     deploy:
       replicas: 1
       restart_policy:
         condition: none
+    configs:
+      - source: JSR-export.jsrexport
+        target: /export.jsrexport
 
 configs:
-  jsreport-config-importer-export.jsrexport:
+  JSR-export.jsrexport:
     file: ./export.jsrexport
+    name: JSR-export.jsrexport-${JSR_export_jsrexport_DIGEST:?err}
     labels:
       name: jsreport

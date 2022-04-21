@@ -71,15 +71,15 @@ if [[ "$Action" == "init" ]] || [[ "$Action" == "up" ]]; then
   echo "Verifying JS Reports service status"
   AwaitJsrRunning
 
-  docker stack deploy -c "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml instant
+  config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml instant
 
   RemoveConfigImporter
-  docker config rm instant_jsreport-config-importer-export.jsrexport
+  config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "jsreport"
 elif [[ "$Action" == "down" ]]; then
   docker service scale instant_dashboard-visualiser-jsreport=0
 elif [[ "$Action" == "destroy" ]]; then
   docker service rm instant_dashboard-visualiser-jsreport instant_jsreport-config-importer instant_await-helper
-  docker config rm instant_jsreport-config-importer-export.jsrexport
 else
   echo "Valid options are: init, up, down, or destroy"
 fi
