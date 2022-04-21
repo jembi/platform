@@ -116,13 +116,18 @@ config::remove_stale_service_configs() {
 # Arguments:
 # $1 : start time of the timeout check
 # $2 : a message containing reference to the loop that timed out
-# $3 : elapsed time to issue running-for-longer-than-expected warning (in seconds)
-# $4 : timeout time in seconds
+# $3 : elapsed time to issue running-for-longer-than-expected warning (in seconds), default is 60 seconds
+# $4 : timeout time in seconds, default is 300 seconds
 config::timeout_check() {
     local startTime=$(($1))
     local message=$2
     local warningTime=$3
     local exitTime=$4
+    if [[ -z $warningTime ]] || [[ -z $exitTime ]]; then
+        local warningTime=5
+        local exitTime=10
+    fi
+
     local timeDiff=$(($(date +%s) - $startTime))
     if [[ $timeDiff -ge $warningTime ]] && [[ $timeDiff -lt $(($warningTime + 1)) ]]; then
         echo "Warning: Waited $warningTime seconds for $message. This is taking longer than it should..."
