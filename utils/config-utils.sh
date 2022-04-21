@@ -124,8 +124,8 @@ config::timeout_check() {
     local warningTime=$3
     local exitTime=$4
     if [[ -z $warningTime ]] || [[ -z $exitTime ]]; then
-        local warningTime=5
-        local exitTime=10
+        local warningTime=60
+        local exitTime=300
     fi
 
     local timeDiff=$(($(date +%s) - $startTime))
