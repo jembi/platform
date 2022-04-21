@@ -12,8 +12,6 @@ services:
     environment:
       ES_ELASTIC: ${ES_ELASTIC},
       LS_JAVA_OPTS: ${LS_JAVA_OPTS:--Xmx2g -Xms2g}
-    volumes:
-      - /mnt/data-mapper-logstash/pipeline:/usr/share/logstash/pipeline
     configs:
       - target: /usr/share/logstash/config/log4j2.properties
         source: logstash-log4j2.properties
