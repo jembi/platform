@@ -23,8 +23,7 @@ AwaitContainerStartup() {
   until [[ -n $(docker ps -qlf name=instant_data-mapper-logstash) ]]; do
     if [[ "$timer" == "$warningTime" ]]; then
       echo "Warning: container is taking unusually long to start"
-    fi
-    if [[ "$timer" == "$errorTime" ]]; then
+    elif [[ "$timer" == "$errorTime" ]]; then
       echo "Fatal: Logstash container took too long to start up"
       exit 124 # exit code for timeout is 124
     fi
@@ -44,8 +43,7 @@ AwaitContainerReady() {
   until [[ "$(docker inspect -f '{{.State.Status}}' $(docker ps -qlf name=instant_data-mapper-logstash))" = "running" ]]; do
     if [[ "$timer" == "$warningTime" ]]; then
       echo "Warning: container is taking unusually long to start"
-    fi
-    if [[ "$timer" == "$errorTime" ]]; then
+    elif [[ "$timer" == "$errorTime" ]]; then
       echo "Fatal: Logstash container took too long to start up"
       exit 124 # exit code for timeout is 124
     fi
