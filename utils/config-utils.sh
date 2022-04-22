@@ -122,12 +122,18 @@ config::copy_shared_configs() {
     local -r PACKAGE_METADATA_PATH=$1
     local -r CONTAINER_DESTINATION=$2
 
-    local -r sharedConfigs=($(jq '.sharedConfigs' "${PACKAGE_METADATA_PATH}"))
-    local -r packageBaseDir=$(basename "${PACKAGE_METADATA_PATH}")
-    local -r serviceName=$(jq '.id' "${PACKAGE_METADATA_PATH}")
-    local -r containerId=$(docker ps -qlf name=instant_"${serviceName}")
+    # install dependencies
+    if [[ -z $(command -v jq) ]]; then
+        apt install jq -y &>/dev/null
+    fi
 
+    local -r sharedConfigs=($(jq '.sharedConfigs[]' "${PACKAGE_METADATA_PATH}"))
+    local -r packageBaseDir=$(dirname "${PACKAGE_METADATA_PATH}")
+    local -r serviceName=$(jq '.id' "${PACKAGE_METADATA_PATH}" | sed 's/\"//g')
+    local -r containerId=$(docker container ls -qlf name=instant_"${serviceName}")
+
+    echo "$containerId"
     for sharedConfig in "${sharedConfigs[@]}"; do
-        docker cp "${packageBaseDir}"/"${sharedConfig}" "${containerId}":"${CONTAINER_DESTINATION}"
+        docker cp "${packageBaseDir}"/"${sharedConfig//\"//}" "${containerId}":"${CONTAINER_DESTINATION}"
     done
 }
