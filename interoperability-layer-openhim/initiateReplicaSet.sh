@@ -26,7 +26,7 @@ echo 'Waiting to ensure all the mongo instances for the replica set are up and r
 RunningInstanceCount=0
 StartTime=$(date +%s)
 until [[ $RunningInstanceCount -eq $MONGO_SET_COUNT ]]; do
-    config::timeout_check $StartTime "mongo replica set to run" "60" "300"
+    config::timeout_check $StartTime "mongo replica set to run"
     sleep 1
 
     RunningInstanceCount=0

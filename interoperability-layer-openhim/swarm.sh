@@ -17,13 +17,13 @@ ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 VerifyCore() {
   local startTime=$(date +%s)
   until [[ $(docker service ls -f name=instant_openhim-core --format "{{.Replicas}}") == *"$OPENHIM_CORE_INSTANCES/$OPENHIM_CORE_INSTANCES"* ]]; do
-    config::timeout_check $startTime "openhim-core to start" "60" "300"
+    config::timeout_check $startTime "openhim-core to start"
     sleep 1
   done
 
   local awaitHelperState=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
   until [[ $awaitHelperState == *"Complete"* ]]; do
-    config::timeout_check $startTime "openhim-core heartbeat check" "60" "300"
+    config::timeout_check $startTime "openhim-core heartbeat check"
     sleep 1
 
     awaitHelperState=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
@@ -42,7 +42,7 @@ RemoveConfigImporter() {
   local startTime=$(date +%s)
   local configImporterState=$(docker service ps instant_interoperability-layer-openhim-config-importer --format "{{.CurrentState}}")
   until [[ $configImporterState == *"Complete"* ]]; do
-    config::timeout_check $startTime "interoperability-layer-openhim-config-importer to run" "60" "300"
+    config::timeout_check $startTime "interoperability-layer-openhim-config-importer to run"
     sleep 1
 
     configImporterState=$(docker service ps instant_interoperability-layer-openhim-config-importer --format "{{.CurrentState}}")
@@ -61,7 +61,7 @@ VerifyMongos() {
   local runningInstanceCount=0
   local startTime=$(date +%s)
   until [[ $runningInstanceCount -eq $MONGO_SET_COUNT ]]; do
-    config::timeout_check $startTime "mongo set to start" "60" "300"
+    config::timeout_check $startTime "mongo set to start"
     sleep 1
 
     runningInstanceCount=0
