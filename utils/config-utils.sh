@@ -116,8 +116,8 @@ config::remove_stale_service_configs() {
 # Arguments:
 # $1 : start time of the timeout check
 # $2 : a message containing reference to the loop that timed out
-# $3 : elapsed time to issue running-for-longer-than-expected warning (in seconds), default is 60 seconds
-# $4 : timeout time in seconds, default is 300 seconds
+# $3 : timeout time in seconds, default is 300 seconds
+# $4 : elapsed time to issue running-for-longer-than-expected warning (in seconds), default is 60 seconds
 config::timeout_check() {
     local startTime=$(($1))
     local message=$2
