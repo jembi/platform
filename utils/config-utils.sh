@@ -121,12 +121,8 @@ config::remove_stale_service_configs() {
 config::timeout_check() {
     local startTime=$(($1))
     local message=$2
-    local warningTime=$3
-    local exitTime=$4
-    if [[ -z $warningTime ]] || [[ -z $exitTime ]]; then
-        local warningTime=60
-        local exitTime=300
-    fi
+    local exitTime="${3:-300}"
+    local warningTime="${4:-60}"
 
     local timeDiff=$(($(date +%s) - $startTime))
     if [[ $timeDiff -ge $warningTime ]] && [[ $timeDiff -lt $(($warningTime + 1)) ]]; then
