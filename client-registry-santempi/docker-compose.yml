@@ -17,3 +17,13 @@ services:
       - SDB_DELAY_START=5000
     deploy:
       replicas: ${SANTEMPI_INSTANCES:-1}
+    volumes:
+      - santedb-data:/santedb
+  santedb-www:
+    image: santesuite/santedb-www:latest
+    ports:
+      - "9200:9200"
+    depends_on:
+      - santedb-mpi
+volumes: 
+  santedb-data:

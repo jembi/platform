@@ -28,8 +28,8 @@ fi
 if [ "$1" == "init" ]; then
   docker stack deploy -c "$composeFilePath"/docker-compose-postgres.yml $postgresClusterComposeParam $postgresDevComposeParam instant
 
-  echo "Sleep 60 seconds to give Postgres time to start up before Sante MPI"
-  sleep 60
+  echo "Sleep 30 seconds to give Postgres time to start up before Sante MPI"
+  sleep 30
 
   docker stack deploy -c "$composeFilePath"/docker-compose.yml $santeMPIDevComposeParam instant
 elif [ "$1" == "up" ]; then
@@ -42,12 +42,12 @@ elif [ "$1" == "up" ]; then
 elif [ "$1" == "down" ]; then
   docker service scale instant_santedb-mpi=0 instant_santempi-psql-1=0 instant_santempi-psql-2=0 instant_santempi-psql-3=0
 elif [ "$1" == "destroy" ]; then
-  docker service rm instant_santedb-mpi instant_santempi-psql-1-data instant_santempi-psql-2-data instant_santempi-psql-3-data
+  docker service rm instant_santedb-mpi instant_santempi-psql-1 instant_santempi-psql-2 instant_santempi-psql-3
 
   echo "Sleep 10 Seconds to allow services to shut down before deleting volumes"
   sleep 10
 
-  docker volume rm instant_santempi-psql-1-data instant_santempi-psql-2-data instant_santempi-psql-3-data
+  docker volume rm instant_santedb-data instant_santempi-psql-1-data instant_santempi-psql-2-data instant_santempi-psql-3-data
 
   if [ $statefulNodes == "cluster" ]; then
     echo "Volumes are only deleted on the host on which the command is run. Postgres volumes on other nodes are not deleted"
