@@ -6,11 +6,11 @@
   "version": "v0.0.1",
   "dependencies": [],
   "environmentVariables": {
-    "JS_REPORT_SECRET": "${JS_REPORT_SECRET:-dev_secret_only}",
-    "JS_REPORT": "${JS_REPORT:-dev_password_only}",
-    "ES_PASSWORD": "${ES_ELASTIC:-dev_password_only}",
-    "API_USERNAME": "${JS_REPORT_USERNAME:-admin}",
-    "API_PASSWORD": "${JS_REPORT:-dev_password_only}",
-    "JS_REPORT_SSL": "${JS_REPORT_SSL:-true}"
+    "JS_REPORT_SECRET": "dev_secret_only",
+    "JS_REPORT": "dev_password_only",
+    "ES_PASSWORD": "dev_password_only",
+    "API_USERNAME": "admin",
+    "API_PASSWORD": "dev_password_only",
+    "JS_REPORT_SSL": "true"
   }
 }
