@@ -11,7 +11,7 @@ services:
       API_PASSWORD: ${JS_REPORT:-dev_password_only}
       SSL: ${JS_REPORT_SSL:-true}
       API_PATH: '/api/import'
-      BODY_DATA_FORMAT: 'multipart/form-data'
+      MIME_TYPE: 'multipart/form-data'
     deploy:
       replicas: 1
       restart_policy:
