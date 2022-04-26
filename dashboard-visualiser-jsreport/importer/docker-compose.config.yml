@@ -9,7 +9,7 @@ services:
       SERVICE_API_PORT: 5488
       API_USERNAME: ${JS_REPORT_USERNAME:-admin}
       API_PASSWORD: ${JS_REPORT:-dev_password_only}
-      JS_REPORT_SSL: ${JS_REPORT_SSL:-true}
+      SSL: ${JS_REPORT_SSL:-true}
       API_PATH: '/api/import'
       BODY_DATA_FORMAT: 'multipart/form-data'
     deploy:
