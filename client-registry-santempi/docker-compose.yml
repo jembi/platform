@@ -8,8 +8,8 @@ services:
       - SDB_MATCHING_MODE=WEIGHTED
       - SDB_MDM_RESOURCE=Patient=org.santedb.matching.patient.default
       - SDB_MDM_AUTO_MERGE=false
-      - SDB_DB_MAIN=${SANTEMPI_MAIN_CONNECTION_STRING:-"server=santempi-psql-1;port=5432; database=santedb; user id=santedb; password=SanteDB123; pooling=true; MinPoolSize=5; MaxPoolSize=15; Timeout=60;"}
-      - SDB_DB_AUDIT=${SANTEMPI_AUDIT_CONNECTION_STRING:-"server=santempi-psql-1;port=5432; database=auditdb; user id=santedb; password=SanteDB123; pooling=true; MinPoolSize=5; MaxPoolSize=15; Timeout=60;"}
+      - SDB_DB_MAIN=${SANTEMPI_MAIN_CONNECTION_STRING:-server=santempi-psql-1;port=5432; database=santedb; user id=santedb; password=SanteDB123; pooling=true; MinPoolSize=5; MaxPoolSize=15; Timeout=60;}
+      - SDB_DB_AUDIT=${SANTEMPI_AUDIT_CONNECTION_STRING:-server=santempi-psql-1;port=5432; database=auditdb; user id=santedb; password=SanteDB123; pooling=true; MinPoolSize=5; MaxPoolSize=15; Timeout=60;}
       - SDB_DB_MAIN_PROVIDER=Npgsql
       - SDB_DB_AUDIT_PROVIDER=Npgsql
       - SDB_DATA_POLICY_ACTION=HIDE
@@ -17,13 +17,9 @@ services:
       - SDB_DELAY_START=5000
     deploy:
       replicas: ${SANTEMPI_INSTANCES:-1}
-    volumes:
-      - santedb-data:/santedb
   santedb-www:
     image: santesuite/santedb-www:latest
     ports:
       - "9200:9200"
     depends_on:
       - santedb-mpi
-volumes: 
-  santedb-data:
