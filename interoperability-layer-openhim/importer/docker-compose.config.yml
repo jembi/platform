@@ -25,9 +25,11 @@ services:
 configs:
   openhim-config-importer-openhimConfig.js:
     file: ./volume/openhimConfig.js
+    name: openhim-config-importer-openhimConfig.js-${openhim_config_importer_openhimConfig_js_DIGEST:?err}
     labels:
       name: openhim
   openhim-config-importer-openhim-import.json:
     file: ./volume/openhim-import.json
+    name: openhim-config-importer-openhim-import.json-${openhim_config_importer_openhim_import_js_DIGEST:?err}
     labels:
       name: openhim

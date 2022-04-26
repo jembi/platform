@@ -11,6 +11,8 @@ COMPOSE_FILE_PATH=$(
   pwd -P
 )
 
+# Import libraries
+
 ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/config-utils.sh"
 
@@ -92,6 +94,9 @@ else
 fi
 
 if [[ "$1" == "init" ]]; then
+  config::set_config_digests "$COMPOSE_FILE_PATH"/docker-compose.yml
+  config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
+
   docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose-mongo.yml $MongoClusterComposeParam $MongoDevComposeParam instant
 
   # Set up the replica set
@@ -120,6 +125,11 @@ if [[ "$1" == "init" ]]; then
 
   # Sleep to ensure config importer is removed
   sleep 5
+
+  echo "Removing stale configs..."
+  config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "openhim"
+  config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "openhim"
+
 elif [[ "$1" == "up" ]]; then
   docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose-mongo.yml $MongoClusterComposeParam $MongoDevComposeParam instant
   VerifyMongos
@@ -134,7 +144,6 @@ elif [[ "$1" == "destroy" ]]; then
   sleep 10
 
   docker volume rm instant_openhim-mongo1 instant_openhim-mongo2 instant_openhim-mongo3
-  docker config rm instant_console.config
 
   if [[ $STATEFUL_NODES == "cluster" ]]; then
     echo "Volumes are only deleted on the host on which the command is run. Mongo volumes on other nodes are not deleted"
