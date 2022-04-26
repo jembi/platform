@@ -100,7 +100,7 @@ prepare_console_config() {
 }
 
 configure_nginx() {
-  if [[ "${INSECURE}" == "true" ]] || [[ "$2" == "dev" ]]; then
+  if [[ "${INSECURE}" == "true" ]]; then
     docker config create --label name=nginx "${TIMESTAMP}-http-openhim-insecure.conf" "${COMPOSE_FILE_PATH}"/config/http-openhim-insecure.conf
     docker config create --label name=nginx "${TIMESTAMP}-stream-openhim-insecure.conf" "${COMPOSE_FILE_PATH}"/config/stream-openhim-insecure.conf
     docker service update \
@@ -135,6 +135,7 @@ main() {
   fi
 
   if [[ "$1" == "init" ]]; then
+    echo stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose-mongo.yml "${mongo_cluster_compose_param[@]}" "${mongo_dev_compose_param[@]}" instant
     docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose-mongo.yml "${mongo_cluster_compose_param[@]}" "${mongo_dev_compose_param[@]}" instant
 
     # Set up the replica set
@@ -163,15 +164,21 @@ main() {
     # Sleep to ensure config importer is removed
     sleep 5
 
-    configure_nginx "$@"
+    if [[ "$2" != "dev" ]]; then
+      configure_nginx "$@"
+    fi
   elif
     [[ "$1" == "up" ]]
   then
     docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose-mongo.yml "${mongo_cluster_compose_param[@]}" "${mongo_dev_compose_param[@]}" instant
     verify_mongos
     prepare_console_config
+
     CONSOLE_CFG_DIGEST="${CONSOLE_CFG_DIGEST}" docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.yml -c "${COMPOSE_FILE_PATH}"/docker-compose.stack-1.yml "${openhim_dev_compose_param[@]}" instant
-    configure_nginx "$@"
+
+    if [[ "$2" != "dev" ]]; then
+      configure_nginx "$@"
+    fi
   elif [[ "$1" == "down" ]]; then
     docker service scale instant_openhim-core=0 instant_openhim-console=0 instant_mongo-1=0 instant_mongo-2=0 instant_mongo-3=0
   elif [[ "$1" == "destroy" ]]; then

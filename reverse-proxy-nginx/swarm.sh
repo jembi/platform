@@ -16,9 +16,14 @@ readonly TIMESTAMPED_NGINX="${TIMESTAMP}-nginx.conf"
 
 main() {
   if [[ "$1" == "init" ]] || [[ "$1" == "up" ]]; then
+    if [[ "$2" == "dev" ]]; then
+      echo "Not starting reverse proxy as we are running DEV mode"
+      exit 0
+    fi
+
     docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.yml instant
 
-    if [[ "${INSECURE}" == "true" ]] || [[ "$2" == "dev" ]]; then
+    if [[ "${INSECURE}" == "true" ]]; then
       printf "\nRunning reverse-proxy package in INSECURE mode\n"
       if [ "${INSECURE_PORTS}" != "" ]; then
         IFS='-' read -ra PORTS <<<"$INSECURE_PORTS"
