@@ -9,6 +9,13 @@ services:
       placement:
         constraints:
           - "node.labels.name==node-1"
+      resources:
+        limits:
+          cpus: ${ZOOKEEPER_CPU_LIMIT:-0.3}
+          memory: ${ZOOKEEPER_MEMORY_LIMIT:-3G}
+        reservations:
+          cpus: ${ZOOKEEPER_CPU_RESERVE:-0.05}
+          memory: ${ZOOKEEPER_MEMORY_RESERVE:-500M}
 
   zookeeper-2:
     image: bitnami/zookeeper:3.7.0
@@ -22,6 +29,13 @@ services:
       placement:
         constraints:
           - "node.labels.name==node-2"
+      resources:
+        limits:
+          cpus: ${ZOOKEEPER_CPU_LIMIT:-0.3}
+          memory: ${ZOOKEEPER_MEMORY_LIMIT:-3G}
+        reservations:
+          cpus: ${ZOOKEEPER_CPU_RESERVE:-0.05}
+          memory: ${ZOOKEEPER_MEMORY_RESERVE:-500M}
   
   zookeeper-3:
     image: bitnami/zookeeper:3.7.0
@@ -35,12 +49,26 @@ services:
       placement:
         constraints:
           - "node.labels.name==node-3"
+      resources:
+        limits:
+          cpus: ${ZOOKEEPER_CPU_LIMIT:-0.3}
+          memory: ${ZOOKEEPER_MEMORY_LIMIT:-3G}
+        reservations:
+          cpus: ${ZOOKEEPER_CPU_RESERVE:-0.05}
+          memory: ${ZOOKEEPER_MEMORY_RESERVE:-500M}
 
   kafka:
     environment:
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper-1:2181,zookeeper-2:2181,zookeeper-3:2181
     deploy:
       mode: global
+      resources:
+        limits:
+          cpus: ${KAFKA_CPU_LIMIT:-0.3}
+          memory: ${KAFKA_MEMORY_LIMIT:-3G}
+        reservations:
+          cpus: ${KAFKA_CPU_RESERVE:-0.05}
+          memory: ${KAFKA_MEMORY_RESERVE:-500M}
 
 volumes:
   kafka-volume:

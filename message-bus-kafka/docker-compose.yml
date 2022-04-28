@@ -7,6 +7,14 @@ services:
      - ALLOW_ANONYMOUS_LOGIN=yes
     volumes:
       - zookeeper-1-volume:/bitnami/zookeeper
+    deploy:
+      resources:
+          limits:
+            cpus: ${ZOOKEEPER_CPU_LIMIT:-0.3}
+            memory: ${ZOOKEEPER_MEMORY_LIMIT:-3G}
+          reservations:
+            cpus: ${ZOOKEEPER_CPU_RESERVE:-0.05}
+            memory: ${ZOOKEEPER_MEMORY_RESERVE:-500M}
 
   kafka:
     image: bitnami/kafka:3.1.0
@@ -17,6 +25,14 @@ services:
       - KAFKA_CFG_SOCKET_REQUEST_MAX_BYTES=20971520
     volumes:
       - kafka-volume:/bitnami/kafka
+    deploy:
+      resources:
+        limits:
+          cpus: ${KAFKA_CPU_LIMIT:-0.3}
+          memory: ${KAFKA_MEMORY_LIMIT:-3G}
+        reservations:
+          cpus: ${KAFKA_CPU_RESERVE:-0.05}
+          memory: ${KAFKA_MEMORY_RESERVE:-500M}
 
   kafdrop:
     image: obsidiandynamics/kafdrop:3.27.0
@@ -26,6 +42,14 @@ services:
       KAFKA_BROKERCONNECT: 'kafka:9092'
       JVM_OPTS: '-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify'
       CMD_ARGS: '--server.port=9013 --management.server.port=9013'
+    deploy:
+      resources:
+        limits:
+          cpus: ${KAFDROP_CPU_LIMIT:-0.3}
+          memory: ${KAFDROP_MEMORY_LIMIT:-3G}
+        reservations:
+          cpus: ${KAFDROP_CPU_RESERVE:-0.05}
+          memory: ${KAFDROP_MEMORY_RESERVE:-500M}
 
 volumes:
   kafka-volume:

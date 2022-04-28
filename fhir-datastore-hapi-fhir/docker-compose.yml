@@ -16,3 +16,10 @@ services:
       - CATALINA_OPTS=-Xmx2g
     deploy:
       replicas: ${HAPI_FHIR_INSTANCES:-1}
+      resources:
+        limits:
+          cpus: ${HAPI_FHIR_CPU_LIMIT:-0.3}
+          memory: ${HAPI_FHIR_MEMORY_LIMIT:-3G}
+        reservations:
+          cpus: ${HAPI_FHIR_CPU_RESERVE:-0.05}
+          memory: ${HAPI_FHIR_MEMORY_RESERVE:-500M}

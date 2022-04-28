@@ -10,3 +10,10 @@ services:
       HAPI_SERVER_VALIDATE_FORMAT: ${HAPI_SERVER_VALIDATE_FORMAT:-NONE}
     deploy:
       replicas: ${HAPI_PROXY_INSTANCES:-1}
+      resources:
+        limits:
+          cpus: ${HAPI_PROXY_CPU_LIMIT:-0.3}
+          memory: ${HAPI_PROXY_MEMORY_LIMIT:-3G}
+        reservations:
+          cpus: ${HAPI_PROXY_CPU_RESERVE:-0.05}
+          memory: ${HAPI_PROXY_MEMORY_RESERVE:-500M}
