@@ -4,6 +4,7 @@ services:
   elastic-search-config-importer:
       image: jembi/api-config-importer:latest
       environment:
+        HTTP_METHOD: 'PUT'
         SERVICE_NAME: 'analytics-datastore-elastic-search'
         SERVICE_API_PORT: 9200
         API_USERNAME: elastic
@@ -23,6 +24,6 @@ services:
 configs:
   elastic-index.json:
     file: ./elastic-index.json
-    name: elastic-index.json-1606500971
+    name: elastic-index.json-${elastic_index_json_DIGEST:?err}
     labels:
       name: elastic-search
