@@ -11,7 +11,7 @@
     "ES_PASSWORD": "dev_password_only",
     "API_USERNAME": "admin",
     "API_PASSWORD": "dev_password_only",
-    "SSL": "true",
+    "JS_REPORT_SSL": "true",
     "JS_REPORT_CONFIG_FILE": "export.jsrexport",
     "JS_REPORT_CPU_LIMIT": "0.15",
     "JS_REPORT_MEMORY_LIMIT": "3G",
