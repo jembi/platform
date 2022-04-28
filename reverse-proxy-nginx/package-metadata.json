@@ -4,5 +4,11 @@
   "description": "nginx reverse proxy",
   "type": "use-case",
   "version": "v0.0.1",
-  "dependencies": []
+  "dependencies": [],
+  "environment": {
+    "NGINX_CPU_LIMIT": "0.4",
+    "NGINX_CPU_RESERVE": "0.05",
+    "NGINX_MEMORY_LIMIT": "3G",
+    "NGINX_MEMORY_RESERVE": "500M"
+  }
 }
