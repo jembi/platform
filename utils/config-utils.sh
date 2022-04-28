@@ -110,6 +110,7 @@ config::remove_stale_service_configs() {
     docker config rm "${configsToRemove[@]}"
 }
 
+
 # Copies sharedConfigs into a package's root directory
 #
 # Requirements:
@@ -136,4 +137,27 @@ config::copy_shared_configs() {
         # TODO: (https://jembiprojects.jira.com/browse/PLAT-243) swap docker copy for a swarm compliant approach
         docker cp "${packageBaseDir}"/"${sharedConfig//\"//}" "${containerId}":"${CONTAINER_DESTINATION}"
     done
+
+# A function that exists in a loop to see how long that loop has run for, providing a warning
+# at the time specified in argument $3, and exits with code 124 after the time specified in argument $4.
+#
+# Arguments:
+# $1 : start time of the timeout check
+# $2 : a message containing reference to the loop that timed out
+# $3 : timeout time in seconds, default is 300 seconds
+# $4 : elapsed time to issue running-for-longer-than-expected warning (in seconds), default is 60 seconds
+config::timeout_check() {
+    local startTime=$(($1))
+    local message=$2
+    local exitTime="${3:-300}"
+    local warningTime="${4:-60}"
+
+    local timeDiff=$(($(date +%s) - $startTime))
+    if [[ $timeDiff -ge $warningTime ]] && [[ $timeDiff -lt $(($warningTime + 1)) ]]; then
+        echo "Warning: Waited $warningTime seconds for $message. This is taking longer than it should..."
+    elif [[ $timeDiff -ge $exitTime ]]; then
+        echo "Fatal: Waited $exitTime seconds for $message. Exiting..."
+        exit 124
+    fi
+
 }
