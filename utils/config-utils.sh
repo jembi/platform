@@ -123,7 +123,7 @@ config::remove_stale_service_configs() {
     docker config rm "${configsToRemove[@]}"
 }
 
-# Copies sharedConfigs into a package's root directory
+# Copies sharedConfigs into a package's container root directory
 #
 # Requirements:
 # - The package-metadata.json file requires a sharedConfigs property with an array of shared directories/files
