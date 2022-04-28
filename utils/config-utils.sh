@@ -110,7 +110,6 @@ config::remove_stale_service_configs() {
     docker config rm "${configsToRemove[@]}"
 }
 
-
 # Copies sharedConfigs into a package's root directory
 #
 # Requirements:
@@ -142,6 +141,7 @@ config::copy_shared_configs() {
         # TODO: (https://jembiprojects.jira.com/browse/PLAT-243) swap docker copy for a swarm compliant approach
         docker cp "${packageBaseDir}"/"${sharedConfig//\"//}" "${containerId}":"${CONTAINER_DESTINATION}"
     done
+}
 
 # A function that exists in a loop to see how long that loop has run for, providing a warning
 # at the time specified in argument $3, and exits with code 124 after the time specified in argument $4.
@@ -164,5 +164,4 @@ config::timeout_check() {
         echo "Fatal: Waited $exitTime seconds for $message. Exiting..."
         exit 124
     fi
-
 }
