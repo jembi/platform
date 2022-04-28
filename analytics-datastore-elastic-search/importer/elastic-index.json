@@ -1,0 +1,244 @@
+{
+  "aliases": {
+    "fhir-reports-by-art": {},
+    "fhir-reports-by-hiv": {}
+  },
+  "mappings": {
+    "runtime": {
+      "calculated.artInitiatedIntervalToHivPos": {
+        "type": "keyword",
+        "script": {
+          "source": "if (doc['hivPositiveTracking.period.start'].size()==0 || doc['arvTreatmentStarted.effectivePeriod.start'].size()==0) { return } ZonedDateTime hivStart = doc['hivPositiveTracking.period.start'].value; ZonedDateTime artStart = doc['arvTreatmentStarted.effectivePeriod.start'].value; long days = hivStart.until(artStart, ChronoUnit.DAYS); if(days == 0) { emit('sameDay') } else if(days > 0 && days < 8) { emit('1stWeek') } else if(days >= 8) { emit('8thDayOrBeyond') }"
+        }
+      }
+    },
+    "properties": {
+      "patient": {
+        "properties": {
+          "fhirID": { "type": "keyword" },
+          "UAN": { "type": "keyword" },
+          "MRN": { "type": "keyword" },
+          "gender": { "type": "keyword" },
+          "region": { "type": "keyword" },
+          "subCity": { "type": "keyword" },
+          "woreda": { "type": "keyword" },
+          "kebele": { "type": "keyword" },
+          "birthDate": { "type": "date" }
+        }
+      },
+      "hivPositiveTracking": {
+        "properties": {
+          "fhirID": { "type": "keyword" },
+          "registrationDate": { "type": "date" },
+          "period": {
+            "properties": {
+              "start": { "type": "date" }
+            }
+          },
+          "finalOutcome": {
+            "properties": {
+              "outcome": { "type": "keyword" },
+              "outcomeKnown": { "type": "keyword" },
+              "outcomeKnownDate": { "type": "date" },
+              "nameOfFacilityReferred": { "type": "keyword" }
+            }
+          },
+          "startedART": {
+            "properties": {
+              "reasonARTNotStartedSameDay ": { "type": "keyword" },
+              "planForNextStep ": { "type": "keyword" }
+            }
+          },
+          "linkedToCare": {
+            "properties": {
+              "linkedToCareAndTreatment  ": { "type": "keyword" },
+              "linkedToCareAndTreatmentDate  ": { "type": "date" }
+            }
+          },
+          "entryPoint": {
+            "properties": {
+              "entryPointType": { "type": "keyword" },
+              "locationCodeFromWithinFacility": { "type": "keyword" },
+              "locationCodeForOtherSites": { "type": "keyword" }
+            }
+          }
+        }
+      },
+      "facility": {
+        "properties": {
+          "fhirID": { "type": "keyword" },
+          "region": { "type": "keyword" },
+          "subCity": { "type": "keyword" },
+          "healthFacility": { "type": "keyword" },
+          "MOHID": { "type": "keyword" },
+          "HFUID": { "type": "keyword" }
+        }
+      },
+      "arvTreatmentStarted": {
+        "properties": {
+          "fhirID": { "type": "keyword" },
+          "started": { "type": "keyword" },
+          "effectivePeriod": {
+            "properties": {
+              "start": { "type": "date" }
+            }
+          }
+        }
+      },
+      "indexCaseContactScreening": {
+        "properties": {
+          "screeningDate": { "type": "date" },
+          "clientEligible": { "type": "boolean" },
+          "offeredFbictService": { "type": "boolean" },
+          "acceptedFbictService": { "type": "boolean" },
+          "isNewlyEnrolled": { "type": "boolean" },
+          "isHighViralLoad": { "type": "boolean" },
+          "isRestart": { "type": "boolean" },
+          "isNewPartner": { "type": "boolean" },
+          "isCareWithSTI": { "type": "boolean" },
+          "isPartnerNotYetDisclosed": { "type": "boolean" },
+          "isPartnerNotYetTested": { "type": "boolean" },
+          "isChildNotTested": { "type": "boolean" },
+          "isClientKP": { "type": "boolean" },
+          "numberOfContactsElicited": { "type": "keyword" }
+        }
+      },
+      "indexCaseContacts": {
+        "type": "nested",
+        "properties": {
+          "relatedPersonFhirId": { "type": "keyword" },
+          "registrationDate": { "type": "date" },
+          "gender": { "type": "keyword" },
+          "birthDate": { "type": "date" },
+          "relationship": { "type": "keyword" },
+          "previouslyTested": { "type": "boolean" },
+          "previousTestDate": { "type": "date" },
+          "previousHivResult": { "type": "keyword" },
+          "isCounselledForHivToday": { "type": "boolean" },
+          "linkedToHivCare": { "type": "boolean" },
+          "dateTested": { "type": "date" },
+          "hivTestResult": { "type": "keyword" },
+          "MRN": { "type": "keyword" },
+          "UAN": { "type": "keyword" },
+          "reasonNotTested": { "type": "keyword" },
+          "partnerStartedART": { "type": "boolean" }
+        }
+      },
+      "followUps": {
+        "type": "nested",
+        "properties": {
+          "firstDrugDispense": { "type": "boolean" },
+          "encounterFhirId": { "type": "keyword" },
+          "followUpDate": { "type": "date" },
+          "nextVisitDate": { "type": "date" },
+          "hivConfirmedDate": { "type": "date" },
+          "whyEligible": { "type": "keyword" },
+          "pregnant": { "type": "keyword" },
+          "breastfeeding": { "type": "keyword" },
+          "followUpStatus": { "type": "keyword" },
+          "visitType": { "type": "keyword" },
+          "nutritionalStatus": { "type": "keyword" },
+          "arvAdherence": { "type": "keyword" },
+          "arvDrugs": {
+            "properties": {
+              "dispenseCode": { "type": "keyword" },
+              "dispenseDoseQuantity": { "type": "integer" },
+              "dispenseDoseDaysSupply": { "type": "integer" },
+              "dispenseDoseEndDate": { "type": "date" },
+              "wasSwitched": { "type": "boolean" },
+              "switchType": { "type": "keyword" },
+              "switchReason": { "type": "keyword" }
+            }
+          },
+          "vitalSigns": {
+            "properties": {
+              "weight": { "type": "integer" }
+            }
+          },
+          "cervicalScreening": {
+            "properties": {
+              "counsellingGiven": { "type": "keyword" },
+              "acceptedScreening": { "type": "keyword" },
+              "screeningDone": { "type": "keyword" },
+              "dateScreeningDone": { "type": "date" },
+              "typeOfScreening": { "type": "keyword" },
+              "screeningMethod": { "type": "keyword" },
+              "hpvDNATestResult": { "type": "keyword" },
+              "viaScreeningResult": { "type": "keyword" },
+              "precancerousLesionTreatmentReceived": { "type": "keyword" },
+              "suspiciousCancerousLesionTreatmentReceived": {
+                "type": "keyword"
+              },
+              "treatmentReceivedDate": { "type": "date" },
+              "nextAppointmentDateForCCA": { "type": "date" }
+            }
+          },
+          "tbScreening": {
+            "properties": {
+              "tptStartDate": { "type": "date" },
+              "tptCompletedDate": { "type": "date" },
+              "tptDiscontinuedDate": { "type": "date" },
+              "tptProphylaxisType": { "type": "keyword" }
+            }
+          },
+          "tbTreatment": {
+            "properties": {
+              "tbStartDate": { "type": "date" },
+              "tbrxCompletedDate": { "type": "date" }
+            }
+          },
+          "tbCotrimoxazolDrugs": {
+            "properties": {
+              "dispenseDoseStartDate": { "type": "date" },
+              "dispenseDoseEndDate": { "type": "date" }
+            }
+          },
+          "tbFluconazoleDrugs": {
+            "properties": {
+              "dispenseDoseStartDate": { "type": "date" },
+              "dispenseDoseEndDate": { "type": "date" }
+            }
+          },
+          "labResults": {
+            "properties": {
+              "viralLoadRequestedDate": { "type": "date" },
+              "viralLoadResultDate": { "type": "date" },
+              "viralLoad": { "type": "integer" },
+              "viralLoadStatus": { "type": "keyword" },
+              "viralLoadIndication": { "type": "keyword" }, 
+              "viralLoadIndicationReason": { "type": "keyword" }
+            }
+          },
+          "eac ": {
+            "properties": {
+              "eacProvided": { "type": "keyword" },
+              "dateEACProvided": { "type": "date" },
+              "eacGiven": { "type": "keyword" }
+            }
+          },
+          "asm": {
+            "properties": {
+              "eligible": { "type": "boolean" },
+              "terminated": { "type": "boolean" },
+              "terminatedDate": { "type": "date" },
+              "terminatedReason": { "type": "keyword" },
+              "enrolled": { "type": "boolean" },
+              "enrollmentDate": { "type": "date" },
+              "agreedToEnrollment": { "type": "boolean" },
+              "reasonNotEnrolled": { "type": "keyword" },
+              "assessed": { "type": "boolean" },
+              "assessmentDate": { "type": "date" },
+              "category": { "type": "keyword" },
+              "counseled": { "type": "boolean" },
+              "coupleEnrolled": { "type": "boolean" },
+              "coupleUAN": { "type": "keyword" },
+              "newCategory": { "type": "keyword" },
+              "categoryChangeReason": { "type": "keyword" },
+              "categoryChangeDate": { "type": "date" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

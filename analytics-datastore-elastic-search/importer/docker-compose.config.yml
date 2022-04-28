@@ -1,0 +1,28 @@
+version: '3.9'
+
+services:
+  elastic-search-config-importer:
+      image: jembi/api-config-importer:latest
+      environment:
+        SERVICE_NAME: 'analytics-datastore-elastic-search'
+        SERVICE_API_PORT: 9200
+        API_USERNAME: elastic
+        API_PASSWORD: ${ES_ELASTIC:-dev_password_only}
+        SSL: ${ES_SSL:-true}
+        API_PATH: '/fhir-enrich-reports'
+        MIME_TYPE: 'application/json'
+        CONFIG_FILE: 'elastic-index.json'
+      deploy:
+        replicas: 1
+        restart_policy:
+          condition: none
+      configs:
+        - target: /elastic-index.json
+          source: elastic-index.json
+
+configs:
+  elastic-index.json:
+    file: ./elastic-index.json
+    name: elastic-index.json-1606500971
+    labels:
+      name: elastic-search
