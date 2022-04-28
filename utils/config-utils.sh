@@ -118,9 +118,15 @@ config::remove_stale_service_configs() {
 # Arguments:
 # $1 : package metadata path (eg. /home/user/project/platform-implementation/packages/package/package-metadata.json)
 # $2 : container destination (eg. /usr/share/logstash/)
+# $3 : service id (eg. data-mapper-logstash) (tries to retrieve service name from package-metadata if not provided)
 config::copy_shared_configs() {
     local -r PACKAGE_METADATA_PATH=$1
     local -r CONTAINER_DESTINATION=$2
+    local serviceId=$3
+
+    if [[ -z $SERVICE_ID ]]; then
+        serviceId=$(jq '.id' "${PACKAGE_METADATA_PATH}" | sed 's/\"//g')
+    fi
 
     # install dependencies
     if [[ -z $(command -v jq) ]]; then
@@ -129,8 +135,7 @@ config::copy_shared_configs() {
 
     local -r sharedConfigs=($(jq '.sharedConfigs[]' "${PACKAGE_METADATA_PATH}"))
     local -r packageBaseDir=$(dirname "${PACKAGE_METADATA_PATH}")
-    local -r serviceName=$(jq '.id' "${PACKAGE_METADATA_PATH}" | sed 's/\"//g')
-    local -r containerId=$(docker container ls -qlf name=instant_"${serviceName}")
+    local -r containerId=$(docker container ls -qlf name=instant_"${serviceId}")
 
     for sharedConfig in "${sharedConfigs[@]}"; do
         # TODO: (https://jembiprojects.jira.com/browse/PLAT-243) swap docker copy for a swarm compliant approach
