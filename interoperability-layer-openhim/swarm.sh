@@ -12,19 +12,20 @@ COMPOSE_FILE_PATH=$(
 )
 
 # Import libraries
+
 ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/config-utils.sh"
 
 VerifyCore() {
   local startTime=$(date +%s)
   until [[ $(docker service ls -f name=instant_openhim-core --format "{{.Replicas}}") == *"$OPENHIM_CORE_INSTANCES/$OPENHIM_CORE_INSTANCES"* ]]; do
-    TimeoutCheck $startTime "openhim-core to start"
+    config::timeout_check $startTime "openhim-core to start"
     sleep 1
   done
 
   local awaitHelperState=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
   until [[ $awaitHelperState == *"Complete"* ]]; do
-    TimeoutCheck $startTime "openhim-core heartbeat check"
+    config::timeout_check $startTime "openhim-core heartbeat check"
     sleep 1
 
     awaitHelperState=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
@@ -43,7 +44,7 @@ RemoveConfigImporter() {
   local startTime=$(date +%s)
   local configImporterState=$(docker service ps instant_interoperability-layer-openhim-config-importer --format "{{.CurrentState}}")
   until [[ $configImporterState == *"Complete"* ]]; do
-    TimeoutCheck $startTime "interoperability-layer-openhim-config-importer to run"
+    config::timeout_check $startTime "interoperability-layer-openhim-config-importer to run"
     sleep 1
 
     configImporterState=$(docker service ps instant_interoperability-layer-openhim-config-importer --format "{{.CurrentState}}")
@@ -57,24 +58,12 @@ RemoveConfigImporter() {
   docker service rm instant_interoperability-layer-openhim-config-importer
 }
 
-TimeoutCheck() {
-  local startTime=$(($1))
-  local message=$2
-  local timeDiff=$(($(date +%s) - $startTime))
-  if [[ $timeDiff -ge 60 ]] && [[ $timeDiff -lt 61 ]]; then
-    echo "Warning: Waited 1 minute for $message. This is taking longer than it should..."
-  elif [[ $timeDiff -ge 120 ]]; then
-    echo "Fatal: Waited 2 minutes for $message. Exiting..."
-    exit 1
-  fi
-}
-
 VerifyMongos() {
   echo 'Waiting to ensure all the mongo instances for the replica set are up and running'
   local runningInstanceCount=0
   local startTime=$(date +%s)
   until [[ $runningInstanceCount -eq $MONGO_SET_COUNT ]]; do
-    TimeoutCheck $startTime "mongo set to start"
+    config::timeout_check $startTime "mongo set to start"
     sleep 1
 
     runningInstanceCount=0
