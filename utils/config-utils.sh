@@ -148,7 +148,7 @@ config::copy_shared_configs() {
     local -r containerId=$(docker container ls -qlf name=instant_"${serviceId}")
 
     for sharedConfig in "${sharedConfigs[@]}"; do
-        # TODO: (https://jembiprojects.jira.com/browse/PLAT-243) swap docker copy for a swarm compliant approach
+        # TODO: (https://jembiprojects.jira.com/browse/PLAT-252) swap docker copy for a swarm compliant approach
         docker cp "${packageBaseDir}"/"${sharedConfig//\"//}" "${containerId}":"${CONTAINER_DESTINATION}"
     done
 }
