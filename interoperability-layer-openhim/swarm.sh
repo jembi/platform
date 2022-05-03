@@ -15,6 +15,7 @@ COMPOSE_FILE_PATH=$(
 readonly COMPOSE_FILE_PATH
 
 # Import libraries
+
 ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/config-utils.sh"
 
@@ -22,14 +23,14 @@ verify_core() {
   local start_time
   start_time=$(date +%s)
   until [[ $(docker service ls -f name=instant_openhim-core --format "{{.Replicas}}") == *"${OPENHIM_CORE_INSTANCES}/${OPENHIM_CORE_INSTANCES}"* ]]; do
-    timeout_check "${start_time}" "openhim-core to start"
+    config::timeout_check "${start_time}" "openhim-core to start"
     sleep 1
   done
 
   local await_helper_state
   await_helper_state=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
   until [[ "${await_helper_state}" == *"Complete"* ]]; do
-    timeout_check "${start_time}" "openhim-core heartbeat check"
+    config::timeout_check "${start_time}" "openhim-core heartbeat check"
     sleep 1
 
     await_helper_state=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
@@ -49,7 +50,7 @@ remove_config_importer() {
   local config_importer_state
   config_importer_state=$(docker service ps instant_interoperability-layer-openhim-config-importer --format "{{.CurrentState}}")
   until [[ "${config_importer_state}" == *"Complete"* ]]; do
-    timeout_check "${start_time}" "interoperability-layer-openhim-config-importer to run"
+    config::timeout_check "${start_time}" "interoperability-layer-openhim-config-importer to run"
     sleep 1
 
     config_importer_state=$(docker service ps instant_interoperability-layer-openhim-config-importer --format "{{.CurrentState}}")
@@ -63,25 +64,13 @@ remove_config_importer() {
   docker service rm instant_interoperability-layer-openhim-config-importer
 }
 
-timeout_check() {
-  local start_time=$(($1))
-  local message=$2
-  local timeDiff=$(($(date +%s) - start_time))
-  if [[ "${timeDiff}" -ge 60 ]] && [[ "${timeDiff}" -lt 61 ]]; then
-    echo "Warning: Waited 1 minute for ${message}. This is taking longer than it should..."
-  elif [[ "${timeDiff}" -ge 120 ]]; then
-    echo "Fatal: Waited 2 minutes for ${message}. Exiting..."
-    exit 1
-  fi
-}
-
 verify_mongos() {
   echo 'Waiting to ensure all the mongo instances for the replica set are up and running'
   local running_instance_count=0
   local start_time
   start_time=$(date +%s)
   until [[ "${running_instance_count}" -eq "${MONGO_SET_COUNT}" ]]; do
-    timeout_check "${start_time}" "mongo set to start"
+    config::timeout_check "${start_time}" "mongo set to start"
     sleep 1
 
     running_instance_count=0

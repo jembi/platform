@@ -3,6 +3,23 @@
 # Library name: config
 # This is a library that contains functions to assist with docker configs
 
+# Installs a dependency using apt
+#
+# Arguments:
+# $1 : dependency name (eg. jq)
+config::install_apt_dependency() {
+    local -r DEPENDENCY_NAME=$1
+
+    if [[ -z $(command -v "${DEPENDENCY_NAME}") ]]; then
+        apt install "${DEPENDENCY_NAME}" -y &>/dev/null
+
+        if [[ -z $(command -v "${DEPENDENCY_NAME}") ]]; then
+            echo "Failed to install dependency ${DEPENDENCY_NAME}"
+            exit 1
+        fi
+    fi
+}
+
 # Sets the digest variables for the conf raft files in the provided docker compose file
 #
 # Requirements:
@@ -18,9 +35,7 @@ config::set_config_digests() {
     local -r DOCKER_COMPOSE_PATH=$1
 
     # install dependencies
-    if [[ -z $(command -v wget) ]]; then
-        apt install wget -y &>/dev/null
-    fi
+    config::install_apt_dependency "wget"
     if [[ -z $(command -v yq) ]]; then
         wget https://github.com/mikefarah/yq/releases/download/v4.23.1/yq_linux_amd64 -O /usr/bin/yq &>/dev/null
         chmod +x /usr/bin/yq
@@ -58,9 +73,7 @@ config::remove_stale_service_configs() {
     local -r CONFIG_LABEL=$2
 
     # install dependencies
-    if [[ -z $(command -v wget) ]]; then
-        apt install wget -y &>/dev/null
-    fi
+    config::install_apt_dependency "wget"
     if [[ -z $(command -v yq) ]]; then
         wget https://github.com/mikefarah/yq/releases/download/v4.23.1/yq_linux_amd64 -O /usr/bin/yq &>/dev/null
         chmod +x /usr/bin/yq
@@ -108,4 +121,57 @@ config::remove_stale_service_configs() {
     done
 
     docker config rm "${configsToRemove[@]}"
+}
+
+# Copies sharedConfigs into a package's container root directory
+#
+# Requirements:
+# - The package-metadata.json file requires a sharedConfigs property with an array of shared directories/files
+#
+# Arguments:
+# $1 : package metadata path (eg. /home/user/project/platform-implementation/packages/package/package-metadata.json)
+# $2 : container destination (eg. /usr/share/logstash/)
+# $3 : service id (eg. data-mapper-logstash) (tries to retrieve service name from package-metadata if not provided)
+config::copy_shared_configs() {
+    local -r PACKAGE_METADATA_PATH=$1
+    local -r CONTAINER_DESTINATION=$2
+    local serviceId=$3
+
+    if [[ -z $SERVICE_ID ]]; then
+        serviceId=$(jq '.id' "${PACKAGE_METADATA_PATH}" | sed 's/\"//g')
+    fi
+
+    config::install_apt_dependency "jq"
+
+    local -r sharedConfigs=($(jq '.sharedConfigs[]' "${PACKAGE_METADATA_PATH}"))
+    local -r packageBaseDir=$(dirname "${PACKAGE_METADATA_PATH}")
+    local -r containerId=$(docker container ls -qlf name=instant_"${serviceId}")
+
+    for sharedConfig in "${sharedConfigs[@]}"; do
+        # TODO: (https://jembiprojects.jira.com/browse/PLAT-252) swap docker copy for a swarm compliant approach
+        docker cp "${packageBaseDir}"/"${sharedConfig//\"//}" "${containerId}":"${CONTAINER_DESTINATION}"
+    done
+}
+
+# A function that exists in a loop to see how long that loop has run for, providing a warning
+# at the time specified in argument $3, and exits with code 124 after the time specified in argument $4.
+#
+# Arguments:
+# $1 : start time of the timeout check
+# $2 : a message containing reference to the loop that timed out
+# $3 : timeout time in seconds, default is 300 seconds
+# $4 : elapsed time to issue running-for-longer-than-expected warning (in seconds), default is 60 seconds
+config::timeout_check() {
+    local startTime=$(($1))
+    local message=$2
+    local exitTime="${3:-300}"
+    local warningTime="${4:-60}"
+
+    local timeDiff=$(($(date +%s) - $startTime))
+    if [[ $timeDiff -ge $warningTime ]] && [[ $timeDiff -lt $(($warningTime + 1)) ]]; then
+        echo "Warning: Waited $warningTime seconds for $message. This is taking longer than it should..."
+    elif [[ $timeDiff -ge $exitTime ]]; then
+        echo "Fatal: Waited $exitTime seconds for $message. Exiting..."
+        exit 124
+    fi
 }

@@ -21,8 +21,6 @@ services:
         source: logstash-logstash.yml
       - target: /usr/share/logstash/config/pipelines.yml
         source: logstash-pipelines.yml
-      - target: /usr/share/logstash/pipeline/fhir-extractor.logstash.conf
-        source: logstash-fhir-extractor.conf
 
 configs:
   logstash-log4j2.properties:
@@ -43,10 +41,5 @@ configs:
   logstash-pipelines.yml:
     file: ./pipelines.yml
     name: logstash-pipelines.yml-${logstash_pipelines_yml_DIGEST:?err}
-    labels: 
-      name: logstash
-  logstash-fhir-extractor.conf:
-    file: ./pipeline/fhir-extractor.logstash.conf
-    name: logstash-fhir-extractor.conf-${logstash_fhir_extractor_conf_DIGEST:?err}
     labels: 
       name: logstash
