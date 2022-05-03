@@ -64,6 +64,11 @@ else
 fi
 
 if [[ "$LOGSTASH_DEV_MOUNT" == "true" ]]; then
+  if [[ -z $LOGSTASH_PACKAGE_PATH ]]; then
+    echo "ERROR: LOGSTASH_PACKAGE_PATH environment variable not specified. Please specify LOGSTASH_PACKAGE_PATH as stated in the README."
+    exit 1
+  fi
+
   echo -e "\nRunning Data Mapper Logstash package with dev mount\n"
   LogstashDevMountComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.dev-mnt.yml"
 else
