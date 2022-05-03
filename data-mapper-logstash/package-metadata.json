@@ -7,7 +7,9 @@
   "dependencies": ["analytics-datastore-elastic-search"],
   "environmentVariables": {
     "ES_ELASTIC": "${ES_ELASTIC}",
-    "LS_JAVA_OPTS": "-Xmx2g -Xms2g"
+    "LS_JAVA_OPTS": "-Xmx2g -Xms2g",
+    "LOGSTASH_DEV_MOUNT": "false",
+    "LOCAL_MACHINE_PATH_TO_PROJECT": "/home/user/Documents/Projects/platform"
   },
   "sharedConfigs": ["pipeline"]
 }
