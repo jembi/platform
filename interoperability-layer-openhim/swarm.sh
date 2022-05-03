@@ -14,8 +14,9 @@ COMPOSE_FILE_PATH=$(
 )
 readonly COMPOSE_FILE_PATH
 
-# Gloabls
-CONSOLE_CFG_DIGEST=""
+# Import libraries
+ROOT_PATH="${COMPOSE_FILE_PATH}/.."
+. "${ROOT_PATH}/utils/config-utils.sh"
 
 verify_core() {
   local start_time
@@ -95,8 +96,6 @@ verify_mongos() {
 prepare_console_config() {
   # Set host in OpenHIM console config
   sed -i "s/localhost/${OPENHIM_CORE_MEDIATOR_HOSTNAME}/g; s/8080/${OPENHIM_MEDIATOR_API_PORT}/g" /instant/interoperability-layer-openhim/importer/volume/default.json
-  # generate digest for docker configs
-  CONSOLE_CFG_DIGEST=$(cksum </instant/interoperability-layer-openhim/importer/volume/default.json | cut -d " " -f 1)
 }
 
 configure_nginx() {
@@ -135,26 +134,28 @@ main() {
   fi
 
   if [[ "$1" == "init" ]]; then
-    echo stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose-mongo.yml "${mongo_cluster_compose_param[@]}" "${mongo_dev_compose_param[@]}" instant
+    config::set_config_digests "$COMPOSE_FILE_PATH"/docker-compose.yml
+    config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
+
     docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose-mongo.yml "${mongo_cluster_compose_param[@]}" "${mongo_dev_compose_param[@]}" instant
 
     # Set up the replica set
     "${COMPOSE_FILE_PATH}"/initiateReplicaSet.sh
-    if [[ $? -eq 1 ]]; then
+    if [[ $? -ne 0 ]]; then
       echo "Fatal: Initate Mongo replica set failed."
       exit 1
     fi
 
     prepare_console_config
 
-    CONSOLE_CFG_DIGEST="${CONSOLE_CFG_DIGEST}" docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.yml -c "${COMPOSE_FILE_PATH}"/docker-compose.stack-0.yml "${openhim_dev_compose_param[@]}" instant
+    docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.yml -c "${COMPOSE_FILE_PATH}"/docker-compose.stack-0.yml "${openhim_dev_compose_param[@]}" instant
 
     docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml instant
 
     echo "Waiting to give OpenHIM Core time to start up before OpenHIM Console run"
     verify_core
 
-    CONSOLE_CFG_DIGEST="${CONSOLE_CFG_DIGEST}" docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.yml -c "${COMPOSE_FILE_PATH}"/docker-compose.stack-1.yml "${openhim_dev_compose_param[@]}" instant
+    docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.yml -c "${COMPOSE_FILE_PATH}"/docker-compose.stack-1.yml "${openhim_dev_compose_param[@]}" instant
 
     docker stack deploy -c "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml instant
 
@@ -164,17 +165,26 @@ main() {
     # Sleep to ensure config importer is removed
     sleep 5
 
+    echo "Removing stale configs..."
+    config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "openhim"
+    config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "openhim"
+
     if [[ "$2" != "dev" ]]; then
       configure_nginx "$@"
     fi
-  elif
-    [[ "$1" == "up" ]]
-  then
+  elif [[ "$1" == "up" ]]; then
+    config::set_config_digests "$COMPOSE_FILE_PATH"/docker-compose.yml
+    config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
+
     docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose-mongo.yml "${mongo_cluster_compose_param[@]}" "${mongo_dev_compose_param[@]}" instant
     verify_mongos
     prepare_console_config
 
-    CONSOLE_CFG_DIGEST="${CONSOLE_CFG_DIGEST}" docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.yml -c "${COMPOSE_FILE_PATH}"/docker-compose.stack-1.yml "${openhim_dev_compose_param[@]}" instant
+    docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.yml -c "${COMPOSE_FILE_PATH}"/docker-compose.stack-1.yml "${openhim_dev_compose_param[@]}" instant
+
+    echo "Removing stale configs..."
+    config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "openhim"
+    config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "openhim"
 
     if [[ "$2" != "dev" ]]; then
       configure_nginx "$@"
