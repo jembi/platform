@@ -1,0 +1,7 @@
+version: '3.9'
+
+services:
+  data-mapper-logstash:
+    volumes:
+      - ${LOCAL_MACHINE_PATH_TO_PROJECT}/data-mapper-logstash/pipeline/:/usr/share/logstash/pipeline/
+      - ${LOCAL_MACHINE_PATH_TO_PROJECT}/data-mapper-logstash/pipelines.yml:/usr/share/logstash/config/pipelines.yml

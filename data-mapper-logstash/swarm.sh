@@ -4,6 +4,8 @@
 Action=$1
 Mode=$2
 
+LOGSTASH_DEV_MOUNT=${LOGSTASH_DEV_MOUNT:-"false"}
+
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
   pwd -P
@@ -61,11 +63,18 @@ else
   LogstashDevComposeParam=""
 fi
 
+if [[ "$LOGSTASH_DEV_MOUNT" == "true" ]]; then
+  echo -e "\nRunning Data Mapper Logstash package with dev mount\n"
+  LogstashDevMountComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.dev-mnt.yml"
+else
+  LogstashDevMountComposeParam=""
+fi
+
 if [[ "$Action" == "init" ]] || [[ "$Action" == "up" ]]; then
 
   config::set_config_digests "$COMPOSE_FILE_PATH"/docker-compose.yml
 
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $LogstashDevComposeParam instant
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $LogstashDevComposeParam $LogstashDevMountComposeParam instant
 
   AwaitContainerStartup
   AwaitContainerReady
