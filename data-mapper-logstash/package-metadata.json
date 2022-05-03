@@ -8,5 +8,6 @@
   "environmentVariables": {
     "ES_ELASTIC": "${ES_ELASTIC}",
     "LS_JAVA_OPTS": "-Xmx2g -Xms2g"
-  }
+  },
+  "sharedConfigs": ["pipeline"]
 }
