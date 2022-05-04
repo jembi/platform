@@ -10,7 +10,7 @@ services:
       retries: 5
       start_period: 30s
     environment:
-      ES_ELASTIC: ${ES_ELASTIC},
+      ES_ELASTIC: ${ES_ELASTIC}
       LS_JAVA_OPTS: ${LS_JAVA_OPTS:--Xmx2g -Xms2g}
     configs:
       - target: /usr/share/logstash/config/log4j2.properties
@@ -21,27 +21,25 @@ services:
         source: logstash-logstash.yml
       - target: /usr/share/logstash/config/pipelines.yml
         source: logstash-pipelines.yml
-      - target: /usr/share/logstash/pipeline/fhir-extractor.logstash.conf
-        source: logstash-fhir-extractor.conf
 
 configs:
   logstash-log4j2.properties:
     file: ./log4j2.properties
+    name: logstash-log4j2.properties-${logstash_log4j2_properties_DIGEST:?err}
     labels: 
       name: logstash
   logstash-jvm.options:
     file: ./jvm.options
+    name: logstash-jvm.options-${logstash_jvm_options_DIGEST:?err}
     labels: 
       name: logstash
   logstash-logstash.yml:
     file: ./logstash.yml
+    name: logstash-logstash.yml-${logstash_logstash_yml_DIGEST:?err}
     labels: 
       name: logstash
   logstash-pipelines.yml:
     file: ./pipelines.yml
-    labels: 
-      name: logstash
-  logstash-fhir-extractor.conf:
-    file: ./pipeline/fhir-extractor.logstash.conf
+    name: logstash-pipelines.yml-${logstash_pipelines_yml_DIGEST:?err}
     labels: 
       name: logstash

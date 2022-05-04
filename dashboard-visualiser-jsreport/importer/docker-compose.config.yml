@@ -1,0 +1,29 @@
+version: '3.9'
+
+services:
+  jsreport-config-importer:
+    # TODO: Update image to use published version of jembi/config-importer
+    image: jembi/api-config-importer:latest
+    environment:
+      SERVICE_NAME: 'dashboard-visualiser-jsreport'
+      SERVICE_API_PORT: 5488
+      API_USERNAME: ${JS_REPORT_USERNAME:-admin}
+      API_PASSWORD: ${JS_REPORT:-dev_password_only}
+      SSL: ${JS_REPORT_SSL:-true}
+      API_PATH: '/api/import'
+      MIME_TYPE: 'multipart/form-data'
+      CONFIG_FILE: ${JS_REPORT_CONFIG_FILE:-export.jsrexport}
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: none
+    configs:
+      - source: JSR-export.jsrexport
+        target: /export.jsrexport
+
+configs:
+  JSR-export.jsrexport:
+    file: ./export.jsrexport
+    name: JSR-export.jsrexport-${JSR_export_jsrexport_DIGEST:?err}
+    labels:
+      name: jsreport

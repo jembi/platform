@@ -26,3 +26,6 @@ services:
 configs:
   console.config:
     file: ./importer/volume/default.json
+    name: console.config-${console_config_DIGEST:?err}
+    labels:
+      name: openhim
