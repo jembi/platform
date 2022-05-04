@@ -9,7 +9,7 @@ services:
       replicas: ${JS_REPORT_INSTANCES:-1}
       resources:
         limits:
-          cpus: ${JS_REPORT_CPU_LIMIT:-0.3}
+          cpus: ${JS_REPORT_CPU_LIMIT:-0.8}
           memory: ${JS_REPORT_MEMORY_LIMIT:-3G}
         reservations:
           cpus: ${JS_REPORT_CPU_RESERVE:-0.05}

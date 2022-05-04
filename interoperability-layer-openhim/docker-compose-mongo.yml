@@ -10,7 +10,7 @@ services:
       replicas: 1
       resources:
         limits:
-          cpus: ${OPENHIM_MONGO_CPU_LIMIT:-0.3}
+          cpus: ${OPENHIM_MONGO_CPU_LIMIT:-0.8}
           memory: ${OPENHIM_MONGO_MEMORY_LIMIT:-3G}
         reservations:
           cpus: ${OPENHIM_MONGO_CPU_RESERVE:-0.05}
@@ -25,7 +25,7 @@ services:
       replicas: 1
       resources:
         limits:
-          cpus: ${OPENHIM_MONGO_CPU_LIMIT:-0.3}
+          cpus: ${OPENHIM_MONGO_CPU_LIMIT:-0.8}
           memory: ${OPENHIM_MONGO_MEMORY_LIMIT:-3G}
         reservations:
           cpus: ${OPENHIM_MONGO_CPU_RESERVE:-0.05}
@@ -40,7 +40,7 @@ services:
       replicas: 1
       resources:
         limits:
-          cpus: ${OPENHIM_MONGO_CPU_LIMIT:-0.3}
+          cpus: ${OPENHIM_MONGO_CPU_LIMIT:-0.8}
           memory: ${OPENHIM_MONGO_MEMORY_LIMIT:-3G}
         reservations:
           cpus: ${OPENHIM_MONGO_CPU_RESERVE:-0.05}
