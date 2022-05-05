@@ -1,6 +1,8 @@
 #!/bin/bash
 
 # Constants
+readonly ACTION=$1
+readonly MODE=$2
 readonly STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
 readonly OPENHIM_CORE_MEDIATOR_HOSTNAME=${OPENHIM_CORE_MEDIATOR_HOSTNAME:-"localhost"}
 readonly OPENHIM_MEDIATOR_API_PORT=${OPENHIM_MEDIATOR_API_PORT:-"8080"}
@@ -113,7 +115,7 @@ main() {
     mongo_cluster_compose_param=()
   fi
 
-  if [[ "$2" == "dev" ]]; then
+  if [[ "${MODE}" == "dev" ]]; then
     printf "\nRunning Interoperability Layer OpenHIM package in DEV mode\n"
     local mongo_dev_compose_param=(-c "${COMPOSE_FILE_PATH}"/docker-compose-mongo.dev.yml)
     local openhim_dev_compose_param=(-c "${COMPOSE_FILE_PATH}"/docker-compose.dev.yml)
@@ -123,15 +125,14 @@ main() {
     local openhim_dev_compose_param=()
   fi
 
-  if [[ "$1" == "init" ]]; then
+  if [[ "${ACTION}" == "init" ]]; then
     config::set_config_digests "$COMPOSE_FILE_PATH"/docker-compose.yml
     config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
 
     docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose-mongo.yml "${mongo_cluster_compose_param[@]}" "${mongo_dev_compose_param[@]}" instant
 
     # Set up the replica set
-    "${COMPOSE_FILE_PATH}"/initiateReplicaSet.sh
-    if [[ $? -ne 0 ]]; then
+    if ! "${COMPOSE_FILE_PATH}"/initiateReplicaSet.sh; then
       echo "Fatal: Initate Mongo replica set failed."
       exit 1
     fi
@@ -159,10 +160,10 @@ main() {
     config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "openhim"
     config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "openhim"
 
-    if [[ "$2" != "dev" ]]; then
+    if [[ "${MODE}" != "dev" ]]; then
       configure_nginx "$@"
     fi
-  elif [[ "$1" == "up" ]]; then
+  elif [[ "${ACTION}" == "up" ]]; then
     config::set_config_digests "$COMPOSE_FILE_PATH"/docker-compose.yml
     config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
 
@@ -176,12 +177,12 @@ main() {
     config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "openhim"
     config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "openhim"
 
-    if [[ "$2" != "dev" ]]; then
+    if [[ "${MODE}" != "dev" ]]; then
       configure_nginx "$@"
     fi
-  elif [[ "$1" == "down" ]]; then
+  elif [[ "${ACTION}" == "down" ]]; then
     docker service scale instant_openhim-core=0 instant_openhim-console=0 instant_mongo-1=0 instant_mongo-2=0 instant_mongo-3=0
-  elif [[ "$1" == "destroy" ]]; then
+  elif [[ "${ACTION}" == "destroy" ]]; then
     docker service rm instant_openhim-core instant_openhim-console instant_mongo-1 instant_mongo-2 instant_mongo-3 instant_await-helper
     docker service rm instant_interoperability-layer-openhim-config-importer
 

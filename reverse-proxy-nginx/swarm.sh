@@ -1,6 +1,8 @@
 #!/bin/bash
 
 # Constants
+readonly ACTION=$1
+readonly MODE=$2
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
   pwd -P
@@ -15,8 +17,8 @@ readonly STAGING=${STAGING:-false}
 readonly TIMESTAMPED_NGINX="${TIMESTAMP}-nginx.conf"
 
 main() {
-  if [[ "$1" == "init" ]] || [[ "$1" == "up" ]]; then
-    if [[ "$2" == "dev" ]]; then
+  if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
+    if [[ "${MODE}" == "dev" ]]; then
       echo "Not starting reverse proxy as we are running DEV mode"
       exit 0
     fi
@@ -37,6 +39,7 @@ main() {
             printf "\nFailed to expose ports: published=%s,target=%s\n" "${PORTS_SPLIT[0]}" "${PORTS_SPLIT[1]}"
           fi
         done
+        # TODO
         echo "Updating nginx"
         local update_nginx_cmd
         update_nginx_cmd=$(docker service update \
@@ -44,6 +47,7 @@ main() {
           instant_reverse-proxy-nginx)
         if [[ ! ${update_nginx_cmd} ]]; then
           echo "Error updating nginx."
+          exit 1
         fi
         echo "Done updating nginx"
       fi
@@ -146,10 +150,10 @@ main() {
 
       docker service scale instant_ofelia=1
     fi
-  elif [[ "$1" == "down" ]]; then
+  elif [[ "${ACTION}" == "down" ]]; then
     docker service scale instant_reverse-proxy-nginx=0
     docker service scale instant_ofelia=0
-  elif [[ "$1" == "destroy" ]]; then
+  elif [[ "${ACTION}" == "destroy" ]]; then
     docker service rm instant_reverse-proxy-nginx
     docker service rm instant_ofelia
 

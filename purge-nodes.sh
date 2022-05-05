@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ -z "$1" ]; then
+if [[ $# -eq 0 ]]; then
   echo "Usage: ./purge-nodes.sh <hosts...>"
   exit 1
 fi
