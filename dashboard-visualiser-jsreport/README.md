@@ -16,6 +16,8 @@ env var in your .env file to `true` to attach the service's content files to tho
 - With `JS_REPORT_DEV_MOUNT=true`, you have to set the `JS_REPORT_PACKAGE_PATH` variable with the absolute path to the JS Report package on your local machine, i.e., `LOGSTASH_PACKAGE_PATH=/home/user/Documents/Projects/platform/dashboard-visualiser-jsreport`.
 - If running into a `permission denied` problem when editing the JS Report scripts/templates, try editing those files from within JS Report (http://localhost:5488/) instead - changes will still reflect on your local files.
 
+`NB!!! REMEMBER TO EXPORT THE JSREXPORT FILE WHEN YOU'RE DONE EDITING THE SCRIPTS` (https://jsreport.net/learn/import-export)
+
 ## Resource constraints
 
 The code snippet below shows CPU and RAM resource allocations per container, and how to set that in the docker-compose.yml file. The values default as shown below, or can be specified in an environment variable file. CPU is specified as a portion of unity, whereas memory is specified in mega (M) or giga (G) bytes.
