@@ -53,11 +53,10 @@ AwaitJsrRunning() {
     fi
   done
 
-  docker service rm instant_await-helper
+  docker service rm instant_await-helper &
 }
 
 RemoveConfigImporter() {
-  local complete="false"
   local startTime=$(date +%s)
   local configImporterState=$(docker service ps instant_jsreport-config-importer --format "{{.CurrentState}}")
   until [[ $configImporterState == *"Complete"* ]]; do
@@ -87,11 +86,11 @@ if [[ "$Action" == "init" ]] || [[ "$Action" == "up" ]]; then
   docker stack deploy -c "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml instant
 
   RemoveConfigImporter
-  config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "jsreport"
+  config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "jsreport" &>/dev/null
 elif [[ "$Action" == "down" ]]; then
   docker service scale instant_dashboard-visualiser-jsreport=0
 elif [[ "$Action" == "destroy" ]]; then
-  docker service rm instant_dashboard-visualiser-jsreport instant_jsreport-config-importer instant_await-helper
+  docker service rm instant_dashboard-visualiser-jsreport instant_jsreport-config-importer instant_await-helper &>/dev/null
 else
   echo "Valid options are: init, up, down, or destroy"
 fi
