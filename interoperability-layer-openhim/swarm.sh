@@ -94,15 +94,25 @@ configure_nginx() {
   if [[ "${INSECURE}" == "true" ]]; then
     docker config create --label name=nginx "${TIMESTAMP}-http-openhim-insecure.conf" "${COMPOSE_FILE_PATH}"/config/http-openhim-insecure.conf
     docker config create --label name=nginx "${TIMESTAMP}-stream-openhim-insecure.conf" "${COMPOSE_FILE_PATH}"/config/stream-openhim-insecure.conf
-    docker service update \
+    echo "Updating nginx service: adding openhim config file..."
+    if ! docker service update \
       --config-add source="${TIMESTAMP}-http-openhim-insecure.conf",target=/etc/nginx/conf.d/http-openhim-insecure.conf \
       --config-add source="${TIMESTAMP}-stream-openhim-insecure.conf",target=/etc/nginx/conf.d/stream-openhim-insecure.conf \
-      instant_reverse-proxy-nginx
+      instant_reverse-proxy-nginx >/dev/null; then
+      echo "Error updating nginx service"
+      exit 1
+    fi
+    echo "Done updating nginx service"
   else
     docker config create --label name=nginx "${TIMESTAMP}-http-openhim-secure.conf" "${COMPOSE_FILE_PATH}"/config/http-openhim-secure.conf
-    docker service update \
+    echo "Updating nginx service: adding config openhim file..."
+    if ! docker service update \
       --config-add source="${TIMESTAMP}-http-openhim-secure.conf",target=/etc/nginx/conf.d/http-openhim-secure.conf \
-      instant_reverse-proxy-nginx
+      instant_reverse-proxy-nginx >/dev/null; then
+      echo "Error updating nginx service"
+      exit 1
+    fi
+    echo "Done updating nginx service"
   fi
 }
 
@@ -181,7 +191,11 @@ main() {
       configure_nginx "$@"
     fi
   elif [[ "${ACTION}" == "down" ]]; then
-    docker service scale instant_openhim-core=0 instant_openhim-console=0 instant_mongo-1=0 instant_mongo-2=0 instant_mongo-3=0
+    echo "Scaling down services..."
+    if ! docker service scale instant_openhim-core=0 instant_openhim-console=0 instant_mongo-1=0 instant_mongo-2=0 instant_mongo-3=0 >/dev/null; then
+      echo "Error scaling down services"
+    fi
+    echo "Done scaling down services"
   elif [[ "${ACTION}" == "destroy" ]]; then
     docker service rm instant_openhim-core instant_openhim-console instant_mongo-1 instant_mongo-2 instant_mongo-3 instant_await-helper
     docker service rm instant_interoperability-layer-openhim-config-importer

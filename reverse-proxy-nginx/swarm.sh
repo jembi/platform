@@ -39,23 +39,25 @@ main() {
             printf "\nFailed to expose ports: published=%s,target=%s\n" "${PORTS_SPLIT[0]}" "${PORTS_SPLIT[1]}"
           fi
         done
-        # TODO
-        echo "Updating nginx"
-        local update_nginx_cmd
-        update_nginx_cmd=$(docker service update \
-          "${portsArray[@]}" \
-          instant_reverse-proxy-nginx)
-        if [[ ! ${update_nginx_cmd} ]]; then
-          echo "Error updating nginx."
+        echo "Updating nginx service with configured ports..."
+        if ! docker service update "${portsArray[@]}" instant_reverse-proxy-nginx >/dev/null; then
+          echo "Error updating nginx service."
           exit 1
         fi
-        echo "Done updating nginx"
+        echo "Done updating nginx service"
       fi
 
       docker config create --label name=nginx "${TIMESTAMPED_NGINX}" "${COMPOSE_FILE_PATH}"/config/nginx-temp-insecure.conf
-      docker service update \
+
+      echo "Updating nginx service: adding config file..."
+      if ! docker service update \
         --config-add source="${TIMESTAMPED_NGINX}",target=/etc/nginx/nginx.conf \
-        instant_reverse-proxy-nginx
+        instant_reverse-proxy-nginx \
+        >/dev/null; then
+        echo "Error updating nginx service"
+        exit 1
+      fi
+      echo "Done updating nginx service"
     else
       printf "\nRunning reverse-proxy package in SECURE mode\n"
 
@@ -100,14 +102,20 @@ main() {
 
       #Update nginx to use the dummy certificate
       docker config create --label name=nginx "${TIMESTAMPED_NGINX}" "${COMPOSE_FILE_PATH}"/config/nginx.conf
-      docker service update \
+
+      echo "Updating nginx service: adding config for dummy certificates..."
+      if ! docker service update \
         --config-add source="${TIMESTAMPED_NGINX}",target=/etc/nginx/nginx.conf \
         --secret-add source="${TIMESTAMP}-fullchain.pem",target=/run/secrets/fullchain.pem \
         --secret-add source="${TIMESTAMP}-privkey.pem",target=/run/secrets/privkey.pem \
         --network-add name=cert-renewal-network,alias=cert-renewal-network \
         --publish-add published=80,target=80 \
         --publish-add published=443,target=443 \
-        instant_reverse-proxy-nginx
+        instant_reverse-proxy-nginx >/dev/null; then
+        echo "Error updating nginx service"
+        exit 1
+      fi
+      echo "Done updating nginx service"
 
       if [ "${STAGING}" == "true" ]; then
         local staging_args="--staging"
@@ -141,18 +149,32 @@ main() {
       local curr_priv_key_name
       curr_priv_key_name=$(docker service inspect instant_reverse-proxy-nginx --format "{{(index .Spec.TaskTemplate.ContainerSpec.Secrets 1).SecretName}}")
 
-      docker service update \
+      echo "Updating nginx service: adding secrets for generated certificates"
+      if ! docker service update \
         --secret-rm "${curr_full_chain_name}" \
         --secret-rm "${curr_priv_key_name}" \
         --secret-add source="${TIMESTAMP}-fullchain.pem",target=/run/secrets/fullchain.pem \
         --secret-add source="${TIMESTAMP}-privkey.pem",target=/run/secrets/privkey.pem \
-        instant_reverse-proxy-nginx
+        instant_reverse-proxy-nginx >/dev/null; then
+        echo "Error updating nginx service"
+        exit 1
+      fi
+      echo "Done updating nginx service"
 
-      docker service scale instant_ofelia=1
+      echo "Scaling up ofelia service..."
+      if ! docker service scale instant_ofelia=1 >/dev/null; then
+        echo "Error scaling up ofelia service"
+        exit 1
+      fi
+      echo "Done scaling up ofelia service"
     fi
   elif [[ "${ACTION}" == "down" ]]; then
-    docker service scale instant_reverse-proxy-nginx=0
-    docker service scale instant_ofelia=0
+    echo "Scaling down services..."
+    if ! docker service scale instant_reverse-proxy-nginx=0 instant_ofelia=0 >/dev/null; then
+      echo "Error scaling down services"
+      exit 1
+    fi
+    echo "Done scaling down services"
   elif [[ "${ACTION}" == "destroy" ]]; then
     docker service rm instant_reverse-proxy-nginx
     docker service rm instant_ofelia
