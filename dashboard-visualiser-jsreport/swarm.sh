@@ -21,6 +21,18 @@ else
   JsReportDevComposeParam=""
 fi
 
+if [[ "${JS_REPORT_DEV_MOUNT}" == "true" ]]; then
+  if [[ -z "${JS_REPORT_PACKAGE_PATH}" ]]; then
+    echo "ERROR: JS_REPORT_PACKAGE_PATH environment variable not specified. Please specify JS_REPORT_PACKAGE_PATH as stated in the README."
+    exit 1
+  fi
+
+  printf "\nAttaching dev mount to JS Report package\n"
+  JsReportDevMountComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.dev-mnt.yml"
+else
+  JsReportDevMountComposeParam=""
+fi
+
 AwaitJsrRunning() {
   local startTime=$(date +%s)
   until [[ $(docker service ls -f name=instant_dashboard-visualiser-jsreport --format "{{.Replicas}}") == *"${JS_REPORT_INSTANCES}/${JS_REPORT_INSTANCES}"* ]]; do
@@ -64,7 +76,7 @@ RemoveConfigImporter() {
 }
 
 if [[ "$Action" == "init" ]] || [[ "$Action" == "up" ]]; then
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $JsReportDevComposeParam instant
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $JsReportDevComposeParam $JsReportDevMountComposeParam instant
 
   docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml instant
 
