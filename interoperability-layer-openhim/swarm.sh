@@ -105,7 +105,7 @@ configure_nginx() {
     echo "Done updating nginx service"
   else
     docker config create --label name=nginx "${TIMESTAMP}-http-openhim-secure.conf" "${COMPOSE_FILE_PATH}"/config/http-openhim-secure.conf
-    echo "Updating nginx service: adding config openhim file..."
+    echo "Updating nginx service: adding openhim config file..."
     if ! docker service update \
       --config-add source="${TIMESTAMP}-http-openhim-secure.conf",target=/etc/nginx/conf.d/http-openhim-secure.conf \
       instant_reverse-proxy-nginx >/dev/null; then
