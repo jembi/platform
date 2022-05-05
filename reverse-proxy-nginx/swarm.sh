@@ -37,9 +37,15 @@ main() {
             printf "\nFailed to expose ports: published=%s,target=%s\n" "${PORTS_SPLIT[0]}" "${PORTS_SPLIT[1]}"
           fi
         done
-        docker service update \
+        echo "Updating nginx"
+        local update_nginx_cmd
+        update_nginx_cmd=$(docker service update \
           "${portsArray[@]}" \
-          instant_reverse-proxy-nginx
+          instant_reverse-proxy-nginx)
+        if [[ ! ${update_nginx_cmd} ]]; then
+          echo "Error updating nginx."
+        fi
+        echo "Done updating nginx"
       fi
 
       docker config create --label name=nginx "${TIMESTAMPED_NGINX}" "${COMPOSE_FILE_PATH}"/config/nginx-temp-insecure.conf

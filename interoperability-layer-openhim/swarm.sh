@@ -66,7 +66,8 @@ remove_config_importer() {
 
 verify_mongos() {
   echo 'Waiting to ensure all the mongo instances for the replica set are up and running'
-  local running_instance_count=0
+  local -i running_instance_count
+  running_instance_count=0
   local start_time
   start_time=$(date +%s)
   until [[ "${running_instance_count}" -eq "${MONGO_SET_COUNT}" ]]; do
@@ -75,7 +76,7 @@ verify_mongos() {
 
     running_instance_count=0
     for i in $(docker service ls -f name=instant_mongo --format "{{.Replicas}}"); do
-      if [[ "${i}" = "1/1" ]]; then
+      if [[ "${i}" == "1/1" ]]; then
         running_instance_count=$((running_instance_count + 1))
       fi
     done
@@ -189,7 +190,7 @@ main() {
 
     docker volume rm instant_openhim-mongo1 instant_openhim-mongo2 instant_openhim-mongo3
 
-    # shellcheck disable=SC2046 # intensional word splitting
+    # shellcheck disable=SC2046 # intentional word splitting
     docker config rm $(docker config ls -qf label=name=openhim)
 
     if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
