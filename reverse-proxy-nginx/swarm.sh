@@ -130,7 +130,7 @@ main() {
         -v "data-certbot-conf:/etc/letsencrypt/archive/${DOMAIN_NAME}" \
         certbot/certbot:v1.23.0 certonly -n \
         --standalone \
-        "${staging_args}" \
+        ${staging_args} \
         -m "${RENEWAL_EMAIL}" \
         "${domain_args[@]}" \
         --agree-tos
@@ -141,8 +141,10 @@ main() {
         -c "rm -rf certificates; mkdir certificates; cp -r /temp-certificates/* /temp/certificates"
       docker volume rm data-certbot-conf
 
-      docker secret create --label name=nginx "${TIMESTAMP}-fullchain.pem" "/instant/certificates/fullchain1.pem"
-      docker secret create --label name=nginx "${TIMESTAMP}-privkey.pem" "/instant/certificates/privkey1.pem"
+      local new_timestamp
+      new_timestamp="$(date "+%Y%m%d%H%M%S")"
+      docker secret create --label name=nginx "${new_timestamp}-fullchain.pem" "/instant/certificates/fullchain1.pem"
+      docker secret create --label name=nginx "${new_timestamp}-privkey.pem" "/instant/certificates/privkey1.pem"
 
       local curr_full_chain_name
       curr_full_chain_name=$(docker service inspect instant_reverse-proxy-nginx --format "{{(index .Spec.TaskTemplate.ContainerSpec.Secrets 0).SecretName}}")
@@ -153,8 +155,8 @@ main() {
       if ! docker service update \
         --secret-rm "${curr_full_chain_name}" \
         --secret-rm "${curr_priv_key_name}" \
-        --secret-add source="${TIMESTAMP}-fullchain.pem",target=/run/secrets/fullchain.pem \
-        --secret-add source="${TIMESTAMP}-privkey.pem",target=/run/secrets/privkey.pem \
+        --secret-add source="${new_timestamp}-fullchain.pem",target=/run/secrets/fullchain.pem \
+        --secret-add source="${new_timestamp}-privkey.pem",target=/run/secrets/privkey.pem \
         instant_reverse-proxy-nginx >/dev/null; then
         echo "Error updating nginx service"
         exit 1
