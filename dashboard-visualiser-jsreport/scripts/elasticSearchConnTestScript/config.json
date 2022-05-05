@@ -1,0 +1,15 @@
+{
+    "name": "elasticSearchConnTestScript",
+    "scope": "global",
+    "shortid": "LWSXMjRQeQ",
+    "creationDate": {
+        "$$date": 1649087186055
+    },
+    "modificationDate": {
+        "$$date": 1651743032771
+    },
+    "inheritedReadPermissions": [],
+    "inheritedEditPermissions": [],
+    "_id": "4JSx1OQ519Ru98za",
+    "$entitySet": "scripts"
+}
