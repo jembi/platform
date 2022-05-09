@@ -187,8 +187,8 @@ config::timeout_check() {
 # $1 : the service being awaited
 # $2 : path to await-helper compose.yml file (eg. ~/projects/platform/dashboard-visualiser-jsreport/docker-compose.await-helper.yml)
 # $3 : desired number of instances of the awaited-service
-# $4 : optional argument exit_time, defaults to 300 seconds
-# $5 : optional argument warning_time, defaults to 60 seconds
+# $4 : (optional) the max time allowed to wait for a service's response, defaults to 300 seconds
+# $5 : (optional) elapsed time to throw a warning, defaults to 60 seconds
 config::await_service_running() {
     local -r service_name=$1
     local -r await_helper_file_path=$2
@@ -217,4 +217,33 @@ config::await_service_running() {
     done
 
     docker service rm instant_await-helper
+}
+
+# A function which removes a config importing service on successful completion, and exits with an error otherwise
+#
+# Arguments:
+# $1 : the name of the config importer
+# $2 : (optional) the timeout time for the config importer to run, defaults to 300 seconds
+# $3 : (optional) elapsed time to throw a warning, defaults to 60 seconds
+config::remove_config_importer() {
+    local -r config_importer_service_name=$1
+    local -r exit_time="${2:-}"
+    local -r warning_time="${3:-}"
+    local -r start_time=$(date +%s)
+
+    local config_importer_state
+    config_importer_state=$(docker service ps instant_"$config_importer_service_name" --format "{{.CurrentState}}")
+    until [[ $config_importer_state == *"Complete"* ]]; do
+        config::timeout_check "$start_time" "$config_importer_service_name to run" "$exit_time" "$warning_time"
+        sleep 1
+
+        config_importer_state=$(docker service ps instant_"$config_importer_service_name" --format "{{.CurrentState}}")
+        if [[ $config_importer_state == *"Failed"* ]] || [[ $config_importer_state == *"Rejected"* ]]; then
+            echo "Fatal: $config_importer_service_name failed with error:
+       $(docker service ps instant_"$config_importer_service_name" --no-trunc --format '{{.Error}}')"
+            exit 1
+        fi
+    done
+
+    docker service rm instant_"$config_importer_service_name"
 }
