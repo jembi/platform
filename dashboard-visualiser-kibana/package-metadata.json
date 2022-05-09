@@ -13,7 +13,7 @@
     "KIBANA_INSTANCES": 1,
     "KIBANA_PASSWORD": "dev_password_only",
     "KIBANA_USERNAME": "elastic",
-    "KIBANA_CONFIG_FILE": "export.ndjson",
+    "KIBANA_CONFIG_FILE": "kibana-export.ndjson",
     "KIBANA_SSL": "true"
   }
 }
