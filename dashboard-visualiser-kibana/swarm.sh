@@ -21,31 +21,6 @@ else
   kibana_dev_compose_param=""
 fi
 
-await_service_running() {
-  local start_time
-  start_time=$(date +%s)
-  until [[ $(docker service ls -f name=instant_dashboard-visualiser-kibana --format "{{.Replicas}}") == *"${KIBANA_INSTANCES}/${KIBANA_INSTANCES}"* ]]; do
-    config::timeout_check "$start_time" "dashboard-visualiser-kibana to start"
-    sleep 1
-  done
-
-  local await_helper_state
-  await_helper_state=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
-  until [[ $await_helper_state == *"Complete"* ]]; do
-    config::timeout_check "$start_time" "dashboard-visualiser-kibana status check"
-    sleep 1
-
-    await_helper_state=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
-    if [[ $await_helper_state == *"Failed"* ]] || [[ $await_helper_state == *"Rejected"* ]]; then
-      echo "Fatal: Received error when trying to verify state of dashboard-visualiser-kibana. Error:
-       $(docker service ps instant_await-helper --no-trunc --format '{{.Error}}')"
-      exit 1
-    fi
-  done
-
-  docker service rm instant_await-helper
-}
-
 remove_config_importer() {
   local start_time
   start_time=$(date +%s)
@@ -69,8 +44,7 @@ remove_config_importer() {
 if [[ "$Action" == "init" ]] || [[ "$Action" == "up" ]]; then
   docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $kibana_dev_compose_param instant
 
-  docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml instant
-  await_service_running
+  config::await_service_running "dashboard-visualiser-kibana" "${COMPOSE_FILE_PATH}/docker-compose.await-helper.yml" "$KIBANA_INSTANCES"
 
   echo "Setting config digests"
   config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
