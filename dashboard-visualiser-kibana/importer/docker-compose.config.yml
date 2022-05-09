@@ -2,16 +2,17 @@ version: '3.9'
 
 services:
   kibana-config-importer:
-    image: jembi/api-config-importer:1.0.0
+    image: jembi/api-config-importer:1.0.1
     environment:
       SERVICE_NAME: 'dashboard-visualiser-kibana'
       SERVICE_API_PORT: 5601
       API_USERNAME: ${KIBANA_USERNAME:-elastic}
-      API_PASSWORD: ${KIBANA:-dev_password_only}
+      API_PASSWORD: ${KIBANA_PASSWORD:-dev_password_only}
       SSL: ${KIBANA_SSL:-true}
       API_PATH: '/api/saved_objects/_import?createNewCopies=true'
-      MIME_TYPE: 'application/json'
+      MIME_TYPE: 'multipart/form-data'
       CONFIG_FILE: ${KIBANA_CONFIG_FILE:-export.ndjson}
+      ADDITIONAL_HEADERS: '{ "kbn-xsrf": "true" }'
     deploy:
       replicas: 1
       restart_policy:
