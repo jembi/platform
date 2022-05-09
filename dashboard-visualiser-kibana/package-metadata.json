@@ -10,6 +10,10 @@
     "ELASTICSEARCH_HOSTS": "http://analytics-datastore-elastic-search:9200",
     "ELASTICSEARCH_USERNAME": "kibana_system",
     "ELASTICSEARCH_PASSWORD": "dev_password_only",
-    "KIBANA_INSTANCES": 1
+    "KIBANA_INSTANCES": 1,
+    "KIBANA_PASSWORD": "dev_password_only",
+    "KIBANA_USERNAME": "elastic",
+    "KIBANA_CONFIG_FILE": "export.ndjson",
+    "KIBANA_SSL": "true"
   }
 }
