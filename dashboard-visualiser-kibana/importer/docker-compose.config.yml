@@ -1,0 +1,28 @@
+version: '3.9'
+
+services:
+  kibana-config-importer:
+    image: jembi/api-config-importer:1.0.0
+    environment:
+      SERVICE_NAME: 'dashboard-visualiser-kibana'
+      SERVICE_API_PORT: 5601
+      API_USERNAME: ${KIBANA_USERNAME:-elastic}
+      API_PASSWORD: ${KIBANA:-dev_password_only}
+      SSL: ${KIBANA_SSL:-true}
+      API_PATH: '/api/saved_objects/_import?createNewCopies=true'
+      MIME_TYPE: 'application/json'
+      CONFIG_FILE: ${KIBANA_CONFIG_FILE:-export.ndjson}
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: none
+    configs:
+      - source: kibana-export.ndjson
+        target: /export.ndjson
+
+configs:
+  kibana-export.ndjson:
+    file: ./export.ndjson
+    name: kibana-export.ndjson-${kibana_export_ndjson_DIGEST:?err}
+    labels:
+      name: kibana
