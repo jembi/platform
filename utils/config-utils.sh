@@ -149,7 +149,7 @@ config::copy_shared_configs() {
 
     for sharedConfig in "${sharedConfigs[@]}"; do
         # TODO: (https://jembiprojects.jira.com/browse/PLAT-252) swap docker copy for a swarm compliant approach
-        docker cp "${packageBaseDir}"/"${sharedConfig//\"//}" "${containerId}":"${CONTAINER_DESTINATION}"
+        docker cp "${packageBaseDir}""${sharedConfig//\"//}" "${containerId}":"${CONTAINER_DESTINATION}"
     done
 }
 
@@ -174,4 +174,27 @@ config::timeout_check() {
         echo "Fatal: Waited $exitTime seconds for $message. Exiting..."
         exit 124
     fi
+}
+
+# Removes a given config importer service
+#
+# Arguments:
+# $1 : service name of the config importer eg. instant_elastic-search-config-importer
+config::remove_config_importer() {
+    local configImporterName=$1
+    local startTime=$(date +%s)
+    local configImporterState=$(docker service ps "${configImporterName}" --format "{{.CurrentState}}")
+    until [[ $configImporterState == *"Complete"* ]]; do
+        config::timeout_check $startTime "${configImporterName} to run"
+        sleep 1
+
+        configImporterState=$(docker service ps "${configImporterName}" --format "{{.CurrentState}}")
+        if [[ $configImporterState == *"Failed"* ]] || [[ $configImporterState == *"Rejected"* ]]; then
+            errorMessage=$(docker service ps "${configImporterName}" --no-trunc --format \"{{.Error}}\")
+            echo "Fatal: ${configImporterName} failed with error: ${errorMessage}"
+            exit 1
+        fi
+    done
+
+    docker service rm "${configImporterName}"
 }
