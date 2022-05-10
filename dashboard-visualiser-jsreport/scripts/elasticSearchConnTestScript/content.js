@@ -14,5 +14,5 @@ async function beforeRender (req, res) {
         }
     })
 
-    req.data = Object.assign({}, {foo: resData.data})
+    req.data = Object.assign({}, {healthCheck: resData.data})
 }
