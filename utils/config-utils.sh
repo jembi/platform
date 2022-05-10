@@ -190,9 +190,9 @@ config::timeout_check() {
 # $4 : (optional) the max time allowed to wait for a service's response, defaults to 300 seconds
 # $5 : (optional) elapsed time to throw a warning, defaults to 60 seconds
 config::await_service_running() {
-    local -r service_name=$1
-    local -r await_helper_file_path=$2
-    local -r service_instances=$3
+    local -r service_name="${1:?"FATAL: await_service_running function args not correctly set"}"
+    local -r await_helper_file_path="${2:?"FATAL: await_service_running function args not correctly set"}"
+    local -r service_instances="${3:?"FATAL: await_service_running function args not correctly set"}"
     local -r exit_time="${4:-}"
     local -r warning_time="${5:-}"
     local -r start_time=$(date +%s)
@@ -226,7 +226,7 @@ config::await_service_running() {
 # $2 : (optional) the timeout time for the config importer to run, defaults to 300 seconds
 # $3 : (optional) elapsed time to throw a warning, defaults to 60 seconds
 config::remove_config_importer() {
-    local -r config_importer_service_name=$1
+    local -r config_importer_service_name="${1:?"FATAL: remove_config_importer function args not correctly set"}"
     local -r exit_time="${2:-}"
     local -r warning_time="${3:-}"
     local -r start_time=$(date +%s)
