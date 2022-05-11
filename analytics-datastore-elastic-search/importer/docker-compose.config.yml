@@ -12,18 +12,18 @@ services:
         SSL: ${ES_SSL:-true}
         API_PATH: '/fhir-enrich-reports'
         MIME_TYPE: 'application/json'
-        CONFIG_FILE: 'elastic-index.json'
+        CONFIG_FILE: 'fhir-enrich-reports.json'
       deploy:
         replicas: 1
         restart_policy:
           condition: none
       configs:
-        - target: /elastic-index.json
-          source: elastic-index.json
+        - target: /fhir-enrich-reports.json
+          source: fhir-enrich-reports.json
 
 configs:
-  elastic-index.json:
-    file: ./elastic-index.json
-    name: elastic-index.json-${elastic_index_json_DIGEST:?err}
+  fhir-enrich-reports.json:
+    file: ./fhir-enrich-reports.json
+    name: fhir-enrich-reports.json-${fhir_enrich_reports_json_DIGEST:?err}
     labels:
       name: elastic-search
