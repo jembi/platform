@@ -14,6 +14,8 @@
     "KIBANA_PASSWORD": "dev_password_only",
     "KIBANA_USERNAME": "elastic",
     "KIBANA_CONFIG_FILE": "kibana-export.ndjson",
-    "KIBANA_SSL": "true"
+    "KIBANA_SSL": "true",
+    "KIBANA_MEMORY_LIMIT": "3G",
+    "KIBANA_MEMORY_RESERVE": "500M"
   }
 }
