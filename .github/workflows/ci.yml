@@ -6,33 +6,31 @@ jobs:
     env:
       TF_VAR_PROJECT_NAME: e2e
       TF_VAR_INSTANCE_COUNT: 1
-      TF_VAR_PUBLIC_KEY_PATH: /key.pub
+      TF_VAR_PUBLIC_KEY_PATH: /home/runner/key.pub
       TF_VAR_SUBDOMAIN_NAMES: "[${{ github.run_id }}.jembi-sp.org,*.${{ github.run_id }}.jembi-sp.org]"
+    defaults:
+      run:
+        working-directory: ./infrastructure/terraform
     steps:
       - uses: actions/checkout@v3
       - uses: hashicorp/setup-terraform@v2
-      - run: 'echo "$SSH_KEY" > /key.pub'
+      - run: 'echo "$SSH_KEY" > /home/runner/key.pub'
         shell: bash
         env:
           SSH_KEY: ${{secrets.DEPLOY_KEY}}
-      - run: |
-          cd infrastructure/terraform
-          terraform init
-      - run: |
-          cd infrastructure/terraform
-          terraform apply
-      - run: |
-          cd infrastructure/terraform
-          terraform output public_A_ip_-_Swarm_Leader
+      - run: terraform init
+      - run: terraform apply
+      - run: terraform output public_A_ip_-_Swarm_Leader
   configure-e2e-server:
     runs-on: ubuntu-latest
+    needs: provision-e2e-server
     steps:
       - uses: actions/checkout@v3
       - name: Run playbook
         uses: dawidd6/action-ansible-playbook@v2
         with:
-          playbook: provision.yml
-          directory: ./infrastructure/ansible/playbooks
+          playbook: playbooks/provision.yml
+          directory: ./infrastructure/ansible
           key: ${{secrets.DEPLOY_KEY}}
           inventory: |
             [leader]
