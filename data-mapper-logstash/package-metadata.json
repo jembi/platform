@@ -7,7 +7,10 @@
   "dependencies": ["analytics-datastore-elastic-search"],
   "environmentVariables": {
     "ES_ELASTIC": "${ES_ELASTIC}",
-    "LS_JAVA_OPTS": "-Xmx2g -Xms2g"
+    "LS_JAVA_OPTS": "-Xmx2g -Xms2g",
+    "LOGSTASH_MEMORY_LIMIT": "3G",
+    "LOGSTASH_MEMORY_RESERVE": "500M"
   },
   "sharedConfigs": ["pipeline"]
+
 }
