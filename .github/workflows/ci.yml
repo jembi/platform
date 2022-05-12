@@ -22,7 +22,11 @@ jobs:
           SSH_KEY: ${{secrets.DEPLOY_KEY_PUB}}
       - run: terraform init
       - run: terraform apply -auto-approve
-      - run: terraform output public_A_ip_-_Swarm_Leader
+      - name: Upload terraform state
+        uses: actions/upload-artifact@v3
+        with:
+          name: tfstate
+          path: infrastructure/terraform/terraform.tfstate
   configure-e2e-server:
     runs-on: ubuntu-latest
     needs: provision-e2e-server
@@ -62,5 +66,10 @@ jobs:
         shell: bash
         env:
           SSH_KEY: ${{secrets.DEPLOY_KEY_PUB}}
+      - name: Download terraform state
+        uses: actions/download-artifact@v3
+        with:
+          name: tfstate
+          path: infrastructure/terraform/terraform.tfstate
       - run: terraform init
       - run: terraform destroy -auto-approve
