@@ -57,3 +57,17 @@ The Go Cli runs all services from the `jembi/platform` docker image. When develo
 ```
 
 As you add new packages to the platform remember to list them in `config.yml` file. This config file controls what packages the Go Cli can launch from the UI.
+
+## Resource Allocations
+
+The resource allocations for each service can be found in each service's respective docker-compose.yml file under `deploy.resources`. The field `reservations` specifies reserved resources for that service, per container. The field `limits` specifies that maximum amount of resources that can be used by that service, per container.
+
+Each service's resource allocations can be piped into their .yml file through environment variables. Look at the .yml files for environment variable names per service.
+
+### Notes on Resource Allocations
+
+- CPU allocations are specified as a portion of unity, i.e., 0.01 --> 1.
+- Memory (RAM) allocations are specified as a number followed by their multiplier, i.e., 500M, 1G, 10G, etc.
+- Be wary of allocating CPU limits to ELK Stack services. These seem to fail with CPU limits and their already implemented health checks.
+- Take note to not allocate less memory to ELK Stack services than their JVM heap sizes.
+- Exit code 137 indicates an out-of-memory failure. When running into this, it means that the service has been allocated too little memory.
