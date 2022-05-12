@@ -52,12 +52,15 @@ jobs:
       TF_VAR_SUBDOMAIN_NAMES: "[${{ github.run_id }}.jembi-sp.org,*.${{ github.run_id }}.jembi-sp.org]"
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    defaults:
+      run:
+        working-directory: ./infrastructure/terraform
     steps:
       - uses: actions/checkout@v3
       - uses: hashicorp/setup-terraform@v2
-      - run: |
-          cd infrastructure/terraform
-          terraform init
-      - run: |
-          cd infrastructure/terraform
-          terraform destroy
+      - run: 'echo "$SSH_KEY" > /home/runner/key.pub'
+        shell: bash
+        env:
+          SSH_KEY: ${{secrets.DEPLOY_KEY_PUB}}
+      - run: terraform init
+      - run: terraform destroy -auto-approve
