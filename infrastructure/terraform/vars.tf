@@ -1,5 +1,5 @@
 variable "AWS_REGION" {
-  default = "af-south-1"
+  default     = "af-south-1"
   description = "region to create the resources in"
 }
 
@@ -19,8 +19,8 @@ variable "VOLUME_SIZE" {
   default = 32
 }
 
-variable "AMI"{
-  type = map
+variable "AMI" {
+  type = map(any)
 
   default = {
     af-south-1 = "ami-0b62e6078dbaee70a"
@@ -35,6 +35,10 @@ variable "DOMAIN_NAME_CREATION_ENABLED" {
   default = false
 }
 
+variable "SUB_DOMAIN_NAME_CREATION_ENABLED" {
+  default = false
+}
+
 variable "DOMAIN_NAME" {
   default = "jembi-mercury.org"
 }
@@ -46,7 +50,7 @@ variable "SUBDOMAIN_NAMES" {
 ########## USER VALUES ###########
 
 variable "PUBLIC_KEY_PATH" {
-  default = "/home/{user}/.ssh/{key}.pub"
+  default     = "/home/{user}/.ssh/{key}.pub"
   description = "This is the path to the ssh key that will be used in communincating with the aws servers created"
 }
 

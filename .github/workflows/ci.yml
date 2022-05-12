@@ -1,0 +1,58 @@
+name: ethiopia-ci
+on: [workflow_dispatch]
+jobs:
+  provision-e2e-server:
+    runs-on: ubuntu-latest
+    env:
+      TF_VAR_PROJECT_NAME: e2e
+      TF_VAR_INSTANCE_COUNT: 1
+      TF_VAR_PUBLIC_KEY_PATH: /key.pub
+      TF_VAR_SUBDOMAIN_NAMES: "[${{ github.run_id }}.jembi-sp.org,*.${{ github.run_id }}.jembi-sp.org]"
+    steps:
+      - uses: actions/checkout@v3
+      - uses: hashicorp/setup-terraform@v2
+      - run: 'echo "$SSH_KEY" > /key.pub'
+        shell: bash
+        env:
+          SSH_KEY: ${{secrets.DEPLOY_KEY}}
+      - run: |
+          cd infrastructure/terraform
+          terraform init
+      - run: |
+          cd infrastructure/terraform
+          terraform apply
+      - run: |
+          cd infrastructure/terraform
+          terraform output public_A_ip_-_Swarm_Leader
+  configure-e2e-server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run playbook
+        uses: dawidd6/action-ansible-playbook@v2
+        with:
+          playbook: provision.yml
+          directory: ./infrastructure/ansible/playbooks
+          key: ${{secrets.DEPLOY_KEY}}
+          inventory: |
+            [leader]
+            ${{ github.run_id }}.jembi-sp.org name=node-1
+
+            [managers]
+
+            [workers]
+  destroy-e2e-server:
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs: [provision-e2e-server, configure-e2e-server]
+    env:
+      TF_VAR_PROJECT_NAME: e2e
+    steps:
+      - uses: actions/checkout@v3
+      - uses: hashicorp/setup-terraform@v2
+      - run: |
+          cd infrastructure/terraform
+          terraform init
+      - run: |
+          cd infrastructure/terraform
+          terraform destroy

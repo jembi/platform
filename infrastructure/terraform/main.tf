@@ -70,7 +70,7 @@ resource "aws_route53_record" "domain_name" {
 }
 
 resource "aws_route53_record" "subdomains" {
-  count = var.DOMAIN_NAME_CREATION_ENABLED && var.SUBDOMAIN_NAMES != "" ? length(local.subDomainArray) : 0
+  count = var.SUB_DOMAIN_NAME_CREATION_ENABLED && var.SUBDOMAIN_NAMES != "" ? length(local.subDomainArray) : 0
   zone_id = aws_route53_zone.primary[0].zone_id
   name    = "${local.subDomainArray[count.index]}"
   type    = "A"
