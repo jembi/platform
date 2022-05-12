@@ -70,6 +70,6 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: tfstate
-          path: infrastructure/terraform/terraform.tfstate
+          path: infrastructure/terraform/
       - run: terraform init
       - run: terraform destroy -auto-approve
