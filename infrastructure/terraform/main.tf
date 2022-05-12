@@ -81,9 +81,9 @@ resource "aws_route53_record" "subdomains" {
 output "public_A_ip_-_Swarm_Leader" {
   value = "${aws_instance.cdrA[0].public_ip}"
 }
-output "public_B_ip" {
-  value = "${aws_instance.cdrA[1].public_ip}"
-}
-output "public_C_ip" {
-  value = "${aws_instance.cdrA[2].public_ip}"
-}
+# output "public_B_ip" {
+#   value = "${aws_instance.cdrA[1].public_ip}"
+# }
+# output "public_C_ip" {
+#   value = "${aws_instance.cdrA[2].public_ip}"
+# }
