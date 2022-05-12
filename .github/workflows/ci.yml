@@ -8,6 +8,8 @@ jobs:
       TF_VAR_INSTANCE_COUNT: 1
       TF_VAR_PUBLIC_KEY_PATH: /home/runner/key.pub
       TF_VAR_SUBDOMAIN_NAMES: "[${{ github.run_id }}.jembi-sp.org,*.${{ github.run_id }}.jembi-sp.org]"
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     defaults:
       run:
         working-directory: ./infrastructure/terraform
