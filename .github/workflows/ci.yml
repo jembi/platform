@@ -1,5 +1,5 @@
 name: ethiopia-ci
-on: [workflow_dispatch]
+on: [push, workflow_dispatch]
 jobs:
   provision-e2e-server:
     runs-on: ubuntu-latest
