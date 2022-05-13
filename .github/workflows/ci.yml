@@ -1,5 +1,6 @@
 name: ethiopia-ci
 on: [push, workflow_dispatch]
+concurrency: e2e
 jobs:
   provision-e2e-server:
     runs-on: ubuntu-latest
