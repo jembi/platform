@@ -149,7 +149,7 @@ config::copy_shared_configs() {
 
     for sharedConfig in "${sharedConfigs[@]}"; do
         # TODO: (https://jembiprojects.jira.com/browse/PLAT-252) swap docker copy for a swarm compliant approach
-        docker cp "${packageBaseDir}"/"${sharedConfig//\"//}" "${containerId}":"${CONTAINER_DESTINATION}"
+        docker cp "${packageBaseDir}""${sharedConfig//\"//}" "${containerId}":"${CONTAINER_DESTINATION}"
     done
 }
 
@@ -174,4 +174,76 @@ config::timeout_check() {
         echo "Fatal: Waited $exitTime seconds for $message. Exiting..."
         exit 124
     fi
+}
+
+# A generic function confirming whether or not a containerized api is reachable
+#
+# Requirements:
+# - The function attempts to start up a helper container using the jembi/await-helper image. It is therefore necessary
+#   to specify the docker-compose file to deploy the await-helper container which the await_service_running function
+#   relies on. Details on configuring the await-helper can be found at https://github.com/jembi/platform-await-helper.
+#
+# Arguments:
+# $1 : the service being awaited
+# $2 : path to await-helper compose.yml file (eg. ~/projects/platform/dashboard-visualiser-jsreport/docker-compose.await-helper.yml)
+# $3 : desired number of instances of the awaited-service
+# $4 : (optional) the max time allowed to wait for a service's response, defaults to 300 seconds
+# $5 : (optional) elapsed time to throw a warning, defaults to 60 seconds
+config::await_service_running() {
+    local -r service_name="${1:?"FATAL: await_service_running function args not correctly set"}"
+    local -r await_helper_file_path="${2:?"FATAL: await_service_running function args not correctly set"}"
+    local -r service_instances="${3:?"FATAL: await_service_running function args not correctly set"}"
+    local -r exit_time="${4:-}"
+    local -r warning_time="${5:-}"
+    local -r start_time=$(date +%s)
+
+    docker stack deploy -c "$await_helper_file_path" instant
+    until [[ $(docker service ls -f name=instant_"$service_name" --format "{{.Replicas}}") == *"$service_instances/$service_instances"* ]]; do
+        config::timeout_check "$start_time" "$service_name to start" "$exit_time" "$warning_time"
+        sleep 1
+    done
+
+    local await_helper_state
+    await_helper_state=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
+    until [[ $await_helper_state == *"Complete"* ]]; do
+        config::timeout_check "$start_time" "$service_name status check" "$exit_time" "$warning_time"
+
+        await_helper_state=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
+        if [[ $await_helper_state == *"Failed"* ]] || [[ $await_helper_state == *"Rejected"* ]]; then
+            echo "Fatal: Received error when trying to verify state of $service_name. Error:
+       $(docker service ps instant_await-helper --no-trunc --format '{{.Error}}')"
+            exit 1
+        fi
+    done
+
+    docker service rm instant_await-helper
+}
+
+# A function which removes a config importing service on successful completion, and exits with an error otherwise
+#
+# Arguments:
+# $1 : the name of the config importer
+# $2 : (optional) the timeout time for the config importer to run, defaults to 300 seconds
+# $3 : (optional) elapsed time to throw a warning, defaults to 60 seconds
+config::remove_config_importer() {
+    local -r config_importer_service_name="${1:?"FATAL: remove_config_importer function args not correctly set"}"
+    local -r exit_time="${2:-}"
+    local -r warning_time="${3:-}"
+    local -r start_time=$(date +%s)
+
+    local config_importer_state
+    config_importer_state=$(docker service ps instant_"$config_importer_service_name" --format "{{.CurrentState}}")
+    until [[ $config_importer_state == *"Complete"* ]]; do
+        config::timeout_check "$start_time" "$config_importer_service_name to run" "$exit_time" "$warning_time"
+        sleep 1
+
+        config_importer_state=$(docker service ps instant_"$config_importer_service_name" --format "{{.CurrentState}}")
+        if [[ $config_importer_state == *"Failed"* ]] || [[ $config_importer_state == *"Rejected"* ]]; then
+            echo "Fatal: $config_importer_service_name failed with error:
+       $(docker service ps instant_"$config_importer_service_name" --no-trunc --format '{{.Error}}')"
+            exit 1
+        fi
+    done
+
+    docker service rm instant_"$config_importer_service_name"
 }
