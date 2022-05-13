@@ -24,7 +24,7 @@ services:
     depends_on:
       - openhim-core
     configs:
-      - source: console.config
+      - source: console-default.json
         target: /usr/share/nginx/html/config/default.json
     deploy:
       placement:
@@ -38,7 +38,7 @@ services:
           memory: ${OPENHIM_CONSOLE_MEMORY_RESERVE:-500M}
 
 configs:
-  console.config:
+  console-default.json:
     file: ./importer/volume/default.json
     name: console.config-${console_config_DIGEST:?err}
     labels:
