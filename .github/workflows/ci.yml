@@ -65,6 +65,7 @@ jobs:
       - uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+      - run: ssh ubuntu@${{ github.run_id }}.jembi-sp.org date
       - run: DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi-sp.org ./platform-linux --env-file=.env.dev init interoperability-layer-openhim
   destroy-e2e-server:
     runs-on: ubuntu-latest
