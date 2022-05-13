@@ -192,6 +192,7 @@ config::remove_config_importer() {
         if [[ $configImporterState == *"Failed"* ]] || [[ $configImporterState == *"Rejected"* ]]; then
             errorMessage=$(docker service ps "${configImporterName}" --no-trunc --format \"{{.Error}}\")
             echo "Fatal: ${configImporterName} failed with error: ${errorMessage}"
+            exit 1
         fi
     done
 
