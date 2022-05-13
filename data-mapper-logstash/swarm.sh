@@ -84,7 +84,9 @@ if [[ "$Action" == "init" ]] || [[ "$Action" == "up" ]]; then
   AwaitContainerStartup
   AwaitContainerReady
 
-  config::copy_shared_configs "$COMPOSE_FILE_PATH"/package-metadata.json /usr/share/logstash/
+  if [[ "$LOGSTASH_DEV_MOUNT" != "true" ]]; then
+    config::copy_shared_configs "$COMPOSE_FILE_PATH"/package-metadata.json /usr/share/logstash/
+  fi
 
   echo "Removing stale configs..."
   config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "logstash"
