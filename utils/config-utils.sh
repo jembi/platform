@@ -149,7 +149,7 @@ config::copy_shared_configs() {
 
     for sharedConfig in "${sharedConfigs[@]}"; do
         # TODO: (https://jembiprojects.jira.com/browse/PLAT-252) swap docker copy for a swarm compliant approach
-        docker cp "${packageBaseDir}"/"${sharedConfig//\"//}" "${containerId}":"${CONTAINER_DESTINATION}"
+        docker cp "${packageBaseDir}""${sharedConfig//\"//}" "${containerId}":"${CONTAINER_DESTINATION}"
     done
 }
 
