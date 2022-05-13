@@ -54,7 +54,7 @@ jobs:
           options: |
             --become
             --user=ubuntu
-            --extra-vars @./infrastructure/ansible/inventories/development/group_vars/all.yml
+            --extra-vars @./inventories/development/group_vars/all.yml
   destroy-e2e-server:
     runs-on: ubuntu-latest
     if: always()
