@@ -105,7 +105,7 @@ ImportElasticIndex() {
   config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
   docker stack deploy -c "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml instant
   config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "elastic-search"
-  config::remove_config_importer instant_elastic-search-config-importer
+  config::remove_config_importer elastic-search-config-importer
 }
 
 if [[ "$STATEFUL_NODES" == "cluster" ]]; then

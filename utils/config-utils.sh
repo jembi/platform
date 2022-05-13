@@ -176,29 +176,6 @@ config::timeout_check() {
     fi
 }
 
-# Removes a given config importer service
-#
-# Arguments:
-# $1 : service name of the config importer eg. instant_elastic-search-config-importer
-config::remove_config_importer() {
-    local configImporterName=$1
-    local startTime=$(date +%s)
-    local configImporterState=$(docker service ps "${configImporterName}" --format "{{.CurrentState}}")
-    until [[ $configImporterState == *"Complete"* ]]; do
-        config::timeout_check $startTime "${configImporterName} to run"
-        sleep 1
-
-        configImporterState=$(docker service ps "${configImporterName}" --format "{{.CurrentState}}")
-        if [[ $configImporterState == *"Failed"* ]] || [[ $configImporterState == *"Rejected"* ]]; then
-            errorMessage=$(docker service ps "${configImporterName}" --no-trunc --format \"{{.Error}}\")
-            echo "Fatal: ${configImporterName} failed with error: ${errorMessage}"
-            exit 1
-        fi
-    done
-
-    docker service rm "${configImporterName}"
-}
-
 # A generic function confirming whether or not a containerized api is reachable
 #
 # Requirements:
