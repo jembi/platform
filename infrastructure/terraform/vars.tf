@@ -47,6 +47,10 @@ variable "SUBDOMAIN_NAMES" {
   default = ""
 }
 
+variable "HOSTED_ZONE_ID" {
+  default = ""
+}
+
 ########## USER VALUES ###########
 
 variable "PUBLIC_KEY_PATH" {
