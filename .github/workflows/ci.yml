@@ -33,6 +33,10 @@ jobs:
         with:
           name: tfstate
           path: infrastructure/terraform/terraform.tfstate
+      - uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+      - run: ssh ubuntu@${{ github.run_id }}.jembi-sp.org date
   configure-e2e-server:
     runs-on: ubuntu-latest
     needs: provision-e2e-server
