@@ -27,6 +27,7 @@ jobs:
       - run: terraform init
       - run: terraform apply -auto-approve
       - name: Upload terraform state
+        if: always()
         uses: actions/upload-artifact@v3
         with:
           name: tfstate
@@ -55,7 +56,7 @@ jobs:
             --user=ubuntu
   destroy-e2e-server:
     runs-on: ubuntu-latest
-    if: ${{ always() }}
+    if: always()
     needs: [provision-e2e-server, configure-e2e-server]
     env:
       TF_VAR_PROJECT_NAME: e2e
