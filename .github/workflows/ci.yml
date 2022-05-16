@@ -68,12 +68,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: ./get-cli.sh
+      - run: ./build-image.sh
       - uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.DEPLOY_KEY }}
       - run: ssh-keyscan -H ${{ github.run_id }}.jembi-sp.org >> ~/.ssh/known_hosts
-      # TODO - why do I need to do this?
-      - run: ssh ubuntu@${{ github.run_id }}.jembi-sp.org docker pull jembi/platform
       - run: DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi-sp.org ./platform-linux --env-file=.env.dev init interoperability-layer-openhim
   destroy-e2e-server:
     runs-on: ubuntu-latest
