@@ -13,6 +13,7 @@ jobs:
       TF_VAR_HOSTED_ZONE_ID: Z002854315SMBI8TM9A2D
       TF_VAR_DOMAIN_NAME: jembi-sp.org
       TF_VAR_SUBDOMAIN_NAMES: ${{ github.run_id }}.jembi-sp.org *.${{ github.run_id }}.jembi-sp.org
+      TF_VAR_INSTANCE_TYPE: t3.large
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     defaults:
@@ -71,6 +72,8 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.DEPLOY_KEY }}
       - run: ssh-keyscan -H ${{ github.run_id }}.jembi-sp.org >> ~/.ssh/known_hosts
+      # TODO - why do I need to do this?
+      - run: ssh ubuntu@${{ github.run_id }}.jembi-sp.org docker pull jembi/platform
       - run: DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi-sp.org ./platform-linux --env-file=.env.dev init interoperability-layer-openhim
   destroy-e2e-server:
     runs-on: ubuntu-latest
@@ -85,6 +88,7 @@ jobs:
       TF_VAR_HOSTED_ZONE_ID: Z002854315SMBI8TM9A2D
       TF_VAR_DOMAIN_NAME: jembi-sp.org
       TF_VAR_SUBDOMAIN_NAMES: "[${{ github.run_id }}.jembi-sp.org,*.${{ github.run_id }}.jembi-sp.org]"
+      TF_VAR_INSTANCE_TYPE: t3.large
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     defaults:
