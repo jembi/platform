@@ -71,7 +71,7 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.DEPLOY_KEY }}
       - run: ssh-keyscan -H ${{ github.run_id }}.jembi-sp.org >> ~/.ssh/known_hosts
-      - run: ssh ubuntu@${{ github.run_id }}.jembi-sp.org cat ~/.docker/config.json
+      - run: ssh ubuntu@${{ github.run_id }}.jembi-sp.org docker info
       - run: ssh ubuntu@${{ github.run_id }}.jembi-sp.org docker pull jembi/platform
       - run: DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi-sp.org ./platform-linux --env-file=.env.dev init interoperability-layer-openhim
   destroy-e2e-server:
