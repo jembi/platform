@@ -1,0 +1,19 @@
+{
+  "mappings": {
+    "properties": {
+      "patient": {
+        "properties": {
+          "fhirID": { "type": "keyword" },
+          "UAN": { "type": "keyword" },
+          "MRN": { "type": "keyword" },
+          "gender": { "type": "keyword" },
+          "region": { "type": "keyword" },
+          "subCity": { "type": "keyword" },
+          "woreda": { "type": "keyword" },
+          "kebele": { "type": "keyword" },
+          "birthDate": { "type": "date" }
+        }
+      }
+    }
+  }
+}

@@ -3,6 +3,7 @@
   "name": "Interoperability Layer Package - Openhim",
   "description": "This is the interoperability layer that enables simpler data exchange between the different systems. It is also the security layer for the other systems",
   "version": "1.0.0",
+  "dependencies": ["reverse-proxy-nginx"],
   "environmentVariables": {
     "mongo_url": "mongodb://mongo-1:27017,mongo-2:27017,mongo-3:27017/openhim?replicaSet=mongo-set",
     "mongo_atnaUrl": "mongodb://mongo-1:27017,mongo-2:27017,mongo-3:27017/openhim?replicaSet=mongo-set",
@@ -19,6 +20,18 @@
     "NODE_ENV": "production",
     "MONGO_SET_COUNT": "3",
     "OPENHIM_CORE_INSTANCES": "1",
-    "OPENHIM_CORE_MEDIATOR_HOSTNAME": "localhost"
+    "OPENHIM_CORE_MEDIATOR_HOSTNAME": "localhost",
+    "OPENHIM_CPU_LIMIT": "0.8",
+    "OPENHIM_CPU_RESERVE": "0.05",
+    "OPENHIM_MEMORY_LIMIT": "3G",
+    "OPENHIM_MEMORY_RESERVE": "500M",
+    "OPENHIM_CONSOLE_CPU_LIMIT": "0.8",
+    "OPENHIM_CONSOLE_CPU_RESERVE": "0.05",
+    "OPENHIM_CONSOLE_MEMORY_LIMIT": "2G",
+    "OPENHIM_CONSOLE_MEMORY_RESERVE": "500M",
+    "OPENHIM_MONGO_CPU_LIMIT": "0.8",
+    "OPENHIM_MONGO_CPU_RESERVE": "0.05",
+    "OPENHIM_MONGO_MEMORY_LIMIT": "3G",
+    "OPENHIM_MONGO_MEMORY_RESERVE": "500M"
   }
 }

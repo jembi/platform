@@ -10,6 +10,10 @@ COMPOSE_FILE_PATH=$(
   pwd -P
 )
 
+# Import libraries
+ROOT_PATH="${COMPOSE_FILE_PATH}/.."
+. "${ROOT_PATH}/utils/config-utils.sh"
+
 AwaitContainerStartup() {
   echo "Waiting for elasticsearch container to start up..."
 
@@ -96,6 +100,14 @@ AwaitContainerDestroy() {
   echo "Elasticsearch container is destroyed"
 }
 
+ImportElasticIndex() {
+  # TODO: (castelloG) [PLAT-255] Add support for multiple index imports
+  config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml instant
+  config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "elastic-search"
+  config::remove_config_importer elastic-search-config-importer
+}
+
 if [[ "$STATEFUL_NODES" == "cluster" ]]; then
   printf "\nRunning Analytics Datastore Elastic Search package in Cluster node mode\n"
   ElasticSearchClusterComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.cluster.yml"
@@ -121,6 +133,8 @@ if [[ "$Action" == "init" ]]; then
 
   InstallExpect
   SetElasticsearchPasswords
+
+  ImportElasticIndex
 
   echo "Done initialising"
 elif [[ "$Action" == "up" ]]; then

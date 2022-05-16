@@ -39,6 +39,9 @@ done
 # This sleep ensures that the replica sets are reachable
 sleep 10
 
+# TODO (PLAT-256): only works if deploying to node-1 labeled node
+# With docker swarm any manager can be the target but this bit of code only work if we target node-1 specifically.
+# Which is generally what we do, but if node-1 is down or we choose to target another node this won't work.
 ContainerName=""
 if [[ "$(docker ps -f name=instant_mongo-1 --format "{{.ID}}")" ]]; then
     ContainerName="$(docker ps -f name=instant_mongo-1 --format "{{.ID}}")"
