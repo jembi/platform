@@ -141,10 +141,14 @@ main() {
 
     docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose-mongo.yml "${mongo_cluster_compose_param[@]}" "${mongo_dev_compose_param[@]}" instant
 
-    # Set up the replica set
-    if ! "${COMPOSE_FILE_PATH}"/initiateReplicaSet.sh; then
-      echo "Fatal: Initate Mongo replica set failed."
-      exit 1
+    if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
+
+      # Set up the replica set
+      if ! "${COMPOSE_FILE_PATH}"/initiateReplicaSet.sh; then
+        echo "Fatal: Initate Mongo replica set failed."
+        exit 1
+      fi
+
     fi
 
     prepare_console_config
