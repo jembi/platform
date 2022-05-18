@@ -5,7 +5,6 @@ services:
     image: mongo:4.2
     volumes:
       - 'openhim-mongo1:/data/db'
-    command: ['--replSet', 'mongo-set', '--wiredTigerCacheSizeGB', '0.5']
     deploy:
       replicas: 1
       resources:

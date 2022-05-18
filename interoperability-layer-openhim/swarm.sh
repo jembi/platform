@@ -198,25 +198,37 @@ main() {
     fi
   elif [[ "${ACTION}" == "down" ]]; then
     echo "Scaling down services..."
-    if ! docker service scale instant_openhim-core=0 instant_openhim-console=0 instant_mongo-1=0 instant_mongo-2=0 instant_mongo-3=0 >/dev/null; then
+    if ! docker service scale instant_openhim-core=0 instant_openhim-console=0 instant_mongo-1=0 >/dev/null; then
       echo "Error scaling down services"
+    fi
+
+    if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
+      if ! docker service scale instant_mongo-2=0 instant_mongo-3=0 >/dev/null; then
+        echo "Error scaling down services"
+      fi
     fi
     echo "Done scaling down services"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    docker service rm instant_openhim-core instant_openhim-console instant_mongo-1 instant_mongo-2 instant_mongo-3 instant_await-helper
-    docker service rm instant_interoperability-layer-openhim-config-importer
+    docker service rm instant_openhim-core instant_openhim-console instant_mongo-1 instant_await-helper instant_interoperability-layer-openhim-config-importer
 
-    echo "Sleep 10 Seconds to allow services to shut down before deleting volumes"
-    sleep 10
+    await_service_removed instant_openhim-core instant_openhim-console instant_mongo-1 instant_await-helper instant_interoperability-layer-openhim-config-importer
 
-    docker volume rm instant_openhim-mongo1 instant_openhim-mongo2 instant_openhim-mongo3
+    docker volume rm instant_openhim-mongo1
 
     # shellcheck disable=SC2046 # intentional word splitting
     docker config rm $(docker config ls -qf label=name=openhim)
 
     if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
       echo "Volumes are only deleted on the host on which the command is run. Mongo volumes on other nodes are not deleted"
+
+      docker service rm instant_mongo-2 instant_mongo-3
+      await_service_removed instant_mongo-2 instant_mongo-3
+      docker volume rm instant_openhim-mongo2 instant_openhim-mongo3
+
+      # shellcheck disable=SC2046 # intentional word splitting
+      docker config rm $(docker config ls -qf label=name=openhim)
     fi
+
   else
     echo "Valid options are: init, up, down, or destroy"
   fi

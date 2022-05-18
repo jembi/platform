@@ -2,6 +2,7 @@ version: '3.9'
 
 services:
   mongo-1:
+    command: ['--replSet', 'mongo-set', '--wiredTigerCacheSizeGB', '0.5']
     deploy:
       placement:
         constraints:
