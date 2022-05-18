@@ -21,18 +21,6 @@ else
   JsReportDevComposeParam=""
 fi
 
-if [[ "${JS_REPORT_DEV_MOUNT}" == "true" ]]; then
-  if [[ -z "${JS_REPORT_PACKAGE_PATH}" ]]; then
-    echo "ERROR: JS_REPORT_PACKAGE_PATH environment variable not specified. Please specify JS_REPORT_PACKAGE_PATH as stated in the README."
-    exit 1
-  fi
-
-  printf "\nAttaching dev mount to JS Report package\n"
-  JsReportDevMountComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.dev-mnt.yml"
-else
-  JsReportDevMountComposeParam=""
-fi
-
 AwaitJsrRunning() {
   local startTime=$(date +%s)
   until [[ $(docker service ls -f name=instant_dashboard-visualiser-jsreport --format "{{.Replicas}}") == *"${JS_REPORT_INSTANCES}/${JS_REPORT_INSTANCES}"* ]]; do
@@ -74,8 +62,16 @@ RemoveConfigImporter() {
   docker service rm instant_jsreport-config-importer
 }
 
+RemoveDeadJsrContainers() {
+  for i in $(docker ps -aqf name=instant_dashboard-visualiser-jsreport); do
+    if [[ $(docker ps -af id="$i" --format "{{.Status}}") == *"Exited"* ]]; then
+      docker rm "$i"
+    fi
+  done
+}
+
 if [[ "$Action" == "init" ]] || [[ "$Action" == "up" ]]; then
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $JsReportDevComposeParam $JsReportDevMountComposeParam instant
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $JsReportDevComposeParam instant
 
   docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml instant
 
@@ -87,6 +83,21 @@ if [[ "$Action" == "init" ]] || [[ "$Action" == "up" ]]; then
 
   RemoveConfigImporter
   config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "jsreport" &>/dev/null
+
+  if [[ "${JS_REPORT_DEV_MOUNT}" == "true" ]]; then
+    if [[ -z "${JS_REPORT_PACKAGE_PATH}" ]]; then
+      echo "ERROR: JS_REPORT_PACKAGE_PATH environment variable not specified. Please specify JS_REPORT_PACKAGE_PATH as stated in the README."
+      exit 1
+    fi
+
+    printf "\nAttaching dev mount to JS Report package\n"
+    docker exec -i "$(docker ps -aqf name=instant_dashboard-visualiser-jsreport)" sh -c "cd /app/jsreport/data/ && chmod 777 $(find)"
+    docker exec -i "$(docker ps -aqf name=instant_dashboard-visualiser-jsreport)" sh -c "cd /app/jsreport/data/ && chown 1000 $(find) && chgrp 1000 $(find)"
+
+    docker service update --mount-add type=bind,source="${JS_REPORT_PACKAGE_PATH}"/scripts/,target=/app/jsreport/data/ \
+      --env-add extensions_freeze_hardFreeze=true instant_dashboard-visualiser-jsreport &>/dev/null
+    RemoveDeadJsrContainers
+  fi
 elif [[ "$Action" == "down" ]]; then
   docker service scale instant_dashboard-visualiser-jsreport=0
 elif [[ "$Action" == "destroy" ]]; then

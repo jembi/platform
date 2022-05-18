@@ -1,6 +1,0 @@
-version: '3.9'
-
-services:
-  dashboard-visualiser-jsreport:
-    volumes:
-      - ${JS_REPORT_PACKAGE_PATH}/scripts/:/app/jsreport/data/
