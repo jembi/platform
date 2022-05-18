@@ -84,11 +84,3 @@ typings/
 platform-linux
 platform.exe
 platform-macos
-
-# JS Report metadata files
-fs.journal
-fs.version
-monitoring
-settings
-profiles
-config.json
