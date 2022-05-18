@@ -262,16 +262,16 @@ config::await_service_healthcheck() {
     done
 }
 
-# Waits for the provided service to be removed
+# Waits for the provided service(s) to be removed
 #
 # Arguments:
-# $1 : service name (eg. instant_analytics-datastore-elastic-search)
+# $1 : service name (eg. instant_analytics-datastore-elastic-search) (supports multiple service names)
 config::await_service_removed() {
-    local -r SERVICE_NAME=$1
+    local -r SERVICE_NAMES=$@
     local start_time=$(date +%s)
 
-    until [[ -z $(docker service ls -qf name="${SERVICE_NAME}") ]]; do
-        config::timeout_check $start_time "${SERVICE_NAME} to be removed"
+    until [[ -z $(docker service ls -qf name="${SERVICE_NAMES}") ]]; do
+        config::timeout_check $start_time "${SERVICE_NAMES} to be removed"
         sleep 1
     done
 }
