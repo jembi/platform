@@ -4,7 +4,7 @@
 Action=$1
 Mode=$2
 
-LOGSTASH_DEV_MOUNT=${LOGSTASH_DEV_MOUNT:-"false"}
+readonly LOGSTASH_DEV_MOUNT=$LOGSTASH_DEV_MOUNT
 
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
