@@ -18,73 +18,21 @@ ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 
 if [[ "$MODE" == "dev" ]]; then
   echo "Running JS Reports package in DEV mode"
-  JsReportDevComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
+  js_report_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
 else
   echo "Running JS Reports package in PROD mode"
-  JsReportDevComposeParam=""
+  js_report_dev_compose_param=""
 fi
 
-await_jsr_running() {
-  local startTime=$(date +%s)
-  until [[ $(docker service ls -f name=instant_dashboard-visualiser-jsreport --format "{{.Replicas}}") == *"${JS_REPORT_INSTANCES}/${JS_REPORT_INSTANCES}"* ]]; do
-    config::timeout_check $startTime "dashboard-visualiser-jsreport to start"
-    sleep 1
-  done
-
-  local awaitHelperState=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
-  until [[ $awaitHelperState == *"Complete"* ]]; do
-    config::timeout_check $startTime "dashboard-visualiser-jsreport status check"
-    sleep 1
-
-    awaitHelperState=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
-    if [[ $awaitHelperState == *"Failed"* ]] || [[ $awaitHelperState == *"Rejected"* ]]; then
-      echo "Fatal: Received error when trying to verify state of dashboard-visualiser-jsreport. Error:
-       $(docker service ps instant_await-helper --no-trunc --format \"{{.Error}}\")"
-      exit 1
-    fi
-  done
-
-  docker service rm instant_await-helper &
-}
-
-remove_config_importer() {
-  local complete="false"
-  local startTime=$(date +%s)
-  local configImporterState=$(docker service ps instant_jsreport-config-importer --format "{{.CurrentState}}")
-  until [[ $configImporterState == *"Complete"* ]]; do
-    config::timeout_check $startTime "jsreport-config-importer to run"
-    sleep 1
-
-    configImporterState=$(docker service ps instant_jsreport-config-importer --format "{{.CurrentState}}")
-    if [[ $configImporterState == *"Failed"* ]] || [[ $configImporterState == *"Rejected"* ]]; then
-      echo "Fatal: JS Reports config importer failed with error:
-       $(docker service ps instant_jsreport-config-importer --no-trunc --format \"{{.Error}}\")"
-      exit 1
-    fi
-  done
-
-  docker service rm instant_jsreport-config-importer
-}
-
-RemoveDeadJsrContainers() {
-  for i in $(docker ps -aqf name=instant_dashboard-visualiser-jsreport); do
-    if [[ $(docker ps -af id="$i" --format "{{.Status}}") == *"Exited"* ]]; then
-      docker rm "$i"
-    fi
-  done
-}
-
-CheckFilePermissions() {
+check_file_permissions() {
   if [[ $(stat -c %a "$COMPOSE_FILE_PATH"/scripts) != "777" ]]; then
     echo "It appears you have not run the 'set-permissions.sh' script before running JS Report with the dev mount attached. Please run 'set-permissions.sh' then try again. Exiting..."
-    docker service rm instant_dashboard-visualiser-jsreport
     exit 1
   fi
 
   for i in $(find "$COMPOSE_FILE_PATH"/scripts/); do
     if [[ $(stat -c %a "$i") != "777" ]]; then
       echo "It appears you have not run the 'set-permissions.sh' script before running JS Report with the dev mount attached. Please run 'set-permissions.sh' then try again. Exiting..."
-      docker service rm instant_dashboard-visualiser-jsreport
       exit 1
     fi
   done
@@ -116,38 +64,35 @@ configure_nginx() {
   fi
 }
 
+if [[ "${JS_REPORT_DEV_MOUNT}" == "true" ]] && [[ "${ACTION}" == "init" ]]; then
+  if [[ -z "${JS_REPORT_PACKAGE_PATH}" ]]; then
+    echo "ERROR: JS_REPORT_PACKAGE_PATH environment variable not specified. Please specify JS_REPORT_PACKAGE_PATH as stated in the README."
+    exit 1
+  fi
+
+  check_file_permissions
+
+  echo "Attaching dev mount..."
+  js_report_dev_mount_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev-mnt.yml"
+fi
+
 main() {
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $JsReportDevComposeParam instant
+    docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $js_report_dev_compose_param $js_report_dev_mount_compose_param instant
 
-    docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml instant
+    if [[ "${JS_REPORT_DEV_MOUNT}" != "true" ]]; then
+      echo "Verifying JS Reports service status"
+      config::await_service_running "dashboard-visualiser-jsreport" "$COMPOSE_FILE_PATH"/docker-compose.await-helper.yml "$JS_REPORT_INSTANCES"
 
-    echo "Verifying JS Reports service status"
-    await_jsr_running
-
-    if [[ "${JS_REPORT_DEV_MOUNT}" == "true" ]]; then
-      if [[ -z "${JS_REPORT_PACKAGE_PATH}" ]]; then
-        echo "ERROR: JS_REPORT_PACKAGE_PATH environment variable not specified. Please specify JS_REPORT_PACKAGE_PATH as stated in the README."
-        exit 1
-      fi
-
-      CheckFilePermissions
-
-      echo "Attaching dev mount to JS Report package"
-      docker service update --mount-add type=bind,source="${JS_REPORT_PACKAGE_PATH}"/scripts/,target=/app/jsreport/data/ \
-        instant_dashboard-visualiser-jsreport &>/dev/null
-
-      RemoveDeadJsrContainers
-    else
       config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
       docker stack deploy -c "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml instant
 
-      RemoveConfigImporter
+      config::remove_config_importer "jsreport-config-importer"
       config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "jsreport" &>/dev/null
+    fi
 
-      if [[ "${MODE}" != "dev" ]]; then
-        configure_nginx "$@"
-      fi
+    if [[ "${MODE}" != "dev" ]]; then
+      configure_nginx "$@"
     fi
   elif [[ "${ACTION}" == "down" ]]; then
     docker service scale instant_dashboard-visualiser-jsreport=0
