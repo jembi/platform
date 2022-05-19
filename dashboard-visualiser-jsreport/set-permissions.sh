@@ -7,11 +7,9 @@ fi
 
 sudo chmod 777 scripts/
 
-cd ./scripts/ || exit 1
-for i in $(find); do
-    sudo chmod 777 "$i"
-    sudo chown 1000 "$i"
-    sudo chgrp 1000 "$i"
-done
-cd .. || exit 1
+while read -r file; do
+    sudo chown 1000 "$file"
+    sudo chgrp 1000 "$file"
+    sudo chmod 777 "$file"
+done < <(find ./scripts)
 echo "Successfully set file permissions"

@@ -24,22 +24,6 @@ else
   js_report_dev_compose_param=""
 fi
 
-check_file_permissions() {
-  if [[ $(stat -c %a "$COMPOSE_FILE_PATH"/scripts) != "777" ]]; then
-    echo "It appears you have not run the 'set-permissions.sh' script before running JS Report with the dev mount attached. Please run 'set-permissions.sh' then try again. Exiting..."
-    exit 1
-  fi
-
-  for i in $(find "$COMPOSE_FILE_PATH"/scripts/); do
-    if [[ $(stat -c %a "$i") != "777" ]]; then
-      echo "It appears you have not run the 'set-permissions.sh' script before running JS Report with the dev mount attached. Please run 'set-permissions.sh' then try again. Exiting..."
-      exit 1
-    fi
-  done
-  echo "File permissions are correctly set"
-  echo "DON'T FORGET TO RUN THE 'set-permissions.sh' SCRIPT AFTER KILLING JS REPORT"
-}
-
 configure_nginx() {
   if [[ "${INSECURE}" == "true" ]]; then
     docker config create --label name=nginx "${TIMESTAMP}-http-jsreport-insecure.conf" "${COMPOSE_FILE_PATH}/config/http-jsreport-insecure.conf"
@@ -69,8 +53,7 @@ if [[ "${JS_REPORT_DEV_MOUNT}" == "true" ]] && [[ "${ACTION}" == "init" ]]; then
     echo "ERROR: JS_REPORT_PACKAGE_PATH environment variable not specified. Please specify JS_REPORT_PACKAGE_PATH as stated in the README."
     exit 1
   fi
-
-  check_file_permissions
+  echo "MAKE SURE YOU HAVE RUN 'set-permissions.sh' SCRIPT BEFORE AND AFTER RUNNING JS REPORT"
 
   echo "Attaching dev mount..."
   js_report_dev_mount_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev-mnt.yml"
