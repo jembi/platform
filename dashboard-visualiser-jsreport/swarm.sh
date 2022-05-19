@@ -70,6 +70,24 @@ RemoveDeadJsrContainers() {
   done
 }
 
+CheckFilePermissions() {
+  if [[ $(stat -c %a "$COMPOSE_FILE_PATH"/scripts) != "777" ]]; then
+    echo "It appears you have not run the 'set-permissions.sh' script before running JS Report with the dev mount attached. Please run 'set-permissions.sh' then try again. Exiting..."
+    docker service rm instant_dashboard-visualiser-jsreport
+    exit 1
+  fi
+
+  for i in $(find "$COMPOSE_FILE_PATH"/scripts/); do
+    if [[ $(stat -c %a "$i") != "777" ]]; then
+      echo "It appears you have not run the 'set-permissions.sh' script before running JS Report with the dev mount attached. Please run 'set-permissions.sh' then try again. Exiting..."
+      docker service rm instant_dashboard-visualiser-jsreport
+      exit 1
+    fi
+  done
+  echo "File permissions are correctly set"
+  echo "DON'T FORGET TO RUN THE 'set-permissions.sh' SCRIPT AFTER KILLING JS REPORT"
+}
+
 if [[ "$Action" == "init" ]] || [[ "$Action" == "up" ]]; then
   docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $JsReportDevComposeParam instant
 
@@ -78,25 +96,25 @@ if [[ "$Action" == "init" ]] || [[ "$Action" == "up" ]]; then
   echo "Verifying JS Reports service status"
   AwaitJsrRunning
 
-  config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml instant
-
-  RemoveConfigImporter
-  config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "jsreport" &>/dev/null
-
   if [[ "${JS_REPORT_DEV_MOUNT}" == "true" ]]; then
     if [[ -z "${JS_REPORT_PACKAGE_PATH}" ]]; then
       echo "ERROR: JS_REPORT_PACKAGE_PATH environment variable not specified. Please specify JS_REPORT_PACKAGE_PATH as stated in the README."
       exit 1
     fi
 
-    printf "\nAttaching dev mount to JS Report package\n"
-    docker exec -i "$(docker ps -aqf name=instant_dashboard-visualiser-jsreport)" sh -c "cd /app/jsreport/data/ && chmod 777 $(find)"
-    docker exec -i "$(docker ps -aqf name=instant_dashboard-visualiser-jsreport)" sh -c "cd /app/jsreport/data/ && chown 1000 $(find) && chgrp 1000 $(find)"
+    CheckFilePermissions
 
+    echo "Attaching dev mount to JS Report package"
     docker service update --mount-add type=bind,source="${JS_REPORT_PACKAGE_PATH}"/scripts/,target=/app/jsreport/data/ \
-      --env-add extensions_freeze_hardFreeze=true instant_dashboard-visualiser-jsreport &>/dev/null
+      instant_dashboard-visualiser-jsreport &>/dev/null
+
     RemoveDeadJsrContainers
+  else
+    config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
+    docker stack deploy -c "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml instant
+
+    RemoveConfigImporter
+    config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "jsreport" &>/dev/null
   fi
 elif [[ "$Action" == "down" ]]; then
   docker service scale instant_dashboard-visualiser-jsreport=0

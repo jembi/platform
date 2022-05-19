@@ -21,7 +21,6 @@ services:
       allowLocalFilesAccess: 'true'
       extensions_fsStore_dataDirectory: 'jsreport/data'
       extensions_fsStore_externalModificationsSync: 'true'
-      extensions_freeze_hardFreeze: 'false'
       extensions_authentication_cookieSession_secret: ${JS_REPORT_SECRET:-dev_secret_only}
       extensions_authentication_admin_username: 'admin'
       extensions_authentication_admin_password: ${JS_REPORT:-dev_password_only}
