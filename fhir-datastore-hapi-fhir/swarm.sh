@@ -55,18 +55,18 @@ elif [ "$ACTION" == "down" ]; then
   fi
 
 elif [ "$ACTION" == "destroy" ]; then
-  docker service rm instant_hapi-fhir instant_postgres-1 instant_postgres-2
+  docker service rm instant_hapi-fhir instant_postgres-1 instant_postgres-2 &>/dev/null
 
   config::await_service_removed instant_hapi-fhir
   config::await_service_removed instant_postgres-1
   config::await_service_removed instant_postgres-2
 
-  docker volume rm instant_hapi-postgres-1-data instant_hapi-postgres-2-data
+  docker volume rm instant_hapi-postgres-1-data instant_hapi-postgres-2-data &>/dev/null
 
   if [ $STATEFUL_NODES == "cluster" ]; then
-    docker service rm instant_postgres-3
+    docker service rm instant_postgres-3 &>/dev/null
     config::await_service_removed instant_postgres-3
-    docker volume rm instant_hapi-postgres-3-data
+    docker volume rm instant_hapi-postgres-3-data &>/dev/null
 
     echo "Volumes are only deleted on the host on which the command is run. Postgres volumes on other nodes are not deleted"
   fi
