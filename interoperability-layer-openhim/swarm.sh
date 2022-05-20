@@ -19,7 +19,6 @@ COMPOSE_FILE_PATH=$(
 readonly COMPOSE_FILE_PATH
 
 # Import libraries
-
 ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/config-utils.sh"
 
@@ -209,29 +208,29 @@ main() {
     fi
     echo "Done scaling down services"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    docker service rm instant_openhim-core instant_openhim-console instant_mongo-1 instant_await-helper instant_interoperability-layer-openhim-config-importer
+    docker service rm instant_openhim-core instant_openhim-console instant_mongo-1 instant_await-helper instant_interoperability-layer-openhim-config-importer &>/dev/null
 
-    await_service_removed instant_openhim-core
-    await_service_removed instant_openhim-console
-    await_service_removed instant_mongo-1
-    await_service_removed instant_await-helper
-    await_service_removed instant_interoperability-layer-openhim-config-importer
+    config::await_service_removed instant_openhim-core
+    config::await_service_removed instant_openhim-console
+    config::await_service_removed instant_mongo-1
+    config::await_service_removed instant_await-helper
+    config::await_service_removed instant_interoperability-layer-openhim-config-importer
 
-    docker volume rm instant_openhim-mongo1
+    docker volume rm instant_openhim-mongo1 &>/dev/null
 
     # shellcheck disable=SC2046 # intentional word splitting
-    docker config rm $(docker config ls -qf label=name=openhim)
+    docker config rm $(docker config ls -qf label=name=openhim) &>/dev/null
 
     if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
       echo "Volumes are only deleted on the host on which the command is run. Mongo volumes on other nodes are not deleted"
 
-      docker service rm instant_mongo-2 instant_mongo-3
-      await_service_removed instant_mongo-2
-      await_service_removed instant_mongo-3
-      docker volume rm instant_openhim-mongo2 instant_openhim-mongo3
+      docker service rm instant_mongo-2 instant_mongo-3 &>/dev/null
+      config::await_service_removed instant_mongo-2
+      config::await_service_removed instant_mongo-3
+      docker volume rm instant_openhim-mongo2 instant_openhim-mongo3 &>/dev/null
 
       # shellcheck disable=SC2046 # intentional word splitting
-      docker config rm $(docker config ls -qf label=name=openhim)
+      docker config rm $(docker config ls -qf label=name=openhim) &>/dev/null
     fi
 
   else
