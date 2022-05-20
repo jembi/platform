@@ -13,7 +13,7 @@
     "REPMGR_PASSWORD": "instant101",
     "REPMGR_NODE_NAME": "postgres-1",
     "REPMGR_PRIMARY_HOST": "postgres-1",
-    "REPMGR_PARTNER_NODES": "postgres-1,postgres-2,postgres-3",
+    "REPMGR_PARTNER_NODES": "postgres-1",
     "NODE_TLS_REJECT_UNAUTHORIZED": "0",
     "HAPI_FHIR_CPU_LIMIT": "0.8",
     "HAPI_FHIR_CPU_RESERVE": "0.05",
