@@ -10,9 +10,8 @@ services:
   santempi-psql-2:
     image: bitnami/postgresql-repmgr:14
     environment:
-      POSTGRESQL_PASSWORD: SanteDB123
-      POSTGRESQL_USERNAME: santedb
-      POSTGRESQL_DATABASE: santedb
+      POSTGRESQL_PASSWORD: ${SANTEMPI_POSTGRESQL_PASSWORD:-SanteDB123}
+      POSTGRESQL_USERNAME: ${SANTEMPI_POSTGRESQL_USERNAME:-santempi}
       REPMGR_NODE_NETWORK_NAME: santempi-psql-2
       REPMGR_PASSWORD: SanteDB123
       REPMGR_RECONNECT_INTERVAL: 3
@@ -30,9 +29,8 @@ services:
   santempi-psql-3:
     image: bitnami/postgresql-repmgr:14
     environment:
-      POSTGRESQL_PASSWORD: SanteDB123
-      POSTGRESQL_USERNAME: santedb
-      POSTGRESQL_DATABASE: santedb
+      POSTGRESQL_PASSWORD: ${SANTEMPI_POSTGRESQL_PASSWORD:-SanteDB123}
+      POSTGRESQL_USERNAME: ${SANTEMPI_POSTGRESQL_USERNAME:-santempi}
       REPMGR_NODE_NETWORK_NAME: santempi-psql-3
       REPMGR_PASSWORD: SanteDB123
       REPMGR_RECONNECT_INTERVAL: 3
