@@ -4,7 +4,7 @@ services:
   hapi-fhir:
     image: hapiproject/hapi:v5.7.0
     environment:
-      - spring.datasource.url=jdbc:postgresql://${POSTGRES_REPLICA_SET:-postgres-1:5432,postgres-2:5432}/hapi
+      - spring.datasource.url=jdbc:postgresql://${POSTGRES_REPLICA_SET:-postgres-1:5432}/hapi
       - spring.datasource.username=admin
       - spring.datasource.password=instant101
       - spring.datasource.driverClassName=org.postgresql.Driver

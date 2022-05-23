@@ -248,7 +248,7 @@ config::remove_config_importer() {
     docker service rm instant_"$config_importer_service_name"
 }
 
-# Waits for the provided service(s) to be removed
+# Waits for the provided service to be removed
 #
 # Arguments:
 # $1 : service name (eg. instant_analytics-datastore-elastic-search)
