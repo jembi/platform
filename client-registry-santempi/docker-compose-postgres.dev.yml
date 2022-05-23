@@ -3,6 +3,6 @@ version: '3.9'
 services:
   santempi-psql-1:
     ports:
-      - target: 5432
+      - target: 5433
         published: 5432
         mode: host
