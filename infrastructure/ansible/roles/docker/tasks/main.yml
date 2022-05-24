@@ -1,6 +1,10 @@
 ---
 - name: "pre : install python-simplejson and python3-pip"
-  raw: sudo apt install -y python-simplejson python3-pip virtualenv
+  apt:
+    pkg:
+      - python-simplejson
+      - python3-pip
+      - virtualenv
 
 - name: install certain python modules for docker
   pip:
