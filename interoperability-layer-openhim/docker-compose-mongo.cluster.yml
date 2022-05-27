@@ -7,7 +7,7 @@ services:
       placement:
         constraints:
           - "node.labels.name==node-1"
-  
+
   mongo-2:
     image: mongo:4.2
     volumes:
