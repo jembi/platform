@@ -3,7 +3,7 @@
   "name": "Dashboard Visualiser - JS Reports",
   "description": "A dashboard to interpret data from ElasticSearch data store",
   "type": "infrastructure",
-  "version": "v0.0.1",
+  "version": "0.0.1",
   "dependencies": ["analytics-datastore-elastic-search", "reverse-proxy-nginx"],
   "environmentVariables": {
     "JS_REPORT_SECRET": "dev_secret_only",
