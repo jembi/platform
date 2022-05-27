@@ -15,7 +15,7 @@ readonly COMPOSE_FILE_PATH
 ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/config-utils.sh"
 
-if [ $STATEFUL_NODES == "cluster" ]; then
+if [ "$STATEFUL_NODES" == "cluster" ]; then
   echo "Running FHIR Datastore HAPI FHIR package in Cluster node mode"
   postgresClusterComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose-postgres.cluster.yml"
 else
@@ -50,7 +50,7 @@ elif [ "$ACTION" == "up" ]; then
 elif [ "$ACTION" == "down" ]; then
   docker service scale instant_hapi-fhir=0 instant_postgres-1=0
 
-  if [ $STATEFUL_NODES == "cluster" ]; then
+  if [ "$STATEFUL_NODES" == "cluster" ]; then
     docker service scale instant_postgres-2=0 instant_postgres-3=0
   fi
 
@@ -62,7 +62,7 @@ elif [ "$ACTION" == "destroy" ]; then
 
   docker volume rm instant_hapi-postgres-1-data &>/dev/null
 
-  if [ $STATEFUL_NODES == "cluster" ]; then
+  if [ "$STATEFUL_NODES" == "cluster" ]; then
     docker service rm instant_postgres-2 instant_postgres-3 &>/dev/null
     config::await_service_removed instant_postgres-2
     config::await_service_removed instant_postgres-3
