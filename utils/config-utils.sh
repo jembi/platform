@@ -247,3 +247,17 @@ config::remove_config_importer() {
 
     docker service rm instant_"$config_importer_service_name"
 }
+
+# Waits for the provided service to be removed
+#
+# Arguments:
+# $1 : service name (eg. instant_analytics-datastore-elastic-search)
+config::await_service_removed() {
+    local -r SERVICE_NAME="${1:?"FATAL: await_service_removed SERVICE_NAME not provided"}"
+    local start_time=$(date +%s)
+
+    until [[ -z $(docker service ls -qf name="${SERVICE_NAME}") ]]; do
+        config::timeout_check $start_time "${SERVICE_NAME} to be removed"
+        sleep 1
+    done
+}
