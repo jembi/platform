@@ -5,6 +5,7 @@
       - python-simplejson
       - python3-pip
       - virtualenv
+    update_cache: yes
 
 - name: install certain python modules for docker
   pip:

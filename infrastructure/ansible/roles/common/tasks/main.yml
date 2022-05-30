@@ -1,7 +1,4 @@
 ---
-- name: 'pre : update apt cache'
-  raw: sudo apt update
-
 - name: enable passwordless sudo
   lineinfile:
     dest: /etc/sudoers
