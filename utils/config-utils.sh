@@ -1,17 +1,17 @@
 #!/bin/bash
-
+#
 # Library name: config
 # This is a library that contains functions to assist with docker configs
 
 # Sets the digest variables for the conf raft files in the provided docker compose file
-
+#
 # Requirements:
 # - All configs must have a file and name property
 # - The name property must end in -${DIGEST_VAR_NAME:?err} (eg. name: my-file-${MY_FILE_DIGEST:?err})
-
+#
 # Arguments:
 # $1 : docker compose directory path (eg. /home/user/project/docker-compose.yml)
-
+#
 # Exports:
 # As many digest environment variables as are declared in the provided docker compose file
 config::set_config_digests() {
@@ -93,10 +93,10 @@ config::remove_stale_service_configs() {
 }
 
 # Copies sharedConfigs into a package's container root directory
-
+#
 # Requirements:
 # - The package-metadata.json file requires a sharedConfigs property with an array of shared directories/files
-
+#
 # Arguments:
 # $1 : package metadata path (eg. /home/user/project/platform-implementation/packages/package/package-metadata.json)
 # $2 : container destination (eg. /usr/share/logstash/)
