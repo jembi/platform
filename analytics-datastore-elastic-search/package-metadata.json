@@ -6,11 +6,6 @@
   "version": "0.0.1",
   "dependencies": [],
   "environmentVariables": {
-    "ES_JAVA_OPTS": "-Xms512m -Xmx512m",
-    "ELASTICSEARCH_URL": "http://analytics-datastore-elastic-search:9200",
-    "ELASTICSEARCH_HOSTS": "http://analytics-datastore-elastic-search:9200",
-    "ELASTICSEARCH_USERNAME": "kibana_system",
-    "ELASTICSEARCH_PASSWORD": "${ES_KIBANA_SYSTEM}",
     "ES_LOGSTASH_SYSTEM": "dev_password_only",
     "ES_APM_SYSTEM": "dev_password_only",
     "ES_REMOTE_MONITORING_USER": "dev_password_only",
