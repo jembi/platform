@@ -29,7 +29,7 @@
             "# - ${2:A prerequisite that needs to be met for this function to perform as expected}",
             "#",
             "# Arguments:",
-            "# \\$1 : ${3:The description of the first argument}",
+            "# - \\$1 : ${3:The description of the first argument}",
             "#",
             "# Exports:",
             "# ${4:What is being exported from this function}",
