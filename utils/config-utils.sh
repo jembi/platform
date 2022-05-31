@@ -1,34 +1,17 @@
 #!/bin/bash
-#
+
 # Library name: config
 # This is a library that contains functions to assist with docker configs
 
-# Installs a dependency using apt
-#
-# Arguments:
-# $1 : dependency name (eg. jq)
-config::install_apt_dependency() {
-    local -r DEPENDENCY_NAME=$1
-
-    if [[ -z $(command -v "${DEPENDENCY_NAME}") ]]; then
-        apt install "${DEPENDENCY_NAME}" -y &>/dev/null
-
-        if [[ -z $(command -v "${DEPENDENCY_NAME}") ]]; then
-            echo "Failed to install dependency ${DEPENDENCY_NAME}"
-            exit 1
-        fi
-    fi
-}
-
 # Sets the digest variables for the conf raft files in the provided docker compose file
-#
+
 # Requirements:
 # - All configs must have a file and name property
 # - The name property must end in -${DIGEST_VAR_NAME:?err} (eg. name: my-file-${MY_FILE_DIGEST:?err})
-#
+
 # Arguments:
 # $1 : docker compose directory path (eg. /home/user/project/docker-compose.yml)
-#
+
 # Exports:
 # As many digest environment variables as are declared in the provided docker compose file
 config::set_config_digests() {
@@ -110,10 +93,10 @@ config::remove_stale_service_configs() {
 }
 
 # Copies sharedConfigs into a package's container root directory
-#
+
 # Requirements:
 # - The package-metadata.json file requires a sharedConfigs property with an array of shared directories/files
-#
+
 # Arguments:
 # $1 : package metadata path (eg. /home/user/project/platform-implementation/packages/package/package-metadata.json)
 # $2 : container destination (eg. /usr/share/logstash/)
@@ -122,12 +105,6 @@ config::copy_shared_configs() {
     local -r PACKAGE_METADATA_PATH=$1
     local -r CONTAINER_DESTINATION=$2
     local serviceId=$3
-
-    if [[ -z $SERVICE_ID ]]; then
-        serviceId=$(jq '.id' "${PACKAGE_METADATA_PATH}" | sed 's/\"//g')
-    fi
-
-    config::install_apt_dependency "jq"
 
     local -r sharedConfigs=($(jq '.sharedConfigs[]' "${PACKAGE_METADATA_PATH}"))
     local -r packageBaseDir=$(dirname "${PACKAGE_METADATA_PATH}")
