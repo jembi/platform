@@ -34,13 +34,6 @@ config::install_apt_dependency() {
 config::set_config_digests() {
     local -r DOCKER_COMPOSE_PATH=$1
 
-    # install dependencies
-    config::install_apt_dependency "wget"
-    if [[ -z $(command -v yq) ]]; then
-        wget https://github.com/mikefarah/yq/releases/download/v4.23.1/yq_linux_amd64 -O /usr/bin/yq &>/dev/null
-        chmod +x /usr/bin/yq
-    fi
-
     # Get configs files and names from yml file
     local -r files=($(yq '.configs."*.*".file' "${DOCKER_COMPOSE_PATH}"))
     local -r names=($(yq '.configs."*.*".name' "${DOCKER_COMPOSE_PATH}"))
@@ -71,13 +64,6 @@ config::set_config_digests() {
 config::remove_stale_service_configs() {
     local -r DOCKER_COMPOSE_PATH=$1
     local -r CONFIG_LABEL=$2
-
-    # install dependencies
-    config::install_apt_dependency "wget"
-    if [[ -z $(command -v yq) ]]; then
-        wget https://github.com/mikefarah/yq/releases/download/v4.23.1/yq_linux_amd64 -O /usr/bin/yq &>/dev/null
-        chmod +x /usr/bin/yq
-    fi
 
     local -r composeNames=($(yq '.configs."*.*".name' "${DOCKER_COMPOSE_PATH}"))
     local configsToRemove=()
