@@ -4,12 +4,6 @@
   "description": "A FHIR compliant server for the platform",
   "version": "0.0.1",
   "environmentVariables": {
-    "POSTGRESQL_PASSWORD": "instant101",
-    "POSTGRESQL_USERNAME": "admin",
-    "POSTGRESQL_DATABASE": "hapi",
-    "REPMGR_NODE_NETWORK_NAME": "postgres-1",
-    "REPMGR_PASSWORD": "instant101",
-    "REPMGR_NODE_NAME": "postgres-1",
     "REPMGR_PRIMARY_HOST": "postgres-1",
     "REPMGR_PARTNER_NODES": "postgres-1,postgres-2,postgres-3",
     "HAPI_FHIR_CPU_LIMIT": "0.8",
