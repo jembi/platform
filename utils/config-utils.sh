@@ -106,6 +106,10 @@ config::copy_shared_configs() {
     local -r CONTAINER_DESTINATION=$2
     local serviceId=$3
 
+    if [[ -z $SERVICE_ID ]]; then
+        serviceId=$(jq '.id' "${PACKAGE_METADATA_PATH}" | sed 's/\"//g')
+    fi
+
     local -r sharedConfigs=($(jq '.sharedConfigs[]' "${PACKAGE_METADATA_PATH}"))
     local -r packageBaseDir=$(dirname "${PACKAGE_METADATA_PATH}")
     local -r containerId=$(docker container ls -qlf name=instant_"${serviceId}")
