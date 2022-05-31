@@ -5,7 +5,6 @@
   "version": "1.0.0",
   "dependencies": ["reverse-proxy-nginx"],
   "environmentVariables": {
-    "OPENHIM_CORE_SERVICE_NAME": "openhim-core",
     "OPENHIM_MEDIATOR_API_PORT": "8080",
     "MONGO_SET_COUNT": "1",
     "OPENHIM_CORE_INSTANCES": "1",
