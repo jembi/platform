@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "$ref": "#/definitions/Config",
+  "definitions": {
+    "Config": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "image": {
+          "type": "string"
+        },
+        "defaultTargetLauncher": {
+          "type": "string"
+        },
+        "disableKubernetes": {
+          "type": "boolean"
+        },
+        "disableIG": {
+          "type": "boolean"
+        },
+        "disableCustomTargetSelection": {
+          "type": "boolean"
+        },
+        "packages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Package"
+          }
+        }
+      },
+      "required": [
+        "defaultTargetLauncher",
+        "disableCustomTargetSelection",
+        "disableIG",
+        "disableKubernetes",
+        "image",
+        "packages"
+      ],
+      "title": "Config"
+    },
+    "Package": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": ["id", "name"],
+      "title": "Package"
+    }
+  }
+}

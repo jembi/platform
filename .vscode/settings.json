@@ -4,5 +4,8 @@
       "fileMatch": ["package-metadata.json"],
       "url": "./schemas/package-metadata.json"
     }
-  ]
+  ],
+  "yaml.schemas": {
+    "./schemas/config.json": "config.yml"
+  },
 }
