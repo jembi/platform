@@ -13,7 +13,7 @@
     version: "{{ item.version }}"
     state: present
   with_items:
-  - { name: docker, version: 3.3.0 }
+  - { name: docker, version: 5.0.3 }
 
 - name: "install docker dependency : apt-transport-https"
   apt:
