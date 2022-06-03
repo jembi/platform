@@ -1,5 +1,8 @@
 #!/bin/bash
 
-sleep 5000
+COMPOSE_FILE_PATH=$(
+  cd "$(dirname "${BASH_SOURCE[0]}")" || exit
+  pwd -P
+)
 
-./go-scripts/go-scripts $1 $2
+"$COMPOSE_FILE_PATH"/swarm -action="$1" -mode="$2" -path="$COMPOSE_FILE_PATH"
