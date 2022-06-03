@@ -8,8 +8,10 @@ readonly OPENHIM_CORE_MEDIATOR_HOSTNAME=${OPENHIM_CORE_MEDIATOR_HOSTNAME:-"local
 readonly OPENHIM_MEDIATOR_API_PORT=${OPENHIM_MEDIATOR_API_PORT:-"8080"}
 readonly OPENHIM_CORE_INSTANCES=${OPENHIM_CORE_INSTANCES:-1}
 readonly MONGO_SET_COUNT=${MONGO_SET_COUNT:-3}
+
 TIMESTAMP="$(date "+%Y%m%d%H%M%S")"
 readonly TIMESTAMP
+
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
   pwd -P
@@ -17,7 +19,6 @@ COMPOSE_FILE_PATH=$(
 readonly COMPOSE_FILE_PATH
 
 # Import libraries
-
 ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/config-utils.sh"
 
@@ -141,10 +142,14 @@ main() {
 
     docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose-mongo.yml "${mongo_cluster_compose_param[@]}" "${mongo_dev_compose_param[@]}" instant
 
-    # Set up the replica set
-    if ! "${COMPOSE_FILE_PATH}"/initiateReplicaSet.sh; then
-      echo "Fatal: Initate Mongo replica set failed."
-      exit 1
+    if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
+
+      # Set up the replica set
+      if ! "${COMPOSE_FILE_PATH}"/initiateReplicaSet.sh; then
+        echo "Fatal: Initate Mongo replica set failed."
+        exit 1
+      fi
+
     fi
 
     prepare_console_config
@@ -192,25 +197,42 @@ main() {
     fi
   elif [[ "${ACTION}" == "down" ]]; then
     echo "Scaling down services..."
-    if ! docker service scale instant_openhim-core=0 instant_openhim-console=0 instant_mongo-1=0 instant_mongo-2=0 instant_mongo-3=0 >/dev/null; then
+    if ! docker service scale instant_openhim-core=0 instant_openhim-console=0 instant_mongo-1=0 >/dev/null; then
       echo "Error scaling down services"
+    fi
+
+    if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
+      if ! docker service scale instant_mongo-2=0 instant_mongo-3=0 >/dev/null; then
+        echo "Error scaling down services"
+      fi
     fi
     echo "Done scaling down services"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    docker service rm instant_openhim-core instant_openhim-console instant_mongo-1 instant_mongo-2 instant_mongo-3 instant_await-helper
-    docker service rm instant_interoperability-layer-openhim-config-importer
+    docker service rm instant_openhim-core instant_openhim-console instant_mongo-1 instant_await-helper instant_interoperability-layer-openhim-config-importer &>/dev/null
 
-    echo "Sleep 10 Seconds to allow services to shut down before deleting volumes"
-    sleep 10
+    config::await_service_removed instant_openhim-core
+    config::await_service_removed instant_openhim-console
+    config::await_service_removed instant_mongo-1
+    config::await_service_removed instant_await-helper
+    config::await_service_removed instant_interoperability-layer-openhim-config-importer
 
-    docker volume rm instant_openhim-mongo1 instant_openhim-mongo2 instant_openhim-mongo3
+    docker volume rm instant_openhim-mongo1 &>/dev/null
 
     # shellcheck disable=SC2046 # intentional word splitting
-    docker config rm $(docker config ls -qf label=name=openhim)
+    docker config rm $(docker config ls -qf label=name=openhim) &>/dev/null
 
     if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
       echo "Volumes are only deleted on the host on which the command is run. Mongo volumes on other nodes are not deleted"
+
+      docker service rm instant_mongo-2 instant_mongo-3 &>/dev/null
+      config::await_service_removed instant_mongo-2
+      config::await_service_removed instant_mongo-3
+      docker volume rm instant_openhim-mongo2 instant_openhim-mongo3 &>/dev/null
+
+      # shellcheck disable=SC2046 # intentional word splitting
+      docker config rm $(docker config ls -qf label=name=openhim) &>/dev/null
     fi
+
   else
     echo "Valid options are: init, up, down, or destroy"
   fi

@@ -1,0 +1,20 @@
+{
+    "name": "elasticSearchConnTestTemplate",
+    "engine": "handlebars",
+    "recipe": "chrome-pdf",
+    "shortid": "FADVP6Lsc",
+    "chrome": {
+        "printBackground": true
+    },
+    "creationDate": {
+        "$$date": 1652944733941
+    },
+    "modificationDate": {
+        "$$date": 1652944733941
+    },
+    "inheritedReadPermissions": [],
+    "inheritedEditPermissions": [],
+    "_id": "wvi1DGuMBN75BpZE",
+    "$entitySet": "templates"
+
+}
