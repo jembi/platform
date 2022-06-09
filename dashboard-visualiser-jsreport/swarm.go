@@ -12,7 +12,9 @@ import (
 	"github.com/docker/cli/cli/command/stack/options"
 
 	// "github.com/docker/cli/cli/command/stack/swarm"
-	// deploy "github.com/docker/cli/cli/command/stack/swarm"
+	deploy "github.com/docker/cli/cli/command/stack/swarm"
+	// github.com/docker/swarmkit v1.12.1-0.20220414183841-676f45ffddc0 // indirect
+
 	composeTypes "github.com/docker/cli/cli/compose/types"
 	cliflags "github.com/docker/cli/cli/flags"
 	"github.com/docker/docker/api/types"
@@ -83,6 +85,7 @@ func packageInit(dir string, composeFiles ...string) error {
 	options := options.Deploy{
 		Composefiles: composeFiles,
 		Namespace:    "instant",
+		ResolveImage: "",
 	}
 
 	cli, err := command.NewDockerCli()
@@ -103,10 +106,11 @@ func packageInit(dir string, composeFiles ...string) error {
 		return err
 	}
 
-	// err = deploy.RunDeploy(cli, options, config)
-	// if err != nil {
-	// 	return err
-	// }
+	err = deploy.RunDeploy(cli, options, config)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
 
 	containerSpec, err := parseContainerOptions(config)
 	if err != nil {
