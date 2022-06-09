@@ -1,8 +1,9 @@
 #!/bin/bash
 
 packages=(
-    "dashboard-visualiser-jsreport"
-    "dashboard-visualiser-kibana"
+    # "dashboard-visualiser-jsreport"
+    "analytics-datastore-elastic-search"
+    # "dashboard-visualiser-kibana"
 )
 
 build_go_binary() {
