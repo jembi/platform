@@ -3,7 +3,6 @@ package utils
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os/exec"
 	"strings"
 	"time"
@@ -61,7 +60,6 @@ func checkSubCommand(command string) (string, error) {
 		str := splitStrings[1]
 		output, err = BashExecute(str[1 : len(str)-1])
 		if err != nil {
-			fmt.Println(err)
 			return "", err
 		}
 	} else {
@@ -69,11 +67,6 @@ func checkSubCommand(command string) (string, error) {
 	}
 
 	str := splitStrings[0]
-	// exec := str[:len(str)-1] + output
-	// output, err = BashExecute(str[:len(str)-1] + output)
-	// output, err = Bash()
-
-	// strings.spl
 
 	return BashExecute(str[:len(str)-1] + output)
 }
@@ -99,8 +92,8 @@ func StackDeploy(dir string, composeFiles ...string) error {
 	if err != nil {
 		return err
 	}
-
 	fmt.Println(output)
+
 	return err
 }
 
@@ -202,8 +195,6 @@ func AwaitContainerReady(serviceName string, warningTime, exitTime time.Duration
 
 	output, err := Bash("docker inspect -f '{{.State.Status}}' $(docker ps -qlf name=instant_analytics-datastore-elastic-search)")
 	if err != nil {
-		log.Println(err)
-		fmt.Println("oops")
 		return err
 	}
 	for !strings.Contains(output, "running") {
@@ -258,23 +249,3 @@ func timeoutCheck(startTime time.Time, warningTime, exitTime time.Duration, serv
 
 	return nil
 }
-
-// #!/bin/bash
-
-// # COMPOSE_FILE_PATH=$(
-// #   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
-// #   pwd -P
-// # )
-
-// # S_NODES="${STATEFUL_NODES:-"cluster"}"
-
-// COMPOSE_FILE_PATH="/home/markl/Documents/Projects/platform/analytics-datastore-elastic-search"
-
-// GOOS=linux GOARCH=amd64 go build -o swarm
-// # echo "1 = $1"
-// # echo "2 = $2"
-// # echo "COMPOSE_FILE_PATH = $COMPOSE_FILE_PATH"
-// # echo "S_NODES = $S_NODES"
-
-// # "$COMPOSE_FILE_PATH"/swarm -action="$1" -mode="$2" -path="$COMPOSE_FILE_PATH" -statefulNodes="$S_NODES"
-// "$COMPOSE_FILE_PATH"/swarm -action="init" -mode="dev" -path="$COMPOSE_FILE_PATH" -statefulNodes="single"

@@ -8,7 +8,6 @@ import (
 )
 
 var (
-	// EnvVars       = make(map[string]string)
 	mode          *string
 	action        *string
 	packagePath   *string
@@ -29,15 +28,6 @@ func init() {
 }
 
 func main() {
-	// v1 := "init"
-	// v2 := "dev"
-	// v3 := "/home/markl/Documents/Projects/platform/analytics-datastore-elastic-search"
-	// v4 := "single"
-	// action = &v1
-	// mode = &v2
-	// packagePath = &v3
-	// statefulNodes = &v4
-
 	composeFiles := []string{"docker-compose.yml"}
 	if *mode == "dev" {
 		composeFiles = append(composeFiles, "docker-compose.dev.yml")
@@ -76,7 +66,6 @@ func packageInit(dir string, composeFiles ...string) error {
 
 	err = utils.AwaitContainerReady("analytics-datastore-elastic-search", 0, 0)
 	if err != nil {
-		log.Println(err)
 		return err
 	}
 
