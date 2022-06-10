@@ -108,49 +108,55 @@ ImportElasticIndex() {
   config::remove_config_importer elastic-search-config-importer
 }
 
-if [[ "$STATEFUL_NODES" == "cluster" ]]; then
-  printf "\nRunning Analytics Datastore Elastic Search package in Cluster node mode\n"
-  ElasticSearchClusterComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.cluster.yml"
-else
-  printf "\nRunning Analytics Datastore Elastic Search package in Single node mode\n"
-  ElasticSearchClusterComposeParam=""
-fi
-
-if [[ "$Mode" == "dev" ]]; then
-  printf "\nRunning Analytics Datastore Elastic Search package in DEV mode\n"
-  ElasticSearchDevComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
-else
-  printf "\nRunning Analytics Datastore Elastic Search package in PROD mode\n"
-  ElasticSearchDevComposeParam=""
-fi
-
-if [[ "$Action" == "init" ]]; then
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $ElasticSearchClusterComposeParam $ElasticSearchDevComposeParam instant
-
-  echo "Waiting for elasticsearch to start before automatically setting built-in passwords..."
-  AwaitContainerStartup
-  AwaitContainerReady
-
-  InstallExpect
-  SetElasticsearchPasswords
-
-  ImportElasticIndex
-
-  echo "Done initialising"
-elif [[ "$Action" == "up" ]]; then
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $ElasticSearchClusterComposeParam $ElasticSearchDevComposeParam instant
-elif [[ "$Action" == "down" ]]; then
-  docker service scale instant_analytics-datastore-elastic-search=0
-elif [[ "$Action" == "destroy" ]]; then
-  docker service rm instant_analytics-datastore-elastic-search
-
-  AwaitContainerDestroy
-
-  docker volume rm instant_es-data
-
+main() {
   if [[ "$STATEFUL_NODES" == "cluster" ]]; then
-    echo "Volumes are only deleted on the host on which the command is run. Elastic Search volumes on other nodes are not deleted"
+    printf "\nRunning Analytics Datastore Elastic Search package in Cluster node mode\n"
+    ElasticSearchClusterComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.cluster.yml"
+  else
+    printf "\nRunning Analytics Datastore Elastic Search package in Single node mode\n"
+    ElasticSearchClusterComposeParam=""
   fi
-else
-  echo "Valid options are: init, up, down, or destroy"
-fi
+
+  if [[ "$Mode" == "dev" ]]; then
+    printf "\nRunning Analytics Datastore Elastic Search package in DEV mode\n"
+    ElasticSearchDevComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
+  else
+    printf "\nRunning Analytics Datastore Elastic Search package in PROD mode\n"
+    ElasticSearchDevComposeParam=""
+  fi
+
+  if [[ "$Action" == "init" ]]; then
+    docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $ElasticSearchClusterComposeParam $ElasticSearchDevComposeParam instant
+
+    echo "Waiting for elasticsearch to start before automatically setting built-in passwords..."
+    AwaitContainerStartup
+    AwaitContainerReady
+
+    InstallExpect
+    SetElasticsearchPasswords
+
+    ImportElasticIndex
+
+    echo "Done initialising"
+  elif [[ "$Action" == "up" ]]; then
+    docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $ElasticSearchClusterComposeParam $ElasticSearchDevComposeParam instant
+  elif [[ "$Action" == "down" ]]; then
+    docker service scale instant_analytics-datastore-elastic-search=0
+  elif [[ "$Action" == "destroy" ]]; then
+    docker service rm instant_analytics-datastore-elastic-search
+
+    AwaitContainerDestroy
+
+    docker volume rm instant_es-data
+
+    if [[ "$STATEFUL_NODES" == "cluster" ]]; then
+      echo "Volumes are only deleted on the host on which the command is run. Elastic Search volumes on other nodes are not deleted"
+    fi
+  else
+    echo "Valid options are: init, up, down, or destroy"
+  fi
+}
+
+# main "$@"
+
+node "${COMPOSE_FILE_PATH}/scripts/dist/swarm.js" $Action $Mode
