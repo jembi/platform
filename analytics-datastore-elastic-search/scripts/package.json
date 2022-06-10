@@ -1,0 +1,19 @@
+{
+  "name": "analytics-datastore-elastic-search",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "node esbuild"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dockerode": "3.3.2"
+  },
+  "devDependencies": {
+    "@types/dockerode": "^3.3.9",
+    "esbuild": "0.14.43"
+  }
+}
