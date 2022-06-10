@@ -1,0 +1,6 @@
+{
+	"id": "client-registry-jempi",
+	"name": "JeMPI client registry",
+	"description": "This is a client registry",
+	"dependencies": []
+}

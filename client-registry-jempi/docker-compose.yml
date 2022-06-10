@@ -1,0 +1,500 @@
+version: '3.9'
+
+networks:
+  backend-kafka:
+    name: backend-kafka
+    driver: overlay
+    attachable: true
+  backend-dgraph:
+    name: backend-dgraph
+    driver: overlay
+    attachable: true
+  frontend-api:
+    name: frontend-api
+    driver: overlay
+    attachable: true
+
+services:
+  zookeeper:
+    image: ${REGISTRY_NODE_IP}:5000/v2/bitnami/zookeeper:3.8.0
+    networks:
+      - backend-kafka
+    ports:
+      - published: 2181
+        target: 2181
+    environment:
+      ALLOW_ANONYMOUS_LOGIN: 'yes'
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+
+  kafka-1:
+    image: ${REGISTRY_NODE_IP}:5000/v2/bitnami/kafka:3.1.1
+    user: root
+    networks:
+      - backend-kafka
+    ports:
+      - target: 9093
+        published: 9093
+        protocol: tcp
+        mode: host
+    environment:
+      ALLOW_PLAINTEXT_LISTENER: 'yes'
+      KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CFG_LISTENERS: CLIENT://:9092,EXTERNAL://:9093
+      KAFKA_CFG_ADVERTISED_LISTENERS: CLIENT://kafka-1:9092,EXTERNAL://localhost:9093
+      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: CLIENT   
+    volumes:
+      - type: volume
+        source: kafka-1
+        target: /bitnami/kafka
+        read_only: false
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure     
+
+  kafka-2:
+    image: ${REGISTRY_NODE_IP}:5000/v2/bitnami/kafka:3.1.1 
+    user: root
+    networks:
+      - backend-kafka
+    environment:
+        ALLOW_PLAINTEXT_LISTENER: 'yes'
+        KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
+        KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CLIENT:PLAINTEXT
+        KAFKA_CFG_LISTENERS: CLIENT://:9092
+        KAFKA_CFG_ADVERTISED_LISTENERS: CLIENT://kafka-2:9092
+        KAFKA_CFG_INTER_BROKER_LISTENER_NAME: CLIENT    
+    volumes:
+      - type: volume
+        source: kafka-2
+        target: /bitnami/kafka
+        read_only: false
+    deploy:
+      mode: replicated
+      replicas:  1
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M 
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+
+  kafka-3:
+    image: ${REGISTRY_NODE_IP}:5000/v2/bitnami/kafka:3.1.1 
+    user: root
+    networks:
+      - backend-kafka
+    environment:
+        ALLOW_PLAINTEXT_LISTENER: 'yes'
+        KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
+        KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CLIENT:PLAINTEXT
+        KAFKA_CFG_LISTENERS: CLIENT://:9092
+        KAFKA_CFG_ADVERTISED_LISTENERS: CLIENT://kafka-3:9092
+        KAFKA_CFG_INTER_BROKER_LISTENER_NAME: CLIENT    
+    volumes:
+      - type: volume
+        source: kafka-3
+        target: /bitnami/kafka
+        read_only: false
+    deploy:
+      mode: replicated
+      replicas:  1
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M  
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+
+  zero:
+    image: ${REGISTRY_NODE_IP}:5000/v2/dgraph/dgraph:v21.12.0
+    hostname: "zero"
+    networks:
+    - backend-dgraph
+    ports:
+    - published: 5080
+      target: 5080
+      protocol: tcp
+      mode: host
+    - published: 6080
+      target: 6080
+      protocol: tcp
+      mode: host
+    volumes:
+    - type: volume
+      source: zero
+      target: /dgraph
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M    
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+    command: dgraph zero --my=zero:5080 --replicas 1
+
+  alpha1:
+    image: ${REGISTRY_NODE_IP}:5000/v2/dgraph/dgraph:v21.12.0
+    hostname: "alpha1"
+    networks:
+    - backend-dgraph
+    volumes:
+    - type: volume
+      source: alpha1
+      target: /dgraph
+    ports:
+    - published: 8080
+      target: 8080
+      protocol: tcp
+      mode: host
+    - published: 9080
+      target: 9080
+      protocol: tcp
+      mode: host
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 2.5G
+        reservations:
+          memory: 512M
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+    command: dgraph alpha --my=alpha1:7080 --zero=zero:5080 --security whitelist=0.0.0.0/0
+
+  alpha2:
+    image: ${REGISTRY_NODE_IP}:5000/v2/dgraph/dgraph:v21.12.0
+    hostname: "alpha2"
+    networks:
+    - backend-dgraph
+    volumes:
+    - type: volume
+      source: alpha2
+      target: /dgraph
+    ports:
+    - published: 8081
+      target: 8081
+      protocol: tcp
+      mode: host
+    - published: 9081
+      target: 9081
+      protocol: tcp
+      mode: host
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 2.5G
+        reservations:
+          memory: 512M
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+    command: dgraph alpha --my=alpha2:7081 --zero=zero:5080 --security whitelist=0.0.0.0/0 -o 1
+
+  alpha3:
+    image: ${REGISTRY_NODE_IP}:5000/v2/dgraph/dgraph:v21.12.0
+    hostname: "alpha3"
+    networks:
+    - backend-dgraph
+    volumes:
+    - type: volume
+      source: alpha3
+      target: /dgraph
+    ports:
+    - published: 8082
+      target: 8082
+      protocol: tcp
+      mode: host
+    - published: 9082
+      target: 9082
+      protocol: tcp
+      mode: host
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 2.5G
+        reservations:
+          memory: 512M
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+    command: dgraph alpha --my=alpha3:7082 --zero=zero:5080 --security whitelist=0.0.0.0/0 -o 2
+
+  ratel:
+    image: ${REGISTRY_NODE_IP}:5000/v2/dgraph/ratel:v21.12.0
+    ports:
+    - published: 8000
+      target: 8000
+      protocol: tcp
+      mode: host                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+    networks:
+    - backend-dgraph
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 32M
+        reservations:
+          memory: 32M
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+    command: dgraph-ratel
+    
+  test-01:
+    image: ${REGISTRY_NODE_IP}:5000/v2/test_01:1.0-SNAPSHOT
+    networks:
+    - backend-kafka
+    volumes:
+    - type: volume
+      source: test-01-logs
+      target: /app/logs
+      read_only: false
+    - type: volume
+      source: test-01-csv
+      target: /app/csv
+      read_only: true
+    - type: volume
+      source: test-01-conf
+      target: /app/conf
+      read_only: true
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M     
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+
+  staging-01:
+    image: ${REGISTRY_NODE_IP}:5000/v2/staging_01:1.0-SNAPSHOT
+    networks:
+    - backend-kafka
+    volumes:
+    - type: volume
+      source: staging-01-conf
+      target: /app/conf
+      read_only: true
+    - type: volume
+      source: staging-01-logs
+      target: /app/logs
+      read_only: false
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M       
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+   
+  controller:
+    image: ${REGISTRY_NODE_IP}:5000/v2/controller:1.0-SNAPSHOT
+    networks:
+    - backend-kafka
+    volumes:
+    - type: volume
+      source: controller-conf
+      target: /app/conf
+      read_only: true
+    - type: volume
+      source: controller-logs
+      target: /app/logs
+      read_only: false
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+       
+  em:
+    image: ${REGISTRY_NODE_IP}:5000/v2/em:1.0-SNAPSHOT
+    networks:
+    - backend-kafka
+    volumes:
+    - type: volume
+      source: em-conf
+      target: /app/conf
+      read_only: true
+    - type: volume
+      source: em-logs
+      target: /app/logs
+      read_only: false
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 1.5G
+        reservations:
+          memory: 512M        
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+
+  linker:
+    image: ${REGISTRY_NODE_IP}:5000/v2/linker:1.0-SNAPSHOT
+    networks:
+    - backend-kafka
+    - backend-dgraph
+    ports:
+    - published: 50010
+      target: 50000
+      protocol: tcp
+      mode: host  
+    volumes:
+    - type: volume
+      source: linker-conf
+      target: /app/conf
+      read_only: true
+    - type: volume
+      source: linker-logs
+      target: /app/logs
+      read_only: false
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          memory: 1.5G
+        reservations:
+          memory: 512M  
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+
+  api:
+    image: ${REGISTRY_NODE_IP}:5000/v2/api:1.0-SNAPSHOT
+    networks:
+    - backend-dgraph
+    - frontend-api
+    ports:
+    - published: 50000
+      target: 50000
+      protocol: tcp
+      mode: host  
+    volumes:
+    - type: volume
+      source: api-conf
+      target: /app/conf
+      read_only: true
+    - type: volume
+      source: api-logs
+      target: /app/logs
+      read_only: false
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 0
+
+volumes:
+  kafka-1:
+  kafka-2:
+  kafka-3:
+  zero:
+  alpha1:
+  alpha2:
+  alpha3:
+  test-01-logs:
+  test-01-csv:
+  test-01-conf:
+  staging-01-logs:
+  staging-01-conf:
+  controller-conf:
+  controller-logs:
+  em-conf:
+  em-logs:
+  linker-conf:
+  linker-logs:
+  api-conf:
+  api-logs:

@@ -1,0 +1,33 @@
+version: '3.9'
+
+services:
+  # container for executing config import scripts for setting up initial config
+  jempi-openhim-config-importer:
+    image: jembi/instantohie-config-importer
+    deploy:
+      restart_policy:
+        condition: none
+    environment:
+      OPENHIM_API_HOSTNAME: 'openhim-core'
+      OPENHIM_API_PORT: 8080
+      OPENHIM_API_USERNAME: 'root@openhim.org'
+      OPENHIM_API_PASSWORD: 'instant101'
+      # Reject unauthorised is only needed if the OpenHIM's SSL is not setup
+      NODE_TLS_REJECT_UNAUTHORIZED: 0
+    configs:
+      - source: jempi-openhim-config-openhimConfig.js
+        target: /openhimConfig.js
+      - source: jempi-openhim-config-openhim-import.json
+        target: /openhim-import.json
+    # This command will only attempt to import the OpenHIM config when the heartbeat responds with a 2xx
+    command: sh -c "wait-on -t 60000 https-get://openhim-core:8080/heartbeat && node /openhimConfig.js"
+
+configs:
+  jempi-openhim-config-openhimConfig.js:
+    file: ./importer/openhim/openhimConfig.js
+    labels:
+      name: jempi
+  jempi-openhim-config-openhim-import.json:
+    file: ./importer/openhim/openhim-import.json
+    labels:
+      name: jempi
