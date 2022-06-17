@@ -8,4 +8,4 @@ RUN chmod +x /usr/bin/yq
 
 # Install jq
 
-RUN apt-get install jq -y
+RUN apt-get install jq -y 1>/dev/null
