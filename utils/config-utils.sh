@@ -228,3 +228,32 @@ config::await_service_removed() {
         sleep 1
     done
 }
+
+# Generates configs for a service from a folder and adds them to a temp docker-compose file
+#
+# Arguments:
+# $1 : service name (eg. data-mapper-logstash)
+# $2 : target base (eg. /usr/share/logstash/)
+# $3 : target folder (eg. config)
+# $4 : label (eg. logstash)
+config::generate_service_configs() {
+    SERVICE_NAME=${1:-data-mapper-logstash}
+    TARGET_BASE=${2:-/usr/share/logstash/}
+    TARGET_FOLDER=${3:-pipeline}
+    LABEL=$4
+
+    touch docker-compose.tmp.yml
+    count=0
+    find "${TARGET_FOLDER}" -maxdepth 10 -mindepth 1 -type f | while read -r file; do
+        export config_query=".services.${SERVICE_NAME}.configs[${count}]"
+        export target="${TARGET_BASE}${file}"
+
+        yq -i '
+        .version = "3.9" |
+        eval(strenv(config_query)).target = env(target) |
+        eval(strenv(config_query)).source = env(target)
+        ' docker-compose.tmp.yml
+
+        count=$((count + 1))
+    done
+}
