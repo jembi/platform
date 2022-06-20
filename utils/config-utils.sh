@@ -234,24 +234,32 @@ config::await_service_removed() {
 # Arguments:
 # $1 : service name (eg. data-mapper-logstash)
 # $2 : target base (eg. /usr/share/logstash/)
-# $3 : target folder (eg. config)
-# $4 : label (eg. logstash)
+# $3 : target folder path in absolute format (eg. /home/config)
 config::generate_service_configs() {
-    SERVICE_NAME=${1:-data-mapper-logstash}
-    TARGET_BASE=${2:-/usr/share/logstash/}
-    TARGET_FOLDER=${3:-pipeline}
-    LABEL=$4
+    local -r SERVICE_NAME=${1}
+    local -r TARGET_BASE=${2}
+    local -r TARGET_FOLDER_PATH=${3}
+    local -r TARGET_FOLDER_NAME=$(basename "${TARGET_FOLDER_PATH}")
+    local count=0
 
     touch docker-compose.tmp.yml
-    count=0
-    find "${TARGET_FOLDER}" -maxdepth 10 -mindepth 1 -type f | while read -r file; do
+
+    find "${TARGET_FOLDER_PATH}" -maxdepth 10 -mindepth 1 -type f | while read -r file; do
+        file_name=${file/"${TARGET_FOLDER_PATH%/}"/}
+        file_name=${file_name:1}
+
         export config_query=".services.${SERVICE_NAME}.configs[${count}]"
-        export target="${TARGET_BASE}${file}"
+        export config_target="${TARGET_BASE%/}/${TARGET_FOLDER_NAME}/${file_name}"
+        export config_source=$(cksum "${file}" | awk '{print $1}')
+
+        if [[ -z $(docker config ls -qf name="${config_source}") ]]; then
+            docker config create --label name="${TARGET_FOLDER_NAME}/${file_name}" --label service="${SERVICE_NAME}" "${config_source}" "${file}"
+        fi
 
         yq -i '
         .version = "3.9" |
-        eval(strenv(config_query)).target = env(target) |
-        eval(strenv(config_query)).source = env(target)
+        eval(strenv(config_query)).target = env(config_target) |
+        eval(strenv(config_query)).source = strenv(config_source)
         ' docker-compose.tmp.yml
 
         count=$((count + 1))
