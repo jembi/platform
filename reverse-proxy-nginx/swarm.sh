@@ -22,6 +22,10 @@ main() {
       echo "Not starting reverse proxy as we are running DEV mode"
       exit 0
     fi
+    if [[ $(docker service ps instant_reverse-proxy-nginx --format '{{.CurrentState}}') == *"Running"* ]]; then
+      echo "Skipping reverse proxy reload as it is already up"
+      exit 0
+    fi
 
     docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.yml instant
 
