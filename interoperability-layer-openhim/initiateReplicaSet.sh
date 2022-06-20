@@ -2,6 +2,14 @@
 
 echo 'Initiating the mongo replica set'
 
+COMPOSE_FILE_PATH=$(
+    cd "$(dirname "${BASH_SOURCE[0]}")" || exit
+    pwd -P
+)
+
+ROOT_PATH="${COMPOSE_FILE_PATH}/.."
+. "${ROOT_PATH}/utils/config-utils.sh"
+
 MONGO_SET_COUNT=${MONGO_SET_COUNT:-3}
 Config='{"_id":"mongo-set","members":['
 Priority="1"
@@ -18,14 +26,7 @@ echo 'Waiting to ensure all the mongo instances for the replica set are up and r
 RunningInstanceCount=0
 StartTime=$(date +%s)
 until [[ $RunningInstanceCount -eq $MONGO_SET_COUNT ]]; do
-    TimeDiff=$(($(date +%s) - $StartTime))
-    if [[ $TimeDiff -ge 60 ]] && [[ $TimeDiff -lt 61 ]]; then
-        echo "Warning: Waited 1 minute for mongo set to start. This is taking longer than it should..."
-    elif [[ $TimeDiff -ge 120 ]]; then
-        echo "Fatal: Waited 2 minutes for mongo set to start. Exiting..."
-        exit 1
-    fi
-
+    config::timeout_check $StartTime "mongo replica set to run"
     sleep 1
 
     RunningInstanceCount=0
@@ -38,6 +39,9 @@ done
 # This sleep ensures that the replica sets are reachable
 sleep 10
 
+# TODO (PLAT-256): only works if deploying to node-1 labeled node
+# With docker swarm any manager can be the target but this bit of code only work if we target node-1 specifically.
+# Which is generally what we do, but if node-1 is down or we choose to target another node this won't work.
 ContainerName=""
 if [[ "$(docker ps -f name=instant_mongo-1 --format "{{.ID}}")" ]]; then
     ContainerName="$(docker ps -f name=instant_mongo-1 --format "{{.ID}}")"

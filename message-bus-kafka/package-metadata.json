@@ -4,18 +4,17 @@
   "description": "The Kafka message bus implements a robust publish-subscribe message streaming. This will take the pressure of downstream systems during high load",
   "version": "0.1.0",
   "environmentVariables": {
-    "KAFKA_CREATE_TOPICS_SEPARATOR": "#",
-    "KAFKA_AUTO_CREATE_TOPICS_ENABLE": "FALSE",
-    "KAFKA_ADVERTISED_HOST_NAME": "kafka",
-    "KAFKA_ZOOKEEPER_CONNECT": "zookeeper:2181",
-    "KAFKA_ADVERTISED_PORT": 9092,
-    "KAFKA_MESSAGE_MAX_BYTES": 10485760,
-    "KAFKA_SOCKET_REQUEST_MAX_BYTES": 20971520,
-    "KAFKA_BROKERCONNECT": "kafka:9092",
-    "JVM_OPTS": "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify",
-    "CMD_ARGS": "--server.port=9013 --management.server.port=9013",
-    "HAPI_SERVER_URL": "http://hapi-fhir:8080/fhir",
-    "KAFKA_BOOTSTRAP_SERVERS": "kafka:9092",
-    "HAPI_SERVER_VALIDATE_FORMAT": "NONE"
+    "KAFKA_CPU_LIMIT": "0.8",
+    "KAFKA_CPU_RESERVE": "0.05",
+    "KAFKA_MEMORY_LIMIT": "3G",
+    "KAFKA_MEMORY_RESERVE": "500M",
+    "KAFDROP_CPU_LIMIT": "0.8",
+    "KAFDROP_CPU_RESERVE": "0.05",
+    "KAFDROP_MEMORY_LIMIT": "3G",
+    "KAFDROP_MEMORY_RESERVE": "500M",
+    "ZOOKEEPER_CPU_LIMIT": "0.8",
+    "ZOOKEEPER_CPU_RESERVE": "0.05",
+    "ZOOKEEPER_MEMORY_LIMIT": "3G",
+    "ZOOKEEPER_MEMORY_RESERVE": "500M"
   }
 }

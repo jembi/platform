@@ -3,25 +3,18 @@
   "name": "Analytics Datastore Elastic Search",
   "description": "A generic ElasticSearch cluster",
   "type": "infrastructure",
-  "version": "v0.0.1",
+  "version": "0.0.1",
   "dependencies": [],
   "environmentVariables": {
-    "node.name": "es01",
-    "discovery.type": "single-node",
-    "bootstrap.memory_lock": "'true'",
-    "xpack.security.enabled": "'true'",
-    "ES_JAVA_OPTS": "-Xms512m -Xmx512m",
-    "ELASTICSEARCH_URL": "http://analytics-datastore-elastic-search:9200",
-    "ELASTICSEARCH_HOSTS": "http://analytics-datastore-elastic-search:9200",
-    "ELASTICSEARCH_USERNAME": "'kibana_system'",
-    "ELASTICSEARCH_PASSWORD": "${ES_KIBANA_SYSTEM}",
-    "allowLocalFilesAccess": "'true'",
     "ES_LOGSTASH_SYSTEM": "dev_password_only",
     "ES_APM_SYSTEM": "dev_password_only",
     "ES_REMOTE_MONITORING_USER": "dev_password_only",
     "ES_ELASTIC": "dev_password_only",
     "ES_KIBANA_SYSTEM": "dev_password_only",
     "ES_BEATS_SYSTEM": "dev_password_only",
-    "ES_HEAP_SIZE": "-Xms4096m -Xmx4096m"
+    "ES_HEAP_SIZE": "-Xms2048m -Xmx2048m",
+    "ES_SSL": "true",
+    "ES_MEMORY_LIMIT": "3G",
+    "ES_MEMORY_RESERVE": "500M"
   }
 }

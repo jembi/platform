@@ -4,25 +4,42 @@ services:
   openhim-core:
     image: jembi/openhim-core:7
     environment:
-      - mongo_url=mongodb://mongo-1:27017,mongo-2:27017,mongo-3:27017/openhim?replicaSet=mongo-set
-      - mongo_atnaUrl=mongodb://mongo-1:27017,mongo-2:27017,mongo-3:27017/openhim?replicaSet=mongo-set
+      - mongo_url=${OPENHIM_MONGO_URL:-mongodb://mongo-1:27017/openhim}
+      - mongo_atnaUrl=${OPENHIM_MONGO_ATNAURL:-mongodb://mongo-1:27017/openhim}
       - api_authenticationTypes=["token", "basic"]
       - authentication_enableCustomTokenAuthentication=true
     deploy:
       placement:
         max_replicas_per_node: 1
+      resources:
+        limits:
+          cpus: ${OPENHIM_CPU_LIMIT:-0.8}
+          memory: ${OPENHIM_MEMORY_LIMIT:-3G}
+        reservations:
+          cpus: ${OPENHIM_CPU_RESERVE:-0.05}
+          memory: ${OPENHIM_MEMORY_RESERVE:-500M}
 
   openhim-console:
     image: jembi/openhim-console:1.14.4
     depends_on:
       - openhim-core
     configs:
-      - source: console.config
+      - source: console-default.json
         target: /usr/share/nginx/html/config/default.json
     deploy:
       placement:
         max_replicas_per_node: 1
+      resources:
+        limits:
+          cpus: ${OPENHIM_CONSOLE_CPU_LIMIT:-0.8}
+          memory: ${OPENHIM_CONSOLE_MEMORY_LIMIT:-2G}
+        reservations:
+          cpus: ${OPENHIM_CONSOLE_CPU_RESERVE:-0.05}
+          memory: ${OPENHIM_CONSOLE_MEMORY_RESERVE:-500M}
 
 configs:
-  console.config:
+  console-default.json:
     file: ./importer/volume/default.json
+    name: console.config-${console_config_DIGEST:?err}
+    labels:
+      name: openhim

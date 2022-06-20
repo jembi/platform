@@ -4,23 +4,15 @@
   "description": "A FHIR compliant server for the platform",
   "version": "0.0.1",
   "environmentVariables": {
-    "spring.datasource.url": "jdbc:postgresql://postgres-1:5432,postgres-2:5432,postgres-3:5432/hapi",
-    "spring.datasource.username": "admin",
-    "spring.datasource.password": "instant101",
-    "spring.datasource.driverClassName": "org.postgresql.Driver",
-    "spring.jpa.properties.hibernate.dialect": "org.hibernate.dialect.PostgreSQL95Dialect",
-    "hapi.fhir.allow_external_references": "true",
-    "hapi.fhir.bulk_export_enabled": "true",
-    "JAVA_TOOL_OPTIONS": "-Xmx2g",
-    "CATALINA_OPTS": "-Xmx2g",
-    "POSTGRESQL_PASSWORD": "instant101",
-    "POSTGRESQL_USERNAME": "admin",
-    "POSTGRESQL_DATABASE": "hapi",
-    "REPMGR_NODE_NETWORK_NAME": "postgres-1",
-    "REPMGR_PASSWORD": "instant101",
-    "REPMGR_NODE_NAME": "postgres-1",
     "REPMGR_PRIMARY_HOST": "postgres-1",
-    "REPMGR_PARTNER_NODES": "postgres-1,postgres-2,postgres-3",
-    "NODE_TLS_REJECT_UNAUTHORIZED": "0"
+    "REPMGR_PARTNER_NODES": "postgres-1",
+    "HAPI_FHIR_CPU_LIMIT": "0.8",
+    "HAPI_FHIR_CPU_RESERVE": "0.05",
+    "HAPI_FHIR_MEMORY_LIMIT": "3G",
+    "HAPI_FHIR_MEMORY_RESERVE": "500M",
+    "HF_POSTGRES_CPU_LIMIT": "0.8",
+    "HF_POSTGRES_CPU_RESERVE": "0.05",
+    "HF_POSTGRES_MEMORY_LIMIT": "3G",
+    "HF_POSTGRES_MEMORY_RESERVE": "500M"
   }
 }
