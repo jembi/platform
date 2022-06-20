@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   dashboard-visualiser-jsreport:
-    image: jsreport/jsreport:3.4.1
+    image: jsreport/jsreport:3.2.0
     deploy:
       placement:
         max_replicas_per_node: 1
@@ -25,3 +25,4 @@ services:
       extensions_authentication_admin_username: 'admin'
       extensions_authentication_admin_password: ${JS_REPORT:-dev_password_only}
       ES_PASSWORD: ${ES_ELASTIC:-dev_password_only}
+      licenseKey: ${JS_REPORT_LICENSE_KEY}

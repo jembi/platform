@@ -5,7 +5,7 @@
   "version": "0.0.1",
   "environmentVariables": {
     "REPMGR_PRIMARY_HOST": "postgres-1",
-    "REPMGR_PARTNER_NODES": "postgres-1,postgres-2,postgres-3",
+    "REPMGR_PARTNER_NODES": "postgres-1",
     "HAPI_FHIR_CPU_LIMIT": "0.8",
     "HAPI_FHIR_CPU_RESERVE": "0.05",
     "HAPI_FHIR_MEMORY_LIMIT": "3G",
