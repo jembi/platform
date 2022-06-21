@@ -237,6 +237,16 @@ config::await_service_removed() {
 # - $2 : target base (eg. /usr/share/logstash/)
 # - $3 : target folder path in absolute format (eg. "$COMPOSE_FILE_PATH"/pipeline)
 # - $4 : compose file path (eg. "$COMPOSE_FILE_PATH")
+#
+# Exports:
+# All exports are required for yq to process the values and are not intended for external use
+# - service_config_query
+# - config_target
+# - config_source
+# - config_query
+# - config_file
+# - config_label_name
+# - config_service_name
 config::generate_service_configs() {
     local -r SERVICE_NAME=${1:?"FATAL: generate_service_config parameter missing"}
     local -r TARGET_BASE=${2:?"FATAL: generate_service_config parameter missing"}
@@ -252,6 +262,7 @@ config::generate_service_configs() {
         file_name=${file_name:1}
         file_hash=$(cksum "${file}" | awk '{print $1}')
 
+        # for these variables to be visible by yq they need to be exported
         export service_config_query=".services.${SERVICE_NAME}.configs[${count}]"
         export config_target="${TARGET_BASE%/}/${TARGET_FOLDER_NAME}/${file_name}"
         export config_source="${SERVICE_NAME}-${file_hash}"
