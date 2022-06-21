@@ -30,7 +30,8 @@ config::set_config_digests() {
         envVarName=$(echo "${name}" | grep -P -o "{.*:?err}" | sed 's/[{}]//g' | sed 's/:?err//g')
 
         # generate and truncate the digest to conform to the 64 character restriction on docker config names
-        remainder=$((64 - (${#name} - ${#envVarName} - 5))) # '${:?err}' = 5 characters (for env var declaration characters)
+        envDeclarationCharacters=":?err" # '${:?err}' from setting an env variable
+        remainder=$((64 - (${#name} - ${#envVarName} - ${#envDeclarationCharacters})))
         export "${envVarName}"="$(cksum "${fileName}" | awk '{print $1}' | cut -c -${remainder})"
     done
 }
@@ -232,35 +233,43 @@ config::await_service_removed() {
 # Generates configs for a service from a folder and adds them to a temp docker-compose file
 #
 # Arguments:
-# $1 : service name (eg. data-mapper-logstash)
-# $2 : target base (eg. /usr/share/logstash/)
-# $3 : target folder path in absolute format (eg. /home/config)
+# - $1 : service name (eg. data-mapper-logstash)
+# - $2 : target base (eg. /usr/share/logstash/)
+# - $3 : target folder path in absolute format (eg. "$COMPOSE_FILE_PATH"/pipeline)
+# - $4 : compose file path (eg. "$COMPOSE_FILE_PATH")
 config::generate_service_configs() {
-    local -r SERVICE_NAME=${1}
-    local -r TARGET_BASE=${2}
-    local -r TARGET_FOLDER_PATH=${3}
+    local -r SERVICE_NAME=${1:?"FATAL: generate_service_config parameter missing"}
+    local -r TARGET_BASE=${2:?"FATAL: generate_service_config parameter missing"}
+    local -r TARGET_FOLDER_PATH=${3:?"FATAL: generate_service_config parameter missing"}
+    local -r COMPOSE_FILE_PATH=${4:?"FATAL: generate_service_config parameter missing"}
     local -r TARGET_FOLDER_NAME=$(basename "${TARGET_FOLDER_PATH}")
     local count=0
 
-    touch docker-compose.tmp.yml
+    touch "${COMPOSE_FILE_PATH}/docker-compose.tmp.yml"
 
     find "${TARGET_FOLDER_PATH}" -maxdepth 10 -mindepth 1 -type f | while read -r file; do
         file_name=${file/"${TARGET_FOLDER_PATH%/}"/}
         file_name=${file_name:1}
+        file_hash=$(cksum "${file}" | awk '{print $1}')
 
-        export config_query=".services.${SERVICE_NAME}.configs[${count}]"
+        export service_config_query=".services.${SERVICE_NAME}.configs[${count}]"
         export config_target="${TARGET_BASE%/}/${TARGET_FOLDER_NAME}/${file_name}"
-        export config_source=$(cksum "${file}" | awk '{print $1}')
+        export config_source="${SERVICE_NAME}-${file_hash}"
 
-        if [[ -z $(docker config ls -qf name="${config_source}") ]]; then
-            docker config create --label name="${TARGET_FOLDER_NAME}/${file_name}" --label service="${SERVICE_NAME}" "${config_source}" "${file}"
-        fi
+        export config_query=".configs.${config_source}"
+        export config_file="./${TARGET_FOLDER_NAME}/${file_name}"
+        export config_label_name="${TARGET_FOLDER_NAME}/${file_name}"
+        export config_service_name=$SERVICE_NAME
 
         yq -i '
         .version = "3.9" |
-        eval(strenv(config_query)).target = env(config_target) |
-        eval(strenv(config_query)).source = strenv(config_source)
-        ' docker-compose.tmp.yml
+        eval(strenv(service_config_query)).target = env(config_target) |
+        eval(strenv(service_config_query)).source = strenv(config_source) |
+        eval(strenv(config_query)).file = strenv(config_file) |
+        eval(strenv(config_query)).name = strenv(config_source) |
+        eval(strenv(config_query)).labels.name = strenv(config_label_name) |
+        eval(strenv(config_query)).labels.service = strenv(config_service_name)
+        ' "${COMPOSE_FILE_PATH}/docker-compose.tmp.yml"
 
         count=$((count + 1))
     done
