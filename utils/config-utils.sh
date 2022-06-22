@@ -10,7 +10,7 @@
 # - The name property must end in -${DIGEST_VAR_NAME:?err} (eg. name: my-file-${MY_FILE_DIGEST:?err})
 #
 # Arguments:
-# $1 : docker compose directory path (eg. /home/user/project/docker-compose.yml)
+# - $1 : docker compose directory path (eg. /home/user/project/docker-compose.yml)
 #
 # Exports:
 # As many digest environment variables as are declared in the provided docker compose file
@@ -42,8 +42,8 @@ config::set_config_digests() {
 # - The name property must end in -${DIGEST_VAR_NAME:?err} (eg. name: my-file-${MY_FILE_DIGEST:?err})
 #
 # Arguments:
-# $1 : docker compose directory path (eg. /home/user/project/docker-compose.yml)
-# $2 : config label (eg. logstash)
+# - $1 : docker compose directory path (eg. /home/user/project/docker-compose.yml)
+# - $2 : config label (eg. logstash)
 config::remove_stale_service_configs() {
     local -r DOCKER_COMPOSE_PATH=$1
     local -r CONFIG_LABEL=$2
@@ -98,16 +98,17 @@ config::remove_stale_service_configs() {
 # - The package-metadata.json file requires a sharedConfigs property with an array of shared directories/files
 #
 # Arguments:
-# $1 : package metadata path (eg. /home/user/project/platform-implementation/packages/package/package-metadata.json)
-# $2 : container destination (eg. /usr/share/logstash/)
-# $3 : service id (eg. data-mapper-logstash) (tries to retrieve service name from package-metadata if not provided)
+# - $1 : package metadata path (eg. /home/user/project/platform-implementation/packages/package/package-metadata.json)
+# - $2 : container destination (eg. /usr/share/logstash/)
+# - $3 : service id (eg. data-mapper-logstash) (tries to retrieve service name from package-metadata if not provided)
 config::copy_shared_configs() {
-    local -r PACKAGE_METADATA_PATH=$1
-    local -r CONTAINER_DESTINATION=$2
-    local serviceId=$3
+    local -r PACKAGE_METADATA_PATH="${1}"
+    local -r CONTAINER_DESTINATION="${2}"
+    local serviceId="${3:-""}"
 
-    if [[ -z $SERVICE_ID ]]; then
+    if [[ -z $serviceId ]]; then
         serviceId=$(jq '.id' "${PACKAGE_METADATA_PATH}" | sed 's/\"//g')
+        echo "$serviceId"
     fi
 
     local -r sharedConfigs=($(jq '.sharedConfigs[]' "${PACKAGE_METADATA_PATH}"))
@@ -124,10 +125,10 @@ config::copy_shared_configs() {
 # at the time specified in argument $3, and exits with code 124 after the time specified in argument $4.
 #
 # Arguments:
-# $1 : start time of the timeout check
-# $2 : a message containing reference to the loop that timed out
-# $3 : timeout time in seconds, default is 300 seconds
-# $4 : elapsed time to issue running-for-longer-than-expected warning (in seconds), default is 60 seconds
+# - $1 : start time of the timeout check
+# - $2 : a message containing reference to the loop that timed out
+# - $3 : timeout time in seconds, default is 300 seconds
+# - $4 : elapsed time to issue running-for-longer-than-expected warning (in seconds), default is 60 seconds
 config::timeout_check() {
     local startTime=$(($1))
     local message=$2
@@ -151,11 +152,11 @@ config::timeout_check() {
 #   relies on. Details on configuring the await-helper can be found at https://github.com/jembi/platform-await-helper.
 #
 # Arguments:
-# $1 : the service being awaited
-# $2 : path to await-helper compose.yml file (eg. ~/projects/platform/dashboard-visualiser-jsreport/docker-compose.await-helper.yml)
-# $3 : desired number of instances of the awaited-service
-# $4 : (optional) the max time allowed to wait for a service's response, defaults to 300 seconds
-# $5 : (optional) elapsed time to throw a warning, defaults to 60 seconds
+# - $1 : the service being awaited
+# - $2 : path to await-helper compose.yml file (eg. ~/projects/platform/dashboard-visualiser-jsreport/docker-compose.await-helper.yml)
+# - $3 : desired number of instances of the awaited-service
+# - $4 : (optional) the max time allowed to wait for a service's response, defaults to 300 seconds
+# - $5 : (optional) elapsed time to throw a warning, defaults to 60 seconds
 config::await_service_running() {
     local -r service_name="${1:?"FATAL: await_service_running function args not correctly set"}"
     local -r await_helper_file_path="${2:?"FATAL: await_service_running function args not correctly set"}"
@@ -189,9 +190,9 @@ config::await_service_running() {
 # A function which removes a config importing service on successful completion, and exits with an error otherwise
 #
 # Arguments:
-# $1 : the name of the config importer
-# $2 : (optional) the timeout time for the config importer to run, defaults to 300 seconds
-# $3 : (optional) elapsed time to throw a warning, defaults to 60 seconds
+# - $1 : the name of the config importer
+# - $2 : (optional) the timeout time for the config importer to run, defaults to 300 seconds
+# - $3 : (optional) elapsed time to throw a warning, defaults to 60 seconds
 config::remove_config_importer() {
     local -r config_importer_service_name="${1:?"FATAL: remove_config_importer function args not correctly set"}"
     local -r exit_time="${2:-}"
@@ -218,7 +219,7 @@ config::remove_config_importer() {
 # Waits for the provided service to be removed
 #
 # Arguments:
-# $1 : service name (eg. instant_analytics-datastore-elastic-search)
+# - $1 : service name (eg. instant_analytics-datastore-elastic-search)
 config::await_service_removed() {
     local -r SERVICE_NAME="${1:?"FATAL: await_service_removed SERVICE_NAME not provided"}"
     local start_time=$(date +%s)
