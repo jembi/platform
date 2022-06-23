@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      TF_VAR_PROJECT_NAME: e2e
+      TF_VAR_PROJECT_NAME: platform-e2e-tests
       TF_VAR_INSTANCE_COUNT: 1
       TF_VAR_PUBLIC_KEY_PATH: key.pub
       TF_VAR_SUB_DOMAIN_NAME_CREATION_ENABLED: true
@@ -89,7 +89,7 @@ jobs:
     needs: [provision-e2e-server, configure-e2e-server, launch-platform]
     timeout-minutes: 15
     env:
-      TF_VAR_PROJECT_NAME: e2e
+      TF_VAR_PROJECT_NAME: platform-e2e-tests
       TF_VAR_INSTANCE_COUNT: 1
       TF_VAR_PUBLIC_KEY_PATH: key.pub
       TF_VAR_SUB_DOMAIN_NAME_CREATION_ENABLED: true
