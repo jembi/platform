@@ -71,7 +71,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v3
-      - run: ./get-cli.sh
+      - run: ./get-cli.sh linux
       - run: ./build-image.sh
       - run: sudo sh -c 'echo "    ServerAliveInterval 30" >> /etc/ssh/ssh_config'
       - run: sudo sh -c 'echo "    ServerAliveCountMax 999" >> /etc/ssh/ssh_config'
