@@ -54,7 +54,7 @@ func main() {
 }
 
 func packageInit(dir string, composeFiles ...string) error {
-	err := utils.StackDeploy(dir, composeFiles...)
+	err := utils.StackDeployFromBash(dir, composeFiles...)
 	if err != nil {
 		return err
 	}

@@ -5,6 +5,8 @@ import (
 	"flag"
 	"fmt"
 	"log"
+
+	"github.com/docker/cli/cli/command/stack/options"
 )
 
 var (
@@ -51,26 +53,29 @@ func main() {
 }
 
 func packageInit(dir string, composeFiles ...string) error {
-	// options := options.Deploy{
-	// 	Composefiles: composeFiles,
-	// 	Namespace:    "instant",
-	// 	ResolveImage: "always",
-	// }
+	options := options.Deploy{
+		Composefiles: composeFiles,
+		Namespace:    "instant",
+		ResolveImage: "always",
+	}
 
+	// This function uses Docker's stack deploy function
 	// err := utils.StackDeploy(options, composeFiles...)
 	// if err != nil {
 	// 	return err
 	// }
 
-	err := utils.StackDeployFromBash(dir, composeFiles...)
-	if err != nil {
-		return err
-	}
-
-	// err = utils.CreateService(options, composeFiles...)
+	// This function simply runs a stack deploy using a bash command
+	// err := utils.StackDeployFromBash(dir, composeFiles...)
 	// if err != nil {
 	// 	return err
 	// }
+
+	// This function creates a swarm service, in a much more configurable manner
+	err := utils.CreateService(options, composeFiles...)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
