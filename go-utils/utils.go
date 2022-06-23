@@ -7,11 +7,35 @@ import (
 	"strings"
 	"time"
 
+	"github.com/docker/cli/cli/command"
+	"github.com/docker/cli/cli/command/stack/loader"
+	"github.com/docker/cli/cli/command/stack/options"
+	composeTypes "github.com/docker/cli/cli/compose/types"
+	cliflags "github.com/docker/cli/cli/flags"
 	"github.com/pkg/errors"
 )
 
 func Bash(command string, pathChange ...string) (string, error) {
 	return checkSubCommand(command)
+}
+
+func checkSubCommand(command string) (string, error) {
+	splitStrings := strings.SplitAfter(command, "$")
+	var output string
+	var err error
+	if len(splitStrings) > 1 {
+		str := splitStrings[1]
+		output, err = BashExecute(str[1 : len(str)-1])
+		if err != nil {
+			return "", err
+		}
+	} else {
+		return BashExecute(command)
+	}
+
+	str := splitStrings[0]
+
+	return BashExecute(str[:len(str)-1] + output)
 }
 
 func BashExecute(command string, pathChange ...string) (string, error) {
@@ -52,23 +76,19 @@ func BashExecute(command string, pathChange ...string) (string, error) {
 	return stdout, nil
 }
 
-func checkSubCommand(command string) (string, error) {
-	splitStrings := strings.SplitAfter(command, "$")
-	var output string
-	var err error
-	if len(splitStrings) > 1 {
-		str := splitStrings[1]
-		output, err = BashExecute(str[1 : len(str)-1])
-		if err != nil {
-			return "", err
-		}
-	} else {
-		return BashExecute(command)
+func NewCliFromCompose(options options.Deploy, composeFiles ...string) (*command.DockerCli, *composeTypes.Config, error) {
+	cli, err := command.NewDockerCli()
+	if err != nil {
+		return nil, nil, err
 	}
 
-	str := splitStrings[0]
+	err = cli.Initialize(cliflags.NewClientOptions())
+	if err != nil {
+		return nil, nil, err
+	}
 
-	return BashExecute(str[:len(str)-1] + output)
+	config, err := loader.LoadComposefile(cli, options)
+	return cli, config, err
 }
 
 func ValidateArgs(args ...string) error {
@@ -80,21 +100,6 @@ func ValidateArgs(args ...string) error {
 	}
 
 	return nil
-}
-
-func StackDeploy(dir string, composeFiles ...string) error {
-	var fileString string
-	for _, file := range composeFiles {
-		fileString += " -c " + dir + "/compose/" + file
-	}
-
-	output, err := Bash("docker stack deploy" + fileString + " instant")
-	if err != nil {
-		return err
-	}
-	fmt.Println(output)
-
-	return err
 }
 
 func AwaitServiceRunning(serviceName, instances string, warningTime, exitTime time.Duration) error {

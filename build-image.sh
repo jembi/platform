@@ -1,8 +1,8 @@
 #!/bin/bash
 
 packages=(
-    # "dashboard-visualiser-jsreport"
-    "analytics-datastore-elastic-search"
+    "dashboard-visualiser-jsreport"
+    # "analytics-datastore-elastic-search"
     # "dashboard-visualiser-kibana"
 )
 
