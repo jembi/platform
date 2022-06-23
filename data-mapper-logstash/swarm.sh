@@ -33,7 +33,7 @@ AwaitContainerStartup() {
     sleep 1
     timer=$((timer + 1))
   done
-  log info "Logstash container started up"
+  log info "Done"
 }
 
 AwaitContainerReady() {
@@ -53,7 +53,7 @@ AwaitContainerReady() {
     sleep 1
     timer=$((timer + 1))
   done
-  log info "Logstash container is in ready state"
+  log info "Done"
 }
 
 if [[ "$Mode" == "dev" ]]; then

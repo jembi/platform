@@ -107,6 +107,9 @@ function log() {
 
     # Standard Output (Pretty)
     case "${level}" in
+    'default')
+        echo -e "${line}${norm}"
+        ;;
     'info' | 'warn')
         echo -e "${std_line}"
         ;;
