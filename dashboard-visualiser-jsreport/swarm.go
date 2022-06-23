@@ -3,6 +3,7 @@ package main
 import (
 	"JSR/go-utils"
 	"context"
+	"flag"
 	"fmt"
 	"log"
 
@@ -12,7 +13,8 @@ import (
 	"github.com/docker/cli/cli/command/stack/options"
 
 	// "github.com/docker/cli/cli/command/stack/swarm"
-	deploy "github.com/docker/cli/cli/command/stack/swarm"
+
+	// deploy "github.com/docker/cli/cli/command/stack/swarm"
 	// github.com/docker/swarmkit v1.12.1-0.20220414183841-676f45ffddc0 // indirect
 
 	composeTypes "github.com/docker/cli/cli/compose/types"
@@ -20,7 +22,7 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/swarm"
 	"github.com/docker/docker/client"
-	// composetypes "github.com/docker/cli/cli/compose/types"
+	// composeTypes "github.com/docker/cli/cli/compose/types"
 	// client "github.com/moby/moby/client"
 )
 
@@ -39,30 +41,21 @@ type ServiceSpec struct {
 func init() {
 	// EnvVars["JS_REPORT_INSTANCES"] = os.Getenv("JS_REPORT_INSTANCES")
 
-	// mode = flag.String("mode", "", "dev | prod")
-	// action = flag.String("action", "", "init | up | down | destroy")
-	// packagePath = flag.String("path", "", "path to package")
+	mode = flag.String("mode", "", "dev | prod")
+	action = flag.String("action", "", "init | up | down | destroy")
+	packagePath = flag.String("path", "", "path to package")
 
-	// flag.Parse()
-	// err := utils.ValidateArgs(*mode, *action, *packagePath)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
+	flag.Parse()
+	err := utils.ValidateArgs(*mode, *action, *packagePath)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func main() {
-	v1 := "init"
-	v2 := "prod"
-	v3 := "/home/markl/Documents/Projects/platform/dashboard-visualiser-jsreport"
-	action = &v1
-	mode = &v2
-	packagePath = &v3
-
-	// stack.RunDeploy()
-
-	composeFiles := []string{"docker-compose.yml"}
+	composeFiles := []string{*packagePath + "/compose/docker-compose.yml"}
 	if *mode == "dev" {
-		composeFiles = append(composeFiles, "docker-compose.dev.yml")
+		composeFiles = append(composeFiles, *packagePath+"/compose/docker-compose.dev.yml")
 	}
 
 	var err error
@@ -85,7 +78,7 @@ func packageInit(dir string, composeFiles ...string) error {
 	options := options.Deploy{
 		Composefiles: composeFiles,
 		Namespace:    "instant",
-		ResolveImage: "",
+		ResolveImage: "always",
 	}
 
 	cli, err := command.NewDockerCli()
@@ -106,11 +99,11 @@ func packageInit(dir string, composeFiles ...string) error {
 		return err
 	}
 
-	err = deploy.RunDeploy(cli, options, config)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
+	// err = deploy.RunDeploy(cli, options, config)
+	// if err != nil {
+	// 	log.Println(err)
+	// 	return err
+	// }
 
 	containerSpec, err := parseContainerOptions(config)
 	if err != nil {
@@ -122,19 +115,25 @@ func packageInit(dir string, composeFiles ...string) error {
 		return err
 	}
 
-	// swarm.RunDeploy
-
 	spec := swarm.ServiceSpec{
 		Annotations: swarm.Annotations{
 			Name: "dashboard-visualiser-jsreport",
 		},
 		TaskTemplate: swarm.TaskSpec{
 			ContainerSpec: containerSpec,
-			// Resources: serviceSpec.Resources,
+			Resources: &swarm.ResourceRequirements{
+				Limits:       serviceSpec.Resources.Limits,
+				Reservations: serviceSpec.Resources.Reservations,
+			},
 		},
 		Mode: swarm.ServiceMode{
 			Replicated: &swarm.ReplicatedService{
 				Replicas: &serviceSpec.Replicas,
+			},
+		},
+		Networks: []swarm.NetworkAttachmentConfig{
+			{
+				Target: "test-network",
 			},
 		},
 	}
@@ -153,8 +152,6 @@ func packageInit(dir string, composeFiles ...string) error {
 		log.Println(err)
 		return err
 	}
-
-	fmt.Println(config)
 
 	return nil
 }
@@ -180,7 +177,6 @@ func parseContainerOptions(conf *composeTypes.Config) (*swarm.ContainerSpec, err
 func parseServiceOptions(conf *composeTypes.Config) (ServiceSpec, error) {
 	service := conf.Services[0]
 
-	// service.Deploy.Resources
 	return ServiceSpec{
 		Replicas: *service.Deploy.Replicas,
 		Resources: swarm.ResourceRequirements{
