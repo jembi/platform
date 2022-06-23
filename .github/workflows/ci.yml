@@ -1,19 +1,26 @@
-name: ethiopia-ci
-on: [push, workflow_dispatch]
+name: platform-e2e-tests
+on:
+  pull_request:
+    types: [ready_for_review]
+  push:
+    tags:
+      - "*"
+  workflow_dispatch:
 concurrency: e2e
 jobs:
   provision-e2e-server:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     env:
       TF_VAR_PROJECT_NAME: e2e
       TF_VAR_INSTANCE_COUNT: 1
-      TF_VAR_PUBLIC_KEY_PATH: /home/runner/key.pub
+      TF_VAR_PUBLIC_KEY_PATH: key.pub
       TF_VAR_SUB_DOMAIN_NAME_CREATION_ENABLED: true
       TF_VAR_DOMAIN_NAME_CREATION_ENABLED: false
-      TF_VAR_HOSTED_ZONE_ID: Z002854315SMBI8TM9A2D
-      TF_VAR_DOMAIN_NAME: jembi-sp.org
-      TF_VAR_SUBDOMAIN_NAMES: ${{ github.run_id }}.jembi-sp.org *.${{ github.run_id }}.jembi-sp.org
-      TF_VAR_INSTANCE_TYPE: t3.large
+      TF_VAR_HOSTED_ZONE_ID: Z00782582NSP6D0VHBCMI
+      TF_VAR_DOMAIN_NAME: jembi.cloud
+      TF_VAR_SUBDOMAIN_NAMES: ${{ github.run_id }}.jembi.cloud *.${{ github.run_id }}.jembi.cloud
+      TF_VAR_INSTANCE_TYPE: r5.2xlarge
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     defaults:
@@ -22,7 +29,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: hashicorp/setup-terraform@v2
-      - run: 'echo "$SSH_KEY" > /home/runner/key.pub'
+      - run: 'pwd && echo "$SSH_KEY" > key.pub'
         shell: bash
         env:
           SSH_KEY: ${{ secrets.DEPLOY_KEY_PUB }}
@@ -34,14 +41,10 @@ jobs:
         with:
           name: tfstate
           path: infrastructure/terraform/terraform.tfstate
-      - uses: webfactory/ssh-agent@v0.5.4
-        with:
-          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
-      - run: ssh-keyscan -H ${{ github.run_id }}.jembi-sp.org >> ~/.ssh/known_hosts
-      - run: ssh ubuntu@${{ github.run_id }}.jembi-sp.org date
   configure-e2e-server:
     runs-on: ubuntu-latest
     needs: provision-e2e-server
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v3
       - name: Run playbook
@@ -53,7 +56,7 @@ jobs:
           vault_password: ${{ secrets.VAULT_PASSWORD }}
           inventory: |
             [leader]
-            ${{ github.run_id }}.jembi-sp.org name=node-1
+            ${{ github.run_id }}.jembi.cloud name=node-1
 
             [managers]
 
@@ -65,30 +68,36 @@ jobs:
   launch-platform:
     runs-on: ubuntu-latest
     needs: configure-e2e-server
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v3
       - run: ./get-cli.sh
       - run: ./build-image.sh
+      - run: sudo sh -c 'echo "    ServerAliveInterval 30" >> /etc/ssh/ssh_config'
+      - run: sudo sh -c 'echo "    ServerAliveCountMax 999" >> /etc/ssh/ssh_config'
+      - run: sudo service ssh restart
       - uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.DEPLOY_KEY }}
-      - run: ssh-keyscan -H ${{ github.run_id }}.jembi-sp.org >> ~/.ssh/known_hosts
-      - run: ./remote-img-load.sh ${{ github.run_id }}.jembi-sp.org
-      - run: DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi-sp.org ./platform-linux --env-file=.env.dev init interoperability-layer-openhim
+      - run: ssh-keyscan -H ${{ github.run_id }}.jembi.cloud >> ~/.ssh/known_hosts
+      - run: ./remote-img-load.sh ${{ github.run_id }}.jembi.cloud
+      - run: sed -i 's/domain/${{ github.run_id }}.jembi.cloud/g' .env.ci
+      - run: DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud ./platform-linux --env-file=.env.ci init
   destroy-e2e-server:
     runs-on: ubuntu-latest
     if: always()
     needs: [provision-e2e-server, configure-e2e-server, launch-platform]
+    timeout-minutes: 15
     env:
       TF_VAR_PROJECT_NAME: e2e
       TF_VAR_INSTANCE_COUNT: 1
-      TF_VAR_PUBLIC_KEY_PATH: /home/runner/key.pub
+      TF_VAR_PUBLIC_KEY_PATH: key.pub
       TF_VAR_SUB_DOMAIN_NAME_CREATION_ENABLED: true
       TF_VAR_DOMAIN_NAME_CREATION_ENABLED: false
-      TF_VAR_HOSTED_ZONE_ID: Z002854315SMBI8TM9A2D
-      TF_VAR_DOMAIN_NAME: jembi-sp.org
-      TF_VAR_SUBDOMAIN_NAMES: "[${{ github.run_id }}.jembi-sp.org,*.${{ github.run_id }}.jembi-sp.org]"
-      TF_VAR_INSTANCE_TYPE: t3.large
+      TF_VAR_HOSTED_ZONE_ID: Z00782582NSP6D0VHBCMI
+      TF_VAR_DOMAIN_NAME: jembi.cloud
+      TF_VAR_SUBDOMAIN_NAMES: ${{ github.run_id }}.jembi.cloud *.${{ github.run_id }}.jembi.cloud
+      TF_VAR_INSTANCE_TYPE: r5.2xlarge
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     defaults:
@@ -97,7 +106,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: hashicorp/setup-terraform@v2
-      - run: 'echo "$SSH_KEY" > /home/runner/key.pub'
+      - run: 'echo "$SSH_KEY" > key.pub'
         shell: bash
         env:
           SSH_KEY: ${{secrets.DEPLOY_KEY_PUB}}
