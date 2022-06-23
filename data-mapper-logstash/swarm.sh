@@ -4,6 +4,8 @@
 Action=$1
 Mode=$2
 
+readonly LOGSTASH_DEV_MOUNT=$LOGSTASH_DEV_MOUNT
+
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
   pwd -P
@@ -61,16 +63,30 @@ else
   LogstashDevComposeParam=""
 fi
 
+if [[ "$LOGSTASH_DEV_MOUNT" == "true" ]]; then
+  if [[ -z $LOGSTASH_PACKAGE_PATH ]]; then
+    echo "ERROR: LOGSTASH_PACKAGE_PATH environment variable not specified. Please specify LOGSTASH_PACKAGE_PATH as stated in the README."
+    exit 1
+  fi
+
+  echo -e "\nRunning Data Mapper Logstash package with dev mount\n"
+  LogstashDevMountComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.dev-mnt.yml"
+else
+  LogstashDevMountComposeParam=""
+fi
+
 if [[ "$Action" == "init" ]] || [[ "$Action" == "up" ]]; then
 
   config::set_config_digests "$COMPOSE_FILE_PATH"/docker-compose.yml
 
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $LogstashDevComposeParam instant
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $LogstashDevComposeParam $LogstashDevMountComposeParam instant
 
   AwaitContainerStartup
   AwaitContainerReady
 
-  config::copy_shared_configs "$COMPOSE_FILE_PATH"/package-metadata.json /usr/share/logstash/
+  if [[ "$LOGSTASH_DEV_MOUNT" != "true" ]]; then
+    config::copy_shared_configs "$COMPOSE_FILE_PATH"/package-metadata.json /usr/share/logstash/
+  fi
 
   echo "Removing stale configs..."
   config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "logstash"

@@ -3,23 +3,6 @@
 # Library name: config
 # This is a library that contains functions to assist with docker configs
 
-# Installs a dependency using apt
-#
-# Arguments:
-# $1 : dependency name (eg. jq)
-config::install_apt_dependency() {
-    local -r DEPENDENCY_NAME=$1
-
-    if [[ -z $(command -v "${DEPENDENCY_NAME}") ]]; then
-        apt install "${DEPENDENCY_NAME}" -y &>/dev/null
-
-        if [[ -z $(command -v "${DEPENDENCY_NAME}") ]]; then
-            echo "Failed to install dependency ${DEPENDENCY_NAME}"
-            exit 1
-        fi
-    fi
-}
-
 # Sets the digest variables for the conf raft files in the provided docker compose file
 #
 # Requirements:
@@ -33,13 +16,6 @@ config::install_apt_dependency() {
 # As many digest environment variables as are declared in the provided docker compose file
 config::set_config_digests() {
     local -r DOCKER_COMPOSE_PATH=$1
-
-    # install dependencies
-    config::install_apt_dependency "wget"
-    if [[ -z $(command -v yq) ]]; then
-        wget https://github.com/mikefarah/yq/releases/download/v4.23.1/yq_linux_amd64 -O /usr/bin/yq &>/dev/null
-        chmod +x /usr/bin/yq
-    fi
 
     # Get configs files and names from yml file
     local -r files=($(yq '.configs."*.*".file' "${DOCKER_COMPOSE_PATH}"))
@@ -71,13 +47,6 @@ config::set_config_digests() {
 config::remove_stale_service_configs() {
     local -r DOCKER_COMPOSE_PATH=$1
     local -r CONFIG_LABEL=$2
-
-    # install dependencies
-    config::install_apt_dependency "wget"
-    if [[ -z $(command -v yq) ]]; then
-        wget https://github.com/mikefarah/yq/releases/download/v4.23.1/yq_linux_amd64 -O /usr/bin/yq &>/dev/null
-        chmod +x /usr/bin/yq
-    fi
 
     local -r composeNames=($(yq '.configs."*.*".name' "${DOCKER_COMPOSE_PATH}"))
     local configsToRemove=()
@@ -141,15 +110,13 @@ config::copy_shared_configs() {
         serviceId=$(jq '.id' "${PACKAGE_METADATA_PATH}" | sed 's/\"//g')
     fi
 
-    config::install_apt_dependency "jq"
-
     local -r sharedConfigs=($(jq '.sharedConfigs[]' "${PACKAGE_METADATA_PATH}"))
     local -r packageBaseDir=$(dirname "${PACKAGE_METADATA_PATH}")
     local -r containerId=$(docker container ls -qlf name=instant_"${serviceId}")
 
     for sharedConfig in "${sharedConfigs[@]}"; do
         # TODO: (https://jembiprojects.jira.com/browse/PLAT-252) swap docker copy for a swarm compliant approach
-        docker cp "${packageBaseDir}""${sharedConfig//\"//}" "${containerId}":"${CONTAINER_DESTINATION}"
+        docker cp -a "${packageBaseDir}""${sharedConfig//\"//}" "${containerId}":"${CONTAINER_DESTINATION}"
     done
 }
 
@@ -246,4 +213,18 @@ config::remove_config_importer() {
     done
 
     docker service rm instant_"$config_importer_service_name"
+}
+
+# Waits for the provided service to be removed
+#
+# Arguments:
+# $1 : service name (eg. instant_analytics-datastore-elastic-search)
+config::await_service_removed() {
+    local -r SERVICE_NAME="${1:?"FATAL: await_service_removed SERVICE_NAME not provided"}"
+    local start_time=$(date +%s)
+
+    until [[ -z $(docker stack ps instant -qf name="${SERVICE_NAME}") ]]; do
+        config::timeout_check $start_time "${SERVICE_NAME} to be removed"
+        sleep 1
+    done
 }
