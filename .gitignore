@@ -77,9 +77,6 @@ typings/
 /docs/.docusaurus
 /docs/.cache-loader
 
-# vscode config
-.vscode
-
 # Built Go Binaries
 platform-linux
 platform.exe

@@ -1,0 +1,79 @@
+{
+	"shebang": {
+		"prefix": "shebang",
+		"body": [
+			"#!/bin/bash"
+		],
+		"description": "Shebang"
+	},
+	"echo": {
+		"prefix": "e",
+		"body": [
+			"echo \"${0:Hello World}\""
+		],
+		"description": "Echo"
+	},
+	"TODO": {
+		"prefix": "TODO",
+		"body": [
+			"# TODO: (${1:Link to ticket}) (${2:developer name}) - ${0:Description}"
+		],
+		"description": "Echo"
+	},
+	"function": {
+		"prefix": "fn",
+		"body": [
+            "# ${1:Description of function}",
+            "#",
+            "# Requirements:",
+            "# - ${2:A prerequisite that needs to be met for this function to perform as expected}",
+            "#",
+            "# Arguments:",
+            "# - \\$1 : ${3:The description of the first argument}",
+            "#",
+            "# Exports:",
+            "# ${4:What is being exported from this function}",
+			"${5:function_name}() {",
+			"\t$0",
+			"}"
+		],
+		"description": "Function"
+	},
+	"if": {
+		"prefix": "if",
+		"body": [
+			"if [[ $1 ]]; then",
+			"\t$0",
+			"fi"
+		],
+		"description": "if block"
+	},
+	"if else": {
+		"prefix": "ife",
+		"body": [
+			"if [[ $1 ]]; then",
+			"\t$2",
+			"else",
+			"\t$0",
+			"fi"
+		],
+		"description": "if else block"
+	},
+	"elif": {
+		"prefix": "elif",
+		"body": [
+			"elif [[ $1 ]]; then",
+			"\t$0"
+		],
+		"description": "elif block"
+	},
+	"until": {
+		"prefix": "until",
+		"body": [
+			"until [[ $1 ]]; do",
+			"\t$0",
+			"done"
+		],
+		"description": "until block"
+	}
+}
