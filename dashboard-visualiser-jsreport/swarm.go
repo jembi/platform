@@ -7,6 +7,7 @@ import (
 	"log"
 
 	"github.com/docker/cli/cli/command/stack/options"
+	// dockerclient "github.com/docker/docker/client"
 )
 
 var (
@@ -41,26 +42,37 @@ func main() {
 	case "init":
 		err = packageInit(*packagePath, composeFiles...)
 		if err != nil {
-			log.Println(err)
+			fmt.Println(err)
 		}
 
 	case "destroy":
 		err = packageDestroy()
 		if err != nil {
-			log.Println(err)
+			fmt.Println(err)
 		}
 	}
 }
 
 func packageInit(dir string, composeFiles ...string) error {
-	options := options.Deploy{
+	option := options.Deploy{
 		Composefiles: composeFiles,
 		Namespace:    "instant",
 		ResolveImage: "always",
 	}
 
 	// This function uses Docker's stack deploy function
-	// err := utils.StackDeploy(options, composeFiles...)
+	// err := utils.StackDeploy(option, composeFiles...)
+	// if err != nil {
+	// 	return err
+	// }
+
+	// option := options.Deploy{
+	// 	Composefiles: []string{*packagePath + "/compose/docker-compose.await-helper.yml"},
+	// 	Namespace:    "instant",
+	// 	ResolveImage: "always",
+	// }
+
+	// err := utils.StackDeploy(option, option.Composefiles...)
 	// if err != nil {
 	// 	return err
 	// }
@@ -72,7 +84,16 @@ func packageInit(dir string, composeFiles ...string) error {
 	// }
 
 	// This function creates a swarm service, in a much more configurable manner
-	err := utils.CreateService(options, composeFiles...)
+	err := utils.CreateService(option)
+	if err != nil {
+		return err
+	}
+
+	err = utils.CreateService(options.Deploy{
+		Composefiles: []string{*packagePath + "/compose/docker-compose.await-helper.yml"},
+		Namespace:    "instant",
+		ResolveImage: "always",
+	})
 	if err != nil {
 		return err
 	}
