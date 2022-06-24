@@ -1,4 +1,5 @@
 #!/bin/bash
+Copyright (c) 2019 Zordrak
 
 set -uo pipefail
 
