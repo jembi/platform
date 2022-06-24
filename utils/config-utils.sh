@@ -93,34 +93,6 @@ config::remove_stale_service_configs() {
     docker config rm "${configsToRemove[@]}"
 }
 
-# Copies sharedConfigs into a package's container root directory
-#
-# Requirements:
-# - The package-metadata.json file requires a sharedConfigs property with an array of shared directories/files
-#
-# Arguments:
-# $1 : package metadata path (eg. /home/user/project/platform-implementation/packages/package/package-metadata.json)
-# $2 : container destination (eg. /usr/share/logstash/)
-# $3 : service id (eg. data-mapper-logstash) (tries to retrieve service name from package-metadata if not provided)
-config::copy_shared_configs() {
-    local -r PACKAGE_METADATA_PATH=$1
-    local -r CONTAINER_DESTINATION=$2
-    local serviceId=$3
-
-    if [[ -z $SERVICE_ID ]]; then
-        serviceId=$(jq '.id' "${PACKAGE_METADATA_PATH}" | sed 's/\"//g')
-    fi
-
-    local -r sharedConfigs=($(jq '.sharedConfigs[]' "${PACKAGE_METADATA_PATH}"))
-    local -r packageBaseDir=$(dirname "${PACKAGE_METADATA_PATH}")
-    local -r containerId=$(docker container ls -qlf name=instant_"${serviceId}")
-
-    for sharedConfig in "${sharedConfigs[@]}"; do
-        # TODO: (https://jembiprojects.jira.com/browse/PLAT-252) swap docker copy for a swarm compliant approach
-        docker cp -a "${packageBaseDir}""${sharedConfig//\"//}" "${containerId}":"${CONTAINER_DESTINATION}"
-    done
-}
-
 # A function that exists in a loop to see how long that loop has run for, providing a warning
 # at the time specified in argument $3, and exits with code 124 after the time specified in argument $4.
 #
