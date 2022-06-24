@@ -19,56 +19,45 @@ ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/log.sh"
 
 install_expect() {
-  log default "Installing Expect..."
-  # >/dev/null 2>&1 throws all terminal input and output text away
-  apt-get install -y expect >/dev/null 2>&1
-  if [[ $? -eq 1 ]]; then
-    log error "Fatal: Failed to install Expect library. Cannot update Elastic Search passwords"
-    exit 1
-  fi
+  log info "Installing Expect..."
+  try "apt-get install -y expect" "Fatal: Failed to install Expect library. Cannot update Elastic Search passwords"
 }
 
 set_elasticsearch_passwords() {
-  log default "Setting passwords..."
+  log info "Setting passwords..."
   local elasticSearchContainerId=""
   elasticSearchContainerId=$(docker ps -qlf name=instant_analytics-datastore-elastic-search)
-  "$COMPOSE_FILE_PATH"/set-elastic-passwords.exp "$elasticSearchContainerId" >$BASHLOG_FILE_PATH 2>&1
-  if [[ $? -eq 1 ]]; then
-    log error "Fatal: Failed to set elastic passwords. Cannot update Elastic Search passwords"
-    exit 1
-  fi
+  try "${COMPOSE_FILE_PATH}/set-elastic-passwords.exp ${elasticSearchContainerId}" "Fatal: Failed to set elastic passwords. Cannot update Elastic Search passwords"
 }
 
 import_elastic_index() {
   # TODO: (castelloG) [PLAT-255] Add support for multiple index imports
-  config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml instant 2>&1
-  config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "elastic-search"
+  config::set_config_digests "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to start elastic search config importer"
+  config::remove_stale_service_configs "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml "elastic-search"
   config::remove_config_importer elastic-search-config-importer
 }
 
 if [[ "$STATEFUL_NODES" == "cluster" ]]; then
-  log default "Running Analytics Datastore Elastic Search package in Cluster node mode"
+  log info "Running Analytics Datastore Elastic Search package in Cluster node mode"
   ElasticSearchClusterComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.cluster.yml"
 else
-  log default "Running Analytics Datastore Elastic Search package in Single node mode"
+  log info "Running Analytics Datastore Elastic Search package in Single node mode"
   ElasticSearchClusterComposeParam=""
 fi
 
 if [[ "$MODE" == "dev" ]]; then
-  log default "Running Analytics Datastore Elastic Search package in DEV mode"
+  log info "Running Analytics Datastore Elastic Search package in DEV mode"
   ElasticSearchDevComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
 else
-  log default "Running Analytics Datastore Elastic Search package in PROD mode"
+  log info "Running Analytics Datastore Elastic Search package in PROD mode"
   ElasticSearchDevComposeParam=""
 fi
 
 if [[ "$ACTION" == "init" ]]; then
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $ElasticSearchClusterComposeParam $ElasticSearchDevComposeParam instant &&
-    log default "${prev_cmd}" ||
-    log error "${prev_cmd}"
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $ElasticSearchClusterComposeParam $ElasticSearchDevComposeParam instant" "Failed to deploy Analytics Datastore Elastic Search"
 
-  log default "Waiting for elasticsearch to start before automatically setting built-in passwords..."
+  log info "Waiting for elasticsearch to start before automatically setting built-in passwords..."
   docker::await_container_startup analytics-datastore-elastic-search
   docker::await_container_status analytics-datastore-elastic-search running
 
@@ -77,21 +66,17 @@ if [[ "$ACTION" == "init" ]]; then
 
   import_elastic_index
 
-  log default "Done"
+  log info "Done"
 elif [[ "$ACTION" == "up" ]]; then
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $ElasticSearchClusterComposeParam $ElasticSearchDevComposeParam instant &&
-    log debug "${prev_cmd}" ||
-    log error "${prev_cmd}"
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $ElasticSearchClusterComposeParam $ElasticSearchDevComposeParam instant" "Failed to deploy Analytics Datastore Elastic Search"
 elif [[ "$ACTION" == "down" ]]; then
-  docker service scale instant_analytics-datastore-elastic-search=0 &&
-    log debug "${prev_cmd}" ||
-    log error "${prev_cmd}"
+  try "docker service scale instant_analytics-datastore-elastic-search=0" "Failed to scale down analytics-datastore-elastic-search"
 elif [[ "$ACTION" == "destroy" ]]; then
-  docker service rm instant_analytics-datastore-elastic-search
+  try "docker service rm instant_analytics-datastore-elastic-search" "Failed to remove analytics-datastore-elastic-search"
 
   docker::await_container_destroy analytics-datastore-elastic-search
 
-  docker volume rm instant_es-data
+  try "docker volume rm instant_es-data" "Failed to remove volume instant_es-data"
 
   if [[ "$STATEFUL_NODES" == "cluster" ]]; then
     log warn "Volumes are only deleted on the host on which the command is run. Elastic Search volumes on other nodes are not deleted"

@@ -139,11 +139,11 @@ function log() {
     esac
 }
 
-declare prev_cmd="null"
-declare this_cmd="null"
-trap 'prev_cmd=$this_cmd; this_cmd=$BASH_COMMAND' DEBUG &&
-    log debug 'DEBUG trap set' ||
-    log error 'DEBUG trap failed to set'
+# declare prev_cmd="null"
+# declare this_cmd="null"
+# trap 'prev_cmd=$this_cmd; this_cmd=$BASH_COMMAND' DEBUG &&
+#     log debug 'DEBUG trap set' ||
+#     log error 'DEBUG trap failed to set'
 
 # This is an option if you want to log every single command executed,
 # but it will significantly impact script performance and unit tests will fail
@@ -151,3 +151,17 @@ trap 'prev_cmd=$this_cmd; this_cmd=$BASH_COMMAND' DEBUG &&
 #trap 'prev_cmd=$this_cmd; this_cmd=$BASH_COMMAND; log debug $this_cmd' DEBUG \
 #  && log debug 'DEBUG trap set' \
 #  || log error 'DEBUG trap failed to set';
+
+# Execute a command handle logging of the output
+#
+# Arguments:
+# - $1 : command (eg. "docker service rm elastic-search")
+# - $2 : error message (eg. "Failed to remove elastic-search service")
+try() {
+    local -r COMMAND=${1:?"FATAL: function 'try' is missing a parameter"}
+    local -r ERROR_MESSAGE=${2:?"FATAL: function 'try' is missing a parameter"}
+
+    if ! eval $COMMAND >/dev/null 2>&1; then
+        log error $ERROR_MESSAGE
+    fi
+}
