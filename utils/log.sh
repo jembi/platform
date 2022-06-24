@@ -100,17 +100,25 @@ function log() {
     colours['EMERG']=''          # Unused
     colours['DEFAULT']='\033[0m' # Default
 
+    local -A emoticons
+    emoticons['DEBUG']='🔷'
+    emoticons['INFO']='❕'
+    emoticons['NOTICE']='💡'
+    emoticons['WARN']='🔶'
+    emoticons['ERROR']='❌'
+    emoticons['CRIT']='⛔'
+    emoticons['ALERT']='❗❗'
+    emoticons['EMERG']='🚨'
+    emoticons['DEFAULT']=''
+
     local norm="${colours['DEFAULT']}"
     local colour="${colours[${upper}]:-\033[31m}"
 
-    local std_line="${colour}${date} [${upper}] ${line}${norm}"
+    local std_line="${colour} ${emoticons[${upper}]}${line}${norm}"
 
     # Standard Output (Pretty)
     case "${level}" in
-    'default')
-        echo -e "${line}${norm}"
-        ;;
-    'info' | 'warn')
+    'default' | 'info' | 'warn')
         echo -e "${std_line}"
         ;;
     'debug')

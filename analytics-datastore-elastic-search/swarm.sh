@@ -42,7 +42,7 @@ set_elasticsearch_passwords() {
 import_elastic_index() {
   # TODO: (castelloG) [PLAT-255] Add support for multiple index imports
   config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml instant >$BASHLOG_FILE_PATH 2>&1
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml instant 2>&1
   config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "elastic-search"
   config::remove_config_importer elastic-search-config-importer
 }
@@ -64,7 +64,10 @@ else
 fi
 
 if [[ "$ACTION" == "init" ]]; then
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $ElasticSearchClusterComposeParam $ElasticSearchDevComposeParam instant >$BASHLOG_FILE_PATH 2>&1
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $ElasticSearchClusterComposeParam $ElasticSearchDevComposeParam instant &&
+    log default "${prev_cmd}" ||
+    log error "${prev_cmd}"
+
   log default "Waiting for elasticsearch to start before automatically setting built-in passwords..."
   docker::await_container_startup analytics-datastore-elastic-search
   docker::await_container_status analytics-datastore-elastic-search running
@@ -76,9 +79,13 @@ if [[ "$ACTION" == "init" ]]; then
 
   log default "Done"
 elif [[ "$ACTION" == "up" ]]; then
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $ElasticSearchClusterComposeParam $ElasticSearchDevComposeParam instant >$BASHLOG_FILE_PATH 2>&1
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $ElasticSearchClusterComposeParam $ElasticSearchDevComposeParam instant &&
+    log debug "${prev_cmd}" ||
+    log error "${prev_cmd}"
 elif [[ "$ACTION" == "down" ]]; then
-  docker service scale instant_analytics-datastore-elastic-search=0
+  docker service scale instant_analytics-datastore-elastic-search=0 &&
+    log debug "${prev_cmd}" ||
+    log error "${prev_cmd}"
 elif [[ "$ACTION" == "destroy" ]]; then
   docker service rm instant_analytics-datastore-elastic-search
 

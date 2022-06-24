@@ -106,7 +106,7 @@ config::copy_shared_configs() {
     local -r CONTAINER_DESTINATION="${2}"
     local serviceId="${3:-""}"
 
-    if [[ -z $serviceId ]]; then
+    if [[ $serviceId -eq "" ]]; then
         serviceId=$(jq '.id' "${PACKAGE_METADATA_PATH}" | sed 's/\"//g')
         echo "$serviceId"
     fi
