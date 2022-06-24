@@ -104,8 +104,6 @@ public_C_ip = "13.24x.xx.xx"
 SSH access should be now available - use the default 'ubuntu' user -
 `ssh ubuntu@<ip_address>`
 
-To run any post-create steps - ie yum update, software install, etc, the commands can be added to the `<project_home>/aws/mercury-team/scripts/ec2_init.sh` file.
-
 Destroying the AWS stack - run:
 
 ```sg

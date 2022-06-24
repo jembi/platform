@@ -23,8 +23,6 @@ resource "aws_instance" "cdrA" {
     delete_on_termination = true
   }
 
-  user_data = "${file("${path.module}/scripts/ec2_init.sh")}"
-
   tags = {
     Name = "${var.PROJECT_NAME}"
   }
