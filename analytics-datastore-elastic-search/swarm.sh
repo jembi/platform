@@ -56,6 +56,22 @@ AwaitContainerReady() {
   echo "Elasticsearch container is in ready state"
 }
 
+AwaitServiceTojoinNetwork() {
+  echo "Waiting for elasticsearch service to join network..."
+
+  local errorTime=30
+  local timer=0
+
+  until [[ $(docker network inspect -v instant_default -f "{{.Services}}") == *"instant_analytics-datastore-elastic-search"* ]]; do
+    if [[ "$timer" == "$errorTime" ]]; then
+      echo "Fatal: Elasticsearch service failed to join network please try again"
+      exit 124 # exit code for timeout is 124
+    fi
+    sleep 1
+    timer=$((timer + 1))
+  done
+}
+
 InstallExpect() {
   echo "Installing Expect..."
   # >/dev/null 2>&1 throws all terminal input and output text away
@@ -133,6 +149,8 @@ if [[ "$Action" == "init" ]]; then
 
   InstallExpect
   SetElasticsearchPasswords
+
+  AwaitServiceTojoinNetwork
 
   ImportElasticIndex
 
