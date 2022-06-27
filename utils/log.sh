@@ -81,7 +81,9 @@ function log() {
         fi
 
         if [ "${file}" -eq 1 ]; then
-            local file_line="${date} [${upper}] ${line}"
+            clean_line="${line//\\e[1A/}"
+            clean_line="${clean_line//\\e[K/}"
+            local file_line="${date} [${upper}] ${clean_line}"
             echo -e "${file_line}" >>"${file_path}" ||
                 _log_exception "echo -e \"${file_line}\" >> \"${file_path}\""
         fi
@@ -142,10 +144,21 @@ function log() {
 
 # This is an option if you want to log every single command executed,
 # but it will significantly impact script performance and unit tests will fail
+if [[ $DEBUG -eq 1 ]]; then
+    declare prev_cmd="null"
+    declare this_cmd="null"
 
-#trap 'prev_cmd=$this_cmd; this_cmd=$BASH_COMMAND; log debug $this_cmd' DEBUG \
-#  && log debug 'DEBUG trap set' \
-#  || log error 'DEBUG trap failed to set';
+    trap 'prev_cmd=$this_cmd; this_cmd=$BASH_COMMAND; log debug $this_cmd' DEBUG
+fi
+
+overwrite() {
+    local -r MESSAGE=${1:?"FATAL: function 'overwrite' is missing a parameter"}
+    if [ "${DEBUG}" -eq 1 ]; then
+        log info "${MESSAGE}"
+    else
+        log info "${CLEAR_PREV_LINE}${MESSAGE}"
+    fi
+}
 
 # Execute a command handle logging of the output
 #
@@ -156,8 +169,22 @@ try() {
     local -r COMMAND=${1:?"FATAL: function 'try' is missing a parameter"}
     local -r ERROR_MESSAGE=${2:?"FATAL: function 'try' is missing a parameter"}
 
-    if ! eval $COMMAND >/dev/null 2>&1; then
-        log error $ERROR_MESSAGE
-        exit 1
+    if [ "${BASHLOG_FILE}" -eq 1 ]; then
+        if ! eval $COMMAND >>$BASHLOG_FILE_PATH 2>&1; then
+            log error $ERROR_MESSAGE
+            exit 1
+        fi
+    else
+        if [ "${DEBUG}" -eq 1 ]; then
+            if ! eval $COMMAND; then
+                log error $ERROR_MESSAGE
+                exit 1
+            fi
+        else
+            if ! eval $COMMAND 1>/dev/null; then
+                log error $ERROR_MESSAGE
+                exit 1
+            fi
+        fi
     fi
 }

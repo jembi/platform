@@ -21,7 +21,7 @@ ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 install_expect() {
   log info "Installing Expect..."
   try "apt-get install -y expect" "Fatal: Failed to install Expect library. Cannot update Elastic Search passwords"
-  log info "${CLEAR_PREV_LINE}Installing Expect... Done"
+  overwrite "Installing Expect... Done"
 }
 
 set_elasticsearch_passwords() {
@@ -29,7 +29,7 @@ set_elasticsearch_passwords() {
   local elasticSearchContainerId=""
   elasticSearchContainerId=$(docker ps -qlf name=instant_analytics-datastore-elastic-search)
   try "${COMPOSE_FILE_PATH}/set-elastic-passwords.exp ${elasticSearchContainerId}" "Fatal: Failed to set elastic passwords. Cannot update Elastic Search passwords"
-  log info "${CLEAR_PREV_LINE}Setting passwords... Done"
+  overwrite "Setting passwords... Done"
 }
 
 import_elastic_index() {
