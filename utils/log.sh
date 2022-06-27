@@ -151,6 +151,10 @@ if [[ $DEBUG -eq 1 ]]; then
     trap 'prev_cmd=$this_cmd; this_cmd=$BASH_COMMAND; log debug $this_cmd' DEBUG
 fi
 
+# Overwrites the last echo'd command with what is provided
+#
+# Arguments:
+# - $1 : message (eg. "Setting passwords... Done")
 overwrite() {
     local -r MESSAGE=${1:?"FATAL: function 'overwrite' is missing a parameter"}
     if [ "${DEBUG}" -eq 1 ]; then
