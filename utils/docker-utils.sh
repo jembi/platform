@@ -21,6 +21,7 @@ docker::await_container_startup() {
         config::timeout_check "${start_time}" "${SERVICE_NAME} to start"
         sleep 1
     done
+    overwrite "Waiting for ${SERVICE_NAME} to start up... Done"
 }
 
 # Waits for a container to be up
@@ -40,6 +41,7 @@ docker::await_container_status() {
         config::timeout_check "${start_time}" "${SERVICE_NAME} to start"
         sleep 1
     done
+    overwrite "Waiting for ${SERVICE_NAME} to be ${SERVICE_STATUS}... Done"
 }
 
 # Waits for a container to be destroyed
@@ -57,4 +59,5 @@ docker::await_container_destroy() {
         config::timeout_check "${start_time}" "${SERVICE_NAME} to be destroyed"
         sleep 1
     done
+    overwrite "Waiting for ${SERVICE_NAME} to be destroyed... Done"
 }

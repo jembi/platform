@@ -10,8 +10,6 @@ COMPOSE_FILE_PATH=$(
   pwd -P
 )
 
-BASHLOG_FILE_PATH=${BASHLOG_FILE_PATH:-"/tmp/logs/platform.log"}
-
 # Import libraries
 ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/config-utils.sh"
@@ -59,7 +57,7 @@ fi
 if [[ "$ACTION" == "init" ]]; then
   try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $ElasticSearchClusterComposeParam $ElasticSearchDevComposeParam instant" "Failed to deploy Analytics Datastore Elastic Search"
 
-  log info "Waiting for elasticsearch to start before automatically setting built-in passwords..."
+  log info "Waiting for elasticsearch to start before automatically setting built-in passwords"
   docker::await_container_startup analytics-datastore-elastic-search
   docker::await_container_status analytics-datastore-elastic-search running
 
