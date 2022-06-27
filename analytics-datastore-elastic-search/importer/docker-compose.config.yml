@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   elastic-search-config-importer:
-      image: jembi/api-config-importer:1.0.1
+      image: jembi/api-config-importer:1.1.0
       environment:
         HTTP_METHOD: 'PUT'
         SERVICE_NAME: 'analytics-datastore-elastic-search'
