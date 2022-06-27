@@ -79,14 +79,13 @@ if [[ "$Action" == "init" ]] || [[ "$Action" == "up" ]]; then
 
   config::set_config_digests "$COMPOSE_FILE_PATH"/docker-compose.yml
 
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $LogstashDevComposeParam $LogstashDevMountComposeParam instant
+  config::generate_service_configs data-mapper-logstash /usr/share/logstash "$COMPOSE_FILE_PATH"/pipeline "${COMPOSE_FILE_PATH}"
+  LogstashTempComposeParam="-c "$COMPOSE_FILE_PATH"/docker-compose.tmp.yml"
+
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $LogstashDevComposeParam $LogstashDevMountComposeParam $LogstashTempComposeParam instant
 
   AwaitContainerStartup
   AwaitContainerReady
-
-  if [[ "$LOGSTASH_DEV_MOUNT" != "true" ]]; then
-    config::copy_shared_configs "$COMPOSE_FILE_PATH"/package-metadata.json /usr/share/logstash/
-  fi
 
   echo "Removing stale configs..."
   config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "logstash"
