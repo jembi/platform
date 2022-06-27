@@ -240,7 +240,6 @@ config::await_network_join() {
   local start_time=$(date +%s)
   local exit_time=30
   local warning_time=10
-  local timer=0
 
   until [[ $(docker network inspect -v instant_default -f "{{.Services}}") == *"${SERVICE_NAME}"* ]]; do
     config::timeout_check $start_time "${SERVICE_NAME} to join the network" $exit_time $warning_time

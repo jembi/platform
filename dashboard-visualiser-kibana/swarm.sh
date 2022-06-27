@@ -42,22 +42,6 @@ configure_nginx() {
   fi
 }
 
-AwaitServiceTojoinNetwork() {
-  echo "Waiting for kibana service to join network..."
-
-  local errorTime=30
-  local timer=0
-
-  until [[ $(docker network inspect -v instant_default -f "{{.Services}}") == *"instant_dashboard-visualiser-kibana"* ]]; do
-    if [[ "$timer" == "$errorTime" ]]; then
-      echo "Fatal: Kibana service failed to join network please try again"
-      exit 124 # exit code for timeout is 124
-    fi
-    sleep 1
-    timer=$((timer + 1))
-  done
-}
-
 main() {
   if [[ "$MODE" == "dev" ]]; then
     printf "\nRunning Dashboard Visualiser Kibana package in DEV mode\n"
