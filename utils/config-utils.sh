@@ -3,6 +3,8 @@
 # Library name: config
 # This is a library that contains functions to assist with docker configs
 
+. "$(pwd)/utils/log.sh"
+
 # Sets the digest variables for the conf raft files in the provided docker compose file
 #
 # Requirements:
@@ -89,7 +91,7 @@ config::remove_stale_service_configs() {
         fi
     done
 
-    docker config rm "${configsToRemove[@]}"
+    try "docker config rm ${configsToRemove[*]}" "Failed to remove configs: ${configsToRemove[*]}"
 }
 
 # Copies sharedConfigs into a package's container root directory

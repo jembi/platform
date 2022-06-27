@@ -2,6 +2,11 @@
 
 set -uo pipefail
 
+# Global constants
+PREV_LINE="\e[1A" # moves cursor to previous line
+CLEAR_LINE="\e[K" # clears the current line the cursor is on
+CLEAR_PREV_LINE="${PREV_LINE}${PREV_LINE}${CLEAR_LINE}"
+
 function _log_exception() {
     (
         BASHLOG_FILE=0
@@ -114,7 +119,7 @@ function log() {
     local norm="${colours['DEFAULT']}"
     local colour="${colours[${upper}]:-\033[31m}"
 
-    local std_line="${colour} ${emoticons[${upper}]}${line}${norm}"
+    local std_line="${colour} ${emoticons[${upper}]} ${line}${norm}"
 
     # Standard Output (Pretty)
     case "${level}" in
@@ -128,22 +133,12 @@ function log() {
         ;;
     'error')
         echo -e "${std_line}" >&2
-        if [ "${debug_level}" -gt 0 ]; then
-            echo -e "Here's a shell to debug with. 'exit 0' to continue. Other exit codes will abort - parent shell will terminate."
-            bash || exit "${?}"
-        fi
         ;;
     *)
         log 'error' "Undefined log level trying to log: ${@}"
         ;;
     esac
 }
-
-# declare prev_cmd="null"
-# declare this_cmd="null"
-# trap 'prev_cmd=$this_cmd; this_cmd=$BASH_COMMAND' DEBUG &&
-#     log debug 'DEBUG trap set' ||
-#     log error 'DEBUG trap failed to set'
 
 # This is an option if you want to log every single command executed,
 # but it will significantly impact script performance and unit tests will fail
@@ -163,5 +158,6 @@ try() {
 
     if ! eval $COMMAND >/dev/null 2>&1; then
         log error $ERROR_MESSAGE
+        exit 1
     fi
 }
