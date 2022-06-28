@@ -17,46 +17,6 @@ ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/docker-utils.sh"
 . "${ROOT_PATH}/utils/log.sh"
 
-AwaitContainerStartup() {
-  log info "Waiting for logstash container to start up..."
-
-  local warningTime=60
-  local errorTime=300
-  local timer=0
-
-  until [[ -n $(docker ps -qlf name=instant_data-mapper-logstash) ]]; do
-    if [[ "$timer" == "$warningTime" ]]; then
-      log warn "Container is taking unusually long to start"
-    elif [[ "$timer" == "$errorTime" ]]; then
-      log error "Logstash container took too long to start up"
-      exit 124 # exit code for timeout is 124
-    fi
-    sleep 1
-    timer=$((timer + 1))
-  done
-  log info "Done"
-}
-
-AwaitContainerReady() {
-  log info "Waiting for logstash container to be in ready state..."
-
-  local warningTime=60
-  local errorTime=300
-  local timer=0
-
-  until [[ "$(docker inspect -f '{{.State.Status}}' $(docker ps -qlf name=instant_data-mapper-logstash))" = "running" ]]; do
-    if [[ "$timer" == "$warningTime" ]]; then
-      log warn "Container is taking unusually long to start"
-    elif [[ "$timer" == "$errorTime" ]]; then
-      log error "Logstash container took too long to start up"
-      exit 124 # exit code for timeout is 124
-    fi
-    sleep 1
-    timer=$((timer + 1))
-  done
-  log info "Done"
-}
-
 if [[ "$Mode" == "dev" ]]; then
   log info "Running Data Mapper Logstash package in DEV mode"
   LogstashDevComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
@@ -81,16 +41,15 @@ if [[ "$Action" == "init" ]] || [[ "$Action" == "up" ]]; then
 
   config::set_config_digests "${COMPOSE_FILE_PATH}"/docker-compose.yml
 
-  config::generate_service_configs data-mapper-logstash /usr/share/logstash "$COMPOSE_FILE_PATH"/pipeline "${COMPOSE_FILE_PATH}"
+  config::generate_service_configs data-mapper-logstash /usr/share/logstash "${COMPOSE_FILE_PATH}/pipeline" "${COMPOSE_FILE_PATH}"
   LogstashTempComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.tmp.yml"
 
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml "$LogstashDevComposeParam" "$LogstashDevMountComposeParam" "$LogstashTempComposeParam" instant
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $LogstashDevComposeParam $LogstashDevMountComposeParam $LogstashTempComposeParam instant" "Failed to deploy Data Mapper Logstash"
 
   docker::await_container_startup data-mapper-logstash
   docker::await_container_status data-mapper-logstash running
 
-  echo "Removing stale configs..."
-  config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "logstash"
+  config::remove_stale_service_configs "${COMPOSE_FILE_PATH}/docker-compose.yml" "logstash"
 
   log info "Done"
 elif [[ "$Action" == "down" ]]; then
