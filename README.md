@@ -60,7 +60,7 @@ As you add new packages to the platform remember to list them in `config.yml` fi
 
 For logging all output to a file, ensure that you have created the file and it has the required permissions to be written to.
 The default log file with it's path is set in `.env.local` in `BASHLOG_FILE_PATH`. 
-In order to use this file you would need to launch platform with the --log-path attribute to create a bind mount for the logs to be stored on the host eg.`platform-linux init analytics-datastore-elastic-search --dev --env-file=.env.local --log-path=/tmp/logs`
+The logPath property in the `config.yml` is used to create a bind mount for the logs to be stored on the host.
 
 ## Resource Allocations
 
