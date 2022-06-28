@@ -58,7 +58,7 @@ The Go Cli runs all services from the `jembi/platform` docker image. When develo
 
 As you add new packages to the platform remember to list them in `config.yml` file. This config file controls what packages the Go Cli can launch from the UI.
 
-For logging all ouput to a file, ensure that you have created the file and it has the required permissions to be written to.
+For logging all output to a file, ensure that you have created the file and it has the required permissions to be written to.
 The default log file with it's path is set in `.env.local` in `BASHLOG_FILE_PATH`. 
 In order to use this file you would need to launch platform with the --log-path attribute to create a bind mount for the logs to be stored on the host eg.`platform-linux init analytics-datastore-elastic-search --dev --env-file=.env.local --log-path=/tmp/logs`
 
