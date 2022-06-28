@@ -14,6 +14,7 @@ COMPOSE_FILE_PATH=$(
 # Import libraries
 ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/config-utils.sh"
+. "${ROOT_PATH}/utils/docker-utils.sh"
 . "${ROOT_PATH}/utils/log.sh"
 
 AwaitContainerStartup() {
@@ -78,31 +79,24 @@ fi
 
 if [[ "$Action" == "init" ]] || [[ "$Action" == "up" ]]; then
 
-  config::set_config_digests "$COMPOSE_FILE_PATH"/docker-compose.yml
+  config::set_config_digests "${COMPOSE_FILE_PATH}"/docker-compose.yml
 
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $LogstashDevComposeParam $LogstashDevMountComposeParam instant &&
-    log debug "${prev_cmd}" ||
-    log error "${prev_cmd}"
+  config::generate_service_configs data-mapper-logstash /usr/share/logstash "$COMPOSE_FILE_PATH"/pipeline "${COMPOSE_FILE_PATH}"
+  LogstashTempComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.tmp.yml"
 
-  AwaitContainerStartup
-  AwaitContainerReady
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml "$LogstashDevComposeParam" "$LogstashDevMountComposeParam" "$LogstashTempComposeParam" instant
 
-  if [[ "$LOGSTASH_DEV_MOUNT" != "true" ]]; then
-    config::copy_shared_configs "$COMPOSE_FILE_PATH"/package-metadata.json /usr/share/logstash/
-  fi
+  docker::await_container_startup data-mapper-logstash
+  docker::await_container_status data-mapper-logstash running
 
-  log info "Removing stale configs..."
+  echo "Removing stale configs..."
   config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "logstash"
 
   log info "Done"
 elif [[ "$Action" == "down" ]]; then
-  docker service scale instant_data-mapper-logstash=0 &&
-    log debug "${prev_cmd}" ||
-    log error "${prev_cmd}"
+  docker service scale instant_data-mapper-logstash=0
 elif [[ "$Action" == "destroy" ]]; then
-  docker service rm instant_data-mapper-logstash &&
-    log debug "${prev_cmd}" ||
-    log error "${prev_cmd}"
+  docker service rm instant_data-mapper-logstash
 else
   log error "Valid options are: init, up, down, or destroy"
 fi
