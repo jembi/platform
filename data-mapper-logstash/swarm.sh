@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Arguments
-Action=$1
-Mode=$2
+ACTION=$1
+MODE=$2
 
 readonly LOGSTASH_DEV_MOUNT=$LOGSTASH_DEV_MOUNT
 
@@ -17,7 +17,7 @@ ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/docker-utils.sh"
 . "${ROOT_PATH}/utils/log.sh"
 
-if [[ "$Mode" == "dev" ]]; then
+if [[ "$MODE" == "dev" ]]; then
   log info "Running Data Mapper Logstash package in DEV mode"
   LogstashDevComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
 else
@@ -37,7 +37,7 @@ else
   LogstashDevMountComposeParam=""
 fi
 
-if [[ "$Action" == "init" ]] || [[ "$Action" == "up" ]]; then
+if [[ "$ACTION" == "init" ]] || [[ "$ACTION" == "up" ]]; then
 
   config::set_config_digests "${COMPOSE_FILE_PATH}"/docker-compose.yml
 
@@ -52,10 +52,10 @@ if [[ "$Action" == "init" ]] || [[ "$Action" == "up" ]]; then
   config::remove_stale_service_configs "${COMPOSE_FILE_PATH}/docker-compose.yml" "logstash"
 
   log info "Done"
-elif [[ "$Action" == "down" ]]; then
-  docker service scale instant_data-mapper-logstash=0
-elif [[ "$Action" == "destroy" ]]; then
-  docker service rm instant_data-mapper-logstash
+elif [[ "$ACTION" == "down" ]]; then
+  try "docker service scale instant_data-mapper-logstash=0" "Failed to scale down data-mapper-logstash"
+elif [[ "$ACTION" == "destroy" ]]; then
+  try "docker service rm instant_data-mapper-logstash" "Failed to remove data-mapper-logstash"
 else
   log error "Valid options are: init, up, down, or destroy"
 fi
