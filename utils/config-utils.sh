@@ -90,7 +90,9 @@ config::remove_stale_service_configs() {
         fi
     done
 
-    docker config rm "${configsToRemove[@]}"
+    if [[ ${#configsToRemove[@]} -gt 0 ]]; then
+        docker config rm "${configsToRemove[@]}"
+    fi
 }
 
 # A function that exists in a loop to see how long that loop has run for, providing a warning
