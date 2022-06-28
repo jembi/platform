@@ -7,6 +7,10 @@ PREV_LINE="\e[1A" # moves cursor to previous line
 CLEAR_LINE="\e[K" # clears the current line the cursor is on
 CLEAR_PREV_LINE="${PREV_LINE}${PREV_LINE}${CLEAR_LINE}"
 
+# Defaults
+DEBUG="${DEBUG:-0}"
+BASHLOG_FILE="${BASHLOG_FILE:-0}"
+
 function _log_exception() {
     (
         BASHLOG_FILE=0
