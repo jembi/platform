@@ -17,7 +17,7 @@
 # Exports:
 # As many digest environment variables as are declared in the provided docker compose file
 config::set_config_digests() {
-    local -r DOCKER_COMPOSE_PATH=$1
+    local -r DOCKER_COMPOSE_PATH="${1:?"FATAL: function 'set_config_digests' is missing a parameter"}"
 
     # Get configs files and names from yml file
     local -r files=($(yq '.configs."*.*".file' "${DOCKER_COMPOSE_PATH}"))
@@ -47,8 +47,8 @@ config::set_config_digests() {
 # - $1 : docker compose directory path (eg. /home/user/project/docker-compose.yml)
 # - $2 : config label (eg. logstash)
 config::remove_stale_service_configs() {
-    local -r DOCKER_COMPOSE_PATH=$1
-    local -r CONFIG_LABEL=$2
+    local -r DOCKER_COMPOSE_PATH="${1:?"FATAL: function 'remove_stale_service_configs' is missing a parameter"}"
+    local -r CONFIG_LABEL="${2:?"FATAL: function 'remove_stale_service_configs' is missing a parameter"}"
 
     local -r composeNames=($(yq '.configs."*.*".name' "${DOCKER_COMPOSE_PATH}"))
     local configsToRemove=()
@@ -106,8 +106,8 @@ config::remove_stale_service_configs() {
 # - $2 : container destination (eg. /usr/share/logstash/)
 # - $3 : service id (eg. data-mapper-logstash) (tries to retrieve service name from package-metadata if not provided)
 config::copy_shared_configs() {
-    local -r PACKAGE_METADATA_PATH="${1}"
-    local -r CONTAINER_DESTINATION="${2}"
+    local -r PACKAGE_METADATA_PATH="${1:?"FATAL: function 'copy_shared_configs' is missing a parameter"}"
+    local -r CONTAINER_DESTINATION="${2:?"FATAL: function 'copy_shared_configs' is missing a parameter"}"
     local serviceId="${3:-""}"
 
     if [[ $serviceId -eq "" ]]; then
