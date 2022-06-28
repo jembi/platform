@@ -91,7 +91,9 @@ config::remove_stale_service_configs() {
         fi
     done
 
-    try "docker config rm ${configsToRemove[*]}" "Failed to remove configs: ${configsToRemove[*]}"
+    if [[ "${#configsToRemove[@]}" -gt 0 ]]; then
+        try "docker config rm ${configsToRemove[*]}" "Failed to remove configs: ${configsToRemove[*]}"
+    fi
 }
 
 # Copies sharedConfigs into a package's container root directory
