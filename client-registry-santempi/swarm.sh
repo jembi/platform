@@ -7,6 +7,9 @@ composeFilePath=$(
   pwd -P
 )
 
+TIMESTAMP="$(date "+%Y%m%d%H%M%S")"
+readonly TIMESTAMP
+
 if [ $statefulNodes == "cluster" ]; then
   printf "\nRunning Client Registry SanteMPI package in Cluster node mode\n"
   postgresClusterComposeParam="-c ${composeFilePath}/docker-compose-postgres.cluster.yml"
@@ -32,6 +35,9 @@ if [ "$1" == "init" ]; then
   sleep 30
 
   docker stack deploy -c "$composeFilePath"/docker-compose.yml $santeMPIDevComposeParam instant
+  if [[ "$2" != "dev" ]]; then
+    configure_nginx "$@"
+  fi
 elif [ "$1" == "up" ]; then
   docker stack deploy -c "$composeFilePath"/docker-compose-postgres.yml $postgresClusterComposeParam $postgresDevComposeParam instant
 
@@ -55,3 +61,27 @@ elif [ "$1" == "destroy" ]; then
 else
   echo "Valid options are: init, up, down, or destroy"
 fi
+
+configure_nginx() {
+  if [[ "${INSECURE}" == "true" ]]; then
+    docker config create --label name=nginx "${TIMESTAMP}-http-client-registry-santempi-insecure.conf" "${composeFilePath}/config/http-client-registry-santempi-insecure.conf"
+    echo "Updating nginx service: adding client-registry-santempi config file..."
+    if ! docker service update \
+      --config-add source="${TIMESTAMP}-http-client-registry-santempi-insecure.conf",target=/etc/nginx/conf.d/http-client-registry-santempi-insecure.conf \
+      instant_reverse-proxy-nginx >/dev/null; then
+      echo "Error updating nginx service"
+      exit 1
+    fi
+    echo "Done updating nginx service"
+  else
+    docker config create --label name=nginx "${TIMESTAMP}-http-client-registry-santempi-secure.conf" "${composeFilePath}/config/http-client-registry-santempi-secure.conf"
+    echo "Updating nginx service: adding client-registry-santempi config file..."
+    if ! docker service update \
+      --config-add source="${TIMESTAMP}-http-client-registry-santempi-secure.conf",target=/etc/nginx/conf.d/http-client-registry-santempi-secure.conf \
+      instant_reverse-proxy-nginx >/dev/null; then
+      echo "Error updating nginx service"
+      exit 1
+    fi
+    echo "Done updating nginx service"
+  fi
+}
