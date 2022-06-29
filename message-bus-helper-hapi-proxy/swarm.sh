@@ -1,7 +1,7 @@
 #!/bin/bash
 
 composeFilePath=$(
-  cd "$(dirname "${BASH_SOURCE[0]}")"
+  cd "$(dirname "${BASH_SOURCE[0]}")" || exit
   pwd -P
 )
 
@@ -22,5 +22,5 @@ elif [ "$1" == "down" ]; then
 elif [ "$1" == "destroy" ]; then
   docker service rm instant_hapi-proxy
 else
-  echo "Valid options are: init, up, down, or destroy"
+  log error "Valid options are: init, up, down, or destroy"
 fi
