@@ -58,6 +58,10 @@ The Go Cli runs all services from the `jembi/platform` docker image. When develo
 
 As you add new packages to the platform remember to list them in `config.yml` file. This config file controls what packages the Go Cli can launch from the UI.
 
+For logging all output to a file, ensure that you have created the file and it has the required permissions to be written to.
+The default log file with it's path is set in `.env.local` in `BASHLOG_FILE_PATH`. 
+The logPath property in the `config.yml` is used to create a bind mount for the logs to be stored on the host.
+
 ## Resource Allocations
 
 The resource allocations for each service can be found in each service's respective docker-compose.yml file under `deploy.resources`. The field `reservations` specifies reserved resources for that service, per container. The field `limits` specifies that maximum amount of resources that can be used by that service, per container.
