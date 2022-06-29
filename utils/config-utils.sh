@@ -234,12 +234,12 @@ config::await_service_removed() {
 # Arguments:
 # $1 : service name (eg. instant_analytics-datastore-elastic-search)
 config::await_network_join() {
-  echo "Waiting for elasticsearch service to join network..."
-
   local -r SERVICE_NAME="${1:?"FATAL: await_service_removed SERVICE_NAME not provided"}"
   local start_time=$(date +%s)
   local exit_time=30
   local warning_time=10
+
+  echo "Waiting for ${SERVICE_NAME} to join network..."
 
   until [[ $(docker network inspect -v instant_default -f "{{.Services}}") == *"${SERVICE_NAME}"* ]]; do
     config::timeout_check $start_time "${SERVICE_NAME} to join the network" $exit_time $warning_time
