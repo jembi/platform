@@ -201,7 +201,7 @@ config::await_service_removed() {
     local start_time=$(date +%s)
 
     until [[ -z $(docker stack ps instant -qf name="${SERVICE_NAME}") ]]; do
-        config::timeout_check """$start_ti"m"e" "${SERVICE_NAME} to be removed"
+        config::timeout_check "$start_time" "${SERVICE_NAME} to be removed"
         sleep 1
     done
 }
