@@ -3,4 +3,6 @@ version: '3.9'
 services:
   dashboard-visualiser-jsreport:
     ports:
-      - 5488:5488
+      - target: 5488
+        published: 5488
+        mode: ingress
