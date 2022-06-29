@@ -5,4 +5,4 @@ services:
     ports:
       - target: 8080
         published: 3447
-        mode: host
+        mode: ingress

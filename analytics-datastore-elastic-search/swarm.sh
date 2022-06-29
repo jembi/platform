@@ -134,6 +134,8 @@ if [[ "$Action" == "init" ]]; then
   InstallExpect
   SetElasticsearchPasswords
 
+  config::await_network_join "instant_analytics-datastore-elastic-search"
+
   ImportElasticIndex
 
   echo "Done initialising"

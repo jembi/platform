@@ -5,25 +5,25 @@ services:
     ports:
       - target: 8080
         published: 8080
-        mode: host
+        mode: ingress
       - target: 5000
         published: 5000
-        mode: host
+        mode: ingress
       - target: 5001
         published: 5001
-        mode: host
+        mode: ingress
       - target: 5050
         published: 5050
-        mode: host
+        mode: ingress
       - target: 5051
         published: 5051
-        mode: host
+        mode: ingress
       - target: 5052
         published: 5052
-        mode: host
+        mode: ingress
 
   openhim-console:
     ports:
         - target: 80
           published: 9000
-          mode: host
+          mode: ingress

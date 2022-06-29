@@ -5,4 +5,4 @@ services:
     ports:
       - target: 27017
         published: 27017
-        mode: host
+        mode: ingress
