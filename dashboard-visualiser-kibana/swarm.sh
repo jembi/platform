@@ -56,8 +56,6 @@ main() {
 
     config::await_service_running "dashboard-visualiser-kibana" "${COMPOSE_FILE_PATH}/docker-compose.await-helper.yml" "$KIBANA_INSTANCES"
 
-    config::await_network_join "dashboard-visualiser-kibana"
-
     echo "Setting config digests"
     config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
     docker stack deploy -c "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml instant
