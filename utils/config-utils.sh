@@ -30,7 +30,8 @@ config::set_config_digests() {
         envVarName=$(echo "${name}" | grep -P -o "{.*:?err}" | sed 's/[{}]//g' | sed 's/:?err//g')
 
         # generate and truncate the digest to conform to the 64 character restriction on docker config names
-        remainder=$((64 - (${#name} - ${#envVarName} - 5))) # '${:?err}' = 5 characters (for env var declaration characters)
+        envDeclarationCharacters=":?err" # '${:?err}' from setting an env variable
+        remainder=$((64 - (${#name} - ${#envVarName} - ${#envDeclarationCharacters})))
         export "${envVarName}"="$(cksum "${fileName}" | awk '{print $1}' | cut -c -${remainder})"
     done
 }
@@ -90,34 +91,6 @@ config::remove_stale_service_configs() {
     done
 
     docker config rm "${configsToRemove[@]}"
-}
-
-# Copies sharedConfigs into a package's container root directory
-#
-# Requirements:
-# - The package-metadata.json file requires a sharedConfigs property with an array of shared directories/files
-#
-# Arguments:
-# $1 : package metadata path (eg. /home/user/project/platform-implementation/packages/package/package-metadata.json)
-# $2 : container destination (eg. /usr/share/logstash/)
-# $3 : service id (eg. data-mapper-logstash) (tries to retrieve service name from package-metadata if not provided)
-config::copy_shared_configs() {
-    local -r PACKAGE_METADATA_PATH=$1
-    local -r CONTAINER_DESTINATION=$2
-    local serviceId=$3
-
-    if [[ -z $SERVICE_ID ]]; then
-        serviceId=$(jq '.id' "${PACKAGE_METADATA_PATH}" | sed 's/\"//g')
-    fi
-
-    local -r sharedConfigs=($(jq '.sharedConfigs[]' "${PACKAGE_METADATA_PATH}"))
-    local -r packageBaseDir=$(dirname "${PACKAGE_METADATA_PATH}")
-    local -r containerId=$(docker container ls -qlf name=instant_"${serviceId}")
-
-    for sharedConfig in "${sharedConfigs[@]}"; do
-        # TODO: (https://jembiprojects.jira.com/browse/PLAT-252) swap docker copy for a swarm compliant approach
-        docker cp -a "${packageBaseDir}""${sharedConfig//\"//}" "${containerId}":"${CONTAINER_DESTINATION}"
-    done
 }
 
 # A function that exists in a loop to see how long that loop has run for, providing a warning
@@ -245,4 +218,60 @@ config::await_network_join() {
     config::timeout_check $start_time "${SERVICE_NAME} to join the network" $exit_time $warning_time
     sleep 1
   done
+}
+
+# Generates configs for a service from a folder and adds them to a temp docker-compose file
+#
+# Arguments:
+# - $1 : service name (eg. data-mapper-logstash)
+# - $2 : target base (eg. /usr/share/logstash/)
+# - $3 : target folder path in absolute format (eg. "$COMPOSE_FILE_PATH"/pipeline)
+# - $4 : compose file path (eg. "$COMPOSE_FILE_PATH")
+#
+# Exports:
+# All exports are required for yq to process the values and are not intended for external use
+# - service_config_query
+# - config_target
+# - config_source
+# - config_query
+# - config_file
+# - config_label_name
+# - config_service_name
+config::generate_service_configs() {
+    local -r SERVICE_NAME=${1:?"FATAL: generate_service_config parameter missing"}
+    local -r TARGET_BASE=${2:?"FATAL: generate_service_config parameter missing"}
+    local -r TARGET_FOLDER_PATH=${3:?"FATAL: generate_service_config parameter missing"}
+    local -r COMPOSE_FILE_PATH=${4:?"FATAL: generate_service_config parameter missing"}
+    local -r TARGET_FOLDER_NAME=$(basename "${TARGET_FOLDER_PATH}")
+    local count=0
+
+    touch "${COMPOSE_FILE_PATH}/docker-compose.tmp.yml"
+
+    find "${TARGET_FOLDER_PATH}" -maxdepth 10 -mindepth 1 -type f | while read -r file; do
+        file_name=${file/"${TARGET_FOLDER_PATH%/}"/}
+        file_name=${file_name:1}
+        file_hash=$(cksum "${file}" | awk '{print $1}')
+
+        # for these variables to be visible by yq they need to be exported
+        export service_config_query=".services.${SERVICE_NAME}.configs[${count}]"
+        export config_target="${TARGET_BASE%/}/${TARGET_FOLDER_NAME}/${file_name}"
+        export config_source="${SERVICE_NAME}-${file_hash}"
+
+        export config_query=".configs.${config_source}"
+        export config_file="./${TARGET_FOLDER_NAME}/${file_name}"
+        export config_label_name="${TARGET_FOLDER_NAME}/${file_name}"
+        export config_service_name=$SERVICE_NAME
+
+        yq -i '
+        .version = "3.9" |
+        eval(strenv(service_config_query)).target = env(config_target) |
+        eval(strenv(service_config_query)).source = strenv(config_source) |
+        eval(strenv(config_query)).file = strenv(config_file) |
+        eval(strenv(config_query)).name = strenv(config_source) |
+        eval(strenv(config_query)).labels.name = strenv(config_label_name) |
+        eval(strenv(config_query)).labels.service = strenv(config_service_name)
+        ' "${COMPOSE_FILE_PATH}/docker-compose.tmp.yml"
+
+        count=$((count + 1))
+    done
 }
