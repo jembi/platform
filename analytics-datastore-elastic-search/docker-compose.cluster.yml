@@ -20,7 +20,8 @@ services:
           - "node.labels.name==node-1"
     environment:
       node.name: es01
-      discovery.seed_hosts: analytics-datastore-elastic-search-01,analytics-datastore-elastic-search-02,analytics-datastore-elastic-search-03
+      cluster.name: es-cluster
+      discovery.seed_hosts: analytics-datastore-elastic-search-02,analytics-datastore-elastic-search-03
       cluster.initial_master_nodes: es01,es02,es03
       xpack.license.self_generated.type: basic
       bootstrap.memory_lock: 'true'
@@ -72,7 +73,8 @@ services:
           - "node.labels.name==node-2"
     environment:
       node.name: es02
-      discovery.seed_hosts: analytics-datastore-elastic-search-01,analytics-datastore-elastic-search-02,analytics-datastore-elastic-search-03
+      cluster.name: es-cluster
+      discovery.seed_hosts: analytics-datastore-elastic-search-01,analytics-datastore-elastic-search-03
       cluster.initial_master_nodes: es01,es02,es03
       bootstrap.memory_lock: 'true'
       xpack.security.enabled: 'true'
@@ -124,7 +126,8 @@ services:
           - "node.labels.name==node-3"
     environment:
       node.name: es03
-      discovery.seed_hosts: analytics-datastore-elastic-search-01,analytics-datastore-elastic-search-02,analytics-datastore-elastic-search-03
+      cluster.name: es-cluster
+      discovery.seed_hosts: analytics-datastore-elastic-search-01,analytics-datastore-elastic-search-02
       cluster.initial_master_nodes: es01,es02,es03
       bootstrap.memory_lock: 'true'
       xpack.security.enabled: 'true'
