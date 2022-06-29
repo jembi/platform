@@ -16,37 +16,37 @@ ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/config-utils.sh"
 
 if [ "$STATEFUL_NODES" == "cluster" ]; then
-  echo "Running FHIR Datastore HAPI FHIR package in Cluster node mode"
+  log info "Running FHIR Datastore HAPI FHIR package in Cluster node mode"
   postgresClusterComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose-postgres.cluster.yml"
 else
-  echo "Running FHIR Datastore HAPI FHIR package in Single node mode"
+  log info "Running FHIR Datastore HAPI FHIR package in Single node mode"
   postgresClusterComposeParam=""
 fi
 
 if [ "$MODE" == "dev" ]; then
-  echo "Running FHIR Datastore HAPI FHIR package in DEV mode"
+  log info "Running FHIR Datastore HAPI FHIR package in DEV mode"
   postgresDevComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose-postgres.dev.yml"
   hapiFhirDevComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
 else
-  echo "Running FHIR Datastore HAPI FHIR package in PROD mode"
+  log info "Running FHIR Datastore HAPI FHIR package in PROD mode"
   postgresDevComposeParam=""
   hapiFhirDevComposeParam=""
 fi
 
 if [ "$ACTION" == "init" ]; then
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose-postgres.yml $postgresClusterComposeParam $postgresDevComposeParam instant
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose-postgres.yml "$postgresClusterComposeParam" "$postgresDevComposeParam" instant
 
-  echo "Sleep 60 seconds to give Postgres time to start up before HAPI-FHIR"
+  log info "Sleep 60 seconds to give Postgres time to start up before HAPI-FHIR"
   sleep 60
 
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $hapiFhirDevComposeParam instant
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml "$hapiFhirDevComposeParam" instant
 elif [ "$ACTION" == "up" ]; then
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose-postgres.yml $postgresClusterComposeParam $postgresDevComposeParam instant
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose-postgres.yml "$postgresClusterComposeParam" "$postgresDevComposeParam" instant
 
-  echo "Sleep 20 seconds to give Postgres time to start up before HAPI-FHIR"
+  log info "Sleep 20 seconds to give Postgres time to start up before HAPI-FHIR"
   sleep 20
 
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $hapiFhirDevComposeParam instant
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml "$hapiFhirDevComposeParam" instant
 elif [ "$ACTION" == "down" ]; then
   docker service scale instant_hapi-fhir=0 instant_postgres-1=0
 
@@ -68,8 +68,8 @@ elif [ "$ACTION" == "destroy" ]; then
     config::await_service_removed instant_postgres-3
     docker volume rm instant_hapi-postgres-2-data instant_hapi-postgres-3-data &>/dev/null
 
-    echo "Volumes are only deleted on the host on which the command is run. Postgres volumes on other nodes are not deleted"
+    log warning "Volumes are only deleted on the host on which the command is run. Postgres volumes on other nodes are not deleted"
   fi
 else
-  echo "Valid options are: init, up, down, or destroy"
+  log error "Valid options are: init, up, down, or destroy"
 fi
