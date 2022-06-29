@@ -84,7 +84,7 @@ config::remove_stale_service_configs() {
     # Remove configs without a reference
     configRaftNames=($(docker config ls -f "label=name=${CONFIG_LABEL}" --format "{{.Name}}"))
     for configRaftName in "${configRaftNames[@]}"; do
-        nameWithoutDigest=$(echo """$configRaftNa"m"e" | sed 's/-[a-f0-9]*$//g')
+        nameWithoutDigest=$(echo "$configRaftName" | sed 's/-[a-f0-9]*$//g')
         raftOccurencesInCompose=$(for word in "${composeNames[@]}"; do echo "${word}"; done | grep -c "${nameWithoutDigest}")
 
         if [[ "${raftOccurencesInCompose}" == 0 ]]; then
