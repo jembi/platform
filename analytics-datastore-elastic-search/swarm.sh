@@ -111,9 +111,11 @@ ImportElasticIndex() {
 if [[ "$STATEFUL_NODES" == "cluster" ]]; then
   printf "\nRunning Analytics Datastore Elastic Search package in Cluster node mode\n"
   ElasticSearchClusterComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.cluster.yml"
+  # TODO move this out of here
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.certs.yml instant
 else
   printf "\nRunning Analytics Datastore Elastic Search package in Single node mode\n"
-  ElasticSearchClusterComposeParam=""
+  ElasticSearchClusterComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.yml"
 fi
 
 if [[ "$Mode" == "dev" ]]; then
@@ -125,7 +127,14 @@ else
 fi
 
 if [[ "$Action" == "init" ]]; then
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $ElasticSearchClusterComposeParam $ElasticSearchDevComposeParam instant
+  docker stack deploy $ElasticSearchClusterComposeParam $ElasticSearchDevComposeParam instant
+  # TODO remove
+  if [ $? -eq 0 ]; then
+    echo OK
+  else
+    echo FAIL
+    exit 1
+  fi
 
   echo "Waiting for elasticsearch to start before automatically setting built-in passwords..."
   AwaitContainerStartup
@@ -141,8 +150,14 @@ elif [[ "$Action" == "up" ]]; then
   docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $ElasticSearchClusterComposeParam $ElasticSearchDevComposeParam instant
 elif [[ "$Action" == "down" ]]; then
   docker service scale instant_analytics-datastore-elastic-search=0
+  docker service scale instant_analytics-datastore-elastic-search-01=0
+  docker service scale instant_analytics-datastore-elastic-search-02=0
+  docker service scale instant_analytics-datastore-elastic-search-03=0
 elif [[ "$Action" == "destroy" ]]; then
   docker service rm instant_analytics-datastore-elastic-search
+  docker service rm instant_analytics-datastore-elastic-search-01
+  docker service rm instant_analytics-datastore-elastic-search-02
+  docker service rm instant_analytics-datastore-elastic-search-03
 
   AwaitContainerDestroy
 
