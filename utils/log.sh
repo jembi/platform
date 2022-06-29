@@ -11,6 +11,9 @@ CLEAR_PREV_LINE="${PREV_LINE}${PREV_LINE}${CLEAR_LINE}"
 DEBUG="${DEBUG:-0}"
 BASHLOG_FILE="${BASHLOG_FILE:-0}"
 
+root_log_file_path="/tmp/logs/" # TODO: Replace this with a way of retrieving the path from the config.yml file
+BASHLOG_FILE_PATH="${BASHLOG_FILE_PATH:-${root_log_file_path}platform.log}"
+
 function _log_exception() {
     (
         BASHLOG_FILE=0
