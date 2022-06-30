@@ -10,6 +10,16 @@ COMPOSE_FILE_PATH=$(
 ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/config-utils.sh"
 
+AwaitReplicaReachable () {
+    local -r SERVICE_NAME="${1:?"FATAL: AwaitReplicaReachable SERVICE_NAME not provided"}"
+    local -r StartTime=$(date +%s)
+
+    until [ $(docker service logs --tail all $SERVICE_NAME | grep "waiting for connections on port" | wc -l) -gt 0 ]; do
+        config::timeout_check $StartTime "mongo replica set to be reachable"
+        sleep 1
+    done
+}
+
 MONGO_SET_COUNT=${MONGO_SET_COUNT:-3}
 Config='{"_id":"mongo-set","members":['
 Priority="1"
@@ -36,8 +46,14 @@ until [[ $RunningInstanceCount -eq $MONGO_SET_COUNT ]]; do
         fi
     done
 done
-# This sleep ensures that the replica sets are reachable
-sleep 10
+
+# Ensures that the replica sets are reachable
+ReachableInstanceCount=1
+until [[ $ReachableInstanceCount -eq $(($MONGO_SET_COUNT+1)) ]]; do
+    echo instant_mongo-$ReachableInstanceCount
+    AwaitReplicaReachable instant_mongo-$ReachableInstanceCount
+    ReachableInstanceCount=$(($ReachableInstanceCount + 1))
+done
 
 # TODO (PLAT-256): only works if deploying to node-1 labeled node
 # With docker swarm any manager can be the target but this bit of code only work if we target node-1 specifically.

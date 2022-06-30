@@ -21,6 +21,7 @@ readonly COMPOSE_FILE_PATH
 # Import libraries
 ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/config-utils.sh"
+. "${ROOT_PATH}/utils/docker-utils.sh"
 
 verify_core() {
   local start_time
@@ -168,8 +169,8 @@ main() {
     echo "Waiting to give core config importer time to run before cleaning up service"
     remove_config_importer
 
-    # Sleep to ensure config importer is removed
-    sleep 5
+    # Ensure config importer is removed
+    config::await_service_removed instant_interoperability-layer-openhim-config-importer
 
     echo "Removing stale configs..."
     config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "openhim"

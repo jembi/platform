@@ -14,6 +14,25 @@ readonly COMPOSE_FILE_PATH
 # Import libraries
 ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/config-utils.sh"
+. "${ROOT_PATH}/utils/docker-utils.sh"
+
+AwaitPostgresToStart() {
+  echo "Await Postgres to start up before HAPI-FHIR"
+
+  if [ "$STATEFUL_NODES" == "cluster" ]; then
+    docker::await_container_startup postgres-1
+    docker::await_container_status postgres-1 running
+
+    docker::await_container_startup postgres-2
+    docker::await_container_status postgres-2 running
+
+    docker::await_container_startup postgres-3
+    docker::await_container_status postgres-3 running
+  else
+    docker::await_container_startup postgres-1
+    docker::await_container_status postgres-1 running
+  fi
+}
 
 if [ "$STATEFUL_NODES" == "cluster" ]; then
   echo "Running FHIR Datastore HAPI FHIR package in Cluster node mode"
@@ -35,17 +54,15 @@ fi
 
 if [ "$ACTION" == "init" ]; then
   docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose-postgres.yml $postgresClusterComposeParam $postgresDevComposeParam instant
-
-  echo "Sleep 60 seconds to give Postgres time to start up before HAPI-FHIR"
-  sleep 60
+  
+  AwaitPostgresToStart
 
   docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $hapiFhirDevComposeParam instant
 elif [ "$ACTION" == "up" ]; then
   docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose-postgres.yml $postgresClusterComposeParam $postgresDevComposeParam instant
-
-  echo "Sleep 20 seconds to give Postgres time to start up before HAPI-FHIR"
-  sleep 20
-
+  
+  AwaitPostgresToStart
+  
   docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $hapiFhirDevComposeParam instant
 elif [ "$ACTION" == "down" ]; then
   docker service scale instant_hapi-fhir=0 instant_postgres-1=0
