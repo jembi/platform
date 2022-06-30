@@ -21,6 +21,7 @@ readonly COMPOSE_FILE_PATH
 # Import libraries
 ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/config-utils.sh"
+. "${ROOT_PATH}/utils/log.sh"
 
 verify_core() {
   local start_time
@@ -44,7 +45,7 @@ verify_core() {
     fi
   done
 
-  docker service rm instant_await-helper
+  try "docker service rm instant_await-helper" "Failed to remove await helper"
 }
 
 remove_config_importer() {
@@ -64,7 +65,7 @@ remove_config_importer() {
     fi
   done
 
-  docker service rm instant_interoperability-layer-openhim-config-importer
+  try "docker service rm instant_interoperability-layer-openhim-config-importer" "Failed to remove config importer"
 }
 
 verify_mongos() {
@@ -93,26 +94,15 @@ prepare_console_config() {
 
 configure_nginx() {
   if [[ "${INSECURE}" == "true" ]]; then
-    docker config create --label name=nginx "${TIMESTAMP}-http-openhim-insecure.conf" "${COMPOSE_FILE_PATH}"/config/http-openhim-insecure.conf
-    docker config create --label name=nginx "${TIMESTAMP}-stream-openhim-insecure.conf" "${COMPOSE_FILE_PATH}"/config/stream-openhim-insecure.conf
+    try "docker config create --label name=nginx ${TIMESTAMP}-http-openhim-insecure.conf ${COMPOSE_FILE_PATH}/config/http-openhim-insecure.conf" "Failed to add openhim nginx insecure config"
+    try "docker config create --label name=nginx ${TIMESTAMP}-stream-openhim-insecure.conf ${COMPOSE_FILE_PATH}/config/stream-openhim-insecure.conf" "Failed to add openhim nginx insecure config"
     log info "Updating nginx service: adding openhim config file..."
-    if ! docker service update \
-      --config-add source="${TIMESTAMP}-http-openhim-insecure.conf",target=/etc/nginx/conf.d/http-openhim-insecure.conf \
-      --config-add source="${TIMESTAMP}-stream-openhim-insecure.conf",target=/etc/nginx/conf.d/stream-openhim-insecure.conf \
-      instant_reverse-proxy-nginx >/dev/null; then
-      log error "Error updating nginx service"
-      exit 1
-    fi
+    try "docker service update --config-add source=${TIMESTAMP}-http-openhim-insecure.conf,target=/etc/nginx/conf.d/http-openhim-insecure.conf --config-add source=${TIMESTAMP}-stream-openhim-insecure.conf,target=/etc/nginx/conf.d/stream-openhim-insecure.conf instant_reverse-proxy-nginx" "Error updating nginx service"
     log info "Done updating nginx service"
   else
-    docker config create --label name=nginx "${TIMESTAMP}-http-openhim-secure.conf" "${COMPOSE_FILE_PATH}"/config/http-openhim-secure.conf
+    try "docker config create --label name=nginx ${TIMESTAMP}-http-openhim-secure.conf ${COMPOSE_FILE_PATH}/config/http-openhim-secure.conf" "Failed to add openhim nginx secure config"
     log info "Updating nginx service: adding openhim config file..."
-    if ! docker service update \
-      --config-add source="${TIMESTAMP}-http-openhim-secure.conf",target=/etc/nginx/conf.d/http-openhim-secure.conf \
-      instant_reverse-proxy-nginx >/dev/null; then
-      log error "Error updating nginx service"
-      exit 1
-    fi
+    try "docker service update --config-add source=${TIMESTAMP}-http-openhim-secure.conf,target=/etc/nginx/conf.d/http-openhim-secure.conf instant_reverse-proxy-nginx" "Error updating nginx service"
     log info "Done updating nginx service"
   fi
 }
@@ -145,10 +135,7 @@ main() {
     if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
 
       # Set up the replica set
-      if ! "${COMPOSE_FILE_PATH}"/initiateReplicaSet.sh; then
-        log error "Fatal: Initate Mongo replica set failed."
-        exit 1
-      fi
+      try "${COMPOSE_FILE_PATH}/initiateReplicaSet.sh" "Fatal: Initate Mongo replica set failed."
 
     fi
 

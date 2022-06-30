@@ -84,7 +84,7 @@ config::remove_stale_service_configs() {
     # Remove configs without a reference
     configRaftNames=($(docker config ls -f "label=name=${CONFIG_LABEL}" --format "{{.Name}}"))
     for configRaftName in "${configRaftNames[@]}"; do
-        nameWithoutDigest=$(echo """$configRaftNa"m"e" | sed 's/-[a-f0-9]*$//g')
+        nameWithoutDigest=$(echo "$configRaftName" | sed 's/-[a-f0-9]*$//g')
         raftOccurencesInCompose=$(for word in "${composeNames[@]}"; do echo "${word}"; done | grep -c "${nameWithoutDigest}")
 
         if [[ "${raftOccurencesInCompose}" == 0 ]]; then
@@ -141,7 +141,7 @@ config::await_service_running() {
     local -r warning_time="${5:-}"
     local -r start_time=$(date +%s)
 
-    docker stack deploy -c "$await_helper_file_path" instant
+    try "docker stack deploy -c $await_helper_file_path instant" "Failed to deploy await helper"
     until [[ $(docker service ls -f name=instant_"$service_name" --format "{{.Replicas}}") == *"$service_instances/$service_instances"* ]]; do
         config::timeout_check "$start_time" "$service_name to start" "$exit_time" "$warning_time"
         sleep 1
@@ -160,7 +160,7 @@ config::await_service_running() {
         fi
     done
 
-    docker service rm instant_await-helper
+    try "docker service rm instant_await-helper" "Failed to remove await-helper"
 }
 
 # A function which removes a config importing service on successful completion, and exits with an error otherwise
@@ -189,7 +189,7 @@ config::remove_config_importer() {
         fi
     done
 
-    docker service rm instant_"$config_importer_service_name"
+    try "docker service rm instant_$config_importer_service_name" "Failed to remove config importer "
 }
 
 # Waits for the provided service to be removed
@@ -201,7 +201,7 @@ config::await_service_removed() {
     local start_time=$(date +%s)
 
     until [[ -z $(docker stack ps instant -qf name="${SERVICE_NAME}") ]]; do
-        config::timeout_check """$start_ti"m"e" "${SERVICE_NAME} to be removed"
+        config::timeout_check "$start_time" "${SERVICE_NAME} to be removed"
         sleep 1
     done
 }
@@ -231,7 +231,7 @@ config::generate_service_configs() {
     local -r TARGET_FOLDER_NAME=$(basename "${TARGET_FOLDER_PATH}")
     local count=0
 
-    touch "${COMPOSE_FILE_PATH}/docker-compose.tmp.yml"
+    try "touch ${COMPOSE_FILE_PATH}/docker-compose.tmp.yml" "Failed to create temp service config compose file"
 
     find "${TARGET_FOLDER_PATH}" -maxdepth 10 -mindepth 1 -type f | while read -r file; do
         file_name=${file/"${TARGET_FOLDER_PATH%/}"/}

@@ -31,6 +31,7 @@ configure_nginx() {
   fi
 }
 
+js_report_dev_mount_compose_param=""
 if [[ "${JS_REPORT_DEV_MOUNT}" == "true" ]] && [[ "${ACTION}" == "init" ]]; then
   if [[ -z "${JS_REPORT_PACKAGE_PATH}" ]]; then
     log error "ERROR: JS_REPORT_PACKAGE_PATH environment variable not specified. Please specify JS_REPORT_PACKAGE_PATH as stated in the README."

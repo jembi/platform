@@ -16,6 +16,10 @@ readonly TIMESTAMP
 readonly STAGING=${STAGING:-false}
 readonly TIMESTAMPED_NGINX="${TIMESTAMP}-nginx.conf"
 
+# Import libraries
+ROOT_PATH="${COMPOSE_FILE_PATH}/.."
+. "${ROOT_PATH}/utils/log.sh"
+
 main() {
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
     if [[ "${MODE}" == "dev" ]]; then

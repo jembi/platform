@@ -15,9 +15,9 @@ readonly ROOT_PATH
 . "${ROOT_PATH}/utils/log.sh"
 
 hapiFhirReplicas=${HAPI_FHIR_INSTANCES:-1}
-fhirIgUrl=${FHIR_IG_URL}
+FHIR_IG_URL=${FHIR_IG_URL:-""}
 
-if [ -z "$fhirIgUrl" ]; then
+if [ -z "$FHIR_IG_URL" ]; then
   log error "FHIR IG url should be specified using the env variable 'FHIR_IG_URL'"
 else
   if [ "$ACTION" == "init" ]; then

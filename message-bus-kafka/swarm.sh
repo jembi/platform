@@ -2,14 +2,18 @@
 
 statefulNodes=${STATEFUL_NODES:-"cluster"}
 
-composeFilePath=$(
+COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
   pwd -P
 )
 
+# Import libraries
+ROOT_PATH="${COMPOSE_FILE_PATH}/.."
+. "${ROOT_PATH}/utils/log.sh"
+
 if [[ $statefulNodes == "cluster" ]]; then
   log info "Running Message Bus Kafka package in Cluster node mode"
-  kafkaClusterComposeParam="-c ${composeFilePath}/docker-compose.cluster.yml"
+  kafkaClusterComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.cluster.yml"
 else
   log info "Running Message Bus Kafka package in Single node mode"
   kafkaClusterComposeParam=""
@@ -17,36 +21,34 @@ fi
 
 if [[ $2 == "dev" ]]; then
   log info "Running Message Bus Kafka package in DEV mode"
-  kafkaDevComposeParam="-c ${composeFilePath}/docker-compose.dev.yml"
+  kafkaDevComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
 else
   log info "Running Message Bus Kafka package in PROD mode"
   kafkaDevComposeParam=""
 fi
 
-if [[ $1 == "init" ]]; then
-  docker stack deploy -c "$composeFilePath"/docker-compose.yml "$kafkaClusterComposeParam" "$kafkaDevComposeParam" instant
-elif [[ $1 == "up" ]]; then
-  docker stack deploy -c "$composeFilePath"/docker-compose.yml "$kafkaClusterComposeParam" "$kafkaDevComposeParam" instant
+if [[ $1 == "init" ]] || [[ $1 == "up" ]]; then
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $kafkaClusterComposeParam $kafkaDevComposeParam instant" "Failed to deploy Message Bus Kafka"
 elif [[ $1 == "down" ]]; then
-  docker service scale instant_zookeeper-1=0 instant_kafdrop=0
+  try "docker service scale instant_zookeeper-1=0 instant_kafdrop=0" "Failed to scale down zookeeper and kafdrop"
   # You cannot scale a global service so we have to remove it
-  docker service rm instant_kafka
+  try "docker service rm instant_kafka" "Failed to remove kafka"
   if [[ $statefulNodes == "cluster" ]]; then
-    docker service scale instant_zookeeper-2=0
-    docker service scale instant_zookeeper-3=0
+    try "docker service scale instant_zookeeper-2=0" "Failed to scale down zookeeper cluster"
+    try "docker service scale instant_zookeeper-3=0" "Failed to scale down zookeeper cluster"
   fi
 elif [[ $1 == "destroy" ]]; then
-  docker service rm instant_zookeeper-1 instant_kafka instant_kafdrop
+  try "docker service rm instant_zookeeper-1 instant_kafka instant_kafdrop" "Failed to destroy kafka"
 
   log info "Sleep 20 Seconds to allow services to shut down before deleting volumes"
   sleep 20
 
-  docker volume rm instant_kafka-volume
-  docker volume rm instant_zookeeper-1-volume
+  try "docker volume rm instant_kafka-volume" "Failed to remove kafka volume"
+  try "docker volume rm instant_zookeeper-1-volume" "Failed to remove zookeeper volume"
 
   if [[ $statefulNodes == "cluster" ]]; then
-    docker service rm instant_zookeeper-2
-    docker service rm instant_zookeeper-3
+    try "docker service rm instant_zookeeper-2" "Failed to remove zookeeper cluster volumes"
+    try "docker service rm instant_zookeeper-3" "Failed to remove zookeeper cluster volumes"
     log notice "Volumes are only deleted on the host on which the command is run. Kafka volumes on other nodes are not deleted"
   fi
 else
