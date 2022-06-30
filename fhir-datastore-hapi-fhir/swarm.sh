@@ -14,8 +14,9 @@ readonly COMPOSE_FILE_PATH
 # Import libraries
 ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/config-utils.sh"
+. "${ROOT_PATH}/utils/log.sh"
 
-if [ "$STATEFUL_NODES" == "cluster" ]; then
+if [ "${STATEFUL_NODES}" == "cluster" ]; then
   log info "Running FHIR Datastore HAPI FHIR package in Cluster node mode"
   postgresClusterComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose-postgres.cluster.yml"
 else
@@ -23,7 +24,7 @@ else
   postgresClusterComposeParam=""
 fi
 
-if [ "$MODE" == "dev" ]; then
+if [ "${MODE}" == "dev" ]; then
   log info "Running FHIR Datastore HAPI FHIR package in DEV mode"
   postgresDevComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose-postgres.dev.yml"
   hapiFhirDevComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
@@ -33,40 +34,40 @@ else
   hapiFhirDevComposeParam=""
 fi
 
-if [ "$ACTION" == "init" ]; then
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose-postgres.yml "$postgresClusterComposeParam" "$postgresDevComposeParam" instant
+if [ "${ACTION}" == "init" ]; then
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose-postgres.yml $postgresClusterComposeParam $postgresDevComposeParam instant" "Failed to deploy FHIR Datastore HAPI FHIR Postgres"
 
   log info "Sleep 60 seconds to give Postgres time to start up before HAPI-FHIR"
   sleep 60
 
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml "$hapiFhirDevComposeParam" instant
-elif [ "$ACTION" == "up" ]; then
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose-postgres.yml "$postgresClusterComposeParam" "$postgresDevComposeParam" instant
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $hapiFhirDevComposeParam instant" "Failed to deploy FHIR Datastore HAPI FHIR"
+elif [ "${ACTION}" == "up" ]; then
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose-postgres.yml $postgresClusterComposeParam $postgresDevComposeParam instant" "Failed to stand up hapi-fhir postgres"
 
   log info "Sleep 20 seconds to give Postgres time to start up before HAPI-FHIR"
   sleep 20
 
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml "$hapiFhirDevComposeParam" instant
-elif [ "$ACTION" == "down" ]; then
-  docker service scale instant_hapi-fhir=0 instant_postgres-1=0
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $hapiFhirDevComposeParam instant" "Failed to stand up hapi-fhir"
+elif [ "${ACTION}" == "down" ]; then
+  try "docker service scale instant_hapi-fhir=0 instant_postgres-1=0" "Failed to scale down hapi-fhir"
 
   if [ "$STATEFUL_NODES" == "cluster" ]; then
-    docker service scale instant_postgres-2=0 instant_postgres-3=0
+    try "docker service scale instant_postgres-2=0 instant_postgres-3=0" "Failed to scale down hapi-fhir postgres replicas"
   fi
 
-elif [ "$ACTION" == "destroy" ]; then
-  docker service rm instant_hapi-fhir instant_postgres-1 &>/dev/null
+elif [ "${ACTION}" == "destroy" ]; then
+  try "docker service rm instant_hapi-fhir instant_postgres-1" "Failed to destroy hapi-fhir"
 
   config::await_service_removed instant_hapi-fhir
   config::await_service_removed instant_postgres-1
 
-  docker volume rm instant_hapi-postgres-1-data &>/dev/null
+  try "docker volume rm instant_hapi-postgres-1-data" "Failed to destroy hapi-fhir volume"
 
-  if [ "$STATEFUL_NODES" == "cluster" ]; then
-    docker service rm instant_postgres-2 instant_postgres-3 &>/dev/null
+  if [ "${STATEFUL_NODES}" == "cluster" ]; then
+    try "docker service rm instant_postgres-2 instant_postgres-3" "Failed to destroy hapi-fhir postgres replicas"
     config::await_service_removed instant_postgres-2
     config::await_service_removed instant_postgres-3
-    docker volume rm instant_hapi-postgres-2-data instant_hapi-postgres-3-data &>/dev/null
+    try "docker volume rm instant_hapi-postgres-2-data instant_hapi-postgres-3-data" "Failed to remove hapi-fhir postgres volumes"
 
     log warn "Volumes are only deleted on the host on which the command is run. Postgres volumes on other nodes are not deleted"
   fi

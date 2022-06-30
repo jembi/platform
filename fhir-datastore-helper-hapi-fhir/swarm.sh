@@ -1,18 +1,27 @@
 #!/bin/bash
 
-hapiFhirReplicas=${HAPI_FHIR_INSTANCES:-1}
-fhirIgUrl=${FHIR_IG_URL}
+readonly ACTION=$1
+readonly MODE=$2
 
-composeFilePath=$(
+COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
   pwd -P
 )
+readonly COMPOSE_FILE_PATH
+
+ROOT_PATH="${COMPOSE_FILE_PATH}/.."
+readonly ROOT_PATH
+
+. "${ROOT_PATH}/utils/log.sh"
+
+hapiFhirReplicas=${HAPI_FHIR_INSTANCES:-1}
+fhirIgUrl=${FHIR_IG_URL}
 
 if [ -z "$fhirIgUrl" ]; then
   log error "FHIR IG url should be specified using the env variable 'FHIR_IG_URL'"
 else
-  if [ "$1" == "init" ]; then
-    docker stack deploy -c "$composeFilePath"/docker-compose.yml instant
+  if [ "$ACTION" == "init" ]; then
+    docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.yml instant
 
     log info "Sleep 60 seconds to allow the FHIR IG import processs to finish"
     sleep 60

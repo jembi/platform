@@ -17,14 +17,6 @@ ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/config-utils.sh"
 . "${ROOT_PATH}/utils/log.sh"
 
-if [[ "$MODE" == "dev" ]]; then
-  log info "Running JS Report package in DEV mode"
-  js_report_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
-else
-  log info "Running JS Report package in PROD mode"
-  js_report_dev_compose_param=""
-fi
-
 configure_nginx() {
   if [[ "${INSECURE}" == "true" ]]; then
     docker config create --label name=nginx "${TIMESTAMP}-http-jsreport-insecure.conf" "${COMPOSE_FILE_PATH}/config/http-jsreport-insecure.conf"
@@ -51,6 +43,14 @@ if [[ "${JS_REPORT_DEV_MOUNT}" == "true" ]] && [[ "${ACTION}" == "init" ]]; then
 fi
 
 main() {
+  if [[ "$MODE" == "dev" ]]; then
+    log info "Running JS Report package in DEV mode"
+    js_report_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
+  else
+    log info "Running JS Report package in PROD mode"
+    js_report_dev_compose_param=""
+  fi
+
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $js_report_dev_compose_param $js_report_dev_mount_compose_param instant" "Failed to deploy JS Report"
 
