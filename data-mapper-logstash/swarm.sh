@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Arguments
-Action=$1
-Mode=$2
+ACTION=$1
+MODE=$2
 
 readonly LOGSTASH_DEV_MOUNT=$LOGSTASH_DEV_MOUNT
 
@@ -14,88 +14,48 @@ COMPOSE_FILE_PATH=$(
 # Import libraries
 ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/config-utils.sh"
+. "${ROOT_PATH}/utils/docker-utils.sh"
+. "${ROOT_PATH}/utils/log.sh"
 
-AwaitContainerStartup() {
-  echo "Waiting for logstash container to start up..."
-
-  local warningTime=60
-  local errorTime=300
-  local timer=0
-
-  until [[ -n $(docker ps -qlf name=instant_data-mapper-logstash) ]]; do
-    if [[ "$timer" == "$warningTime" ]]; then
-      echo "Warning: container is taking unusually long to start"
-    elif [[ "$timer" == "$errorTime" ]]; then
-      echo "Fatal: Logstash container took too long to start up"
-      exit 124 # exit code for timeout is 124
-    fi
-    sleep 1
-    timer=$((timer + 1))
-  done
-  echo "Logstash container started up"
-}
-
-AwaitContainerReady() {
-  echo "Waiting for logstash container to be in ready state..."
-
-  local warningTime=60
-  local errorTime=300
-  local timer=0
-
-  until [[ "$(docker inspect -f '{{.State.Status}}' $(docker ps -qlf name=instant_data-mapper-logstash))" = "running" ]]; do
-    if [[ "$timer" == "$warningTime" ]]; then
-      echo "Warning: container is taking unusually long to start"
-    elif [[ "$timer" == "$errorTime" ]]; then
-      echo "Fatal: Logstash container took too long to start up"
-      exit 124 # exit code for timeout is 124
-    fi
-    sleep 1
-    timer=$((timer + 1))
-  done
-  echo "Logstash container is in ready state"
-}
-
-if [[ "$Mode" == "dev" ]]; then
-  echo -e "\nRunning Data Mapper Logstash package in DEV mode\n"
+if [[ "$MODE" == "dev" ]]; then
+  log info "Running Data Mapper Logstash package in DEV mode"
   LogstashDevComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
 else
-  echo -e "\nRunning Data Mapper Logstash package in PROD mode\n"
+  log info "Running Data Mapper Logstash package in PROD mode"
   LogstashDevComposeParam=""
 fi
 
 if [[ "$LOGSTASH_DEV_MOUNT" == "true" ]]; then
   if [[ -z $LOGSTASH_PACKAGE_PATH ]]; then
-    echo "ERROR: LOGSTASH_PACKAGE_PATH environment variable not specified. Please specify LOGSTASH_PACKAGE_PATH as stated in the README."
+    log error "LOGSTASH_PACKAGE_PATH environment variable not specified. Please specify LOGSTASH_PACKAGE_PATH as stated in the README."
     exit 1
   fi
 
-  echo -e "\nRunning Data Mapper Logstash package with dev mount\n"
+  log info "Running Data Mapper Logstash package with dev mount"
   LogstashDevMountComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.dev-mnt.yml"
 else
   LogstashDevMountComposeParam=""
 fi
 
-if [[ "$Action" == "init" ]] || [[ "$Action" == "up" ]]; then
+if [[ "$ACTION" == "init" ]] || [[ "$ACTION" == "up" ]]; then
 
-  config::set_config_digests "$COMPOSE_FILE_PATH"/docker-compose.yml
+  config::set_config_digests "${COMPOSE_FILE_PATH}"/docker-compose.yml
 
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $LogstashDevComposeParam $LogstashDevMountComposeParam instant
+  config::generate_service_configs data-mapper-logstash /usr/share/logstash "${COMPOSE_FILE_PATH}/pipeline" "${COMPOSE_FILE_PATH}"
+  LogstashTempComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.tmp.yml"
 
-  AwaitContainerStartup
-  AwaitContainerReady
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $LogstashDevComposeParam $LogstashDevMountComposeParam $LogstashTempComposeParam instant" "Failed to deploy Data Mapper Logstash"
 
-  if [[ "$LOGSTASH_DEV_MOUNT" != "true" ]]; then
-    config::copy_shared_configs "$COMPOSE_FILE_PATH"/package-metadata.json /usr/share/logstash/
-  fi
+  docker::await_container_startup data-mapper-logstash
+  docker::await_container_status data-mapper-logstash running
 
-  echo "Removing stale configs..."
-  config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "logstash"
+  config::remove_stale_service_configs "${COMPOSE_FILE_PATH}/docker-compose.yml" "logstash"
 
-  echo "Done"
-elif [[ "$Action" == "down" ]]; then
-  docker service scale instant_data-mapper-logstash=0
-elif [[ "$Action" == "destroy" ]]; then
-  docker service rm instant_data-mapper-logstash
+  log info "Done"
+elif [[ "$ACTION" == "down" ]]; then
+  try "docker service scale instant_data-mapper-logstash=0" "Failed to scale down data-mapper-logstash"
+elif [[ "$ACTION" == "destroy" ]]; then
+  try "docker service rm instant_data-mapper-logstash" "Failed to remove data-mapper-logstash"
 else
-  echo "Valid options are: init, up, down, or destroy"
+  log error "Valid options are: init, up, down, or destroy"
 fi
