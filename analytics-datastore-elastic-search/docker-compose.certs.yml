@@ -3,15 +3,12 @@ version: '3.9'
 services:
   create_certs:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.13.0
+    deploy:
+      placement:
+        constraints:
+          - "node.labels.name==node-1"
     command: >
      bash -c '
-        if [ x${ES_ELASTIC} == x ]; then
-          echo "Set the ES_ELASTIC environment variable in the .env file";
-          exit 1;
-        elif [ x${ES_KIBANA_SYSTEM} == x ]; then
-          echo "Set the ES_KIBANA_SYSTEM environment variable in the .env file";
-          exit 1;
-        fi;
         if [ ! -f config/certs/ca.zip ]; then
           echo "Creating CA";
           bin/elasticsearch-certutil ca --silent --pem -out config/certs/ca.zip;
@@ -19,18 +16,6 @@ services:
         fi;
         if [ ! -f config/certs/certs.zip ]; then
           echo "Creating certs";
-          echo -ne \
-          "instances:\n"\
-          "  - name: es01\n"\
-          "    dns:\n"\
-          "      - analytics-datastore-elastic-search-01\n"\
-          "  - name: es02\n"\
-          "    dns:\n"\
-          "      - analytics-datastore-elastic-search-02\n"\
-          "  - name: es03\n"\
-          "    dns:\n"\
-          "      - analytics-datastore-elastic-search-03\n"\
-          > config/certs/instances.yml;
           bin/elasticsearch-certutil cert --silent --pem -out config/certs/certs.zip --in config/certs/instances.yml --ca-cert config/certs/ca/ca.crt --ca-key config/certs/ca/ca.key;
           unzip config/certs/certs.zip -d config/certs;
         fi;
@@ -38,16 +23,23 @@ services:
         chown -R root:root config/certs;
         find . -type d -exec chmod 750 \{\} \;;
         find . -type f -exec chmod 640 \{\} \;;
-        echo "Waiting for Elasticsearch availability";
-        until curl -s --cacert config/certs/ca/ca.crt https://analytics-datastore-elastic-search-01:9200 | grep -q "missing authentication credentials"; do sleep 30; done;
-        echo "Setting kibana_system password";
-        until curl -s -X POST --cacert config/certs/ca/ca.crt -u elastic:${ES_ELASTIC} -H "Content-Type: application/json" https://analytics-datastore-elastic-search-01:9200/_security/user/kibana_system/_password -d "{\"password\":\"${ES_KIBANA_SYSTEM}\"}" | grep -q "^{}"; do sleep 10; done;
         echo "All done!";
+        sleep infinity
         '
     user: "0"
     working_dir: /usr/share/elasticsearch
     volumes:
       - certs:/usr/share/elasticsearch/config/certs
+    configs:
+      - target: /usr/share/elasticsearch/config/certs/instances.yml
+        source: instances.yml
  
 volumes:
   certs:
+
+configs:
+  instances.yml:
+    file: ./instances.yml
+    name: instances.yml
+    labels: 
+      name: elasticsearch
