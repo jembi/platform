@@ -59,7 +59,7 @@ config::remove_stale_service_configs() {
 
         composeNameOccurences=$(for word in "${composeNames[@]}"; do echo "${word}"; done | grep -c "${composeNameWithoutEnv}")
         if [[ $composeNameOccurences -gt "1" ]]; then
-            log warning "Warning: Duplicate config name (${composeNameWithoutEnv}) was found in ${DOCKER_COMPOSE_PATH}"
+            log warn "Warning: Duplicate config name (${composeNameWithoutEnv}) was found in ${DOCKER_COMPOSE_PATH}"
         fi
 
         raftIds=($(docker config ls -f "label=name=${CONFIG_LABEL}" -f "name=${composeNameWithoutEnv}" --format "{{.ID}}"))
@@ -113,7 +113,7 @@ config::timeout_check() {
 
     local timeDiff=$(($(date +%s) - $startTime))
     if [[ $timeDiff -ge $warningTime ]] && [[ $timeDiff -lt $(($warningTime + 1)) ]]; then
-        log warning "Warning: Waited $warningTime seconds for $message. This is taking longer than it should..."
+        log warn "Warning: Waited $warningTime seconds for $message. This is taking longer than it should..."
     elif [[ $timeDiff -ge $exitTime ]]; then
         log error "Fatal: Waited $exitTime seconds for $message. Exiting..."
         exit 124

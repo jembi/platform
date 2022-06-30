@@ -53,7 +53,7 @@ if [[ "${JS_REPORT_DEV_MOUNT}" == "true" ]] && [[ "${ACTION}" == "init" ]]; then
     log error "ERROR: JS_REPORT_PACKAGE_PATH environment variable not specified. Please specify JS_REPORT_PACKAGE_PATH as stated in the README."
     exit 1
   fi
-  log warning "MAKE SURE YOU HAVE RUN 'set-permissions.sh' SCRIPT BEFORE AND AFTER RUNNING JS REPORT"
+  log warn "MAKE SURE YOU HAVE RUN 'set-permissions.sh' SCRIPT BEFORE AND AFTER RUNNING JS REPORT"
 
   log info "Attaching dev mount..."
   js_report_dev_mount_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev-mnt.yml"
@@ -61,7 +61,7 @@ fi
 
 main() {
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml ""$js_report_dev_compose_para"m"" "$js_report_dev_mount_compose_pa"ram" instant
+    docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml """$js_report_dev_compose_para""m"" ""$js_report_dev_mount_compose_pa""ram" instant
 
     if [[ "${JS_REPORT_DEV_MOUNT}" != "true" ]]; then
       log info "Verifying JS Reports service status"

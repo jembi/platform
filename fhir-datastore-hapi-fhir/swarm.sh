@@ -68,7 +68,7 @@ elif [ "$ACTION" == "destroy" ]; then
     config::await_service_removed instant_postgres-3
     docker volume rm instant_hapi-postgres-2-data instant_hapi-postgres-3-data &>/dev/null
 
-    log warning "Volumes are only deleted on the host on which the command is run. Postgres volumes on other nodes are not deleted"
+    log warn "Volumes are only deleted on the host on which the command is run. Postgres volumes on other nodes are not deleted"
   fi
 else
   log error "Valid options are: init, up, down, or destroy"
