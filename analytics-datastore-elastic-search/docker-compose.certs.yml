@@ -23,22 +23,13 @@ services:
           "instances:\n"\
           "  - name: es01\n"\
           "    dns:\n"\
-          "      - es01\n"\
-          "      - localhost\n"\
-          "    ip:\n"\
-          "      - 127.0.0.1\n"\
+          "      - analytics-datastore-elastic-search-01\n"\
           "  - name: es02\n"\
           "    dns:\n"\
-          "      - es02\n"\
-          "      - localhost\n"\
-          "    ip:\n"\
-          "      - 127.0.0.1\n"\
+          "      - analytics-datastore-elastic-search-02\n"\
           "  - name: es03\n"\
           "    dns:\n"\
-          "      - es03\n"\
-          "      - localhost\n"\
-          "    ip:\n"\
-          "      - 127.0.0.1\n"\
+          "      - analytics-datastore-elastic-search-03\n"\
           > config/certs/instances.yml;
           bin/elasticsearch-certutil cert --silent --pem -out config/certs/certs.zip --in config/certs/instances.yml --ca-cert config/certs/ca/ca.crt --ca-key config/certs/ca/ca.key;
           unzip config/certs/certs.zip -d config/certs;
@@ -57,7 +48,6 @@ services:
     working_dir: /usr/share/elasticsearch
     volumes:
       - certs:/usr/share/elasticsearch/config/certs
-
  
 volumes:
   certs:
