@@ -5,4 +5,4 @@ services:
     ports:
       - target: 5601
         published: 5601
-        mode: ingress
+        mode: host
