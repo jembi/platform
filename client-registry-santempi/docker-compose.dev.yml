@@ -9,3 +9,8 @@ services:
       - target: 2100
         published: 2100
         mode: host
+  santedb-www:
+    ports:
+      - target: 9200
+        published: 9200
+        mode: host
