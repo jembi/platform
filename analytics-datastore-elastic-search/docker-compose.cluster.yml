@@ -22,7 +22,7 @@ services:
       node.name: es01
       cluster.name: es-cluster
       discovery.seed_hosts: analytics-datastore-elastic-search-02,analytics-datastore-elastic-search-03
-      cluster.initial_master_nodes: es01,es02,es03
+      cluster.initial_master_nodes: es01
       xpack.license.self_generated.type: basic
       bootstrap.memory_lock: 'true'
       xpack.security.enabled: 'true'
@@ -46,6 +46,7 @@ services:
       ES_BEATS_SYSTEM: ${ES_BEATS_SYSTEM:-dev_password_only}
     volumes:
       - es01-data:/usr/share/elasticsearch/data
+      - certs:/usr/share/elasticsearch/config/certs
 
   analytics-datastore-elastic-search-02:
     depends_on:
@@ -68,7 +69,7 @@ services:
       node.name: es02
       cluster.name: es-cluster
       discovery.seed_hosts: analytics-datastore-elastic-search-01,analytics-datastore-elastic-search-03
-      cluster.initial_master_nodes: es01,es02,es03
+      cluster.initial_master_nodes: es01
       bootstrap.memory_lock: 'true'
       xpack.security.enabled: 'true'
       xpack.license.self_generated.type: basic
@@ -92,6 +93,7 @@ services:
       ES_BEATS_SYSTEM: ${ES_BEATS_SYSTEM:-dev_password_only}
     volumes:
       - es02-data:/usr/share/elasticsearch/data
+      - certs:/usr/share/elasticsearch/config/certs
 
   analytics-datastore-elastic-search-03:
     depends_on:
@@ -114,7 +116,7 @@ services:
       node.name: es03
       cluster.name: es-cluster
       discovery.seed_hosts: analytics-datastore-elastic-search-01,analytics-datastore-elastic-search-02
-      cluster.initial_master_nodes: es01,es02,es03
+      cluster.initial_master_nodes: es01
       bootstrap.memory_lock: 'true'
       xpack.security.enabled: 'true'
       xpack.license.self_generated.type: basic
@@ -138,8 +140,10 @@ services:
       ES_BEATS_SYSTEM: ${ES_BEATS_SYSTEM:-dev_password_only}
     volumes:
       - es03-data:/usr/share/elasticsearch/data
+      - certs:/usr/share/elasticsearch/config/certs
 
 volumes:
   es01-data:
   es02-data:
   es03-data:
+  certs:
