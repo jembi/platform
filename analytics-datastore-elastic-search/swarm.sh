@@ -71,6 +71,20 @@ create_certs() {
   try "docker service rm instant_create_certs" "Error removing instant_create_certs"
 }
 
+add_single_config() {
+  local service=$1
+  local source=$2
+  local target=$3
+
+  log info "Updating $1 with ${3}"
+  if ! docker service update \
+    --config-add source="${2}",target=/usr/share/elasticsearch/config/certs/${3} \
+    $1 >/dev/null; then
+    log error "Error updating $1"
+    exit 1
+  fi
+}
+
 add_docker_configs() {
   TIMESTAMP="$(date "+%Y%m%d%H%M%S")"
   readonly TIMESTAMP
@@ -83,30 +97,16 @@ add_docker_configs() {
   docker config create --label name=elasticsearch "${TIMESTAMP}-es03.crt" "./certs/es03/es03.crt"
   docker config create --label name=elasticsearch "${TIMESTAMP}-es03.key" "./certs/es03/es03.key"
 
-  es01Configs="source="${TIMESTAMP}-ca.crt",target=/usr/share/elasticsearch/config/certs/ca/ca.crt,source="${TIMESTAMP}-es01.crt",target=/usr/share/elasticsearch/config/certs/es01/es01.crt,source="${TIMESTAMP}-es01.key",target=/usr/share/elasticsearch/config/certs/es01/es01.key"
-  es02Configs="source="${TIMESTAMP}-ca.crt",target=/usr/share/elasticsearch/config/certs/ca/ca.crt,source="${TIMESTAMP}-es02.crt",target=/usr/share/elasticsearch/config/certs/es02/es02.crt,source="${TIMESTAMP}-es02.key",target=/usr/share/elasticsearch/config/certs/es02/es02.key"
-  es03Configs="source="${TIMESTAMP}-ca.crt",target=/usr/share/elasticsearch/config/certs/ca/ca.crt,source="${TIMESTAMP}-es03.crt",target=/usr/share/elasticsearch/config/certs/es03/es03.crt,source="${TIMESTAMP}-es03.key",target=/usr/share/elasticsearch/config/certs/es03/es03.key"
-
-  log info "Updating es01 service configs"
-  if ! docker service update \
-    --config-add $es01Configs instant_analytics-datastore-elastic-search-01 >/dev/null; then
-    log error "Error updating es01 service"
-    exit 1
-  fi
-
-  log info "Updating es02 service configs"
-  if ! docker service update \
-    --config-add $es02Configs instant_analytics-datastore-elastic-search-02 >/dev/null; then
-    log error "Error updating es02 service"
-    exit 1
-  fi
-
-  log info "Updating es03 service configs"
-  if ! docker service update \
-    --config-add $es03Configs instant_analytics-datastore-elastic-search-03 >/dev/null; then
-    log error "Error updating es03 service"
-    exit 1
-  fi
+  # TODO Slow and annoying - Find way to do multiple
+  add_single_config instant_analytics-datastore-elastic-search-01 "${TIMESTAMP}-ca.crt" "ca/ca.crt"
+  add_single_config instant_analytics-datastore-elastic-search-02 "${TIMESTAMP}-ca.crt" "ca/ca.crt"
+  add_single_config instant_analytics-datastore-elastic-search-03 "${TIMESTAMP}-ca.crt" "ca/ca.crt"
+  add_single_config instant_analytics-datastore-elastic-search-01 "${TIMESTAMP}-es01.crt" "es01/es01.crt"
+  add_single_config instant_analytics-datastore-elastic-search-01 "${TIMESTAMP}-es01.key" "es01/es01.key"
+  add_single_config instant_analytics-datastore-elastic-search-02 "${TIMESTAMP}-es02.crt" "es02/es02.crt"
+  add_single_config instant_analytics-datastore-elastic-search-02 "${TIMESTAMP}-es02.key" "es02/es02.key"
+  add_single_config instant_analytics-datastore-elastic-search-03 "${TIMESTAMP}-es03.crt" "es03/es03.crt"
+  add_single_config instant_analytics-datastore-elastic-search-03 "${TIMESTAMP}-es03.key" "es03/es03.key"
 }
 
 if [[ "$ACTION" == "init" ]]; then
