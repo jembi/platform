@@ -5,10 +5,10 @@ services:
     ports:
     - target: 9092
       published: 9092
-      mode: host
+      mode: ingress
 
   kafdrop:
     ports:
       - target: 9013
         published: 9013
-        mode: host
+        mode: ingress
