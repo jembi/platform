@@ -14,10 +14,6 @@ Pre-requisites
 
 ---
 
-```sh
-cd <PROJECT_HOME>/aws/mercury-team
-```
-
 Initialize Terraform project:
 
 ```sh
