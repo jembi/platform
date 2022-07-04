@@ -23,7 +23,7 @@ variable "AMI" {
   type = map(any)
 
   default = {
-    af-south-1 = "ami-0b62e6078dbaee70a"
+    af-south-1 = "ami-0ecd7c3947c3e5de8"
   }
 }
 
