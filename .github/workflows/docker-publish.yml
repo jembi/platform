@@ -21,7 +21,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push tag
-        if: ${{ github.ref_name !== 'main' }}
+        if: ${{ github.ref_name != 'main' }}
         uses: docker/build-push-action@v2
         with:
           push: true
