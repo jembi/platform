@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - "*.*.*"
+    branches:
+      - build-latest-from-main
 
 jobs:
   build-and-push:
@@ -18,8 +20,16 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push
+      - name: Build and push tag
+        if: ${{ github.ref_name !== 'main' }}
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: jembi/platform:${{ github.ref_name }}
+          tags: jembi/platform:test-${{ github.ref_name }}
+
+      - name: Build and push latest
+        if: ${{ github.ref_name == 'build-latest-from-main' }}
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: jembi/platform:test-latest
