@@ -9,7 +9,7 @@ on:
 concurrency: e2e
 jobs:
   provision-e2e-server:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     timeout-minutes: 15
     env:
       TF_VAR_PROJECT_NAME: platform-e2e-tests
@@ -42,7 +42,7 @@ jobs:
           name: tfstate
           path: infrastructure/terraform/terraform.tfstate
   configure-e2e-server:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     needs: provision-e2e-server
     timeout-minutes: 15
     steps:
@@ -66,7 +66,7 @@ jobs:
             --user=ubuntu
             --extra-vars @./inventories/development/group_vars/all.yml
   launch-platform:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     needs: configure-e2e-server
     timeout-minutes: 15
     steps:
@@ -84,7 +84,7 @@ jobs:
       - run: sed -i 's/domain/${{ github.run_id }}.jembi.cloud/g' .env.ci
       - run: DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud ./platform-linux --env-file=.env.ci init
   destroy-e2e-server:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     if: always()
     needs: [provision-e2e-server, configure-e2e-server, launch-platform]
     timeout-minutes: 15
