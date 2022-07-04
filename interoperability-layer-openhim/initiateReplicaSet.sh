@@ -50,7 +50,6 @@ done
 # Ensures that the replica sets are reachable
 reachable_instance_count=1
 until [[ $reachable_instance_count -eq $((MONGO_SET_COUNT + 1)) ]]; do
-    echo instant_mongo-$reachable_instance_count
     await_replica_reachable instant_mongo-$reachable_instance_count
     reachable_instance_count=$((reachable_instance_count + 1))
 done
