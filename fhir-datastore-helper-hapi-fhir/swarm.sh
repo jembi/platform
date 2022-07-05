@@ -20,7 +20,7 @@ FHIR_IG_URL=${FHIR_IG_URL:-""}
 if [ -z "$FHIR_IG_URL" ]; then
   log error "FHIR IG url should be specified using the env variable 'FHIR_IG_URL'"
 else
-  if [ "$ACTION" == "init" ]; then
+  if [ "${ACTION}" == "init" ]; then
     docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.yml instant
 
     log info "Sleep 60 seconds to allow the FHIR IG import processs to finish"
