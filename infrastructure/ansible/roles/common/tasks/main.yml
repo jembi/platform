@@ -1,6 +1,7 @@
 ---
 - name: 'pre : update apt cache'
-  raw: sudo apt update
+  apt:
+    update_cache: yes
 
 - name: enable passwordless sudo
   lineinfile:

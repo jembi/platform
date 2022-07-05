@@ -32,6 +32,8 @@ README.md
 ansible/
 
 # Go CLI Conf
-
 banner.txt
 config.yml
+
+# Infrastructure code
+infrastructure
