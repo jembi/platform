@@ -16,12 +16,12 @@ ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/config-utils.sh"
 . "${ROOT_PATH}/utils/docker-utils.sh"
 
-AwaitPostgresToStart() {
-  echo "Await Postgres to start up before HAPI-FHIR"
+await_postgres_start() {
+  echo "Waiting for Postgres to start up before HAPI-FHIR"
 
   docker::await_container_startup postgres-1
   docker::await_container_status postgres-1 running
-  
+
   if [ "$STATEFUL_NODES" == "cluster" ]; then
     docker::await_container_startup postgres-2
     docker::await_container_status postgres-2 running
@@ -50,17 +50,17 @@ else
 fi
 
 if [ "$ACTION" == "init" ]; then
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose-postgres.yml $postgresClusterComposeParam $postgresDevComposeParam instant
-  
-  AwaitPostgresToStart
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose-postgres.yml "$postgresClusterComposeParam" "$postgresDevComposeParam" instant
 
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $hapiFhirDevComposeParam instant
+  await_postgres_start
+
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml "$hapiFhirDevComposeParam" instant
 elif [ "$ACTION" == "up" ]; then
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose-postgres.yml $postgresClusterComposeParam $postgresDevComposeParam instant
-  
-  AwaitPostgresToStart
-  
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $hapiFhirDevComposeParam instant
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose-postgres.yml "$postgresClusterComposeParam" "$postgresDevComposeParam" instant
+
+  await_postgres_start
+
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml "$hapiFhirDevComposeParam" instant
 elif [ "$ACTION" == "down" ]; then
   docker service scale instant_hapi-fhir=0 instant_postgres-1=0
 
