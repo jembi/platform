@@ -1,6 +1,11 @@
 ---
 - name: "pre : install python-simplejson and python3-pip"
-  raw: sudo apt install -y python-simplejson python3-pip virtualenv
+  apt:
+    pkg:
+      - python-simplejson
+      - python3-pip
+      - virtualenv
+    lock_timeout: 300
 
 - name: install certain python modules for docker
   pip:
@@ -8,7 +13,7 @@
     version: "{{ item.version }}"
     state: present
   with_items:
-  - { name: docker, version: 3.3.0 }
+  - { name: docker, version: 5.0.3 }
 
 - name: "install docker dependency : apt-transport-https"
   apt:
