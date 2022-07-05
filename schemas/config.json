@@ -21,6 +21,11 @@
         "disableCustomTargetSelection": {
           "type": "boolean"
         },
+        "logPath": {
+          "type": "string",
+          "description": "The path to the directory where all logs should be stored",
+          "examples": ["/tmp/logs"]
+        },
         "packages": {
           "type": "array",
           "items": {
