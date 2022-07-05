@@ -16,14 +16,6 @@ COMPOSE_FILE_PATH=$(
 ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/config-utils.sh"
 
-if [[ "$MODE" == "dev" ]]; then
-  echo "Running JS Reports package in DEV mode"
-  js_report_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
-else
-  echo "Running JS Reports package in PROD mode"
-  js_report_dev_compose_param=""
-fi
-
 configure_nginx() {
   if [[ "${INSECURE}" == "true" ]]; then
     docker config create --label name=nginx "${TIMESTAMP}-http-jsreport-insecure.conf" "${COMPOSE_FILE_PATH}/config/http-jsreport-insecure.conf"
@@ -48,20 +40,29 @@ configure_nginx() {
   fi
 }
 
-if [[ "${JS_REPORT_DEV_MOUNT}" == "true" ]] && [[ "${ACTION}" == "init" ]]; then
-  if [[ -z "${JS_REPORT_PACKAGE_PATH}" ]]; then
-    echo "ERROR: JS_REPORT_PACKAGE_PATH environment variable not specified. Please specify JS_REPORT_PACKAGE_PATH as stated in the README."
-    exit 1
-  fi
-  echo "MAKE SURE YOU HAVE RUN 'set-permissions.sh' SCRIPT BEFORE AND AFTER RUNNING JS REPORT"
-
-  echo "Attaching dev mount..."
-  js_report_dev_mount_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev-mnt.yml"
-fi
-
 main() {
+  if [[ "$MODE" == "dev" ]]; then
+    echo "Running JS Reports package in DEV mode"
+    js_report_dev_compose_param=(-c "${COMPOSE_FILE_PATH}"/docker-compose.dev.yml)
+  else
+    echo "Running JS Reports package in PROD mode"
+    js_report_dev_compose_param=()
+  fi
+
+  local js_report_dev_mount_compose_param=()
+  if [[ "${JS_REPORT_DEV_MOUNT}" == "true" ]] && [[ "${ACTION}" == "init" ]]; then
+    if [[ -z "${JS_REPORT_PACKAGE_PATH}" ]]; then
+      echo "ERROR: JS_REPORT_PACKAGE_PATH environment variable not specified. Please specify JS_REPORT_PACKAGE_PATH as stated in the README."
+      exit 1
+    fi
+    echo "MAKE SURE YOU HAVE RUN 'set-permissions.sh' SCRIPT BEFORE AND AFTER RUNNING JS REPORT"
+
+    echo "Attaching dev mount..."
+    js_report_dev_mount_compose_param=(-c "${COMPOSE_FILE_PATH}"/docker-compose.dev-mnt.yml)
+  fi
+
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $js_report_dev_compose_param $js_report_dev_mount_compose_param instant
+    docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml "${js_report_dev_compose_param[@]}" "${js_report_dev_mount_compose_param[@]}" instant
 
     if [[ "${JS_REPORT_DEV_MOUNT}" != "true" ]]; then
       echo "Verifying JS Reports service status"
