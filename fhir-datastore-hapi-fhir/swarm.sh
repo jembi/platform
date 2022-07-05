@@ -50,17 +50,17 @@ else
 fi
 
 if [ "$ACTION" == "init" ]; then
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose-postgres.yml "$postgresClusterComposeParam" "$postgresDevComposeParam" instant
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose-postgres.yml $postgresClusterComposeParam $postgresDevComposeParam instant
 
   await_postgres_start
 
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml "$hapiFhirDevComposeParam" instant
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $hapiFhirDevComposeParam instant
 elif [ "$ACTION" == "up" ]; then
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose-postgres.yml "$postgresClusterComposeParam" "$postgresDevComposeParam" instant
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose-postgres.yml $postgresClusterComposeParam $postgresDevComposeParam instant
 
   await_postgres_start
 
-  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml "$hapiFhirDevComposeParam" instant
+  docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $hapiFhirDevComposeParam instant
 elif [ "$ACTION" == "down" ]; then
   docker service scale instant_hapi-fhir=0 instant_postgres-1=0
 
