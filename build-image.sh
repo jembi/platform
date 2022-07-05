@@ -1,3 +1,3 @@
 #!/bin/bash
-
-docker build -t jembi/platform:latest .
+TAG_NAME=${1:-latest}
+docker build -t jembi/platform:$TAG_NAME .
