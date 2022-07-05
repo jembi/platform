@@ -34,3 +34,6 @@ ansible/
 
 banner.txt
 config.yml
+
+# Schemas
+schemas
