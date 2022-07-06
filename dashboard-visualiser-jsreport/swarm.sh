@@ -33,14 +33,14 @@ configure_nginx() {
 
 main() {
   if [[ "$MODE" == "dev" ]]; then
-    log info "Running JS Reports package in DEV mode"
-    js_report_dev_compose_param=(-c "${COMPOSE_FILE_PATH}"/docker-compose.dev.yml)
+    log info "Running JS Report package in DEV mode"
+    js_report_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
   else
-    log info "Running JS Reports package in PROD mode"
-    js_report_dev_compose_param=()
+    log info "Running JS Report package in PROD mode"
+    js_report_dev_compose_param=""
   fi
 
-  local js_report_dev_mount_compose_param=()
+  local js_report_dev_mount_compose_param=""
   if [[ "${JS_REPORT_DEV_MOUNT}" == "true" ]] && [[ "${ACTION}" == "init" ]]; then
     if [[ -z "${JS_REPORT_PACKAGE_PATH}" ]]; then
       log error "ERROR: JS_REPORT_PACKAGE_PATH environment variable not specified. Please specify JS_REPORT_PACKAGE_PATH as stated in the README."
@@ -49,11 +49,11 @@ main() {
     log warn "MAKE SURE YOU HAVE RUN 'set-permissions.sh' SCRIPT BEFORE AND AFTER RUNNING JS REPORT"
 
     log info "Attaching dev mount..."
-    js_report_dev_mount_compose_param=(-c "${COMPOSE_FILE_PATH}"/docker-compose.dev-mnt.yml)
+    js_report_dev_mount_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev-mnt.yml"
   fi
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose.yml ${js_report_dev_compose_param[@]} ${js_report_dev_mount_compose_param[@]} instant"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $js_report_dev_compose_param $js_report_dev_mount_compose_param instant" "Failed to deploy JS Report"
 
     if [[ "${JS_REPORT_DEV_MOUNT}" != "true" ]]; then
       log info "Verifying JS Report service status"
