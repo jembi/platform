@@ -52,6 +52,8 @@ main() {
   fi
 
   if [[ "$ACTION" == "init" ]] || [[ "$ACTION" == "up" ]]; then
+    config::set_config_digests "${COMPOSE_FILE_PATH}"/docker-compose.yml
+
     docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $kibana_dev_compose_param instant
 
     config::await_service_running "dashboard-visualiser-kibana" "${COMPOSE_FILE_PATH}/docker-compose.await-helper.yml" "$KIBANA_INSTANCES"
