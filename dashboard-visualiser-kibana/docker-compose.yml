@@ -9,6 +9,8 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+    environment:
+      ES_KIBANA_SYSTEM: ${ES_KIBANA_SYSTEM?:err}
     deploy:
       replicas: ${KIBANA_INSTANCES:-1}
       resources:

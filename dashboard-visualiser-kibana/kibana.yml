@@ -1,7 +1,8 @@
+server.host: "localhost"
 elasticsearch.hosts:
   - http://analytics-datastore-elastic-search:9200
 elasticsearch.sniffInterval: 15000
 elasticsearch.sniffOnStart: true
 elasticsearch.sniffOnConnectionFault: true
 elasticsearch.username: kibana_system
-elasticsearch.password: ${ES_KIBANA_SYSTEM:?err}
+elasticsearch.password: ${ES_KIBANA_SYSTEM}
