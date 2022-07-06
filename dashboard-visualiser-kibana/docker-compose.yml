@@ -9,9 +9,6 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
-    environment:
-      ELASTICSEARCH_URL: http://analytics-datastore-elastic-search:9200
-      ELASTICSEARCH_PASSWORD: ${ES_KIBANA_SYSTEM}
     deploy:
       replicas: ${KIBANA_INSTANCES:-1}
       resources:
