@@ -25,6 +25,7 @@ get-cli.sh
 .env.*
 .github/
 .gitignore
+.git
 
 README.md
 
