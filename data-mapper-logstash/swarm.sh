@@ -11,7 +11,7 @@ COMPOSE_FILE_PATH=$(
   pwd -P
 )
 
-replace_elastic_hosts() {
+inject_pipeline_elastic_hosts() {
   ES_HOSTS=${ES_HOSTS:-"\"analytics-datastore-elastic-search:9200\""}
   for file in "${COMPOSE_FILE_PATH}"/pipeline/*.conf; do
     sed -i "s/\$ES_HOSTS/${ES_HOSTS}/g" "${file}"
