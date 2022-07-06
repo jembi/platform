@@ -37,7 +37,7 @@ else
   LogstashDevMountComposeParam=""
 fi
 
-if [[ "$ACTION" == "init" ]] || [[ "$ACTION" == "up" ]]; then
+if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
 
   config::set_config_digests "${COMPOSE_FILE_PATH}"/docker-compose.yml
 
@@ -52,9 +52,9 @@ if [[ "$ACTION" == "init" ]] || [[ "$ACTION" == "up" ]]; then
   config::remove_stale_service_configs "${COMPOSE_FILE_PATH}/docker-compose.yml" "logstash"
 
   log info "Done"
-elif [[ "$ACTION" == "down" ]]; then
+elif [[ "${ACTION}" == "down" ]]; then
   try "docker service scale instant_data-mapper-logstash=0" "Failed to scale down data-mapper-logstash"
-elif [[ "$ACTION" == "destroy" ]]; then
+elif [[ "${ACTION}" == "destroy" ]]; then
   try "docker service rm instant_data-mapper-logstash" "Failed to remove data-mapper-logstash"
 else
   log error "Valid options are: init, up, down, or destroy"
