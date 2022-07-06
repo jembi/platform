@@ -16,21 +16,25 @@ readonly TIMESTAMP
 readonly STAGING=${STAGING:-false}
 readonly TIMESTAMPED_NGINX="${TIMESTAMP}-nginx.conf"
 
+# Import libraries
+ROOT_PATH="${COMPOSE_FILE_PATH}/.."
+. "${ROOT_PATH}/utils/log.sh"
+
 main() {
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
     if [[ "${MODE}" == "dev" ]]; then
-      echo "Not starting reverse proxy as we are running DEV mode"
+      log info "Not starting reverse proxy as we are running DEV mode"
       exit 0
     fi
     if [[ $(docker service ps instant_reverse-proxy-nginx --format '{{.CurrentState}}') == *"Running"* ]]; then
-      echo "Skipping reverse proxy reload as it is already up"
+      log info "Skipping reverse proxy reload as it is already up"
       exit 0
     fi
 
     docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.yml instant
 
     if [[ "${INSECURE}" == "true" ]]; then
-      printf "\nRunning reverse-proxy package in INSECURE mode\n"
+      log info "Running reverse-proxy package in INSECURE mode"
       if [ "${INSECURE_PORTS}" != "" ]; then
         IFS='-' read -ra PORTS <<<"$INSECURE_PORTS"
         local portsArray=()
@@ -38,32 +42,32 @@ main() {
           IFS=':' read -ra PORTS_SPLIT <<<"$i"
           if [ "${PORTS_SPLIT[0]}" != "" ] && [ "${PORTS_SPLIT[1]}" != "" ]; then
             portsArray+=(--publish-add "published=${PORTS_SPLIT[0]},target=${PORTS_SPLIT[1]}")
-            printf "\nExposing ports: published=%s,target=%s\n" "${PORTS_SPLIT[0]}" "${PORTS_SPLIT[1]}"
+            log info "Exposing ports: published=%s,target=%s\n" "${PORTS_SPLIT[0]}" "${PORTS_SPLIT[1]}"
           else
-            printf "\nFailed to expose ports: published=%s,target=%s\n" "${PORTS_SPLIT[0]}" "${PORTS_SPLIT[1]}"
+            log info "Failed to expose ports: published=%s,target=%s\n" "${PORTS_SPLIT[0]}" "${PORTS_SPLIT[1]}"
           fi
         done
-        echo "Updating nginx service with configured ports..."
+        log info "Updating nginx service with configured ports..."
         if ! docker service update "${portsArray[@]}" instant_reverse-proxy-nginx >/dev/null; then
-          echo "Error updating nginx service."
+          log error "Error updating nginx service."
           exit 1
         fi
-        echo "Done updating nginx service"
+        log info "Done updating nginx service"
       fi
 
       docker config create --label name=nginx "${TIMESTAMPED_NGINX}" "${COMPOSE_FILE_PATH}"/config/nginx-temp-insecure.conf
 
-      echo "Updating nginx service: adding config file..."
+      log info "Updating nginx service: adding config file..."
       if ! docker service update \
         --config-add source="${TIMESTAMPED_NGINX}",target=/etc/nginx/nginx.conf \
         instant_reverse-proxy-nginx \
         >/dev/null; then
-        echo "Error updating nginx service"
+        log error "Error updating nginx service"
         exit 1
       fi
-      echo "Done updating nginx service"
+      log info "Done updating nginx service"
     else
-      printf "\nRunning reverse-proxy package in SECURE mode\n"
+      log info "Running reverse-proxy package in SECURE mode"
 
       local domain_args=()
       if [ -n "$SUBDOMAINS" ]; then
@@ -72,7 +76,7 @@ main() {
         domain_args=(-d "${DOMAIN_NAME}")
       fi
 
-      echo "Setting up Nginx reverse-proxy with the following domain name: ${DOMAIN_NAME}"
+      log info "Setting up Nginx reverse-proxy with the following domain name: ${DOMAIN_NAME}"
       #Generate dummy certificate
       docker run --rm \
         --network host \
@@ -107,7 +111,7 @@ main() {
       #Update nginx to use the dummy certificate
       docker config create --label name=nginx "${TIMESTAMPED_NGINX}" "${COMPOSE_FILE_PATH}"/config/nginx.conf
 
-      echo "Updating nginx service: adding config for dummy certificates..."
+      log info "Updating nginx service: adding config for dummy certificates..."
       if ! docker service update \
         --config-add source="${TIMESTAMPED_NGINX}",target=/etc/nginx/nginx.conf \
         --secret-add source="${TIMESTAMP}-fullchain.pem",target=/run/secrets/fullchain.pem \
@@ -116,10 +120,10 @@ main() {
         --publish-add published=80,target=80 \
         --publish-add published=443,target=443 \
         instant_reverse-proxy-nginx >/dev/null; then
-        echo "Error updating nginx service"
+        log error "Error updating nginx service"
         exit 1
       fi
-      echo "Done updating nginx service"
+      log info "Done updating nginx service"
 
       if [ "${STAGING}" == "true" ]; then
         local staging_args="--staging"
@@ -155,32 +159,32 @@ main() {
       local curr_priv_key_name
       curr_priv_key_name=$(docker service inspect instant_reverse-proxy-nginx --format "{{(index .Spec.TaskTemplate.ContainerSpec.Secrets 1).SecretName}}")
 
-      echo "Updating nginx service: adding secrets for generated certificates"
+      log info "Updating nginx service: adding secrets for generated certificates"
       if ! docker service update \
         --secret-rm "${curr_full_chain_name}" \
         --secret-rm "${curr_priv_key_name}" \
         --secret-add source="${new_timestamp}-fullchain.pem",target=/run/secrets/fullchain.pem \
         --secret-add source="${new_timestamp}-privkey.pem",target=/run/secrets/privkey.pem \
         instant_reverse-proxy-nginx >/dev/null; then
-        echo "Error updating nginx service"
+        log error "Error updating nginx service"
         exit 1
       fi
-      echo "Done updating nginx service"
+      log info "Done updating nginx service"
 
-      echo "Scaling up ofelia service..."
+      log info "Scaling up ofelia service..."
       if ! docker service scale instant_ofelia=1 >/dev/null; then
-        echo "Error scaling up ofelia service"
+        log error "Error scaling up ofelia service"
         exit 1
       fi
-      echo "Done scaling up ofelia service"
+      log info "Done scaling up ofelia service"
     fi
   elif [[ "${ACTION}" == "down" ]]; then
-    echo "Scaling down services..."
+    log info "Scaling down services..."
     if ! docker service scale instant_reverse-proxy-nginx=0 instant_ofelia=0 >/dev/null; then
-      echo "Error scaling down services"
+      log error "Error scaling down services"
       exit 1
     fi
-    echo "Done scaling down services"
+    log info "Done scaling down services"
   elif [[ "${ACTION}" == "destroy" ]]; then
     docker service rm instant_reverse-proxy-nginx
     docker service rm instant_ofelia
@@ -202,7 +206,7 @@ main() {
 
     docker volume rm renew-certbot-conf data-certbot-conf dummy-data-certbot-conf
   else
-    echo "Valid options are: init, up, down or destroy"
+    log error "Valid options are: init, up, down or destroy"
   fi
 }
 
