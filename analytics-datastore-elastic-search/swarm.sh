@@ -60,15 +60,17 @@ fi
 create_certs() {
   log info "Creating certificates"
   try "docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.certs.yml instant" "Creating certificates failed"
-  docker::await_container_startup create_certs
-  local certContainerId=""
-  certContainerId=$(docker ps -qlf name=instant_create_certs)
+  docker::await_container_status create_certs exited
 
-  # TODO Something better than sleep
-  sleep 15
-  try "docker cp "$certContainerId":/usr/share/elasticsearch/config/certs ." "Copy failed"
+  log info "Creating cert helper"
+
+  docker run --rm --network host --name es-cert-helper -w /temp \
+    -v instant_certgen:/temp-certificates \
+    -v instant:/temp busybox sh \
+    -c "mkdir -p /temp/certs; cp -r /temp-certificates/* /temp/certs"
 
   try "docker service rm instant_create_certs" "Error removing instant_create_certs"
+  docker volume rm instant_certgen
 }
 
 add_docker_configs() {
@@ -122,7 +124,6 @@ if [[ "$ACTION" == "init" ]]; then
   fi
 
   log info "Waiting for elasticsearch to start before automatically setting built-in passwords"
-  docker::await_container_startup $LeaderNode
   docker::await_container_status $LeaderNode running
 
   install_expect
