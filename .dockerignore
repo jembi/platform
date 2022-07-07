@@ -37,3 +37,6 @@ config.yml
 
 # Infrastructure code
 infrastructure
+
+# Schemas
+schemas
