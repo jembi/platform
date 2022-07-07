@@ -30,12 +30,36 @@ set_elasticsearch_passwords() {
   overwrite "Setting passwords... Done"
 }
 
+await_config_importer() {
+  log info "Waiting for config importer..."
+  local -r SERVICE_NAME="${1:?"FATAL:await_config_importer is missing a parameter"}"
+  local -r MAX_RETRIES="${2:?"FATAL:await_config_importer is missing a parameter"}"
+  local config_importers
+  readarray -t config_importers < <(docker service ps "instant_${SERVICE_NAME}" --format "{{.CurrentState}}")
+
+  until [[ "${config_importers[*]}" =~ "Complete" ]] || [[ "${#config_importers[*]}" == "${MAX_RETRIES}" ]]; do
+    readarray -t config_importers < <(docker service ps "instant_${SERVICE_NAME}" --format "{{.CurrentState}}")
+  done
+  overwrite "Waiting for config importer... Done"
+}
+
+remove_config_importer() {
+  local -r SERVICE_NAME="${1:?"FATAL:remove_config_importer is missing a parameter"}"
+  local config_importers
+  readarray -t config_importers < <(docker service ps "instant_${SERVICE_NAME}" --format "{{.CurrentState}}")
+  local num_successful_configs=$(grep -o Complete <<<"${config_importers[*]}" | wc -l)
+  if [[ "${num_successful_configs}" != "0" ]]; then
+    config::remove_config_importer "${SERVICE_NAME}"
+  fi
+}
+
 import_elastic_index() {
   # TODO: (castelloG) [PLAT-255] Add support for multiple index imports
   config::set_config_digests "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml
   try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to start elastic search config importer"
+  await_config_importer elastic-search-config-importer 3
+  remove_config_importer elastic-search-config-importer
   config::remove_stale_service_configs "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml "elastic-search"
-  config::remove_config_importer elastic-search-config-importer
 }
 
 if [[ "$STATEFUL_NODES" == "cluster" ]]; then

@@ -16,7 +16,10 @@ services:
     deploy:
       replicas: 1
       restart_policy:
-        condition: none
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
     configs:
       - source: kibana-export.ndjson
         target: /kibana-export.ndjson

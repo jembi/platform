@@ -34,6 +34,29 @@ configure_nginx() {
   fi
 }
 
+await_config_importer() {
+  log info "Waiting for config importer..."
+  local -r SERVICE_NAME="${1:?"FATAL:await_config_importer is missing a parameter"}"
+  local -r MAX_RETRIES="${2:?"FATAL:await_config_importer is missing a parameter"}"
+  local config_importers
+  readarray -t config_importers < <(docker service ps "instant_${SERVICE_NAME}" --format "{{.CurrentState}}")
+
+  until [[ "${config_importers[*]}" =~ "Complete" ]] || [[ "${#config_importers[*]}" == "${MAX_RETRIES}" ]]; do
+    readarray -t config_importers < <(docker service ps "instant_${SERVICE_NAME}" --format "{{.CurrentState}}")
+  done
+  overwrite "Waiting for config importer... Done"
+}
+
+remove_config_importer() {
+  local -r SERVICE_NAME="${1:?"FATAL:remove_config_importer is missing a parameter"}"
+  local config_importers
+  readarray -t config_importers < <(docker service ps "instant_${SERVICE_NAME}" --format "{{.CurrentState}}")
+  local num_successful_configs=$(grep -o Complete <<<"${config_importers[*]}" | wc -l)
+  if [[ "${num_successful_configs}" != "0" ]]; then
+    config::remove_config_importer "${SERVICE_NAME}"
+  fi
+}
+
 main() {
   if [[ "${MODE}" == "dev" ]]; then
     log info "Running Dashboard Visualiser Kibana package in DEV mode"
@@ -54,7 +77,8 @@ main() {
     config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to start config importer"
 
-    config::remove_config_importer "kibana-config-importer"
+    await_config_importer kibana-config-importer 3
+    remove_config_importer kibana-config-importer
     config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "kibana"
 
     if [[ "${MODE}" != "dev" ]]; then
