@@ -59,7 +59,7 @@ config::remove_stale_service_configs() {
 
         composeNameOccurences=$(for word in "${composeNames[@]}"; do echo "${word}"; done | grep -c "${composeNameWithoutEnv}")
         if [[ $composeNameOccurences -gt "1" ]]; then
-            echo >&2 "Warning: Duplicate config name (${composeNameWithoutEnv}) was found in ${DOCKER_COMPOSE_PATH}"
+            log warn "Warning: Duplicate config name (${composeNameWithoutEnv}) was found in ${DOCKER_COMPOSE_PATH}"
         fi
 
         raftIds=($(docker config ls -f "label=name=${CONFIG_LABEL}" -f "name=${composeNameWithoutEnv}" --format "{{.ID}}"))
@@ -113,9 +113,9 @@ config::timeout_check() {
 
     local timeDiff=$(($(date +%s) - $startTime))
     if [[ $timeDiff -ge $warningTime ]] && [[ $timeDiff -lt $(($warningTime + 1)) ]]; then
-        echo "Warning: Waited $warningTime seconds for $message. This is taking longer than it should..."
+        log warn "Warning: Waited $warningTime seconds for $message. This is taking longer than it should..."
     elif [[ $timeDiff -ge $exitTime ]]; then
-        echo "Fatal: Waited $exitTime seconds for $message. Exiting..."
+        log error "Fatal: Waited $exitTime seconds for $message. Exiting..."
         exit 124
     fi
 }
@@ -141,7 +141,7 @@ config::await_service_running() {
     local -r warning_time="${5:-}"
     local -r start_time=$(date +%s)
 
-    docker stack deploy -c "$await_helper_file_path" instant
+    try "docker stack deploy -c $await_helper_file_path instant" "Failed to deploy await helper"
     until [[ $(docker service ls -f name=instant_"$service_name" --format "{{.Replicas}}") == *"$service_instances/$service_instances"* ]]; do
         config::timeout_check "$start_time" "$service_name to start" "$exit_time" "$warning_time"
         sleep 1
@@ -154,13 +154,13 @@ config::await_service_running() {
 
         await_helper_state=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
         if [[ $await_helper_state == *"Failed"* ]] || [[ $await_helper_state == *"Rejected"* ]]; then
-            echo "Fatal: Received error when trying to verify state of $service_name. Error:
+            log error "Fatal: Received error when trying to verify state of $service_name. Error:
        $(docker service ps instant_await-helper --no-trunc --format '{{.Error}}')"
             exit 1
         fi
     done
 
-    docker service rm instant_await-helper
+    try "docker service rm instant_await-helper" "Failed to remove await-helper"
 }
 
 # A function which removes a config importing service on successful completion, and exits with an error otherwise
@@ -183,13 +183,13 @@ config::remove_config_importer() {
 
         config_importer_state=$(docker service ps instant_"$config_importer_service_name" --format "{{.CurrentState}}")
         if [[ $config_importer_state == *"Failed"* ]] || [[ $config_importer_state == *"Rejected"* ]]; then
-            echo "Fatal: $config_importer_service_name failed with error:
+            log error "Fatal: $config_importer_service_name failed with error:
        $(docker service ps instant_"$config_importer_service_name" --no-trunc --format '{{.Error}}')"
             exit 1
         fi
     done
 
-    docker service rm instant_"$config_importer_service_name"
+    try "docker service rm instant_$config_importer_service_name" "Failed to remove config importer "
 }
 
 # Waits for the provided service to be removed
@@ -249,7 +249,7 @@ config::generate_service_configs() {
     local -r TARGET_FOLDER_NAME=$(basename "${TARGET_FOLDER_PATH}")
     local count=0
 
-    touch "${COMPOSE_FILE_PATH}/docker-compose.tmp.yml"
+    try "touch ${COMPOSE_FILE_PATH}/docker-compose.tmp.yml" "Failed to create temp service config compose file"
 
     find "${TARGET_FOLDER_PATH}" -maxdepth 10 -mindepth 1 -type f | while read -r file; do
         file_name=${file/"${TARGET_FOLDER_PATH%/}"/}

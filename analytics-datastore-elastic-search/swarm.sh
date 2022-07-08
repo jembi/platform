@@ -54,7 +54,7 @@ else
   ElasticSearchDevComposeParam=""
 fi
 
-if [[ "$ACTION" == "init" ]]; then
+if [[ "${ACTION}" == "init" ]]; then
   try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $ElasticSearchClusterComposeParam $ElasticSearchDevComposeParam instant" "Failed to deploy Analytics Datastore Elastic Search"
 
   log info "Waiting for elasticsearch to start before automatically setting built-in passwords"
@@ -69,11 +69,11 @@ if [[ "$ACTION" == "init" ]]; then
   import_elastic_index
 
   log info "Done"
-elif [[ "$ACTION" == "up" ]]; then
+elif [[ "${ACTION}" == "up" ]]; then
   try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $ElasticSearchClusterComposeParam $ElasticSearchDevComposeParam instant" "Failed to deploy Analytics Datastore Elastic Search"
-elif [[ "$ACTION" == "down" ]]; then
+elif [[ "${ACTION}" == "down" ]]; then
   try "docker service scale instant_analytics-datastore-elastic-search=0" "Failed to scale down analytics-datastore-elastic-search"
-elif [[ "$ACTION" == "destroy" ]]; then
+elif [[ "${ACTION}" == "destroy" ]]; then
   try "docker service rm instant_analytics-datastore-elastic-search" "Failed to remove analytics-datastore-elastic-search"
 
   docker::await_container_destroy analytics-datastore-elastic-search
