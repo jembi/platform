@@ -77,41 +77,34 @@ add_docker_configs() {
   TIMESTAMP="$(date "+%Y%m%d%H%M%S")"
   readonly TIMESTAMP
   log info "Creating configs"
-  docker config create --label name=elasticsearch "${TIMESTAMP}-ca.crt" "./certs/ca/ca.crt"
-  docker config create --label name=elasticsearch "${TIMESTAMP}-es01.crt" "./certs/es01/es01.crt"
-  docker config create --label name=elasticsearch "${TIMESTAMP}-es01.key" "./certs/es01/es01.key"
-  docker config create --label name=elasticsearch "${TIMESTAMP}-es02.crt" "./certs/es02/es02.crt"
-  docker config create --label name=elasticsearch "${TIMESTAMP}-es02.key" "./certs/es02/es02.key"
-  docker config create --label name=elasticsearch "${TIMESTAMP}-es03.crt" "./certs/es03/es03.crt"
-  docker config create --label name=elasticsearch "${TIMESTAMP}-es03.key" "./certs/es03/es03.key"
+  try "docker config create --label name=elasticsearch ${TIMESTAMP}-ca.crt ./certs/ca/ca.crt" "Error creating config ca.crt"
+  try "docker config create --label name=elasticsearch ${TIMESTAMP}-es01.crt ./certs/es01/es01.crt" "Error creating config es01.crt"
+  try "docker config create --label name=elasticsearch ${TIMESTAMP}-es01.key ./certs/es01/es01.key" "Error creating config es01.key"
+  try "docker config create --label name=elasticsearch ${TIMESTAMP}-es02.crt ./certs/es02/es02.crt" "Error creating config es02.crt"
+  try "docker config create --label name=elasticsearch ${TIMESTAMP}-es02.key ./certs/es02/es02.key" "Error creating config es02.key"
+  try "docker config create --label name=elasticsearch ${TIMESTAMP}-es03.crt ./certs/es03/es03.crt" "Error creating config es03.crt"
+  try "docker config create --label name=elasticsearch ${TIMESTAMP}-es03.key ./certs/es03/es03.key" "Error creating config es03.key"
 
   log info "Updating es-01 with certs"
-  if ! docker service update \
+  try "docker service update \
     --config-add source="${TIMESTAMP}-ca.crt",target=/usr/share/elasticsearch/config/certs/ca/ca.crt \
     --config-add source="${TIMESTAMP}-es01.crt",target=/usr/share/elasticsearch/config/certs/es01/es01.crt \
     --config-add source="${TIMESTAMP}-es01.key",target=/usr/share/elasticsearch/config/certs/es01/es01.key \
-    instant_analytics-datastore-elastic-search-01 >/dev/null; then
-    log error "Error updating es01"
-    exit 1
-  fi
+    instant_analytics-datastore-elastic-search-01 >/dev/null " "Error updating es01"
+
   log info "Updating es-02 with certs"
-  if ! docker service update \
+  try "docker service update \
     --config-add source="${TIMESTAMP}-ca.crt",target=/usr/share/elasticsearch/config/certs/ca/ca.crt \
     --config-add source="${TIMESTAMP}-es02.crt",target=/usr/share/elasticsearch/config/certs/es02/es02.crt \
     --config-add source="${TIMESTAMP}-es02.key",target=/usr/share/elasticsearch/config/certs/es02/es02.key \
-    instant_analytics-datastore-elastic-search-02 >/dev/null; then
-    log error "Error updating es02"
-    exit 1
-  fi
+    instant_analytics-datastore-elastic-search-02 >/dev/null;" "Error updating es02"
+
   log info "Updating es-03 with certs"
-  if ! docker service update \
+  try "docker service update \
     --config-add source="${TIMESTAMP}-ca.crt",target=/usr/share/elasticsearch/config/certs/ca/ca.crt \
     --config-add source="${TIMESTAMP}-es03.crt",target=/usr/share/elasticsearch/config/certs/es03/es03.crt \
     --config-add source="${TIMESTAMP}-es03.key",target=/usr/share/elasticsearch/config/certs/es03/es03.key \
-    instant_analytics-datastore-elastic-search-03 >/dev/null; then
-    log error "Error updating es03"
-    exit 1
-  fi
+    instant_analytics-datastore-elastic-search-03 >/dev/null;" "Error updating es03"
 }
 
 if [[ "$ACTION" == "init" ]]; then
