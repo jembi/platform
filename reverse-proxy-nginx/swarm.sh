@@ -31,7 +31,7 @@ main() {
       exit 0
     fi
 
-    docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.yml instant
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml instant" "Failed to deploy nginx"
 
     if [[ "${INSECURE}" == "true" ]]; then
       log info "Running reverse-proxy package in INSECURE mode"
@@ -48,23 +48,16 @@ main() {
           fi
         done
         log info "Updating nginx service with configured ports..."
-        if ! docker service update "${portsArray[@]}" instant_reverse-proxy-nginx >/dev/null; then
-          log error "Error updating nginx service."
-          exit 1
-        fi
+        try "docker service update ${portsArray[*]} instant_reverse-proxy-nginx" "Error updating nginx service."
+
         log info "Done updating nginx service"
       fi
 
-      docker config create --label name=nginx "${TIMESTAMPED_NGINX}" "${COMPOSE_FILE_PATH}"/config/nginx-temp-insecure.conf
+      try "docker config create --label name=nginx ${TIMESTAMPED_NGINX} ${COMPOSE_FILE_PATH}/config/nginx-temp-insecure.conf" "Failed to create nginx insecure config"
 
       log info "Updating nginx service: adding config file..."
-      if ! docker service update \
-        --config-add source="${TIMESTAMPED_NGINX}",target=/etc/nginx/nginx.conf \
-        instant_reverse-proxy-nginx \
-        >/dev/null; then
-        log error "Error updating nginx service"
-        exit 1
-      fi
+      try "docker service update --config-add source=${TIMESTAMPED_NGINX},target=/etc/nginx/nginx.conf instant_reverse-proxy-nginx" "Error updating nginx service"
+
       log info "Done updating nginx service"
     else
       log info "Running reverse-proxy package in SECURE mode"
