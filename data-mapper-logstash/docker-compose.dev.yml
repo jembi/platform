@@ -5,4 +5,4 @@ services:
     ports:
       - target: 5055
         published: 5055
-        mode: ingress
+        mode: host
