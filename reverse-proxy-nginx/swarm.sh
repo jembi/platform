@@ -160,7 +160,7 @@ main() {
 
     mapfile -t nginx_configs < <(docker config ls -qf label=name=nginx)
     if [[ "${#nginx_configs[@]}" -ne 0 ]]; then
-      try "docker config rm ${nginx_configs[*]}"
+      try "docker config rm ${nginx_configs[*]}" "Failed to remove nginx configs"
     fi
 
     mapfile -t nginx_network < <(docker network ls -qf name=cert-renewal-network)
