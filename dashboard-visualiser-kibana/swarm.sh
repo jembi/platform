@@ -41,11 +41,6 @@ await_config_importer() {
   local config_importers
   readarray -t config_importers < <(docker service ps "instant_${SERVICE_NAME}" --format "{{.CurrentState}}")
 
-  if [[ "${#config_importers[*]}" -gt "0" ]]; then
-    log error "Config importing failed: An instance of ${SERVICE_NAME} is currently running, please destroy this and try again"
-    exit 1
-  fi
-
   until [[ "${config_importers[*]}" =~ "Complete" ]] || [[ "${#config_importers[*]}" > "${MAX_RETRIES}" ]]; do
     readarray -t config_importers < <(docker service ps "instant_${SERVICE_NAME}" --format "{{.CurrentState}}")
   done
@@ -60,6 +55,20 @@ remove_config_importer() {
   if [[ "${num_successful_configs}" != "0" ]]; then
     config::remove_config_importer "${SERVICE_NAME}"
   fi
+}
+
+import_kibana_dashboards() {
+  log info "Setting config digests"
+  if [[ -n "$(docker service ls -qf name=instant_kibana-config-importer)" ]]; then
+    log error "Config importing failed: An instance of kibana-config-importer is currently running, please destroy this and try again"
+    exit 1
+  fi
+  config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to start config importer"
+
+  await_config_importer kibana-config-importer 3
+  remove_config_importer kibana-config-importer
+  config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "kibana"
 }
 
 main() {
@@ -78,13 +87,7 @@ main() {
     docker::await_container_startup dashboard-visualiser-kibana
     docker::await_container_status dashboard-visualiser-kibana running
 
-    log info "Setting config digests"
-    config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to start config importer"
-
-    await_config_importer kibana-config-importer 3
-    remove_config_importer kibana-config-importer
-    config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "kibana"
+    import_kibana_dashboards
 
     if [[ "${MODE}" != "dev" ]]; then
       configure_nginx "$@"
@@ -93,7 +96,13 @@ main() {
   elif [[ "${ACTION}" == "down" ]]; then
     try "docker service scale instant_dashboard-visualiser-kibana=0" "Failed to scale down dashboard-visualiser-kibana"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    try "docker service rm instant_dashboard-visualiser-kibana" "Failed to destroy dashboard-visualiser-kibana"
+    if [[ -n "$(docker service ls -qf name=instant_analytics-datastore-elastic-search)" ]]; then
+      try "docker service rm instant_dashboard-visualiser-kibana" "Failed to destroy dashboard-visualiser-kibana"
+    fi
+
+    if [[ -n "$(docker service ls -qf name=instant_kibana-config-importer)" ]]; then
+      try "docker service rm instant_kibana-config-importer" "Failed to remove instant_kibana-config-importer"
+    fi
   else
     log error "Valid options are: init, up, down, or destroy"
   fi

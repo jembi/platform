@@ -60,6 +60,12 @@ remove_config_importer() {
 
 import_elastic_index() {
   # TODO: (castelloG) [PLAT-255] Add support for multiple index imports
+  if [[ -n "$(docker service ls -qf name=instant_elastic-search-config-importer)" ]]; then
+    docker service ls -qf name=instant_elastic-search-config-importer
+    log error "Config importing failed: An instance of elastic-search-config-importer is currently running, please destroy this and try again"
+    exit 1
+  fi
+
   config::set_config_digests "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml
   try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to start elastic search config importer"
   await_config_importer elastic-search-config-importer 3
@@ -101,11 +107,17 @@ elif [[ "${ACTION}" == "up" ]]; then
 elif [[ "${ACTION}" == "down" ]]; then
   try "docker service scale instant_analytics-datastore-elastic-search=0" "Failed to scale down analytics-datastore-elastic-search"
 elif [[ "${ACTION}" == "destroy" ]]; then
-  try "docker service rm instant_analytics-datastore-elastic-search" "Failed to remove analytics-datastore-elastic-search"
 
-  docker::await_container_destroy analytics-datastore-elastic-search
+  if [[ -n "$(docker service ls -qf name=instant_analytics-datastore-elastic-search)" ]]; then
+    try "docker service rm instant_analytics-datastore-elastic-search" "Failed to remove analytics-datastore-elastic-search"
+    docker::await_container_destroy analytics-datastore-elastic-search
+  fi
 
   try "docker volume rm instant_es-data" "Failed to remove volume instant_es-data"
+
+  if [[ -n "$(docker service ls -qf name=instant_elastic-search-config-importer)" ]]; then
+    try "docker service rm instant_elastic-search-config-importer" "Failed to remove instant_elastic-search-config-importer"
+  fi
 
   if [[ "$STATEFUL_NODES" == "cluster" ]]; then
     log warn "Volumes are only deleted on the host on which the command is run. Elastic Search volumes on other nodes are not deleted"
