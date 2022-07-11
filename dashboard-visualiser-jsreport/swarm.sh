@@ -31,6 +31,13 @@ configure_nginx() {
   fi
 }
 
+unbound_ES_HOSTS_check() {
+  if [[ ${STATEFUL_NODES} == "cluster" ]] && [[ -z ${ES_HOSTS:-""} ]]; then
+    log error "ES_HOSTS environment variable not set... Exiting"
+    exit 1
+  fi
+}
+
 main() {
   if [[ "$MODE" == "dev" ]]; then
     log info "Running JS Report package in DEV mode"
@@ -53,6 +60,8 @@ main() {
   fi
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
+    unbound_ES_HOSTS_check
+
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $js_report_dev_compose_param $js_report_dev_mount_compose_param instant" "Failed to deploy JS Report"
 
     if [[ "${JS_REPORT_DEV_MOUNT}" != "true" ]]; then
