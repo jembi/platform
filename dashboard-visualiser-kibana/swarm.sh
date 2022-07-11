@@ -41,7 +41,11 @@ await_config_importer() {
   local config_importers
   readarray -t config_importers < <(docker service ps "instant_${SERVICE_NAME}" --format "{{.CurrentState}}")
 
-  until [[ "${config_importers[*]}" =~ "Complete" ]] || [[ "${#config_importers[*]}" == "${MAX_RETRIES}" ]]; do
+  if [[ "${#config_importers[*]}" -gt "0" ]]; then
+    log warn "Config importing failed: An instance of ${SERVICE_NAME} is currently running, please destroy this and try again"
+  fi
+
+  until [[ "${config_importers[*]}" =~ "Complete" ]] || [[ "${#config_importers[*]}" > "${MAX_RETRIES}" ]]; do
     readarray -t config_importers < <(docker service ps "instant_${SERVICE_NAME}" --format "{{.CurrentState}}")
   done
   overwrite "Waiting for config importer... Done"
