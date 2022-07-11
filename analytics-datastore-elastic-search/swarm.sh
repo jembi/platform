@@ -33,6 +33,7 @@ set_elasticsearch_passwords() {
 
 import_elastic_index() {
   # TODO: (castelloG) [PLAT-255] Add support for multiple index imports
+  log info "Importing Elasticsearch index mapping"
   config::set_config_digests "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml
   try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to start elastic search config importer"
   config::remove_stale_service_configs "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml "elastic-search"
