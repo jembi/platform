@@ -65,13 +65,15 @@ create_certs() {
 
   log info "Creating cert helper"
 
-  docker run --rm --network host --name es-cert-helper -w /temp \
+  try "docker run --rm --network host --name es-cert-helper -w /temp \
     -v instant_certgen:/temp-certificates \
     -v instant:/temp busybox sh \
-    -c "mkdir -p /temp/certs; cp -r /temp-certificates/* /temp/certs"
+    -c \"mkdir -p /temp/certs; cp -r /temp-certificates/* /temp/certs\"" "Error creating es-cert-helper"
 
   try "docker service rm instant_create_certs" "Error removing instant_create_certs"
-  docker volume rm instant_certgen
+  docker::await_container_destroy create_certs
+  docker::await_container_destroy es-cert-helper
+  try "docker volume rm instant_certgen" "Error removing certgen volume"
 }
 
 add_docker_configs() {
