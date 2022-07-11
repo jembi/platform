@@ -25,9 +25,9 @@ install_expect() {
 set_elasticsearch_passwords() {
   local container=$1
   log info "Setting passwords..."
-  local elasticSearchContainerId=""
-  elasticSearchContainerId=$(docker ps -qlf name=${container})
-  try "${COMPOSE_FILE_PATH}/set-elastic-passwords.exp ${elasticSearchContainerId}" "Fatal: Failed to set elastic passwords. Cannot update Elastic Search passwords"
+  local elastic_search_container_id=""
+  elastic_search_container_id=$(docker ps -qlf name=${container})
+  try "${COMPOSE_FILE_PATH}/set-elastic-passwords.exp ${elastic_search_container_id}" "Fatal: Failed to set elastic passwords. Cannot update Elastic Search passwords"
   overwrite "Setting passwords... Done"
 }
 
@@ -42,25 +42,23 @@ import_elastic_index() {
 
 if [[ "$STATEFUL_NODES" == "cluster" ]]; then
   log info "Running Analytics Datastore Elastic Search package in Cluster node mode"
-  ElasticSearchClusterComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.cluster.yml"
-  LeaderNode="analytics-datastore-elastic-search-01"
+  leader_node="analytics-datastore-elastic-search-01"
 else
   log info "Running Analytics Datastore Elastic Search package in Single node mode"
-  ElasticSearchClusterComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.yml"
-  LeaderNode="analytics-datastore-elastic-search"
+  leader_node="analytics-datastore-elastic-search"
 fi
 
 if [[ "$MODE" == "dev" ]]; then
   log info "Running Analytics Datastore Elastic Search package in DEV mode"
-  ElasticSearchDevComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
+  elastic_search_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
 else
   log info "Running Analytics Datastore Elastic Search package in PROD mode"
-  ElasticSearchDevComposeParam=""
+  elastic_search_dev_compose_param=""
 fi
 
 create_certs() {
   log info "Creating certificates"
-  try "docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.certs.yml instant" "Creating certificates failed"
+  try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose.certs.yml instant" "Creating certificates failed"
   docker::await_container_startup create_certs
   docker::await_container_status create_certs exited
 
@@ -91,49 +89,49 @@ add_docker_configs() {
 
   log info "Updating es-01 with certs"
   try "docker service update \
-    --config-add source="${TIMESTAMP}-ca.crt",target=/usr/share/elasticsearch/config/certs/ca/ca.crt \
-    --config-add source="${TIMESTAMP}-es01.crt",target=/usr/share/elasticsearch/config/certs/es01/es01.crt \
-    --config-add source="${TIMESTAMP}-es01.key",target=/usr/share/elasticsearch/config/certs/es01/es01.key \
+    --config-add source=${TIMESTAMP}-ca.crt,target=/usr/share/elasticsearch/config/certs/ca/ca.crt \
+    --config-add source=${TIMESTAMP}-es01.crt,target=/usr/share/elasticsearch/config/certs/es01/es01.crt \
+    --config-add source=${TIMESTAMP}-es01.key,target=/usr/share/elasticsearch/config/certs/es01/es01.key \
     instant_analytics-datastore-elastic-search-01" "Error updating es01"
 
   log info "Updating es-02 with certs"
   try "docker service update \
-    --config-add source="${TIMESTAMP}-ca.crt",target=/usr/share/elasticsearch/config/certs/ca/ca.crt \
-    --config-add source="${TIMESTAMP}-es02.crt",target=/usr/share/elasticsearch/config/certs/es02/es02.crt \
-    --config-add source="${TIMESTAMP}-es02.key",target=/usr/share/elasticsearch/config/certs/es02/es02.key \
+    --config-add source=${TIMESTAMP}-ca.crt,target=/usr/share/elasticsearch/config/certs/ca/ca.crt \
+    --config-add source=${TIMESTAMP}-es02.crt,target=/usr/share/elasticsearch/config/certs/es02/es02.crt \
+    --config-add source=${TIMESTAMP}-es02.key,target=/usr/share/elasticsearch/config/certs/es02/es02.key \
     instant_analytics-datastore-elastic-search-02" "Error updating es02"
 
   log info "Updating es-03 with certs"
   try "docker service update \
-    --config-add source="${TIMESTAMP}-ca.crt",target=/usr/share/elasticsearch/config/certs/ca/ca.crt \
-    --config-add source="${TIMESTAMP}-es03.crt",target=/usr/share/elasticsearch/config/certs/es03/es03.crt \
-    --config-add source="${TIMESTAMP}-es03.key",target=/usr/share/elasticsearch/config/certs/es03/es03.key \
+    --config-add source=${TIMESTAMP}-ca.crt,target=/usr/share/elasticsearch/config/certs/ca/ca.crt \
+    --config-add source=${TIMESTAMP}-es03.crt,target=/usr/share/elasticsearch/config/certs/es03/es03.crt \
+    --config-add source=${TIMESTAMP}-es03.key,target=/usr/share/elasticsearch/config/certs/es03/es03.key \
     instant_analytics-datastore-elastic-search-03" "Error updating es03"
 }
 
 if [[ "$ACTION" == "init" ]]; then
   if [[ "$STATEFUL_NODES" == "cluster" ]]; then
     create_certs
-    try "docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.cluster.yml instant" "Failed to deploy cluster"
+    try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose.cluster.yml instant" "Failed to deploy cluster"
     add_docker_configs
   else
-    try "docker stack deploy $ElasticSearchClusterComposeParam $ElasticSearchDevComposeParam instant" "Failed to deploy Analytics Datastore Elastic Search"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $elastic_search_dev_compose_param instant" "Failed to deploy Analytics Datastore Elastic Search"
   fi
 
   log info "Waiting for elasticsearch to start before automatically setting built-in passwords"
-  docker::await_container_status $LeaderNode running
+  docker::await_container_status $leader_node running
 
   install_expect
-  set_elasticsearch_passwords $LeaderNode
+  set_elasticsearch_passwords $leader_node
 
   import_elastic_index
 
   log info "Done"
 elif [[ "$ACTION" == "up" ]]; then
   if [[ "$STATEFUL_NODES" == "cluster" ]]; then
-    try "docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.cluster.yml instant" "Failed to deploy cluster"
+    try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose.cluster.yml instant" "Failed to deploy cluster"
   else
-    try "docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $ElasticSearchDevComposeParam instant" "Failed to deploy Analytics Datastore Elastic Search"
+    try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose.yml $elastic_search_dev_compose_param instant" "Failed to deploy Analytics Datastore Elastic Search"
   fi
 elif [[ "$ACTION" == "down" ]]; then
   if [[ "$STATEFUL_NODES" == "cluster" ]]; then
