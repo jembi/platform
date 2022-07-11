@@ -10,7 +10,7 @@ services:
     command: >
       bash -c '
          if [ ! -f config/certs/ca/ca.crt ]; then
-           echo "Creating CA";
+           echo "Creating Certificate Authority";
            bin/elasticsearch-certutil ca --silent --pem -out config/certs/ca.zip;
            unzip config/certs/ca.zip -d config/certs;
          fi;
@@ -35,6 +35,7 @@ services:
 
 volumes:
   certgen:
+
 
 configs:
   instances.yml:
