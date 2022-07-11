@@ -72,9 +72,9 @@ elif [[ "${ACTION}" == "up" ]]; then
 elif [[ "${ACTION}" == "down" ]]; then
   try "docker service scale instant_analytics-datastore-elastic-search=0" "Failed to scale down analytics-datastore-elastic-search"
 elif [[ "${ACTION}" == "destroy" ]]; then
-  try "docker service rm instant_analytics-datastore-elastic-search" "Failed to remove analytics-datastore-elastic-search"
+    try "docker service rm instant_analytics-datastore-elastic-search" "Failed to remove analytics-datastore-elastic-search"
 
-  docker::await_container_destroy analytics-datastore-elastic-search
+    docker::await_container_destroy analytics-datastore-elastic-search
 
   try "docker volume rm instant_es-data" "Failed to remove volume instant_es-data"
 
