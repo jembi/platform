@@ -60,6 +60,7 @@ fi
 create_certs() {
   log info "Creating certificates"
   try "docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.certs.yml instant" "Creating certificates failed"
+  docker::await_container_startup create_certs
   docker::await_container_status create_certs exited
 
   log info "Creating cert helper"
