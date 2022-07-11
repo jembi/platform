@@ -181,8 +181,6 @@ try() {
     local -r ERROR_MESSAGE=${2:?"FATAL: function 'try' is missing a parameter"}
 
     if [ "${BASHLOG_FILE}" -eq 1 ]; then
-        if ! eval $COMMAND >>$BASHLOG_FILE_PATH 2>&1; then
-            log error $ERROR_MESSAGE
         if ! eval "$COMMAND" >>"$LOG_FILE_PATH" 2>&1; then
             log error "$ERROR_MESSAGE"
             exit 1
