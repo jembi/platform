@@ -31,6 +31,13 @@ configure_nginx() {
   fi
 }
 
+confirm_cluster_env_vars() {
+  if [[ ${STATEFUL_NODES} == "cluster" ]] && [[ -n ${ES_HOSTS} ]]; then
+    log error "ES_HOSTS not supplied... Exiting"
+    exit 1
+  fi
+}
+
 main() {
   if [[ "$MODE" == "dev" ]]; then
     log info "Running JS Report package in DEV mode"
