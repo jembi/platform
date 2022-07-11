@@ -20,18 +20,15 @@ ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 AwaitPostgresToStart() {
   echo "Await Postgres to start up before HAPI-FHIR"
 
+  docker::await_container_startup postgres-1
+  docker::await_container_status postgres-1 running
+  
   if [ "$STATEFUL_NODES" == "cluster" ]; then
-    docker::await_container_startup postgres-1
-    docker::await_container_status postgres-1 running
-
     docker::await_container_startup postgres-2
     docker::await_container_status postgres-2 running
 
     docker::await_container_startup postgres-3
     docker::await_container_status postgres-3 running
-  else
-    docker::await_container_startup postgres-1
-    docker::await_container_status postgres-1 running
   fi
 }
 
