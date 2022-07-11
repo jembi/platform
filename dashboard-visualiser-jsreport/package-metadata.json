@@ -9,6 +9,7 @@
     "JS_REPORT_SECRET": "dev_secret_only",
     "JS_REPORT": "dev_password_only",
     "ES_ELASTIC": "dev_password_only",
+    "ES_HOSTS":"analytics-datastore-elastic-search:9200",
     "JS_REPORT_SSL": "true",
     "JS_REPORT_CONFIG_FILE": "export.jsrexport",
     "JS_REPORT_CPU_LIMIT": "0.8",
