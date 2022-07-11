@@ -4,10 +4,10 @@ services:
   postgres-1:
     environment:
       REPMGR_PARTNER_NODES: ${REPMGR_PARTNER_NODES:-postgres-1,postgres-2,postgres-3}
-    deploy:
-      placement:
-        constraints:
-          - "node.labels.name==node-1"
+    # deploy:
+    #   placement:
+    #     constraints:
+    #       - "node.labels.name==node-1"
 
   postgres-2:
     image: bitnami/postgresql-repmgr:14
@@ -24,9 +24,9 @@ services:
     volumes:
       - 'hapi-postgres-2-data:/bitnami/postgresql'
     deploy:
-      placement:
-        constraints:
-          - "node.labels.name==node-2"
+      # placement:
+      #   constraints:
+      #     - "node.labels.name==node-2"
       replicas: 1
       resources:
         limits:
@@ -51,9 +51,9 @@ services:
     volumes:
       - 'hapi-postgres-3-data:/bitnami/postgresql'
     deploy:
-      placement:
-        constraints:
-          - "node.labels.name==node-3"
+      # placement:
+      #   constraints:
+      #     - "node.labels.name==node-3"
       replicas: 1
       resources:
         limits:

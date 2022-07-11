@@ -6,9 +6,9 @@ services:
      - ZOO_SERVER_ID=1
      - ZOO_SERVERS=0.0.0.0:2888:3888,zookeeper-2:2888:3888,zookeeper-3:2888:3888
     deploy:
-      placement:
-        constraints:
-          - "node.labels.name==node-1"
+      # placement:
+      #   constraints:
+      #     - "node.labels.name==node-1"
       resources:
         limits:
           cpus: ${ZOOKEEPER_CPU_LIMIT:-0.8}
@@ -26,9 +26,9 @@ services:
     volumes:
       - zookeeper-2-volume:/bitnami/zookeeper
     deploy:
-      placement:
-        constraints:
-          - "node.labels.name==node-2"
+      # placement:
+      #   constraints:
+      #     - "node.labels.name==node-2"
       resources:
         limits:
           cpus: ${ZOOKEEPER_CPU_LIMIT:-0.8}
@@ -46,9 +46,9 @@ services:
     volumes:
       - zookeeper-3-volume:/bitnami/zookeeper
     deploy:
-      placement:
-        constraints:
-          - "node.labels.name==node-3"
+      # placement:
+      #   constraints:
+      #     - "node.labels.name==node-3"
       resources:
         limits:
           cpus: ${ZOOKEEPER_CPU_LIMIT:-0.8}

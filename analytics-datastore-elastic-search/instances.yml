@@ -1,0 +1,10 @@
+instances:
+  - name: es01
+    dns:
+      - analytics-datastore-elastic-search-01
+  - name: es02
+    dns:
+      - analytics-datastore-elastic-search-02
+  - name: es03
+    dns:
+      - analytics-datastore-elastic-search-03

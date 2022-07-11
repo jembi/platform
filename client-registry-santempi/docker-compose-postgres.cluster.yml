@@ -2,10 +2,10 @@ version: '3.9'
 
 services:
   santempi-psql-1:
-    deploy:
-      placement:
-        constraints:
-          - "node.labels.name==node-1"
+    # deploy:
+      # placement:
+      #   constraints:
+      #     - "node.labels.name==node-1"
 
   santempi-psql-2:
     image: bitnami/postgresql-repmgr:14
@@ -22,9 +22,9 @@ services:
       - 'santempi-psql-2-data:/bitnami/postgresql'
     deploy:
       replicas: 1
-      placement:
-        constraints:
-          - "node.labels.name==node-2"
+      # placement:
+      #   constraints:
+      #     - "node.labels.name==node-2"
 
   santempi-psql-3:
     image: bitnami/postgresql-repmgr:14
@@ -41,9 +41,9 @@ services:
       - 'santempi-psql-3-data:/bitnami/postgresql'
     deploy:
       replicas: 1
-      placement:
-        constraints:
-          - "node.labels.name==node-3"
+      # placement:
+      #   constraints:
+      #     - "node.labels.name==node-3"
 
 volumes:
   santempi-psql-2-data:

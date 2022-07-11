@@ -1,7 +1,5 @@
 #!/bin/bash
 
-log info 'Initiating the mongo replica set'
-
 COMPOSE_FILE_PATH=$(
     cd "$(dirname "${BASH_SOURCE[0]}")" || exit
     pwd -P
@@ -9,6 +7,9 @@ COMPOSE_FILE_PATH=$(
 
 ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/config-utils.sh"
+. "${ROOT_PATH}/utils/log.sh"
+
+log info 'Initiating the mongo replica set'
 
 MONGO_SET_COUNT=${MONGO_SET_COUNT:-3}
 Config='{"_id":"mongo-set","members":['

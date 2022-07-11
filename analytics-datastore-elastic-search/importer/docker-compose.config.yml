@@ -5,7 +5,7 @@ services:
       image: jembi/api-config-importer:1.1.0
       environment:
         HTTP_METHOD: 'PUT'
-        SERVICE_NAME: 'analytics-datastore-elastic-search'
+        SERVICE_NAME: '${ES_LEADER_NODE:-analytics-datastore-elastic-search-01}'
         SERVICE_API_PORT: 9200
         API_USERNAME: elastic
         API_PASSWORD: ${ES_ELASTIC:-dev_password_only}
