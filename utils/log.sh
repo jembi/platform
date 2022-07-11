@@ -11,6 +11,9 @@ CLEAR_PREV_LINE="${PREV_LINE}${PREV_LINE}${CLEAR_LINE}"
 DEBUG="${DEBUG:-0}"
 BASHLOG_FILE="${BASHLOG_FILE:-0}"
 
+root_log_file_path="/tmp/logs"
+LOG_FILE_PATH="${root_log_file_path}/${BASHLOG_FILE_PATH:-platform.log}"
+
 function _log_exception() {
     (
         BASHLOG_FILE=0
@@ -27,7 +30,7 @@ function log() {
     local date_s="$(date "+%s")"
 
     local file="${BASHLOG_FILE:-0}"
-    local file_path="${BASHLOG_FILE_PATH:-/tmp/$(basename "${0}").log}"
+    local file_path="${LOG_FILE_PATH:-/tmp/$(basename "${0}").log}"
 
     local json="${BASHLOG_JSON:-0}"
     local json_path="${BASHLOG_JSON_PATH:-/tmp/$(basename "${0}").log.json}"
@@ -180,17 +183,19 @@ try() {
     if [ "${BASHLOG_FILE}" -eq 1 ]; then
         if ! eval $COMMAND >>$BASHLOG_FILE_PATH 2>&1; then
             log error $ERROR_MESSAGE
+        if ! eval "$COMMAND" >>"$LOG_FILE_PATH" 2>&1; then
+            log error "$ERROR_MESSAGE"
             exit 1
         fi
     else
         if [ "${DEBUG}" -eq 1 ]; then
-            if ! eval $COMMAND; then
-                log error $ERROR_MESSAGE
+            if ! eval "$COMMAND"; then
+                log error "$ERROR_MESSAGE"
                 exit 1
             fi
         else
-            if ! eval $COMMAND 1>/dev/null; then
-                log error $ERROR_MESSAGE
+            if ! eval "$COMMAND" 1>/dev/null; then
+                log error "$ERROR_MESSAGE"
                 exit 1
             fi
         fi

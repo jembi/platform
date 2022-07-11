@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo 'Initiating the mongo replica set'
+log info 'Initiating the mongo replica set'
 
 COMPOSE_FILE_PATH=$(
     cd "$(dirname "${BASH_SOURCE[0]}")" || exit
@@ -23,20 +23,20 @@ AwaitReplicaReachable () {
 MONGO_SET_COUNT=${MONGO_SET_COUNT:-3}
 Config='{"_id":"mongo-set","members":['
 Priority="1"
-for i in $(seq 1 $MONGO_SET_COUNT); do
-    Config=$(printf '%s{"_id":%s,"priority":%s,"host":"mongo-%s:27017"}' $Config $(($i - 1)) $Priority $i)
+for i in $(seq 1 "$MONGO_SET_COUNT"); do
+    Config=$(printf '%s{"_id":%s,"priority":%s,"host":"mongo-%s:27017"}' "$Config" $(($i - 1)) $Priority "$i")
     if [[ $i != $MONGO_SET_COUNT ]]; then
-        Config=$(printf '%s,' $Config)
+        Config=$(printf '%s,' "$Config")
     fi
     Priority="0.5"
 done
 Config=$(printf '%s]}' "$Config")
 
-echo 'Waiting to ensure all the mongo instances for the replica set are up and running'
+log info 'Waiting to ensure all the mongo instances for the replica set are up and running'
 RunningInstanceCount=0
 StartTime=$(date +%s)
 until [[ $RunningInstanceCount -eq $MONGO_SET_COUNT ]]; do
-    config::timeout_check $StartTime "mongo replica set to run"
+    config::timeout_check "$StartTime" "mongo replica set to run"
     sleep 1
 
     RunningInstanceCount=0
@@ -65,8 +65,8 @@ fi
 
 InitiateRepSetResponse=$(docker exec -i "$ContainerName" mongo --eval "rs.initiate($Config)")
 if [[ $InitiateRepSetResponse == *"{ \"ok\" : 1 }"* ]] || [[ $InitiateRepSetResponse == *"already initialized"* ]]; then
-    echo "Replica set successfully set up"
+    log info "Replica set successfully set up"
 else
-    echo "Fatal: Unable to set up replica set"
+    log error "Fatal: Unable to set up replica set"
     exit 1
 fi
