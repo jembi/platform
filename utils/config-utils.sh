@@ -218,7 +218,7 @@ config::await_network_join() {
 
   log info "Waiting for ${SERVICE_NAME} to join network..."
 
-  until [[ $(docker network inspect -v instant_default -f "{{.Services}}") == *"${SERVICE_NAME}"* ]]; do
+  until [[ $(docker network inspect -v instant_default -f "{{.Services}}") == "${SERVICE_NAME}" ]]; do
     config::timeout_check $start_time "${SERVICE_NAME} to join the network" $exit_time $warning_time
     sleep 1
   done
