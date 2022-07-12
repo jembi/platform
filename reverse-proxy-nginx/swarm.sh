@@ -71,9 +71,21 @@ main() {
 
       log info "Setting up Nginx reverse-proxy with the following domain name: ${DOMAIN_NAME}"
       #Generate dummy certificate
-      try "docker run --rm --network host --name letsencrypt -v dummy-data-certbot-conf:/etc/letsencrypt/archive/${DOMAIN_NAME} certbot/certbot:v1.23.0 certonly -n -m ${RENEWAL_EMAIL} --staging ${domain_args[*]} --standalone --agree-tos" "Failed to create certificate network"
+      try "docker run --rm \
+        --network host \
+        --name letsencrypt \
+        -v dummy-data-certbot-conf:/etc/letsencrypt/archive/${DOMAIN_NAME} \
+        certbot/certbot:v1.23.0 certonly -n \
+        -m ${RENEWAL_EMAIL} \
+        --staging \
+        ${domain_args[*]} \
+        --standalone --agree-tos" "Failed to create certificate network"
 
-      docker run --rm --network host --name certbot-helper -w /temp -v dummy-data-certbot-conf:/temp-certificates -v instant:/temp busybox sh -c "rm -rf certificates; mkdir certificates; cp -r /temp-certificates/* /temp/certificates"
+      docker run --rm --network host --name certbot-helper -w /temp \
+        -v dummy-data-certbot-conf:/temp-certificates \
+        -v instant:/temp busybox sh \
+        -c "rm -rf certificates; mkdir certificates; cp -r /temp-certificates/* /temp/certificates"
+
       try "docker volume rm dummy-data-certbot-conf" "Failed to remove volume dummy-data-certbot-conf"
 
       try "docker secret create --label name=nginx ${TIMESTAMP}-fullchain.pem /instant/certificates/fullchain1.pem" "Failed to create fullchain secret"
