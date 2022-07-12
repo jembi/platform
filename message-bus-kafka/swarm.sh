@@ -42,7 +42,7 @@ elif [[ $1 == "down" ]]; then
 elif [[ $1 == "destroy" ]]; then
   try "docker service rm instant_zookeeper-1 instant_kafka instant_kafdrop" "Failed to destroy kafka"
 
-  log info "Allow services to shut down before deleting volumes "
+  log info "Allow services to shut down before deleting volumes"
 
   config::await_service_removed instant_zookeeper-1
   config::await_service_removed instant_kafka
