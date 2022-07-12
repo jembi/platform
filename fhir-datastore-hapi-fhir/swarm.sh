@@ -23,7 +23,7 @@ await_postgres_start() {
   docker::await_container_startup postgres-1
   docker::await_container_status postgres-1 running
 
-  if [ "$STATEFUL_NODES" == "cluster" ]; then
+  if [[ "$STATEFUL_NODES" == "cluster" ]]; then
     docker::await_container_startup postgres-2
     docker::await_container_status postgres-2 running
 
