@@ -3,6 +3,8 @@
 readonly ACTION=$1
 readonly MODE=$2
 
+readonly STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
+
 TIMESTAMP="$(date "+%Y%m%d%H%M%S")"
 readonly TIMESTAMP
 
@@ -34,27 +36,12 @@ configure_nginx() {
   fi
 }
 
-await_config_importer() {
-  log info "Waiting for config importer..."
-  local -r SERVICE_NAME="${1:?"FATAL:await_config_importer is missing a parameter"}"
-  local -r MAX_RETRIES="${2:?"FATAL:await_config_importer is missing a parameter"}"
-  local config_importers
-  readarray -t config_importers < <(docker service ps "instant_${SERVICE_NAME}" --format "{{.CurrentState}}")
-
-  until [[ "${config_importers[*]}" =~ "Complete" ]] || [[ "${#config_importers[*]}" == "${MAX_RETRIES}" ]]; do
-    readarray -t config_importers < <(docker service ps "instant_${SERVICE_NAME}" --format "{{.CurrentState}}")
-  done
-  overwrite "Waiting for config importer... Done"
-}
-
-remove_config_importer() {
-  local -r SERVICE_NAME="${1:?"FATAL:remove_config_importer is missing a parameter"}"
-  local config_importers
-  readarray -t config_importers < <(docker service ps "instant_${SERVICE_NAME}" --format "{{.CurrentState}}")
-  local num_successful_configs=$(grep -o Complete <<<"${config_importers[*]}" | wc -l)
-  if [[ "${num_successful_configs}" != "0" ]]; then
-    config::remove_config_importer "${SERVICE_NAME}"
-  fi
+import_kibana_dashboards() {
+  log info "Setting config digests"
+  config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to start config importer"
+  config::remove_config_importer "kibana-config-importer"
+  config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "kibana"
 }
 
 main() {
@@ -67,19 +54,26 @@ main() {
   fi
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
+
+    if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
+      export KIBANA_YML_CONFIG="kibana-kibana-cluster.yml"
+    else
+      export KIBANA_YML_CONFIG="kibana-kibana.yml"
+    fi
+
     config::set_config_digests "${COMPOSE_FILE_PATH}"/docker-compose.yml
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $kibana_dev_compose_param instant" "Failed to deploy Dashboard Visualiser Kibana"
 
     docker::await_container_startup dashboard-visualiser-kibana
     docker::await_container_status dashboard-visualiser-kibana running
 
+    config::await_network_join "instant_dashboard-visualiser-kibana"
+
     log info "Setting config digests"
     config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to start config importer"
 
-    await_config_importer kibana-config-importer 3
-    remove_config_importer kibana-config-importer
-    config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "kibana"
+    import_kibana_dashboards
 
     if [[ "${MODE}" != "dev" ]]; then
       configure_nginx "$@"
@@ -88,7 +82,7 @@ main() {
   elif [[ "${ACTION}" == "down" ]]; then
     try "docker service scale instant_dashboard-visualiser-kibana=0" "Failed to scale down dashboard-visualiser-kibana"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    try "docker service rm instant_dashboard-visualiser-kibana" "Failed to destroy dashboard-visualiser-kibana"
+    try "docker service rm instant_dashboard-visualiser-kibana instant_await-helper instant_kibana-config-importer" "Failed to destroy dashboard-visualiser-kibana"
   else
     log error "Valid options are: init, up, down, or destroy"
   fi

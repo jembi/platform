@@ -15,10 +15,7 @@ services:
     deploy:
       replicas: 1
       restart_policy:
-          condition: on-failure
-          delay: 5s
-          max_attempts: 3
-          window: 120s
+        condition: none
     configs:
       - source: JSR-export.jsrexport
         target: /export.jsrexport

@@ -2,28 +2,24 @@ version: '3.9'
 
 services:
   elastic-search-config-importer:
-      image: jembi/api-config-importer:1.1.0
-      environment:
-        HTTP_METHOD: 'PUT'
-        SERVICE_NAME: 'analytics-datastore-elastic-search'
-        SERVICE_API_PORT: 9200
-        API_USERNAME: elastic
-        API_PASSWORD: ${ES_ELASTIC:-dev_password_only}
-        SSL: ${ES_SSL:-true}
-        API_PATH: '/fhir-enrich-reports'
-        MIME_TYPE: 'application/json'
-        CONFIG_FILE: 'fhir-enrich-reports.json'
-      deploy:
-        replicas: 1
-        restart_policy:
-          condition: on-failure
-          delay: 5s
-          max_attempts: 3
-          window: 120s
-
-      configs:
-        - target: /fhir-enrich-reports.json
-          source: fhir-enrich-reports.json
+    image: jembi/api-config-importer:1.1.0
+    environment:
+      HTTP_METHOD: 'PUT'
+      SERVICE_NAME: '${ES_LEADER_NODE:-analytics-datastore-elastic-search}'
+      SERVICE_API_PORT: 9200
+      API_USERNAME: elastic
+      API_PASSWORD: ${ES_ELASTIC:-dev_password_only}
+      SSL: ${ES_SSL:-false}
+      API_PATH: '/fhir-enrich-reports'
+      MIME_TYPE: 'application/json'
+      CONFIG_FILE: 'fhir-enrich-reports.json'
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: none
+    configs:
+      - target: /fhir-enrich-reports.json
+        source: fhir-enrich-reports.json
 
 configs:
   fhir-enrich-reports.json:
