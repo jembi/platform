@@ -124,6 +124,8 @@ if [[ "$ACTION" == "init" ]]; then
   install_expect
   set_elasticsearch_passwords $leader_node
 
+  config::await_network_join "instant_analytics-datastore-elastic-search"
+
   import_elastic_index
 
   log info "Done"
