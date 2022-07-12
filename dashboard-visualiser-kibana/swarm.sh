@@ -57,7 +57,6 @@ main() {
 
     docker::await_container_startup dashboard-visualiser-kibana
     docker::await_container_status dashboard-visualiser-kibana running
-    config::await_service_running "dashboard-visualiser-kibana" "${COMPOSE_FILE_PATH}/docker-compose.await-helper.yml" "$KIBANA_INSTANCES"
 
     config::await_network_join "instant_dashboard-visualiser-kibana"
 
