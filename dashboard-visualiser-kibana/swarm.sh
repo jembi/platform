@@ -38,6 +38,7 @@ import_kibana_dashboards() {
   log info "Setting config digests"
   config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
   try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to start config importer"
+  config::remove_config_importer "kibana-config-importer"
   config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "kibana"
 }
 
