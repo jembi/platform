@@ -1,7 +1,5 @@
 #!/bin/bash
 
-log info 'Initiating the mongo replica set'
-
 COMPOSE_FILE_PATH=$(
     cd "$(dirname "${BASH_SOURCE[0]}")" || exit
     pwd -P
@@ -10,6 +8,8 @@ COMPOSE_FILE_PATH=$(
 ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/config-utils.sh"
 . "${ROOT_PATH}/utils/log.sh"
+
+log info 'Initiating the mongo replica set'
 
 await_replica_reachable() {
     local -r SERVICE_NAME="${1:?"FATAL: await_replica_reachable SERVICE_NAME not provided"}"
