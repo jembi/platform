@@ -15,74 +15,75 @@ COMPOSE_FILE_PATH=$(
 
 ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/config-utils.sh"
-
-if [[ "$MODE" == "dev" ]]; then
-  echo "Running JS Reports package in DEV mode"
-  js_report_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
-else
-  echo "Running JS Reports package in PROD mode"
-  js_report_dev_compose_param=""
-fi
+. "${ROOT_PATH}/utils/log.sh"
 
 configure_nginx() {
   if [[ "${INSECURE}" == "true" ]]; then
     docker config create --label name=nginx "${TIMESTAMP}-http-jsreport-insecure.conf" "${COMPOSE_FILE_PATH}/config/http-jsreport-insecure.conf"
-    echo "Updating nginx service: adding jsreport config file..."
-    if ! docker service update \
-      --config-add source="${TIMESTAMP}-http-jsreport-insecure.conf",target=/etc/nginx/conf.d/http-jsreport-insecure.conf \
-      instant_reverse-proxy-nginx >/dev/null; then
-      echo "Error updating nginx service"
-      exit 1
-    fi
-    echo "Done updating nginx service"
+    log info "Updating nginx service: adding jsreport config file..."
+    try "docker service update --config-add source=${TIMESTAMP}-http-jsreport-insecure.conf,target=/etc/nginx/conf.d/http-jsreport-insecure.conf instant_reverse-proxy-nginx" "Error updating nginx service"
+    log info "Done updating nginx service"
   else
-    docker config create --label name=nginx "${TIMESTAMP}-http-jsreport-secure.conf" "${COMPOSE_FILE_PATH}/config/http-jsreport-secure.conf"
-    echo "Updating nginx service: adding jsreport config file..."
-    if ! docker service update \
-      --config-add source="${TIMESTAMP}-http-jsreport-secure.conf",target=/etc/nginx/conf.d/http-jsreport-secure.conf \
-      instant_reverse-proxy-nginx >/dev/null; then
-      echo "Error updating nginx service"
-      exit 1
-    fi
-    echo "Done updating nginx service"
+    try "docker config create --label name=nginx ${TIMESTAMP}-http-jsreport-secure.conf ${COMPOSE_FILE_PATH}/config/http-jsreport-secure.conf" "Failed to create secure jsreport nginx config"
+    log info "Updating nginx service: adding jsreport config file..."
+    try "docker service update --config-add source=${TIMESTAMP}-http-jsreport-secure.conf,target=/etc/nginx/conf.d/http-jsreport-secure.conf instant_reverse-proxy-nginx" "Error updating nginx service"
+    log info "Done updating nginx service"
   fi
 }
 
-if [[ "${JS_REPORT_DEV_MOUNT}" == "true" ]] && [[ "${ACTION}" == "init" ]]; then
-  if [[ -z "${JS_REPORT_PACKAGE_PATH}" ]]; then
-    echo "ERROR: JS_REPORT_PACKAGE_PATH environment variable not specified. Please specify JS_REPORT_PACKAGE_PATH as stated in the README."
+unbound_ES_HOSTS_check() {
+  if [[ ${STATEFUL_NODES} == "cluster" ]] && [[ -z ${ES_HOSTS:-""} ]]; then
+    log error "ES_HOSTS environment variable not set... Exiting"
     exit 1
   fi
-  echo "MAKE SURE YOU HAVE RUN 'set-permissions.sh' SCRIPT BEFORE AND AFTER RUNNING JS REPORT"
-
-  echo "Attaching dev mount..."
-  js_report_dev_mount_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev-mnt.yml"
-fi
+}
 
 main() {
+  if [[ "$MODE" == "dev" ]]; then
+    log info "Running JS Report package in DEV mode"
+    js_report_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
+  else
+    log info "Running JS Report package in PROD mode"
+    js_report_dev_compose_param=""
+  fi
+
+  local js_report_dev_mount_compose_param=""
+  if [[ "${JS_REPORT_DEV_MOUNT}" == "true" ]] && [[ "${ACTION}" == "init" ]]; then
+    if [[ -z "${JS_REPORT_PACKAGE_PATH}" ]]; then
+      log error "ERROR: JS_REPORT_PACKAGE_PATH environment variable not specified. Please specify JS_REPORT_PACKAGE_PATH as stated in the README."
+      exit 1
+    fi
+    log warn "MAKE SURE YOU HAVE RUN 'set-permissions.sh' SCRIPT BEFORE AND AFTER RUNNING JS REPORT"
+
+    log info "Attaching dev mount..."
+    js_report_dev_mount_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev-mnt.yml"
+  fi
+
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $js_report_dev_compose_param $js_report_dev_mount_compose_param instant
+    unbound_ES_HOSTS_check
+
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $js_report_dev_compose_param $js_report_dev_mount_compose_param instant" "Failed to deploy JS Report"
 
     if [[ "${JS_REPORT_DEV_MOUNT}" != "true" ]]; then
-      echo "Verifying JS Reports service status"
-      config::await_service_running "dashboard-visualiser-jsreport" "$COMPOSE_FILE_PATH"/docker-compose.await-helper.yml "$JS_REPORT_INSTANCES"
+      log info "Verifying JS Report service status"
+      config::await_service_running "dashboard-visualiser-jsreport" "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml "${JS_REPORT_INSTANCES}"
 
-      config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
-      docker stack deploy -c "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml instant
+      config::set_config_digests "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml
+      try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to start config importer"
 
       config::remove_config_importer "jsreport-config-importer"
-      config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "jsreport" &>/dev/null
+      config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "jsreport"
     fi
 
     if [[ "${MODE}" != "dev" ]]; then
       configure_nginx "$@"
     fi
   elif [[ "${ACTION}" == "down" ]]; then
-    docker service scale instant_dashboard-visualiser-jsreport=0
+    try "docker service scale instant_dashboard-visualiser-jsreport=0" "Failed to scale down dashboard-visualiser-jsreport"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    docker service rm instant_dashboard-visualiser-jsreport instant_jsreport-config-importer instant_await-helper &>/dev/null
+    try "docker service rm instant_dashboard-visualiser-jsreport instant_jsreport-config-importer instant_await-helper" "Failed to destroy dashboard-visualiser-jsreport"
   else
-    echo "Valid options are: init, up, down, or destroy"
+    log error "Valid options are: init, up, down, or destroy"
   fi
 }
 

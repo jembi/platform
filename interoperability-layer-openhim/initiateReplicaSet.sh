@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo 'Initiating the mongo replica set'
+log info 'Initiating the mongo replica set'
 
 COMPOSE_FILE_PATH=$(
     cd "$(dirname "${BASH_SOURCE[0]}")" || exit
@@ -9,6 +9,7 @@ COMPOSE_FILE_PATH=$(
 
 ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/config-utils.sh"
+. "${ROOT_PATH}/utils/log.sh"
 
 await_replica_reachable() {
     local -r SERVICE_NAME="${1:?"FATAL: await_replica_reachable SERVICE_NAME not provided"}"
@@ -32,7 +33,7 @@ for i in $(seq 1 "$MONGO_SET_COUNT"); do
 done
 config=$(printf '%s]}' "$config")
 
-echo 'Waiting to ensure all the mongo instances for the replica set are up and running'
+log info 'Waiting to ensure all the mongo instances for the replica set are up and running'
 running_instance_count=0
 start_time=$(date +%s)
 until [[ $running_instance_count -eq $MONGO_SET_COUNT ]]; do
@@ -64,8 +65,8 @@ fi
 
 initiate_rep_set_response=$(docker exec -i "$container_name" mongo --eval "rs.initiate($config)")
 if [[ $initiate_rep_set_response == *"{ \"ok\" : 1 }"* ]] || [[ $initiate_rep_set_response == *"already initialized"* ]]; then
-    echo "Replica set successfully set up"
+    log info "Replica set successfully set up"
 else
-    echo "Fatal: Unable to set up replica set"
+    log error "Fatal: Unable to set up replica set"
     exit 1
 fi

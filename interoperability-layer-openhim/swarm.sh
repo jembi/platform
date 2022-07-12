@@ -22,6 +22,7 @@ readonly COMPOSE_FILE_PATH
 ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/config-utils.sh"
 . "${ROOT_PATH}/utils/docker-utils.sh"
+. "${ROOT_PATH}/utils/log.sh"
 
 verify_core() {
   local start_time
@@ -39,13 +40,13 @@ verify_core() {
 
     await_helper_state=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
     if [[ "${await_helper_state}" == *"Failed"* ]] || [[ "${await_helper_state}" == *"Rejected"* ]]; then
-      echo "Fatal: Received error when trying to verify state of openhim-core. Error:
+      log error "Fatal: Received error when trying to verify state of openhim-core. Error:
        $(docker service ps instant_await-helper --no-trunc --format '{{.Error}}')"
       exit 1
     fi
   done
 
-  docker service rm instant_await-helper
+  try "docker service rm instant_await-helper" "Failed to remove await helper"
 }
 
 remove_config_importer() {
@@ -59,17 +60,17 @@ remove_config_importer() {
 
     config_importer_state=$(docker service ps instant_interoperability-layer-openhim-config-importer --format "{{.CurrentState}}")
     if [[ "${config_importer_state}" == *"Failed"* ]] || [[ ${config_importer_state} == *"Rejected"* ]]; then
-      echo "Fatal: Core config importer failed with error:
+      log error "Fatal: Core config importer failed with error:
        $(docker service ps instant_interoperability-layer-openhim-config-importer --no-trunc --format '{{.Error}}')"
       exit 1
     fi
   done
 
-  docker service rm instant_interoperability-layer-openhim-config-importer
+  try "docker service rm instant_interoperability-layer-openhim-config-importer" "Failed to remove config importer"
 }
 
 verify_mongos() {
-  echo 'Waiting to ensure all the mongo instances for the replica set are up and running'
+  log info 'Waiting to ensure all the mongo instances for the replica set are up and running'
   local -i running_instance_count
   running_instance_count=0
   local start_time
@@ -94,45 +95,34 @@ prepare_console_config() {
 
 configure_nginx() {
   if [[ "${INSECURE}" == "true" ]]; then
-    docker config create --label name=nginx "${TIMESTAMP}-http-openhim-insecure.conf" "${COMPOSE_FILE_PATH}"/config/http-openhim-insecure.conf
-    docker config create --label name=nginx "${TIMESTAMP}-stream-openhim-insecure.conf" "${COMPOSE_FILE_PATH}"/config/stream-openhim-insecure.conf
-    echo "Updating nginx service: adding openhim config file..."
-    if ! docker service update \
-      --config-add source="${TIMESTAMP}-http-openhim-insecure.conf",target=/etc/nginx/conf.d/http-openhim-insecure.conf \
-      --config-add source="${TIMESTAMP}-stream-openhim-insecure.conf",target=/etc/nginx/conf.d/stream-openhim-insecure.conf \
-      instant_reverse-proxy-nginx >/dev/null; then
-      echo "Error updating nginx service"
-      exit 1
-    fi
-    echo "Done updating nginx service"
+    try "docker config create --label name=nginx ${TIMESTAMP}-http-openhim-insecure.conf ${COMPOSE_FILE_PATH}/config/http-openhim-insecure.conf" "Failed to add openhim nginx insecure config"
+    try "docker config create --label name=nginx ${TIMESTAMP}-stream-openhim-insecure.conf ${COMPOSE_FILE_PATH}/config/stream-openhim-insecure.conf" "Failed to add openhim nginx insecure config"
+    log info "Updating nginx service: adding openhim config file..."
+    try "docker service update --config-add source=${TIMESTAMP}-http-openhim-insecure.conf,target=/etc/nginx/conf.d/http-openhim-insecure.conf --config-add source=${TIMESTAMP}-stream-openhim-insecure.conf,target=/etc/nginx/conf.d/stream-openhim-insecure.conf instant_reverse-proxy-nginx" "Error updating nginx service"
+    log info "Done updating nginx service"
   else
-    docker config create --label name=nginx "${TIMESTAMP}-http-openhim-secure.conf" "${COMPOSE_FILE_PATH}"/config/http-openhim-secure.conf
-    echo "Updating nginx service: adding openhim config file..."
-    if ! docker service update \
-      --config-add source="${TIMESTAMP}-http-openhim-secure.conf",target=/etc/nginx/conf.d/http-openhim-secure.conf \
-      instant_reverse-proxy-nginx >/dev/null; then
-      echo "Error updating nginx service"
-      exit 1
-    fi
-    echo "Done updating nginx service"
+    try "docker config create --label name=nginx ${TIMESTAMP}-http-openhim-secure.conf ${COMPOSE_FILE_PATH}/config/http-openhim-secure.conf" "Failed to add openhim nginx secure config"
+    log info "Updating nginx service: adding openhim config file..."
+    try "docker service update --config-add source=${TIMESTAMP}-http-openhim-secure.conf,target=/etc/nginx/conf.d/http-openhim-secure.conf instant_reverse-proxy-nginx" "Error updating nginx service"
+    log info "Done updating nginx service"
   fi
 }
 
 main() {
   if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
-    printf "\nRunning Interoperability Layer OpenHIM package in Cluster node mode\n"
+    log info "Running Interoperability Layer OpenHIM package in Cluster node mode"
     mongo_cluster_compose_param=(-c "${COMPOSE_FILE_PATH}"/docker-compose-mongo.cluster.yml)
   else
-    printf "\nRunning Interoperability Layer OpenHIM package in Single node mode\n"
+    log info "Running Interoperability Layer OpenHIM package in Single node mode"
     mongo_cluster_compose_param=()
   fi
 
   if [[ "${MODE}" == "dev" ]]; then
-    printf "\nRunning Interoperability Layer OpenHIM package in DEV mode\n"
+    log info "Running Interoperability Layer OpenHIM package in DEV mode"
     local mongo_dev_compose_param=(-c "${COMPOSE_FILE_PATH}"/docker-compose-mongo.dev.yml)
     local openhim_dev_compose_param=(-c "${COMPOSE_FILE_PATH}"/docker-compose.dev.yml)
   else
-    printf "\nRunning Interoperability Layer OpenHIM package in PROD mode\n"
+    log info "Running Interoperability Layer OpenHIM package in PROD mode"
     local mongo_dev_compose_param=()
     local openhim_dev_compose_param=()
   fi
@@ -146,10 +136,7 @@ main() {
     if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
 
       # Set up the replica set
-      if ! "${COMPOSE_FILE_PATH}"/initiateReplicaSet.sh; then
-        echo "Fatal: Initate Mongo replica set failed."
-        exit 1
-      fi
+      try "${COMPOSE_FILE_PATH}/initiateReplicaSet.sh" "Fatal: Initate Mongo replica set failed."
 
     fi
 
@@ -159,20 +146,20 @@ main() {
 
     docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml instant
 
-    echo "Waiting to give OpenHIM Core time to start up before OpenHIM Console run"
+    log info "Waiting to give OpenHIM Core time to start up before OpenHIM Console run"
     verify_core
 
     docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.yml -c "${COMPOSE_FILE_PATH}"/docker-compose.stack-1.yml "${openhim_dev_compose_param[@]}" instant
 
     docker stack deploy -c "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml instant
 
-    echo "Waiting to give core config importer time to run before cleaning up service"
+    log info "Waiting to give core config importer time to run before cleaning up service"
     remove_config_importer
 
     # Ensure config importer is removed
     config::await_service_removed instant_interoperability-layer-openhim-config-importer
 
-    echo "Removing stale configs..."
+    log info "Removing stale configs..."
     config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "openhim"
     config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "openhim"
 
@@ -189,7 +176,7 @@ main() {
 
     docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.yml -c "${COMPOSE_FILE_PATH}"/docker-compose.stack-1.yml "${openhim_dev_compose_param[@]}" instant
 
-    echo "Removing stale configs..."
+    log info "Removing stale configs..."
     config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "openhim"
     config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "openhim"
 
@@ -197,17 +184,17 @@ main() {
       configure_nginx "$@"
     fi
   elif [[ "${ACTION}" == "down" ]]; then
-    echo "Scaling down services..."
+    log info "Scaling down services..."
     if ! docker service scale instant_openhim-core=0 instant_openhim-console=0 instant_mongo-1=0 >/dev/null; then
-      echo "Error scaling down services"
+      log error "Error scaling down services"
     fi
 
     if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
       if ! docker service scale instant_mongo-2=0 instant_mongo-3=0 >/dev/null; then
-        echo "Error scaling down services"
+        log error "Error scaling down services"
       fi
     fi
-    echo "Done scaling down services"
+    log info "Done scaling down services"
   elif [[ "${ACTION}" == "destroy" ]]; then
     docker service rm instant_openhim-core instant_openhim-console instant_mongo-1 instant_await-helper instant_interoperability-layer-openhim-config-importer &>/dev/null
 
@@ -223,7 +210,7 @@ main() {
     docker config rm $(docker config ls -qf label=name=openhim) &>/dev/null
 
     if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
-      echo "Volumes are only deleted on the host on which the command is run. Mongo volumes on other nodes are not deleted"
+      log info "Volumes are only deleted on the host on which the command is run. Mongo volumes on other nodes are not deleted"
 
       docker service rm instant_mongo-2 instant_mongo-3 &>/dev/null
       config::await_service_removed instant_mongo-2
@@ -235,7 +222,7 @@ main() {
     fi
 
   else
-    echo "Valid options are: init, up, down, or destroy"
+    log error "Valid options are: init, up, down, or destroy"
   fi
 }
 
