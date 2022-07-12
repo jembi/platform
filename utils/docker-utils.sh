@@ -37,7 +37,10 @@ docker::await_container_status() {
     log info "Waiting for ${SERVICE_NAME} to be ${SERVICE_STATUS}..."
     local start_time
     start_time=$(date +%s)
-    until [[ "$(docker inspect -f '{{.State.Status}}' $(docker service ls -qf name="instant_${SERVICE_NAME}"))" = "${SERVICE_STATUS}" ]]; do
+
+    local service_state
+    service_state=$(docker service ps instant_${SERVICE_NAME} --format "{{.CurrentState}}")
+    until [[ $service_state == *"${SERVICE_STATUS}"* ]]; do
         config::timeout_check "${start_time}" "${SERVICE_NAME} to start"
         sleep 1
     done
