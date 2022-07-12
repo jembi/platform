@@ -17,7 +17,7 @@ docker::await_container_startup() {
     log info "Waiting for ${SERVICE_NAME} to start up..."
     local start_time
     start_time=$(date +%s)
-    until [[ -n $(docker ps -qlf name="instant_${SERVICE_NAME}") ]]; do
+    until [[ -n $(docker service ls -qf name="instant_${SERVICE_NAME}") ]]; do
         config::timeout_check "${start_time}" "${SERVICE_NAME} to start"
         sleep 1
     done
@@ -37,7 +37,7 @@ docker::await_container_status() {
     log info "Waiting for ${SERVICE_NAME} to be ${SERVICE_STATUS}..."
     local start_time
     start_time=$(date +%s)
-    until [[ "$(docker inspect -f '{{.State.Status}}' $(docker ps -qlf name="instant_${SERVICE_NAME}"))" = "${SERVICE_STATUS}" ]]; do
+    until [[ "$(docker inspect -f '{{.State.Status}}' $(docker service ls -qf name="instant_${SERVICE_NAME}"))" = "${SERVICE_STATUS}" ]]; do
         config::timeout_check "${start_time}" "${SERVICE_NAME} to start"
         sleep 1
     done
@@ -55,7 +55,7 @@ docker::await_container_destroy() {
     log info "Waiting for ${SERVICE_NAME} to be destroyed..."
     local start_time
     start_time=$(date +%s)
-    until [[ -z $(docker ps -qlf name="instant_${SERVICE_NAME}") ]]; do
+    until [[ -z $(docker service ls -qf "instant_${SERVICE_NAME}") ]]; do
         config::timeout_check "${start_time}" "${SERVICE_NAME} to be destroyed"
         sleep 1
     done
