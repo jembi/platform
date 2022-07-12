@@ -3,6 +3,8 @@
 readonly ACTION=$1
 readonly MODE=$2
 
+readonly STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
+
 TIMESTAMP="$(date "+%Y%m%d%H%M%S")"
 readonly TIMESTAMP
 
@@ -52,6 +54,13 @@ main() {
   fi
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
+
+    if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
+      export KIBANA_YML_CONFIG="kibana-kibana-cluster.yml"
+    else
+      export KIBANA_YML_CONFIG="kibana-kibana.yml"
+    fi
+
     config::set_config_digests "${COMPOSE_FILE_PATH}"/docker-compose.yml
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $kibana_dev_compose_param instant" "Failed to deploy Dashboard Visualiser Kibana"
 
