@@ -9,46 +9,62 @@ COMPOSE_FILE_PATH=$(
 
 ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/config-utils.sh"
+. "${ROOT_PATH}/utils/log.sh"
+
+await_replica_reachable() {
+    local -r SERVICE_NAME="${1:?"FATAL: await_replica_reachable SERVICE_NAME not provided"}"
+    local -r start_time=$(date +%s)
+
+    until [[ $(docker service logs --tail all "$SERVICE_NAME" | grep "waiting for connections on port" | wc -l) -gt 0 ]]; do
+        config::timeout_check "$start_time" "mongo replica set to be reachable"
+        sleep 1
+    done
+}
 
 MONGO_SET_COUNT=${MONGO_SET_COUNT:-3}
-Config='{"_id":"mongo-set","members":['
-Priority="1"
+config='{"_id":"mongo-set","members":['
+priority="1"
 for i in $(seq 1 "$MONGO_SET_COUNT"); do
-    Config=$(printf '%s{"_id":%s,"priority":%s,"host":"mongo-%s:27017"}' "$Config" $(($i - 1)) $Priority "$i")
+    config=$(printf '%s{"_id":%s,"priority":%s,"host":"mongo-%s:27017"}' "$config" $((i - 1)) $priority "$i")
     if [[ $i != $MONGO_SET_COUNT ]]; then
-        Config=$(printf '%s,' "$Config")
+        config=$(printf '%s,' "$config")
     fi
-    Priority="0.5"
+    priority="0.5"
 done
-Config=$(printf '%s]}' "$Config")
+config=$(printf '%s]}' "$config")
 
 log info 'Waiting to ensure all the mongo instances for the replica set are up and running'
-RunningInstanceCount=0
-StartTime=$(date +%s)
-until [[ $RunningInstanceCount -eq $MONGO_SET_COUNT ]]; do
-    config::timeout_check "$StartTime" "mongo replica set to run"
+running_instance_count=0
+start_time=$(date +%s)
+until [[ $running_instance_count -eq $MONGO_SET_COUNT ]]; do
+    config::timeout_check "$start_time" "mongo replica set to run"
     sleep 1
 
-    RunningInstanceCount=0
+    running_instance_count=0
     for i in $(docker service ls -f name=instant_mongo --format "{{.Replicas}}"); do
         if [[ $i = "1/1" ]]; then
-            RunningInstanceCount=$(($RunningInstanceCount + 1))
+            running_instance_count=$((running_instance_count + 1))
         fi
     done
 done
-# This sleep ensures that the replica sets are reachable
-sleep 10
+
+# Ensures that the replica sets are reachable
+reachable_instance_count=1
+until [[ $reachable_instance_count -eq $((MONGO_SET_COUNT + 1)) ]]; do
+    await_replica_reachable instant_mongo-$reachable_instance_count
+    reachable_instance_count=$((reachable_instance_count + 1))
+done
 
 # TODO (PLAT-256): only works if deploying to node-1 labeled node
 # With docker swarm any manager can be the target but this bit of code only work if we target node-1 specifically.
 # Which is generally what we do, but if node-1 is down or we choose to target another node this won't work.
-ContainerName=""
+container_name=""
 if [[ "$(docker ps -f name=instant_mongo-1 --format "{{.ID}}")" ]]; then
-    ContainerName="$(docker ps -f name=instant_mongo-1 --format "{{.ID}}")"
+    container_name="$(docker ps -f name=instant_mongo-1 --format "{{.ID}}")"
 fi
 
-InitiateRepSetResponse=$(docker exec -i "$ContainerName" mongo --eval "rs.initiate($Config)")
-if [[ $InitiateRepSetResponse == *"{ \"ok\" : 1 }"* ]] || [[ $InitiateRepSetResponse == *"already initialized"* ]]; then
+initiate_rep_set_response=$(docker exec -i "$container_name" mongo --eval "rs.initiate($config)")
+if [[ $initiate_rep_set_response == *"{ \"ok\" : 1 }"* ]] || [[ $initiate_rep_set_response == *"already initialized"* ]]; then
     log info "Replica set successfully set up"
 else
     log error "Fatal: Unable to set up replica set"
