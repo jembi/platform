@@ -19,7 +19,7 @@ ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 
 configure_nginx() {
   if [[ "${INSECURE}" == "true" ]]; then
-    docker config create --label name=nginx "${TIMESTAMP}-http-jsreport-insecure.conf" "${COMPOSE_FILE_PATH}/config/http-jsreport-insecure.conf"
+    try "docker config create --label name=nginx ${TIMESTAMP}-http-jsreport-insecure.conf ${COMPOSE_FILE_PATH}/config/http-jsreport-insecure.conf" "Failed to create nginx jsreport insecure config"
     log info "Updating nginx service: adding jsreport config file..."
     try "docker service update --config-add source=${TIMESTAMP}-http-jsreport-insecure.conf,target=/etc/nginx/conf.d/http-jsreport-insecure.conf instant_reverse-proxy-nginx" "Error updating nginx service"
     log info "Done updating nginx service"
