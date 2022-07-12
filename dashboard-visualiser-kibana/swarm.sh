@@ -3,6 +3,8 @@
 readonly ACTION=$1
 readonly MODE=$2
 
+readonly STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
+
 TIMESTAMP="$(date "+%Y%m%d%H%M%S")"
 readonly TIMESTAMP
 
@@ -16,6 +18,7 @@ ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 readonly ROOT_PATH
 
 . "${ROOT_PATH}/utils/config-utils.sh"
+. "${ROOT_PATH}/utils/docker-utils.sh"
 . "${ROOT_PATH}/utils/log.sh"
 
 configure_nginx() {
@@ -33,6 +36,14 @@ configure_nginx() {
   fi
 }
 
+import_kibana_dashboards() {
+  log info "Setting config digests"
+  config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to start config importer"
+  config::remove_config_importer "kibana-config-importer"
+  config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "kibana"
+}
+
 main() {
   if [[ "${MODE}" == "dev" ]]; then
     log info "Running Dashboard Visualiser Kibana package in DEV mode"
@@ -43,9 +54,18 @@ main() {
   fi
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
+
+    if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
+      export KIBANA_YML_CONFIG="kibana-kibana-cluster.yml"
+    else
+      export KIBANA_YML_CONFIG="kibana-kibana.yml"
+    fi
+
+    config::set_config_digests "${COMPOSE_FILE_PATH}"/docker-compose.yml
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $kibana_dev_compose_param instant" "Failed to deploy Dashboard Visualiser Kibana"
 
-    config::await_service_running "dashboard-visualiser-kibana" "${COMPOSE_FILE_PATH}/docker-compose.await-helper.yml" "$KIBANA_INSTANCES"
+    docker::await_container_startup dashboard-visualiser-kibana
+    docker::await_container_status dashboard-visualiser-kibana running
 
     config::await_network_join "instant_dashboard-visualiser-kibana"
 
@@ -53,8 +73,7 @@ main() {
     config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to start config importer"
 
-    config::remove_config_importer "kibana-config-importer"
-    config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "kibana"
+    import_kibana_dashboards
 
     if [[ "${MODE}" != "dev" ]]; then
       configure_nginx "$@"

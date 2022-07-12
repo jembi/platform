@@ -26,7 +26,7 @@ set_elasticsearch_passwords() {
   local container=$1
   log info "Setting passwords..."
   local elastic_search_container_id=""
-  elastic_search_container_id=$(docker ps -qlf name=${container})
+  elastic_search_container_id=$(docker ps -qlf name="${container}")
   try "${COMPOSE_FILE_PATH}/set-elastic-passwords.exp ${elastic_search_container_id}" "Fatal: Failed to set elastic passwords. Cannot update Elastic Search passwords"
   overwrite "Setting passwords... Done"
 }

@@ -63,7 +63,6 @@ config::remove_stale_service_configs() {
         fi
 
         raftIds=($(docker config ls -f "label=name=${CONFIG_LABEL}" -f "name=${composeNameWithoutEnv}" --format "{{.ID}}"))
-
         # Only keep the most recent of all configs with the same name
         if [[ ${#raftIds[@]} -gt 1 ]]; then
             mostRecentRaftId="${raftIds[0]}"
@@ -78,17 +77,6 @@ config::remove_stale_service_configs() {
                     configsToRemove+=("${raftId}")
                 fi
             done
-        fi
-    done
-
-    # Remove configs without a reference
-    configRaftNames=($(docker config ls -f "label=name=${CONFIG_LABEL}" --format "{{.Name}}"))
-    for configRaftName in "${configRaftNames[@]}"; do
-        nameWithoutDigest=$(echo "$configRaftName" | sed 's/-[a-f0-9]*$//g')
-        raftOccurencesInCompose=$(for word in "${composeNames[@]}"; do echo "${word}"; done | grep -c "${nameWithoutDigest}")
-
-        if [[ "${raftOccurencesInCompose}" == 0 ]]; then
-            configsToRemove+=("${configRaftName}")
         fi
     done
 
