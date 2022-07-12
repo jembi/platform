@@ -124,8 +124,8 @@ main() {
 
       local new_timestamp
       new_timestamp="$(date "+%Y%m%d%H%M%S")"
-      try "docker secret create --label name=nginx ${new_timestamp}-fullchain.pem /instant/certificates/fullchain1.pem"
-      try "docker secret create --label name=nginx ${new_timestamp}-privkey.pem /instant/certificates/privkey1.pem"
+      try "docker secret create --label name=nginx ${new_timestamp}-fullchain.pem /instant/certificates/fullchain1.pem" "Failed to create fullchain nginx secret"
+      try "docker secret create --label name=nginx ${new_timestamp}-privkey.pem /instant/certificates/privkey1.pem" "Failed to create privkey1 nginx secret"
 
       local curr_full_chain_name
       curr_full_chain_name=$(docker service inspect instant_reverse-proxy-nginx --format "{{(index .Spec.TaskTemplate.ContainerSpec.Secrets 0).SecretName}}")
