@@ -119,7 +119,7 @@ if [[ "$ACTION" == "init" ]]; then
   fi
 
   log info "Waiting for elasticsearch to start before automatically setting built-in passwords"
-  docker::await_container_status $leader_node running
+  docker::await_container_status $leader_node Running
 
   install_expect
   set_elasticsearch_passwords $leader_node
