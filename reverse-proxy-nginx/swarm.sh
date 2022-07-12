@@ -106,7 +106,14 @@ main() {
       try "docker config create --label name=nginx ${TIMESTAMPED_NGINX} ${COMPOSE_FILE_PATH}/config/nginx.conf" "Failed to create nginx config"
 
       log info "Updating nginx service: adding config for dummy certificates..."
-      try "docker service update --config-add source=${TIMESTAMPED_NGINX},target=/etc/nginx/nginx.conf --secret-add source=${TIMESTAMP}-fullchain.pem,target=/run/secrets/fullchain.pem --secret-add source=${TIMESTAMP}-privkey.pem,target=/run/secrets/privkey.pem --network-add name=cert-renewal-network,alias=cert-renewal-network --publish-add published=80,target=80 --publish-add published=443,target=443 instant_reverse-proxy-nginx" "Error updating nginx service"
+      try "docker service update \
+        --config-add source=${TIMESTAMPED_NGINX},target=/etc/nginx/nginx.conf \
+        --secret-add source=${TIMESTAMP}-fullchain.pem,target=/run/secrets/fullchain.pem \
+        --secret-add source=${TIMESTAMP}-privkey.pem,target=/run/secrets/privkey.pem \
+        --network-add name=cert-renewal-network,alias=cert-renewal-network \
+        --publish-add published=80,target=80 \
+        --publish-add published=443,target=443 \
+        instant_reverse-proxy-nginx" "Error updating nginx service"
 
       log info "Done updating nginx service"
 
