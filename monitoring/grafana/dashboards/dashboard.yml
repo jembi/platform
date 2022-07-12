@@ -1,0 +1,8 @@
+# config file version
+apiVersion: 1
+
+providers:
+- name: 'JembiPlatform'
+  folder: ''
+  options:
+    path: /etc/grafana/provisioning/dashboards

@@ -1,0 +1,12 @@
+{
+  "id": "monitoring",
+  "name": "Monitoring package",
+  "description": "A package for monitoring the platform services",
+  "type": "infrastructure",
+  "version": "0.0.1",
+  "dependencies": [],
+  "environmentVariables": {
+    "GF_SECURITY_ADMIN_USER": "admin",
+    "GF_SECURITY_ADMIN_PASSWORD": "dev_password_only"
+  }
+}
