@@ -47,7 +47,7 @@ main() {
 
     config::await_service_running "dashboard-visualiser-kibana" "${COMPOSE_FILE_PATH}/docker-compose.await-helper.yml" "$KIBANA_INSTANCES"
 
-    config::await_network_join "dashboard-visualiser-kibana"
+    config::await_network_join "instant_dashboard-visualiser-kibana"
 
     log info "Setting config digests"
     config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
