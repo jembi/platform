@@ -60,7 +60,7 @@ create_certs() {
   log info "Creating certificates"
   try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose.certs.yml instant" "Creating certificates failed"
   docker::await_container_startup create_certs
-  docker::await_container_status create_certs exited
+  docker::await_container_status create_certs Complete
 
   log info "Creating cert helper"
 
@@ -117,12 +117,15 @@ if [[ "$ACTION" == "init" ]]; then
     create_certs
     try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose.cluster.yml instant" "Failed to deploy cluster"
     add_docker_configs
+
+    log info "Waiting for elasticsearch to start before automatically setting built-in passwords"
+    docker::await_container_status $leader_node Running
   else
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $elastic_search_dev_compose_param instant" "Failed to deploy Analytics Datastore Elastic Search"
-  fi
 
-  log info "Waiting for elasticsearch to start before automatically setting built-in passwords"
-  docker::await_container_status $leader_node running
+    log info "Waiting for elasticsearch to start before automatically setting built-in passwords"
+    docker::await_container_status $leader_node Starting
+  fi
 
   install_expect
   set_elasticsearch_passwords $leader_node
@@ -134,9 +137,11 @@ if [[ "$ACTION" == "init" ]]; then
   log info "Done"
 elif [[ "$ACTION" == "up" ]]; then
   if [[ "$STATEFUL_NODES" == "cluster" ]]; then
-    try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose.cluster.yml instant" "Failed to deploy cluster"
+    try "docker service scale instant_analytics-datastore-elastic-search-01=1" "Failed to scale down analytics-datastore-elastic-search-01"
+    try "docker service scale instant_analytics-datastore-elastic-search-02=1" "Failed to scale down analytics-datastore-elastic-search-02"
+    try "docker service scale instant_analytics-datastore-elastic-search-03=1" "Failed to scale down analytics-datastore-elastic-search-03"
   else
-    try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose.yml $elastic_search_dev_compose_param instant" "Failed to deploy Analytics Datastore Elastic Search"
+    try "docker service scale instant_analytics-datastore-elastic-search=1" "Failed to scale down analytics-datastore-elastic-search"
   fi
 elif [[ "$ACTION" == "down" ]]; then
   if [[ "$STATEFUL_NODES" == "cluster" ]]; then
@@ -152,14 +157,14 @@ elif [[ "$ACTION" == "destroy" ]]; then
     try "docker service rm instant_analytics-datastore-elastic-search-02" "Failed to remove analytics-datastore-elastic-search-02"
     try "docker service rm instant_analytics-datastore-elastic-search-03" "Failed to remove analytics-datastore-elastic-search-03"
 
-    docker::await_container_destroy analytics-datastore-elastic-search-01
-    docker::await_container_destroy analytics-datastore-elastic-search-02
-    docker::await_container_destroy analytics-datastore-elastic-search-03
+    docker::await_service_destroy analytics-datastore-elastic-search-01
+    docker::await_service_destroy analytics-datastore-elastic-search-02
+    docker::await_service_destroy analytics-datastore-elastic-search-03
 
     log warn "Volumes are only deleted on the host on which the command is run. Elastic Search volumes on other nodes are not deleted"
   else
     try "docker service rm instant_analytics-datastore-elastic-search" "Failed to remove analytics-datastore-elastic-search"
-    docker::await_container_destroy analytics-datastore-elastic-search
+    docker::await_service_destroy analytics-datastore-elastic-search
     try "docker volume rm instant_es-data" "Failed to remove volume instant_es-data"
   fi
 else
