@@ -9,9 +9,6 @@ readonly OPENHIM_MEDIATOR_API_PORT=${OPENHIM_MEDIATOR_API_PORT:-"8080"}
 readonly OPENHIM_CORE_INSTANCES=${OPENHIM_CORE_INSTANCES:-1}
 readonly MONGO_SET_COUNT=${MONGO_SET_COUNT:-3}
 
-TIMESTAMP="$(date "+%Y%m%d%H%M%S")"
-readonly TIMESTAMP
-
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
   pwd -P
@@ -95,15 +92,15 @@ prepare_console_config() {
 
 configure_nginx() {
   if [[ "${INSECURE}" == "true" ]]; then
-    try "docker config create --label name=nginx ${TIMESTAMP}-http-openhim-insecure.conf ${COMPOSE_FILE_PATH}/config/http-openhim-insecure.conf" "Failed to add openhim nginx insecure config"
-    try "docker config create --label name=nginx ${TIMESTAMP}-stream-openhim-insecure.conf ${COMPOSE_FILE_PATH}/config/stream-openhim-insecure.conf" "Failed to add openhim nginx insecure config"
+    try "docker config create --label name=nginx http-openhim-insecure.conf ${COMPOSE_FILE_PATH}/config/http-openhim-insecure.conf" "Failed to add openhim nginx insecure config"
+    try "docker config create --label name=nginx stream-openhim-insecure.conf ${COMPOSE_FILE_PATH}/config/stream-openhim-insecure.conf" "Failed to add openhim nginx insecure config"
     log info "Updating nginx service: adding openhim config file..."
-    try "docker service update --config-add source=${TIMESTAMP}-http-openhim-insecure.conf,target=/etc/nginx/conf.d/http-openhim-insecure.conf --config-add source=${TIMESTAMP}-stream-openhim-insecure.conf,target=/etc/nginx/conf.d/stream-openhim-insecure.conf instant_reverse-proxy-nginx" "Error updating nginx service"
+    try "docker service update --config-add source=http-openhim-insecure.conf,target=/etc/nginx/conf.d/http-openhim-insecure.conf --config-add source=stream-openhim-insecure.conf,target=/etc/nginx/conf.d/stream-openhim-insecure.conf instant_reverse-proxy-nginx" "Error updating nginx service"
     log info "Done updating nginx service"
   else
-    try "docker config create --label name=nginx ${TIMESTAMP}-http-openhim-secure.conf ${COMPOSE_FILE_PATH}/config/http-openhim-secure.conf" "Failed to add openhim nginx secure config"
+    try "docker config create --label name=nginx http-openhim-secure.conf ${COMPOSE_FILE_PATH}/config/http-openhim-secure.conf" "Failed to add openhim nginx secure config"
     log info "Updating nginx service: adding openhim config file..."
-    try "docker service update --config-add source=${TIMESTAMP}-http-openhim-secure.conf,target=/etc/nginx/conf.d/http-openhim-secure.conf instant_reverse-proxy-nginx" "Error updating nginx service"
+    try "docker service update --config-add source=http-openhim-secure.conf,target=/etc/nginx/conf.d/http-openhim-secure.conf instant_reverse-proxy-nginx" "Error updating nginx service"
     log info "Done updating nginx service"
   fi
 }
@@ -213,6 +210,8 @@ main() {
       # shellcheck disable=SC2046 # intentional word splitting
       try "docker config rm $(docker config ls -qf label=name=openhim)" "Failed to remove openhim configs"
     fi
+
+    config::remove_service_nginx_config "http-openhim-secure.conf" "http-openhim-insecure.conf" "stream-openhim-insecure.conf"
 
   else
     log error "Valid options are: init, up, down, or destroy"

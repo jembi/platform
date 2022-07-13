@@ -271,3 +271,14 @@ config::generate_service_configs() {
         count=$((count + 1))
     done
 }
+
+config::remove_service_nginx_config() {
+    local configs=("$@")
+    local config_rm_command=""
+    for config in "${configs[@]}"; do
+        config_rm_command="$config_rm_command--config-rm $config "
+    done
+
+    try "docker service update $config_rm_command instant_reverse-proxy-nginx" "Error updating nginx service"
+    try "docker config rm ${configs[*]}" "Failed to remove configs"
+}
