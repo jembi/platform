@@ -37,10 +37,7 @@ docker::await_container_status() {
     log info "Waiting for ${SERVICE_NAME} to be ${SERVICE_STATUS}..."
     local start_time
     start_time=$(date +%s)
-
-    local service_state
-    service_state=$(docker service ps instant_${SERVICE_NAME} --format "{{.CurrentState}}")
-    until [[ $service_state == *"${SERVICE_STATUS}"* ]]; do
+    until [[ $(docker service ps instant_"${SERVICE_NAME}" --format "{{.CurrentState}}" 2>/dev/null) == *"${SERVICE_STATUS}"* ]]; do
         config::timeout_check "${start_time}" "${SERVICE_NAME} to start"
         sleep 1
     done
@@ -58,7 +55,25 @@ docker::await_container_destroy() {
     log info "Waiting for ${SERVICE_NAME} to be destroyed..."
     local start_time
     start_time=$(date +%s)
-    until [[ -z $(docker service ls -qf "instant_${SERVICE_NAME}") ]]; do
+    until [[ -z $(docker ps -qlf name="instant_${SERVICE_NAME}") ]]; do
+        config::timeout_check "${start_time}" "${SERVICE_NAME} to be destroyed"
+        sleep 1
+    done
+    overwrite "Waiting for ${SERVICE_NAME} to be destroyed... Done"
+}
+
+# Waits for a service to be destroyed
+#
+# Arguments:
+# - $1 : service name (eg. analytics-datastore-elastic-search)
+#
+docker::await_service_destroy() {
+    local -r SERVICE_NAME=${1:?"FATAL: await_container_destroy SERVICE_NAME not provided"}
+
+    log info "Waiting for ${SERVICE_NAME} to be destroyed..."
+    local start_time
+    start_time=$(date +%s)
+    until [[ -z $(docker service ls -qf name=instant_"${SERVICE_NAME}") ]]; do
         config::timeout_check "${start_time}" "${SERVICE_NAME} to be destroyed"
         sleep 1
     done
