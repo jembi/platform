@@ -62,7 +62,7 @@ main() {
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $kibana_dev_compose_param instant" "Failed to deploy Dashboard Visualiser Kibana"
 
     docker::await_container_startup dashboard-visualiser-kibana
-    docker::await_container_status dashboard-visualiser-kibana running
+    docker::await_container_status dashboard-visualiser-kibana Running
 
     config::await_network_join "instant_dashboard-visualiser-kibana"
 
