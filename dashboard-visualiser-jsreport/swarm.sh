@@ -2,6 +2,7 @@
 
 readonly ACTION=$1
 readonly MODE=$2
+readonly JS_REPORT_INSTANCES=${JS_REPORT_INSTANCES:-1}
 
 TIMESTAMP="$(date "+%Y%m%d%H%M%S")"
 readonly TIMESTAMP

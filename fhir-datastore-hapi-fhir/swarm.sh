@@ -4,7 +4,7 @@
 readonly ACTION=$1
 readonly MODE=$2
 readonly STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
-
+readonly HAPI_FHIR_INSTANCES=${HAPI_FHIR_INSTANCES:-1}
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
   pwd -P

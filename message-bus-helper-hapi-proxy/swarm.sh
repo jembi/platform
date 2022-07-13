@@ -2,7 +2,7 @@
 
 readonly ACTION=$1
 readonly MODE=$2
-
+readonly HAPI_PROXY_INSTANCES=${HAPI_PROXY_INSTANCES:-1}
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
   pwd -P
