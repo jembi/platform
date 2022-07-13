@@ -17,7 +17,7 @@ docker::await_container_startup() {
     log info "Waiting for ${SERVICE_NAME} to start up..."
     local start_time
     start_time=$(date +%s)
-    until [[ -n $(docker service ls -qf name="instant_${SERVICE_NAME}") ]]; do
+    until [[ -n $(docker service ls -qf name=instant_"${SERVICE_NAME}") ]]; do
         config::timeout_check "${start_time}" "${SERVICE_NAME} to start"
         sleep 1
     done
