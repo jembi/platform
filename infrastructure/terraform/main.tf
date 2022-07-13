@@ -68,7 +68,7 @@ resource "aws_route53_record" "subdomain" {
 resource "aws_route53_record" "node_domain_names" {
   count = var.NODE_DOMAIN_NAME_CREATION_ENABLED ? var.INSTANCE_COUNT : 0
   zone_id = "${var.HOSTED_ZONE_ID}"
-  name    = "node-${tostring(count.index)}.${var.DOMAIN_NAME}"
+  name    = "node-${tostring(count.index+1)}.${var.DOMAIN_NAME}"
   type    = "A"
   ttl     = "300"
   records = ["${aws_instance.platform_instance[count.index].public_ip}"]
