@@ -20,7 +20,11 @@ packages:
     name: Dashboard Visualiser - Kibana
   - id: data-mapper-logstash
     name: Data Mapper - Logstash
-  - id: elastic-monitoring-metricbeats-filebeats
-    name: Elastic Monitoring - MetricBeats and FileBeats
   - id: dashboard-visualiser-jsreport
     name: Dashboard Visualiser - JS Reports
+  - id: client-registry-santempi
+    name: Client Registry - SanteMPI
+  - id: fhir-datastore-helper-hapi-fhir
+    name: FHIR IG importer
+  - id: message-bus-helper-hapi-proxy
+    name: Message Bus Helper - HAPI Proxy to Kafka
