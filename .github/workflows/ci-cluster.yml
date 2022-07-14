@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-20.04
     timeout-minutes: 15
     env:
-      TF_VAR_PROJECT_NAME: platform-e2e-tests
+      TF_VAR_PROJECT_NAME: platform-e2e-tests-${{ github.run_id }}
       TF_VAR_PUBLIC_KEY_PATH: key.pub
       TF_VAR_HOSTED_ZONE_ID: Z00782582NSP6D0VHBCMI
       TF_VAR_DOMAIN_NAME: ${{ github.run_id }}.jembi.cloud
@@ -85,6 +85,7 @@ jobs:
       - run: ssh-keyscan -H ${{ github.run_id }}.jembi.cloud >> ~/.ssh/known_hosts
       - run: ./remote-img-load.sh ${{ github.run_id }}.jembi.cloud
       - run: sed -i 's/domain/${{ github.run_id }}.jembi.cloud/g' .env.ci-clustered
+      - run: mkdir /tmp/logs
       - run: DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud ./platform-linux --env-file=.env.ci-clustered init
   destroy-e2e-server:
     runs-on: ubuntu-20.04
@@ -92,7 +93,7 @@ jobs:
     needs: [provision-e2e-server, configure-e2e-server, launch-platform]
     timeout-minutes: 15
     env:
-      TF_VAR_PROJECT_NAME: platform-e2e-tests
+      TF_VAR_PROJECT_NAME: platform-e2e-tests-${{ github.run_id }}
       TF_VAR_INSTANCE_COUNT: 1
       TF_VAR_PUBLIC_KEY_PATH: key.pub
       TF_VAR_HOSTED_ZONE_ID: Z00782582NSP6D0VHBCMI
