@@ -60,19 +60,25 @@ main() {
   fi
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
+    config::set_config_digests "${COMPOSE_FILE_PATH}"/docker-compose.yml
+
     unbound_ES_HOSTS_check
 
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $js_report_dev_compose_param $js_report_dev_mount_compose_param instant" "Failed to deploy JS Report"
+    log info "importing data"
+    config::generate_service_configs dashboard-visualiser-jsreport /app "${COMPOSE_FILE_PATH}/data" "${COMPOSE_FILE_PATH}" "100" "101"
+    js_report_temp_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.tmp.yml"
+
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $js_report_dev_compose_param $js_report_dev_mount_compose_param $js_report_temp_compose_param instant" "Failed to deploy JS Report"
 
     if [[ "${JS_REPORT_DEV_MOUNT}" != "true" ]]; then
       log info "Verifying JS Report service status"
-      config::await_service_running "dashboard-visualiser-jsreport" "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml "${JS_REPORT_INSTANCES}"
+      # config::await_service_running "dashboard-visualiser-jsreport" "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml "${JS_REPORT_INSTANCES}"
 
-      config::set_config_digests "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml
-      try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to start config importer"
+      # config::set_config_digests "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml
+      # try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to start config importer"
 
-      config::remove_config_importer "jsreport-config-importer"
-      config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "jsreport"
+      # config::remove_config_importer "jsreport-config-importer"
+      # config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "jsreport"
     fi
 
     if [[ "${MODE}" != "dev" ]]; then

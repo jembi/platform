@@ -18,12 +18,21 @@ services:
       co.elastic.metrics/module: 'docker'
       co.elastic.metrics/metricsets: 'cpu,memory,diskio,info,healthcheck,container'
     environment:
-      allowLocalFilesAccess: 'true'
-      extensions_fsStore_dataDirectory: 'jsreport/data'
-      extensions_fsStore_externalModificationsSync: 'true'
       extensions_authentication_cookieSession_secret: ${JS_REPORT_SECRET:-dev_secret_only}
       extensions_authentication_admin_username: 'admin'
       extensions_authentication_admin_password: ${JS_REPORT:-dev_password_only}
       ES_PASSWORD: ${ES_ELASTIC:-dev_password_only}
       licenseKey: ${JS_REPORT_LICENSE_KEY}
       ES_HOSTS: ${ES_HOSTS:-analytics-datastore-elastic-search:9200}
+    configs:
+      - source: jsr-jsreport.config.json
+        target: /app/jsreport.config.json
+        uid: "100"
+        gid: "101"
+
+configs:
+  jsr-jsreport.config.json:
+    file: ./jsreport.config.json
+    name: jsr-jsreport.config.json-${jsr_jsreport_config_json_DIGEST:?err}
+    labels:
+      name: jsreport

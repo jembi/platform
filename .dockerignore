@@ -1,6 +1,3 @@
-# docker volume data folders
-**/data
-
 # vscode config
 .vscode
 

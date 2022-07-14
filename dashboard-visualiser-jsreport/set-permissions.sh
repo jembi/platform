@@ -9,11 +9,11 @@ if [[ $(basename $(pwd)) != "dashboard-visualiser-jsreport" ]]; then
     exit 1
 fi
 
-sudo chmod 777 scripts/
+sudo chmod 777 data/
 
 while read -r file; do
     sudo chown 1000 "$file"
     sudo chgrp 1000 "$file"
     sudo chmod 777 "$file"
-done < <(find ./scripts)
+done < <(find ./data)
 echo "Successfully set file permissions"

@@ -238,6 +238,8 @@ config::generate_service_configs() {
     local -r TARGET_BASE=${2:?"FATAL: generate_service_config parameter missing"}
     local -r TARGET_FOLDER_PATH=${3:?"FATAL: generate_service_config parameter missing"}
     local -r COMPOSE_FILE_PATH=${4:?"FATAL: generate_service_config parameter missing"}
+    local -r USER_ID="${5:-""}"
+    local -r GROUP_ID="${6:-""}"
     local -r TARGET_FOLDER_NAME=$(basename "${TARGET_FOLDER_PATH}")
     local count=0
 
@@ -257,6 +259,16 @@ config::generate_service_configs() {
         export config_file="./${TARGET_FOLDER_NAME}/${file_name}"
         export config_label_name="${TARGET_FOLDER_NAME}/${file_name}"
         export config_service_name=$SERVICE_NAME
+
+        if [[ $USER_ID -ne "" ]]; then
+            export user_id=$USER_ID
+            yq -i 'eval(strenv(service_config_query)).uid = strenv(user_id)' "${COMPOSE_FILE_PATH}/docker-compose.tmp.yml"
+        fi
+
+        if [[ $GROUP_ID -ne "" ]]; then
+            export group_id=$GROUP_ID
+            yq -i 'eval(strenv(service_config_query)).gid = strenv(group_id)' "${COMPOSE_FILE_PATH}/docker-compose.tmp.yml"
+        fi
 
         yq -i '
         .version = "3.9" |
