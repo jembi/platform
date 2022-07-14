@@ -67,6 +67,9 @@ typings/
 # mac
 .DS_Store
 
+# docker data volumes
+**/data
+
 # production
 /docs/build
 
