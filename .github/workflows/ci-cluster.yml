@@ -20,6 +20,7 @@ jobs:
       TF_VAR_PUBLIC_KEY_PATH: key.pub
       TF_VAR_HOSTED_ZONE_ID: Z00782582NSP6D0VHBCMI
       TF_VAR_DOMAIN_NAME: ${{ github.run_id }}.jembi.cloud
+      TF_VAR_INSTANCE_TYPE: r5.2xlarge
       TF_VAR_SUBNET_ID: subnet-0004b0dacb5862d59
       TF_VAR_VPC_ID: vpc-067ab69f374ac9f47
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -97,6 +98,7 @@ jobs:
       TF_VAR_PUBLIC_KEY_PATH: key.pub
       TF_VAR_HOSTED_ZONE_ID: Z00782582NSP6D0VHBCMI
       TF_VAR_DOMAIN_NAME: ${{ github.run_id }}.jembi.cloud
+      TF_VAR_INSTANCE_TYPE: r5.2xlarge
       TF_VAR_SUBNET_ID: subnet-0004b0dacb5862d59
       TF_VAR_VPC_ID: vpc-067ab69f374ac9f47
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
