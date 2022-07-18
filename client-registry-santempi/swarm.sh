@@ -3,6 +3,7 @@
 readonly ACTION=$1
 readonly MODE=$2
 readonly SANTEMPI_INSTANCES=${SANTEMPI_INSTANCES:-1}
+export SANTEMPI_INSTANCES
 TIMESTAMP="$(date "+%Y%m%d%H%M%S")"
 readonly TIMESTAMP
 

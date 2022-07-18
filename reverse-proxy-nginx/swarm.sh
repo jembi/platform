@@ -4,6 +4,7 @@
 readonly ACTION=$1
 readonly MODE=$2
 readonly REVERSE_PROXY_INSTANCES=${REVERSE_PROXY_INSTANCES:-1}
+export REVERSE_PROXY_INSTANCES
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
   pwd -P

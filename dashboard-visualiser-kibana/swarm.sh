@@ -3,6 +3,7 @@
 readonly ACTION=$1
 readonly MODE=$2
 readonly KIBANA_INSTANCES=${KIBANA_INSTANCES:-1}
+export KIBANA_INSTANCES
 
 readonly STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
 
