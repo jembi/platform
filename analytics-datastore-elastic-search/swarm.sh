@@ -137,9 +137,9 @@ if [[ "$ACTION" == "init" ]]; then
   log info "Done"
 elif [[ "$ACTION" == "up" ]]; then
   if [[ "$STATEFUL_NODES" == "cluster" ]]; then
-    try "docker service scale instant_analytics-datastore-elastic-search-01=1" "Failed to scale down analytics-datastore-elastic-search-01"
-    try "docker service scale instant_analytics-datastore-elastic-search-02=1" "Failed to scale down analytics-datastore-elastic-search-02"
-    try "docker service scale instant_analytics-datastore-elastic-search-03=1" "Failed to scale down analytics-datastore-elastic-search-03"
+    try "docker service scale instant_analytics-datastore-elastic-search-01=1" "Failed to scale up analytics-datastore-elastic-search-01"
+    try "docker service scale instant_analytics-datastore-elastic-search-02=1" "Failed to scale up analytics-datastore-elastic-search-02"
+    try "docker service scale instant_analytics-datastore-elastic-search-03=1" "Failed to scale up analytics-datastore-elastic-search-03"
   else
     try "docker service scale instant_analytics-datastore-elastic-search=1" "Failed to scale down analytics-datastore-elastic-search"
   fi
