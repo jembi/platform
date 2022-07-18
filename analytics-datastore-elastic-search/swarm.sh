@@ -141,7 +141,7 @@ elif [[ "$ACTION" == "up" ]]; then
     try "docker service scale instant_analytics-datastore-elastic-search-02=1" "Failed to scale up analytics-datastore-elastic-search-02"
     try "docker service scale instant_analytics-datastore-elastic-search-03=1" "Failed to scale up analytics-datastore-elastic-search-03"
   else
-    try "docker service scale instant_analytics-datastore-elastic-search=1" "Failed to scale down analytics-datastore-elastic-search"
+    try "docker service scale instant_analytics-datastore-elastic-search=1" "Failed to scale up analytics-datastore-elastic-search"
   fi
 elif [[ "$ACTION" == "down" ]]; then
   if [[ "$STATEFUL_NODES" == "cluster" ]]; then
