@@ -10,6 +10,7 @@ services:
         soft: -1
         hard: -1
     deploy:
+      replicas: 0
       resources:
         limits:
           memory: ${ES_MEMORY_LIMIT:-3G}
@@ -57,6 +58,7 @@ services:
         soft: -1
         hard: -1
     deploy:
+      replicas: 0
       resources:
         limits:
           memory: ${ES_MEMORY_LIMIT:-3G}
@@ -104,6 +106,7 @@ services:
         soft: -1
         hard: -1
     deploy:
+      replicas: 0
       resources:
         limits:
           memory: ${ES_MEMORY_LIMIT:-3G}
