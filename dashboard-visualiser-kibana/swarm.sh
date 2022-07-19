@@ -7,9 +7,6 @@ export KIBANA_INSTANCES
 
 readonly STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
 
-TIMESTAMP="$(date "+%Y%m%d%H%M%S")"
-readonly TIMESTAMP
-
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
   pwd -P
@@ -26,14 +23,14 @@ readonly ROOT_PATH
 configure_nginx() {
 
   if [[ "${INSECURE}" == "true" ]]; then
-    try "docker config create --label name=nginx ${TIMESTAMP}-http-kibana-insecure.conf ${COMPOSE_FILE_PATH}/config/http-kibana-insecure.conf" "Error creating insecure kibana nginx conf"
+    try "docker config create --label name=nginx http-kibana-insecure.conf ${COMPOSE_FILE_PATH}/config/http-kibana-insecure.conf" "Error creating insecure kibana nginx conf"
     log info "Updating nginx service: adding kibana config file..."
-    try "docker service update --config-add source=${TIMESTAMP}-http-kibana-insecure.conf,target=/etc/nginx/conf.d/http-kibana-insecure.conf instant_reverse-proxy-nginx" "Error updating nginx service"
+    try "docker service update --config-add source=http-kibana-insecure.conf,target=/etc/nginx/conf.d/http-kibana-insecure.conf instant_reverse-proxy-nginx" "Error updating nginx service"
     overwrite "Updating nginx service: adding kibana config file... Done"
   else
-    try "docker config create --label name=nginx ${TIMESTAMP}-http-kibana-secure.conf ${COMPOSE_FILE_PATH}/config/http-kibana-secure.conf" "Error creating secure kibana nginx conf"
+    try "docker config create --label name=nginx http-kibana-secure.conf ${COMPOSE_FILE_PATH}/config/http-kibana-secure.conf" "Error creating secure kibana nginx conf"
     log info "Updating nginx service: adding kibana config file..."
-    try "docker service update --config-add source=${TIMESTAMP}-http-kibana-secure.conf,target=/etc/nginx/conf.d/http-kibana-secure.conf instant_reverse-proxy-nginx" "Error updating nginx service"
+    try "docker service update --config-add source=http-kibana-secure.conf,target=/etc/nginx/conf.d/http-kibana-secure.conf instant_reverse-proxy-nginx" "Error updating nginx service"
     overwrite "Updating nginx service: adding kibana config file... Done"
   fi
 }
@@ -67,7 +64,7 @@ main() {
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $kibana_dev_compose_param instant" "Failed to deploy Dashboard Visualiser Kibana"
 
     docker::await_container_startup dashboard-visualiser-kibana
-    docker::await_container_status dashboard-visualiser-kibana running
+    docker::await_container_status dashboard-visualiser-kibana Running
 
     config::await_network_join "instant_dashboard-visualiser-kibana"
 
@@ -85,6 +82,7 @@ main() {
     try "docker service scale instant_dashboard-visualiser-kibana=0" "Failed to scale down dashboard-visualiser-kibana"
   elif [[ "${ACTION}" == "destroy" ]]; then
     try "docker service rm instant_dashboard-visualiser-kibana instant_await-helper instant_kibana-config-importer" "Failed to destroy dashboard-visualiser-kibana"
+    config::remove_service_nginx_config "http-kibana-secure.conf" "http-kibana-insecure.conf"
   else
     log error "Valid options are: init, up, down, or destroy"
   fi
