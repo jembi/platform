@@ -14,7 +14,7 @@ services:
       ES_ELASTIC: ${ES_ELASTIC}
       LS_JAVA_OPTS: ${LS_JAVA_OPTS:--Xmx2g -Xms2g}
     volumes:
-      - queues_volumes:/usr/share/logstash/data
+      - logstash-data:/usr/share/logstash/data
     deploy:
       resources:
         limits:
@@ -53,4 +53,4 @@ configs:
     labels: 
       name: logstash
 volumes:
-  queues_volumes:
+  logstash-data:
