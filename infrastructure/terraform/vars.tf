@@ -4,7 +4,7 @@ variable "AWS_REGION" {
 }
 
 variable "INSTANCE_TYPE" {
-  default = "t3.small"
+  default = "t3.xlarge"
 }
 
 variable "INSTANCE_COUNT" {
@@ -70,7 +70,7 @@ variable "PUBLIC_KEY_PATH" {
 }
 
 variable "PROJECT_NAME" {
-  default = "jembi_placform_dev_{user}"
+  default = "jembi_platform_dev_{user}"
 }
 
 variable "ACCOUNT" {

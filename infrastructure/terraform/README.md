@@ -68,7 +68,7 @@ The configuration can be done using an terraform variable file. Create a file ca
 
 ```tf
 PUBLIC_KEY_PATH = "/home/{user}/.ssh/id_rsa.pub"
-PROJECT_NAME = "jembi_placform_dev_{user}"
+PROJECT_NAME = "jembi_platform_dev_{user}"
 HOSTED_ZONE_ID = "Z00782582NSP6D0VHBCMI"
 DOMAIN_NAME = "{user}.jembi.cloud"
 SUBNET_ID = "subnet-0004b0dacb5862d59"
@@ -101,8 +101,8 @@ Optionally, add `ACCOUNT = "<account_name>"` to `my.tfvaars` if you want to use 
 
 The flag for specifying an environment variables file is `-var-file`, create the AWS stack by running:
 
-```tf
-terraform apply -var-file=my.tfvars
+```sh
+terraform apply -var-file my.tfvars
 ```
 
 Once the script has run successfully, the ip addresses and domains for the servers will be displayed:
