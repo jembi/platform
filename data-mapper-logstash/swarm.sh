@@ -3,6 +3,7 @@
 # Arguments
 ACTION=$1
 MODE=$2
+statefulNodes=${STATEFUL_NODES:-"cluster"}
 
 readonly LOGSTASH_DEV_MOUNT=$LOGSTASH_DEV_MOUNT
 
@@ -23,6 +24,14 @@ ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/config-utils.sh"
 . "${ROOT_PATH}/utils/docker-utils.sh"
 . "${ROOT_PATH}/utils/log.sh"
+
+if [[ $statefulNodes == "cluster" ]]; then
+  log info "Running Data Mapper Logstash package in Cluster node mode"
+  logstashClusterComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.cluster.yml"
+else
+  log info "Running Data Mapper Logstash package in Single node mode"
+  logstashClusterComposeParam=""
+fi
 
 if [[ "$MODE" == "dev" ]]; then
   log info "Running Data Mapper Logstash package in DEV mode"
@@ -52,7 +61,7 @@ if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
   config::generate_service_configs data-mapper-logstash /usr/share/logstash "${COMPOSE_FILE_PATH}/pipeline" "${COMPOSE_FILE_PATH}"
   LogstashTempComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.tmp.yml"
 
-  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $LogstashDevComposeParam $LogstashDevMountComposeParam $LogstashTempComposeParam instant" "Failed to deploy Data Mapper Logstash"
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $logstashClusterComposeParam $LogstashDevComposeParam $LogstashDevMountComposeParam $LogstashTempComposeParam instant" "Failed to deploy Data Mapper Logstash"
 
   docker::await_container_startup data-mapper-logstash
   docker::await_container_status data-mapper-logstash running
