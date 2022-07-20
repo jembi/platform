@@ -16,7 +16,7 @@ services:
       - SDB_DATA_POLICY_RESOURCE=Patient
       - SDB_DELAY_START=5000
     deploy:
-      replicas: ${SANTEMPI_INSTANCES:-1}
+      replicas: ${SANTEMPI_INSTANCES}
   santedb-www:
     image: santesuite/santedb-www:2.2.3
     depends_on:

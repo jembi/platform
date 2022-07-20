@@ -9,7 +9,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS:-kafka:9092}
       HAPI_SERVER_VALIDATE_FORMAT: ${HAPI_SERVER_VALIDATE_FORMAT:-NONE}
     deploy:
-      replicas: ${HAPI_PROXY_INSTANCES:-1}
+      replicas: ${HAPI_PROXY_INSTANCES}
       resources:
         limits:
           cpus: ${HAPI_PROXY_CPU_LIMIT:-0.8}
