@@ -3,7 +3,7 @@
 # Arguments
 ACTION=$1
 MODE=$2
-statefulNodes=${STATEFUL_NODES:-"cluster"}
+STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
 
 readonly LOGSTASH_DEV_MOUNT=$LOGSTASH_DEV_MOUNT
 
