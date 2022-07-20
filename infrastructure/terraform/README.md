@@ -97,7 +97,7 @@ The sample file above has access to 3 accounts and the options for `<account_nam
 "jembi-sandbox",
 "jembi-icap"
 
-Optionally, add `ACCOUNT = "<account_name>"` to `my.tfvaars` if you want to use something other than `default`.
+Optionally, add `ACCOUNT = "<account_name>"` to `my.tfvars` if you want to use something other than `default`.
 
 The flag for specifying an environment variables file is `-var-file`, create the AWS stack by running:
 
