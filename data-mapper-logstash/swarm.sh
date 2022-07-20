@@ -25,7 +25,7 @@ ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/docker-utils.sh"
 . "${ROOT_PATH}/utils/log.sh"
 
-if [[ $statefulNodes == "cluster" ]]; then
+if [[ $STATEFUL_NODES == "cluster" ]]; then
   log info "Running Data Mapper Logstash package in Cluster node mode"
   logstashClusterComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.cluster.yml"
 else
