@@ -84,8 +84,11 @@ jobs:
           ssh-private-key: ${{ secrets.DEPLOY_KEY }}
       - run: ssh-keyscan -H ${{ github.run_id }}.jembi.cloud >> ~/.ssh/known_hosts
       - run: ./remote-img-load.sh ${{ github.run_id }}.jembi.cloud
-      - run: sed -i 's/domain/${{ github.run_id }}.jembi.cloud/g' .env.ci
-      - run: DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud ./platform-linux --env-file=.env.ci init
+      - run: sed -i 's/OPENHIM_CORE_MEDIATOR_HOSTNAME=localhost/OPENHIM_CORE_MEDIATOR_HOSTNAME=openhimcomms.domain/g' .env.local
+      - run: sed -i 's/OPENHIM_MEDIATOR_API_PORT=8080/OPENHIM_MEDIATOR_API_PORT=443/g' .env.local
+      - run: sed -i 's/INSECURE=true/INSECURE=false/g' .env.local
+      - run: sed -i 's/domain/${{ github.run_id }}.jembi.cloud/g' .env.local
+      - run: DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud ./platform-linux --env-file=.env.local init
   destroy-e2e-server:
     runs-on: ubuntu-20.04
     if: always()

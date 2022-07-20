@@ -85,9 +85,9 @@ jobs:
           ssh-private-key: ${{ secrets.DEPLOY_KEY }}
       - run: ssh-keyscan -H ${{ github.run_id }}.jembi.cloud >> ~/.ssh/known_hosts
       - run: ./remote-img-load.sh ${{ github.run_id }}.jembi.cloud
-      - run: sed -i 's/domain/${{ github.run_id }}.jembi.cloud/g' .env.ci-clustered
+      - run: sed -i 's/domain/${{ github.run_id }}.jembi.cloud/g' .env.cluster
       # TODO: (PLAT-385, rcrichton) add 'client-registry-santempi' add santempi once it works in cluster mode
-      - run: DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud ./platform-linux --env-file=.env.ci-clustered init reverse-proxy-nginx, interoperability-layer-openhim, fhir-datastore-hapi-fhir, message-bus-kafka, analytics-datastore-elastic-search, dashboard-visualiser-kibana, data-mapper-logstash, dashboard-visualiser-jsreport, fhir-datastore-helper-hapi-fhir, message-bus-helper-hapi-proxy
+      - run: DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud ./platform-linux --env-file=.env.cluster init reverse-proxy-nginx, interoperability-layer-openhim, fhir-datastore-hapi-fhir, message-bus-kafka, analytics-datastore-elastic-search, dashboard-visualiser-kibana, data-mapper-logstash, dashboard-visualiser-jsreport, fhir-datastore-helper-hapi-fhir, message-bus-helper-hapi-proxy
   destroy-e2e-server:
     runs-on: ubuntu-20.04
     if: always()
