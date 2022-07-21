@@ -55,7 +55,7 @@ if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
   try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $LogstashDevComposeParam $LogstashDevMountComposeParam $LogstashTempComposeParam instant" "Failed to deploy Data Mapper Logstash"
 
   docker::await_container_startup data-mapper-logstash
-  docker::await_container_status data-mapper-logstash running
+  docker::await_container_status data-mapper-logstash Running
 
   config::remove_stale_service_configs "${COMPOSE_FILE_PATH}/docker-compose.yml" "logstash"
 

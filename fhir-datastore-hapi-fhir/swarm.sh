@@ -4,7 +4,8 @@
 readonly ACTION=$1
 readonly MODE=$2
 readonly STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
-
+readonly HAPI_FHIR_INSTANCES=${HAPI_FHIR_INSTANCES:-1}
+export HAPI_FHIR_INSTANCES
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
   pwd -P
@@ -21,14 +22,14 @@ await_postgres_start() {
   log info "Waiting for Postgres to start up before HAPI-FHIR"
 
   docker::await_container_startup postgres-1
-  docker::await_container_status postgres-1 running
+  docker::await_container_status postgres-1 Running
 
   if [[ "$STATEFUL_NODES" == "cluster" ]]; then
     docker::await_container_startup postgres-2
-    docker::await_container_status postgres-2 running
+    docker::await_container_status postgres-2 Running
 
     docker::await_container_startup postgres-3
-    docker::await_container_status postgres-3 running
+    docker::await_container_status postgres-3 Running
   fi
 }
 
