@@ -9,6 +9,8 @@ COMPOSE_FILE_PATH=$(
 
 # Import libraries
 ROOT_PATH="${COMPOSE_FILE_PATH}/.."
+. "${ROOT_PATH}/utils/config-utils.sh"
+. "${ROOT_PATH}/utils/docker-utils.sh"
 . "${ROOT_PATH}/utils/log.sh"
 
 if [[ $statefulNodes == "cluster" ]]; then
@@ -40,8 +42,11 @@ elif [[ $1 == "down" ]]; then
 elif [[ $1 == "destroy" ]]; then
   try "docker service rm instant_zookeeper-1 instant_kafka instant_kafdrop" "Failed to destroy kafka"
 
-  log info "Sleep 20 Seconds to allow services to shut down before deleting volumes"
-  sleep 20
+  log info "Allow services to shut down before deleting volumes"
+
+  config::await_service_removed instant_zookeeper-1
+  config::await_service_removed instant_kafka
+  config::await_service_removed instant_kafdrop
 
   try "docker volume rm instant_kafka-volume" "Failed to remove kafka volume"
   try "docker volume rm instant_zookeeper-1-volume" "Failed to remove zookeeper volume"
