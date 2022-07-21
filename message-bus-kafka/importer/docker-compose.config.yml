@@ -1,7 +1,7 @@
 version: '3.9'
 
 services:
-  instant_kafka-config-importer:
+  message-bus-kafka-config-importer:
     image: jembi/instantohie-config-importer
     deploy:
       restart_policy:
