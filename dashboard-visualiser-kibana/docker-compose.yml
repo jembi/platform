@@ -12,7 +12,7 @@ services:
     environment:
       ES_KIBANA_SYSTEM: ${ES_KIBANA_SYSTEM?:err}
     deploy:
-      replicas: ${KIBANA_INSTANCES:-1}
+      replicas: ${KIBANA_INSTANCES}
       resources:
         limits:
           memory: ${KIBANA_MEMORY_LIMIT:-3G}

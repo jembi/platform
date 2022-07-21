@@ -4,5 +4,7 @@
   "description": "A patient matching and deduplicater for the platform",
   "version": "0.0.1",
   "dependencies": ["reverse-proxy-nginx"],
-  "environmentVariables": {}
+  "environmentVariables": {
+    "SANTEMPI_INSTANCES": "1"
+  }
 }
