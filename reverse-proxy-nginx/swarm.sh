@@ -119,8 +119,9 @@ main() {
 
       log info "Done updating nginx service"
 
+      local staging_args=""
       if [ "${STAGING}" == "true" ]; then
-        local staging_args="--staging"
+        staging_args="--staging"
       fi
 
       #Generate real certificate
@@ -140,7 +141,7 @@ main() {
       try "docker run --rm --network host --name certbot-helper -w /temp \
         -v data-certbot-conf:/temp-certificates \
         -v instant:/temp busybox sh \
-        -c rm -rf certificates; mkdir certificates; cp -r /temp-certificates/* /temp/certificates" "Failed to transfer certificate"
+        -c \"rm -rf certificates; mkdir -p certificates; cp -r /temp-certificates/* /temp/certificates\"" "Failed to transfer certificate"
       try "docker volume rm data-certbot-conf" "Failed to remove data-certbot-conf volume"
 
       local new_timestamp
