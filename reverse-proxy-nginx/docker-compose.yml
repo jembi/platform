@@ -5,7 +5,7 @@ services:
   reverse-proxy-nginx:
     image: nginx:stable
     deploy:
-      replicas: ${REVERSE_PROXY_INSTANCES:-1}
+      replicas: ${REVERSE_PROXY_INSTANCES}
       placement:
         max_replicas_per_node: 1
       resources:
