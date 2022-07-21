@@ -21,7 +21,7 @@ if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
     monitoring_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
   fi
 
-  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml ${monitoring_dev_compose_param} instant" "Failed to deploy Monitoring"
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml ${monitoring_dev_compose_param} instant" "Failed to deploy monitoring stack"
 elif [[ "${ACTION}" == "down" ]]; then
   log error "Not implemented"
 elif [[ "${ACTION}" == "destroy" ]]; then

@@ -3,7 +3,6 @@ version: '3.9'
 services:
   grafana:
     image: grafana/grafana-oss:latest
-    restart: on-failure
     volumes:
       - grafana_data:/var/lib/grafana
     environment:
@@ -13,14 +12,12 @@ services:
     configs:
       - target: /etc/grafana/grafana.ini
         source: grafana.ini
-      - target: /etc/grafana/provisioning/datasources/datasource.yaml
-        source: datasource.yaml
-    labels:
-      org.label-schema.group: "monitoring"
+      - target: /etc/grafana/provisioning/datasources/datasource.yml
+        source: datasource.yml
 
   prometheus:
     image: prom/prometheus:latest
-    restart: on-failure
+    user: root
     volumes:
       - prometheus_data:/prometheus
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -34,20 +31,41 @@ services:
       - '--web.console.templates=/etc/prometheus/consoles'
       - '--web.enable-lifecycle'
 
+  cadvisor:
+    image: google/cadvisor
+    hostname: '{{.Node.ID}}'
+    command: -docker_only
+    ports:
+      - '8080:8080'
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker
+      - /dev/disk/:/dev/disk:ro
+    deploy:
+      mode: global
+      labels:
+        prometheus-job: cadvisor
+        prometheus-address: 'cadvisor:8080'
+
 configs:
   grafana.ini:
     file: ./grafana/grafana.ini
-    name: grafana.ini-${grafana_ini_DIGEST:?err}
+    # name: grafana.ini-${grafana_ini_DIGEST:?err}
+    name: grafana.ini
     labels:
       name: grafana
   datasource.yml:
     file: ./grafana/datasource.yml
-    name: datasource.yml-${datasource_yml_DIGEST:?err}
+    # name: datasource.yml-${datasource_yml_DIGEST:?err}
+    name: datasource.yml
     labels:
       name: grafana
   prometheus.yml:
     file: ./prometheus/prometheus.yml
-    name: prometheus.yml-${prometheus_yml_DIGEST:?err}
+    # name: prometheus.yml-${prometheus_yml_DIGEST:?err}
+    name: prometheus.yml
     labels:
       name: prometheus
 

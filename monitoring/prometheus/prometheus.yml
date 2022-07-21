@@ -41,3 +41,6 @@ scrape_configs:
       # Use the prometheus-job Swarm label as Prometheus job label.
       - source_labels: [__meta_dockerswarm_service_label_prometheus_job]
         target_label: job
+      # Use the prometheus-address Swarm label as the target address for swarm tasks.
+      - source_labels: [__meta_dockerswarm_service_label_prometheus_address]
+        target_label: __address__
