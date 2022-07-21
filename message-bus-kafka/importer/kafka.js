@@ -36,5 +36,6 @@ console.log('Creating kafka topics......................');
    KAFKA_TOPICS.split(',').forEach(topic => createKafkaTopic(topic))
   } else {
     console.log('Topics not created: KAFKA_TOPICS variable invalid')
+    process.exit(1)
   }
 })();
