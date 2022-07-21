@@ -42,7 +42,7 @@ if [[ $1 == "init" ]] || [[ $1 == "up" ]]; then
   try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to deploy Message Bus Kafka"
 
   config::remove_stale_service_configs "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml "ethiopia"
-  config::remove_config_importer kafka-config-importer
+  config::remove_config_importer message-bus-kafka-config-importer
 elif [[ $1 == "down" ]]; then
   try "docker service scale instant_zookeeper-1=0 instant_kafdrop=0" "Failed to scale down zookeeper and kafdrop"
   # You cannot scale a global service so we have to remove it
