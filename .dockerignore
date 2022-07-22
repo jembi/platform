@@ -40,3 +40,12 @@ infrastructure
 
 # Schemas
 schemas
+
+# bash convenience files
+prune-containers.sh
+prune-volumes.sh
+build-image.sh
+purge-local.sh
+purge-nodes.sh
+remote-img-load.sh
+get-cli.sh
