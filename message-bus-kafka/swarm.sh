@@ -52,17 +52,26 @@ elif [[ $1 == "down" ]]; then
     try "docker service scale instant_zookeeper-3=0" "Failed to scale down zookeeper cluster"
   fi
 elif [[ $1 == "destroy" ]]; then
-  try "docker service rm instant_zookeeper-1 instant_kafka instant_kafdrop" "Failed to destroy kafka"
-
   log info "Allow services to shut down before deleting volumes"
 
-  config::await_service_removed instant_zookeeper-1
-  config::await_service_removed instant_kafka
-  config::await_service_removed instant_kafdrop
+  # The services are being scaled down first to ensure that the containers have been
+  # removed before removing the volumes. This is done because a service can be removed
+  # and the container can remain up for a few seconds, meaning the volumes can't be removed.
+  try "docker service scale instant_zookeeper-1=0" "Failed to scale down instant_zookeeper-1"
+  try "docker service scale instant_kafka=0" "Failed to scale down instant_kafka"
+  try "docker service scale instant_kafdrop=0" "Failed to scale down instant_kafdrop"
 
-  try "docker volume rm instant_zookeeper-1-volume instant_kafka-volume" "Failed to remove zookeeper or kafka volume"
+  try "docker service rm instant_zookeeper-1" "Failed to destroy instant_zookeeper"
+  try "docker service rm instant_kafdrop" "Failed to destroy instant_kafdrop"
+  try "docker service rm instant_kafka" "Failed to destroy instant_kafka"
+
+  try "docker volume rm instant_zookeeper-1-volume" "Failed to remove instant_zookeeper-1-volume volume"
+  try "docker volume rm instant_kafka-volume" "Failed to remove instant_kafka-volume volume"
 
   if [[ $STATEFUL_NODES == "cluster" ]]; then
+    try "docker service scale instant_zookeeper-2=0" "Failed to scale down instant_zookeeper-2"
+    try "docker service scale instant_zookeeper-3=0" "Failed to scale down instant_zookeeper-3"
+
     try "docker service rm instant_zookeeper-2" "Failed to remove zookeeper cluster volumes"
     try "docker service rm instant_zookeeper-3" "Failed to remove zookeeper cluster volumes"
     log notice "Volumes are only deleted on the host on which the command is run. Kafka volumes on other nodes are not deleted"
