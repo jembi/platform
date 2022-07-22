@@ -57,14 +57,15 @@ elif [[ $1 == "destroy" ]]; then
   config::await_service_removed instant_kafka
   config::await_service_removed instant_kafdrop
 
-  try "docker volume rm instant_kafka-volume" "Failed to remove kafka volume"
-  try "docker volume rm instant_zookeeper-1-volume" "Failed to remove zookeeper volume"
+  try "docker volume rm instant_zookeeper-1-volume instant_kafka-volume" "Failed to remove zookeeper or kafka volume"
 
   if [[ $STATEFUL_NODES == "cluster" ]]; then
     try "docker service rm instant_zookeeper-2" "Failed to remove zookeeper cluster volumes"
     try "docker service rm instant_zookeeper-3" "Failed to remove zookeeper cluster volumes"
     log notice "Volumes are only deleted on the host on which the command is run. Kafka volumes on other nodes are not deleted"
   fi
+
+  config::remove_config_importer message-bus-kafka-config-importer
 else
   log error "Valid options are: init, up, down, or destroy"
 fi
