@@ -68,7 +68,7 @@ elif [[ $1 == "destroy" ]]; then
     log notice "Volumes are only deleted on the host on which the command is run. Kafka volumes on other nodes are not deleted"
   fi
 
-  config::remove_config_importer message-bus-kafka-config-importer
+  log warn "docker service rm instant_message-bus-kafka-config-importer" ": message-bus-kafka-config-importer not removed... it's possible the service has already been removed"
 else
   log error "Valid options are: init, up, down, or destroy"
 fi
