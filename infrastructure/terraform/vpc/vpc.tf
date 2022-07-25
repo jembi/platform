@@ -5,7 +5,7 @@ resource "aws_vpc" "vpc" {
   instance_tenancy = "default"
 
   tags = {
-    Name = "${var.PROJECT_NAME}-vpc"
+    Name = "${var.VPC_NAME}-vpc"
   }
 }
 
@@ -15,6 +15,14 @@ resource "aws_subnet" "public_subnet" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "${var.PROJECT_NAME}-public-subnet"
+    Name = "${var.VPC_NAME}-public-subnet"
   }
+}
+
+output "VPC_ID" {
+  value = "${aws_vpc.vpc.id}"
+}
+
+output "SUBNET_ID" {
+  value = "${aws_subnet.public_subnet.id}"
 }
