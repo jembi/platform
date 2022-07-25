@@ -4,7 +4,7 @@ services:
   santedb-mpi:
     image: santesuite/santedb-mpi:2.2.3
     environment:
-      - SDB_FEATURE=LOG;DATA_POLICY;AUDIT_REPO;ADO;PUBSUB_ADO;RAMCACHE;SEC;SWAGGER;OPENID;FHIR;HL7;HDSI;AMI;BIS;MDM;MATCHING
+      - SDB_FEATURE=LOG;DATA_POLICY;AUDIT_REPO;ADO;PUBSUB_ADO;RAMCACHE;SEC;SWAGGER;OPENID;FHIR;HL7;HDSI;AMI;BIS;MDM;MATCHING;ADO_FTS
       - SDB_MATCHING_MODE=WEIGHTED
       - SDB_MDM_RESOURCE=Patient=org.santedb.matching.patient.default
       - SDB_MDM_AUTO_MERGE=false
@@ -18,6 +18,6 @@ services:
     deploy:
       replicas: ${SANTEMPI_INSTANCES}
   santedb-www:
-    image: santesuite/santedb-www:2.2.3
+    image: santesuite/santedb-www:2.2.1.10
     depends_on:
       - santedb-mpi
