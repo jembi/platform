@@ -55,7 +55,7 @@ describe("analytics-datastore-elastic-search", function () {
     this.timeout(5 * 60 * 1000);
 
     before(async function () {
-      const { stderr } = await execPromise(
+      const { stderr, stdout } = await execPromise(
         "cd ../ && ./platform-linux destroy analytics-datastore-elastic-search --dev --env-file=.env.local"
       );
       if (stderr) console.log("stderr", stderr);
@@ -80,8 +80,8 @@ describe("analytics-datastore-elastic-search", function () {
 
     it("should have removed the elastic volume", async function () {
       const volumes = await docker.listVolumes({ name: "instant_es-data" });
-      expect(volumes).to.be.array();
-      expect(volumes).to.be.empty;
+      expect(volumes.Volumes).to.be.array();
+      expect(volumes.Volumes).to.be.empty;
     });
   });
 });
