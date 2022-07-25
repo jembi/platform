@@ -142,6 +142,7 @@ main() {
         -v data-certbot-conf:/temp-certificates \
         -v instant:/temp busybox sh \
         -c \"rm -rf certificates; mkdir -p certificates; cp -r /temp-certificates/* /temp/certificates\"" "Failed to transfer certificate"
+
       try "docker volume rm data-certbot-conf" "Failed to remove data-certbot-conf volume"
 
       local new_timestamp

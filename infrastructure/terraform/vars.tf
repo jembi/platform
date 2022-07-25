@@ -4,7 +4,7 @@ variable "AWS_REGION" {
 }
 
 variable "INSTANCE_TYPE" {
-  default = "t3.small"
+  default = "t3.xlarge"
 }
 
 variable "INSTANCE_COUNT" {
@@ -32,26 +32,37 @@ variable "DETAILED_MONITORING_ENABLED" {
 }
 
 variable "DOMAIN_NAME_CREATION_ENABLED" {
-  default = false
+  default = true
+}
+
+variable "NODE_DOMAIN_NAME_CREATION_ENABLED" {
+  default = true
 }
 
 variable "SUB_DOMAIN_NAME_CREATION_ENABLED" {
-  default = false
+  default = true
 }
+
+########## USER VALUES ###########
 
 variable "DOMAIN_NAME" {
-  default = "jembi-mercury.org"
-}
-
-variable "SUBDOMAIN_NAMES" {
-  default = ""
+  default = "{user}.jembi.cloud"
 }
 
 variable "HOSTED_ZONE_ID" {
   default = ""
+  description = "Set this to the hosted zone ID for the domain name you want to use"
 }
 
-########## USER VALUES ###########
+variable "VPC_ID" {
+  default = ""
+  description = "Set this to the VPC ID you want to use, VPCs are limited to try to use one that exists for this AWS account"
+}
+
+variable "SUBNET_ID" {
+  default = ""
+  description = "Set this to the subnet ID you want to use, a subnet will be created along with a VPC"
+}
 
 variable "PUBLIC_KEY_PATH" {
   default     = "/home/{user}/.ssh/{key}.pub"
@@ -59,10 +70,10 @@ variable "PUBLIC_KEY_PATH" {
 }
 
 variable "PROJECT_NAME" {
-  default = "jembi_mercury_dev_{user}"
+  default = "jembi_platform_dev_{user}"
 }
 
-variable "JEMBI_ACCOUNT" {
+variable "ACCOUNT" {
   default     = "default"
   description = "the account to use as in ~/.aws/credentials file - referenced in providers.tf"
 }
