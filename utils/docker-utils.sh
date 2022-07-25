@@ -79,3 +79,53 @@ docker::await_service_destroy() {
     done
     overwrite "Waiting for ${SERVICE_NAME} to be destroyed... Done"
 }
+
+# Waits for a service to be destroyed
+#
+# Arguments:
+# - $1 : service name (eg. analytics-datastore-elastic-search)
+#
+docker::await_service_containers_destroy() {
+    local -r SERVICE_NAME=${1:?"FATAL: await_container_destroy SERVICE_NAME not provided"}
+
+    log info "Waiting for ${SERVICE_NAME} containers to be destroyed..."
+    local start_time
+    start_time=$(date +%s)
+    until [[ -z $(docker service ps -q instant_"${SERVICE_NAME}") ]]; do
+        config::timeout_check "${start_time}" "${SERVICE_NAME} to be destroyed"
+        sleep 1
+    done
+    overwrite "Waiting for ${SERVICE_NAME} containers to be destroyed... Done"
+}
+
+# Removes a services containers then the service itself
+#
+# Arguments:
+# - $1 : service name (eg. analytics-datastore-elastic-search)
+#
+docker::service_destroy() {
+    local -r SERVICE_NAME=${1:?"FATAL: await_container_destroy SERVICE_NAME not provided"}
+
+    try "docker service scale instant_${SERVICE_NAME}=0" "Failed to scale down ${SERVICE_NAME}"
+    docker::await_service_containers_destroy "${SERVICE_NAME}"
+    try "docker service rm instant_${SERVICE_NAME}" "Failed to remove service ${SERVICE_NAME}"
+    docker::await_service_destroy "${SERVICE_NAME}"
+}
+
+# Waits for a service to be destroyed
+#
+# Arguments:
+# - $1 : volume name (eg. es-data)
+#
+docker::remove_volume_retry() {
+    local -r VOLUME_NAME=${1:?"FATAL: remove_volume_retry VOLUME_NAME not provided"}
+
+    log info "Waiting for volume ${VOLUME_NAME} to be removed..."
+    local start_time
+    start_time=$(date +%s)
+    until [[ -n "$(docker volume rm instant_"${VOLUME_NAME}")" ]]; do
+        config::timeout_check "${start_time}" "${VOLUME_NAME} to be removed"
+        sleep 1
+    done
+    overwrite "Waiting for volume ${VOLUME_NAME} to be removed... Done"
+}

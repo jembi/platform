@@ -153,20 +153,16 @@ elif [[ "$ACTION" == "down" ]]; then
   fi
 elif [[ "$ACTION" == "destroy" ]]; then
   if [[ "$STATEFUL_NODES" == "cluster" ]]; then
-    try "docker service rm instant_analytics-datastore-elastic-search-01" "Failed to remove analytics-datastore-elastic-search-01"
-    try "docker service rm instant_analytics-datastore-elastic-search-02" "Failed to remove analytics-datastore-elastic-search-02"
-    try "docker service rm instant_analytics-datastore-elastic-search-03" "Failed to remove analytics-datastore-elastic-search-03"
-
-    docker::await_service_destroy analytics-datastore-elastic-search-01
-    docker::await_service_destroy analytics-datastore-elastic-search-02
-    docker::await_service_destroy analytics-datastore-elastic-search-03
+    docker::service_destroy analytics-datastore-elastic-search-01
+    docker::service_destroy analytics-datastore-elastic-search-02
+    docker::service_destroy analytics-datastore-elastic-search-03
 
     log warn "Volumes are only deleted on the host on which the command is run. Elastic Search volumes on other nodes are not deleted"
   else
-    try "docker service rm instant_analytics-datastore-elastic-search" "Failed to remove analytics-datastore-elastic-search"
-    docker::await_service_destroy analytics-datastore-elastic-search
-    try "docker volume rm instant_es-data" "Failed to remove volume instant_es-data"
+    docker::service_destroy analytics-datastore-elastic-search
   fi
+
+  docker::remove_volume_retry es-data
 else
   log error "Valid options are: init, up, down, or destroy"
 fi
