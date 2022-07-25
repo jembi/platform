@@ -2,7 +2,8 @@
 
 readonly ACTION=$1
 readonly MODE=$2
-
+readonly JS_REPORT_INSTANCES=${JS_REPORT_INSTANCES:-1}
+export JS_REPORT_INSTANCES
 TIMESTAMP="$(date "+%Y%m%d%H%M%S")"
 readonly TIMESTAMP
 
@@ -19,15 +20,22 @@ ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 
 configure_nginx() {
   if [[ "${INSECURE}" == "true" ]]; then
-    docker config create --label name=nginx "${TIMESTAMP}-http-jsreport-insecure.conf" "${COMPOSE_FILE_PATH}/config/http-jsreport-insecure.conf"
+    try "docker config create --label name=nginx http-jsreport-insecure.conf ${COMPOSE_FILE_PATH}/config/http-jsreport-insecure.conf" "Failed to create nginx jsreport insecure config"
     log info "Updating nginx service: adding jsreport config file..."
-    try "docker service update --config-add source=${TIMESTAMP}-http-jsreport-insecure.conf,target=/etc/nginx/conf.d/http-jsreport-insecure.conf instant_reverse-proxy-nginx" "Error updating nginx service"
+    try "docker service update --config-add source=http-jsreport-insecure.conf,target=/etc/nginx/conf.d/http-jsreport-insecure.conf instant_reverse-proxy-nginx" "Error updating nginx service"
     log info "Done updating nginx service"
   else
-    try "docker config create --label name=nginx ${TIMESTAMP}-http-jsreport-secure.conf ${COMPOSE_FILE_PATH}/config/http-jsreport-secure.conf" "Failed to create secure jsreport nginx config"
+    try "docker config create --label name=nginx http-jsreport-secure.conf ${COMPOSE_FILE_PATH}/config/http-jsreport-secure.conf" "Failed to create secure jsreport nginx config"
     log info "Updating nginx service: adding jsreport config file..."
-    try "docker service update --config-add source=${TIMESTAMP}-http-jsreport-secure.conf,target=/etc/nginx/conf.d/http-jsreport-secure.conf instant_reverse-proxy-nginx" "Error updating nginx service"
+    try "docker service update --config-add source=http-jsreport-secure.conf,target=/etc/nginx/conf.d/http-jsreport-secure.conf instant_reverse-proxy-nginx" "Error updating nginx service"
     log info "Done updating nginx service"
+  fi
+}
+
+unbound_ES_HOSTS_check() {
+  if [[ ${STATEFUL_NODES} == "cluster" ]] && [[ -z ${ES_HOSTS:-""} ]]; then
+    log error "ES_HOSTS environment variable not set... Exiting"
+    exit 1
   fi
 }
 
@@ -53,6 +61,8 @@ main() {
   fi
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
+    unbound_ES_HOSTS_check
+
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $js_report_dev_compose_param $js_report_dev_mount_compose_param instant" "Failed to deploy JS Report"
 
     if [[ "${JS_REPORT_DEV_MOUNT}" != "true" ]]; then
@@ -73,6 +83,7 @@ main() {
     try "docker service scale instant_dashboard-visualiser-jsreport=0" "Failed to scale down dashboard-visualiser-jsreport"
   elif [[ "${ACTION}" == "destroy" ]]; then
     try "docker service rm instant_dashboard-visualiser-jsreport instant_jsreport-config-importer instant_await-helper" "Failed to destroy dashboard-visualiser-jsreport"
+    config::remove_service_nginx_config "http-jsreport-secure.conf" "http-jsreport-insecure.conf"
   else
     log error "Valid options are: init, up, down, or destroy"
   fi

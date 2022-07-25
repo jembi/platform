@@ -11,6 +11,13 @@ COMPOSE_FILE_PATH=$(
   pwd -P
 )
 
+inject_pipeline_elastic_hosts() {
+  ES_HOSTS=${ES_HOSTS:-"\"analytics-datastore-elastic-search:9200\""}
+  for file in "${COMPOSE_FILE_PATH}"/pipeline/*.conf; do
+    sed -i "s/\$ES_HOSTS/${ES_HOSTS}/g" "${file}"
+  done
+}
+
 # Import libraries
 ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/config-utils.sh"
@@ -38,6 +45,7 @@ else
 fi
 
 if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
+  inject_pipeline_elastic_hosts
 
   config::set_config_digests "${COMPOSE_FILE_PATH}"/docker-compose.yml
 
@@ -47,7 +55,7 @@ if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
   try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $LogstashDevComposeParam $LogstashDevMountComposeParam $LogstashTempComposeParam instant" "Failed to deploy Data Mapper Logstash"
 
   docker::await_container_startup data-mapper-logstash
-  docker::await_container_status data-mapper-logstash running
+  docker::await_container_status data-mapper-logstash Running
 
   config::remove_stale_service_configs "${COMPOSE_FILE_PATH}/docker-compose.yml" "logstash"
 

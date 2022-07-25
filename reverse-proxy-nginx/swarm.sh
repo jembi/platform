@@ -3,6 +3,8 @@
 # Constants
 readonly ACTION=$1
 readonly MODE=$2
+readonly REVERSE_PROXY_INSTANCES=${REVERSE_PROXY_INSTANCES:-1}
+export REVERSE_PROXY_INSTANCES
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
   pwd -P
@@ -31,7 +33,7 @@ main() {
       exit 0
     fi
 
-    docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.yml instant
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml instant" "Failed to deploy nginx"
 
     if [[ "${INSECURE}" == "true" ]]; then
       log info "Running reverse-proxy package in INSECURE mode"
@@ -48,23 +50,16 @@ main() {
           fi
         done
         log info "Updating nginx service with configured ports..."
-        if ! docker service update "${portsArray[@]}" instant_reverse-proxy-nginx >/dev/null; then
-          log error "Error updating nginx service."
-          exit 1
-        fi
+        try "docker service update ${portsArray[*]} instant_reverse-proxy-nginx" "Error updating nginx service."
+
         log info "Done updating nginx service"
       fi
 
-      docker config create --label name=nginx "${TIMESTAMPED_NGINX}" "${COMPOSE_FILE_PATH}"/config/nginx-temp-insecure.conf
+      try "docker config create --label name=nginx ${TIMESTAMPED_NGINX} ${COMPOSE_FILE_PATH}/config/nginx-temp-insecure.conf" "Failed to create nginx insecure config"
 
       log info "Updating nginx service: adding config file..."
-      if ! docker service update \
-        --config-add source="${TIMESTAMPED_NGINX}",target=/etc/nginx/nginx.conf \
-        instant_reverse-proxy-nginx \
-        >/dev/null; then
-        log error "Error updating nginx service"
-        exit 1
-      fi
+      try "docker service update --config-add source=${TIMESTAMPED_NGINX},target=/etc/nginx/nginx.conf instant_reverse-proxy-nginx" "Error updating nginx service"
+
       log info "Done updating nginx service"
     else
       log info "Running reverse-proxy package in SECURE mode"
@@ -78,24 +73,25 @@ main() {
 
       log info "Setting up Nginx reverse-proxy with the following domain name: ${DOMAIN_NAME}"
       #Generate dummy certificate
-      docker run --rm \
+      try "docker run --rm \
         --network host \
         --name letsencrypt \
-        -v "dummy-data-certbot-conf:/etc/letsencrypt/archive/${DOMAIN_NAME}" \
+        -v dummy-data-certbot-conf:/etc/letsencrypt/archive/${DOMAIN_NAME} \
         certbot/certbot:v1.23.0 certonly -n \
-        -m "${RENEWAL_EMAIL}" \
+        -m ${RENEWAL_EMAIL} \
         --staging \
-        "${domain_args[@]}" \
-        --standalone --agree-tos
+        ${domain_args[*]} \
+        --standalone --agree-tos" "Failed to create certificate network"
 
       docker run --rm --network host --name certbot-helper -w /temp \
         -v dummy-data-certbot-conf:/temp-certificates \
         -v instant:/temp busybox sh \
         -c "rm -rf certificates; mkdir certificates; cp -r /temp-certificates/* /temp/certificates"
-      docker volume rm dummy-data-certbot-conf
 
-      docker secret create --label name=nginx "${TIMESTAMP}-fullchain.pem" "/instant/certificates/fullchain1.pem"
-      docker secret create --label name=nginx "${TIMESTAMP}-privkey.pem" "/instant/certificates/privkey1.pem"
+      try "docker volume rm dummy-data-certbot-conf" "Failed to remove volume dummy-data-certbot-conf"
+
+      try "docker secret create --label name=nginx ${TIMESTAMP}-fullchain.pem /instant/certificates/fullchain1.pem" "Failed to create fullchain secret"
+      try "docker secret create --label name=nginx ${TIMESTAMP}-privkey.pem /instant/certificates/privkey1.pem" "Failed to create privkey1 secret"
 
       #Create copy of nginx-temp-secure.conf to ensure sed will always work correctly
       cp "${COMPOSE_FILE_PATH}"/config/nginx-temp-secure.conf "${COMPOSE_FILE_PATH}"/config/nginx.conf
@@ -105,54 +101,54 @@ main() {
       nginx_network_exists=$(docker network ls --filter name=cert-renewal-network --format '{{.Name}}')
       #Do not create docker network if it exists
       if [[ -z "${nginx_network_exists}" ]]; then
-        docker network create -d overlay --attachable cert-renewal-network
+        try "docker network create -d overlay --attachable cert-renewal-network" "Failed to create cert-renewal-network network"
       fi
 
       #Update nginx to use the dummy certificate
-      docker config create --label name=nginx "${TIMESTAMPED_NGINX}" "${COMPOSE_FILE_PATH}"/config/nginx.conf
+      try "docker config create --label name=nginx ${TIMESTAMPED_NGINX} ${COMPOSE_FILE_PATH}/config/nginx.conf" "Failed to create nginx config"
 
       log info "Updating nginx service: adding config for dummy certificates..."
-      if ! docker service update \
-        --config-add source="${TIMESTAMPED_NGINX}",target=/etc/nginx/nginx.conf \
-        --secret-add source="${TIMESTAMP}-fullchain.pem",target=/run/secrets/fullchain.pem \
-        --secret-add source="${TIMESTAMP}-privkey.pem",target=/run/secrets/privkey.pem \
+      try "docker service update \
+        --config-add source=${TIMESTAMPED_NGINX},target=/etc/nginx/nginx.conf \
+        --secret-add source=${TIMESTAMP}-fullchain.pem,target=/run/secrets/fullchain.pem \
+        --secret-add source=${TIMESTAMP}-privkey.pem,target=/run/secrets/privkey.pem \
         --network-add name=cert-renewal-network,alias=cert-renewal-network \
         --publish-add published=80,target=80 \
         --publish-add published=443,target=443 \
-        instant_reverse-proxy-nginx >/dev/null; then
-        log error "Error updating nginx service"
-        exit 1
-      fi
+        instant_reverse-proxy-nginx" "Error updating nginx service"
+
       log info "Done updating nginx service"
 
+      local staging_args=""
       if [ "${STAGING}" == "true" ]; then
-        local staging_args="--staging"
+        staging_args="--staging"
       fi
 
       #Generate real certificate
-      docker run --rm \
+      try "docker run --rm \
         -p 8083:80 \
         -p 8443:443 \
         --name certbot \
         --network cert-renewal-network \
-        -v "data-certbot-conf:/etc/letsencrypt/archive/${DOMAIN_NAME}" \
+        -v data-certbot-conf:/etc/letsencrypt/archive/${DOMAIN_NAME} \
         certbot/certbot:v1.23.0 certonly -n \
         --standalone \
         ${staging_args} \
-        -m "${RENEWAL_EMAIL}" \
-        "${domain_args[@]}" \
-        --agree-tos
+        -m ${RENEWAL_EMAIL} \
+        ${domain_args[*]} \
+        --agree-tos" "Failed to generate certificate"
 
-      docker run --rm --network host --name certbot-helper -w /temp \
+      try "docker run --rm --network host --name certbot-helper -w /temp \
         -v data-certbot-conf:/temp-certificates \
         -v instant:/temp busybox sh \
-        -c "rm -rf certificates; mkdir certificates; cp -r /temp-certificates/* /temp/certificates"
-      docker volume rm data-certbot-conf
+        -c \"rm -rf certificates; mkdir -p certificates; cp -r /temp-certificates/* /temp/certificates\"" "Failed to transfer certificate"
+
+      try "docker volume rm data-certbot-conf" "Failed to remove data-certbot-conf volume"
 
       local new_timestamp
       new_timestamp="$(date "+%Y%m%d%H%M%S")"
-      docker secret create --label name=nginx "${new_timestamp}-fullchain.pem" "/instant/certificates/fullchain1.pem"
-      docker secret create --label name=nginx "${new_timestamp}-privkey.pem" "/instant/certificates/privkey1.pem"
+      try "docker secret create --label name=nginx ${new_timestamp}-fullchain.pem /instant/certificates/fullchain1.pem" "Failed to create fullchain nginx secret"
+      try "docker secret create --label name=nginx ${new_timestamp}-privkey.pem /instant/certificates/privkey1.pem" "Failed to create privkey1 nginx secret"
 
       local curr_full_chain_name
       curr_full_chain_name=$(docker service inspect instant_reverse-proxy-nginx --format "{{(index .Spec.TaskTemplate.ContainerSpec.Secrets 0).SecretName}}")
@@ -160,51 +156,42 @@ main() {
       curr_priv_key_name=$(docker service inspect instant_reverse-proxy-nginx --format "{{(index .Spec.TaskTemplate.ContainerSpec.Secrets 1).SecretName}}")
 
       log info "Updating nginx service: adding secrets for generated certificates"
-      if ! docker service update \
-        --secret-rm "${curr_full_chain_name}" \
-        --secret-rm "${curr_priv_key_name}" \
-        --secret-add source="${new_timestamp}-fullchain.pem",target=/run/secrets/fullchain.pem \
-        --secret-add source="${new_timestamp}-privkey.pem",target=/run/secrets/privkey.pem \
-        instant_reverse-proxy-nginx >/dev/null; then
-        log error "Error updating nginx service"
-        exit 1
-      fi
+      try "docker service update \
+        --secret-rm ${curr_full_chain_name} \
+        --secret-rm ${curr_priv_key_name} \
+        --secret-add source=${new_timestamp}-fullchain.pem,target=/run/secrets/fullchain.pem \
+        --secret-add source=${new_timestamp}-privkey.pem,target=/run/secrets/privkey.pem \
+        instant_reverse-proxy-nginx" "Error updating nginx service"
       log info "Done updating nginx service"
 
       log info "Scaling up ofelia service..."
-      if ! docker service scale instant_ofelia=1 >/dev/null; then
-        log error "Error scaling up ofelia service"
-        exit 1
-      fi
-      log info "Done scaling up ofelia service"
+      try "docker service scale instant_ofelia=1" "Error scaling up ofelia service"
+      overwrite "Scaling up ofelia service... Done"
     fi
   elif [[ "${ACTION}" == "down" ]]; then
     log info "Scaling down services..."
-    if ! docker service scale instant_reverse-proxy-nginx=0 instant_ofelia=0 >/dev/null; then
-      log error "Error scaling down services"
-      exit 1
-    fi
+    try "docker service scale instant_reverse-proxy-nginx=0 instant_ofelia=0" "Error scaling down services"
     log info "Done scaling down services"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    docker service rm instant_reverse-proxy-nginx
-    docker service rm instant_ofelia
+    try "docker service rm instant_reverse-proxy-nginx" "Failed to remove instant_reverse-proxy-nginx"
+    try "docker service rm instant_ofelia" "Failed to remove instant_ofelia"
 
     mapfile -t nginx_secrets < <(docker secret ls -qf label=name=nginx)
     if [[ "${#nginx_secrets[@]}" -ne 0 ]]; then
-      docker secret rm "${nginx_secrets[@]}"
+      try "docker secret rm ${nginx_secrets[*]}" "Failed to remove nginx secrets"
     fi
 
     mapfile -t nginx_configs < <(docker config ls -qf label=name=nginx)
     if [[ "${#nginx_configs[@]}" -ne 0 ]]; then
-      docker config rm "${nginx_configs[@]}"
+      try "docker config rm ${nginx_configs[*]}" "Failed to remove nginx configs"
     fi
 
     mapfile -t nginx_network < <(docker network ls -qf name=cert-renewal-network)
     if [[ "${#nginx_network}" -ne 0 ]]; then
-      docker network rm "${nginx_network[@]}"
+      try "docker network rm ${nginx_network[*]}" "Failed to remove nginx networks"
     fi
 
-    docker volume rm renew-certbot-conf data-certbot-conf dummy-data-certbot-conf
+    try "docker volume rm renew-certbot-conf data-certbot-conf dummy-data-certbot-conf" "Failed to remove certbot volumes"
   else
     log error "Valid options are: init, up, down or destroy"
   fi

@@ -4,7 +4,8 @@
 readonly ACTION=$1
 readonly MODE=$2
 readonly STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
-
+readonly HAPI_FHIR_INSTANCES=${HAPI_FHIR_INSTANCES:-1}
+export HAPI_FHIR_INSTANCES
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
   pwd -P
@@ -14,7 +15,23 @@ readonly COMPOSE_FILE_PATH
 # Import libraries
 ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/config-utils.sh"
+. "${ROOT_PATH}/utils/docker-utils.sh"
 . "${ROOT_PATH}/utils/log.sh"
+
+await_postgres_start() {
+  log info "Waiting for Postgres to start up before HAPI-FHIR"
+
+  docker::await_container_startup postgres-1
+  docker::await_container_status postgres-1 Running
+
+  if [[ "$STATEFUL_NODES" == "cluster" ]]; then
+    docker::await_container_startup postgres-2
+    docker::await_container_status postgres-2 Running
+
+    docker::await_container_startup postgres-3
+    docker::await_container_status postgres-3 Running
+  fi
+}
 
 if [ "${STATEFUL_NODES}" == "cluster" ]; then
   log info "Running FHIR Datastore HAPI FHIR package in Cluster node mode"
@@ -37,15 +54,13 @@ fi
 if [ "${ACTION}" == "init" ]; then
   try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose-postgres.yml $postgresClusterComposeParam $postgresDevComposeParam instant" "Failed to deploy FHIR Datastore HAPI FHIR Postgres"
 
-  log info "Sleep 60 seconds to give Postgres time to start up before HAPI-FHIR"
-  sleep 60
+  await_postgres_start
 
   try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $hapiFhirDevComposeParam instant" "Failed to deploy FHIR Datastore HAPI FHIR"
 elif [ "${ACTION}" == "up" ]; then
   try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose-postgres.yml $postgresClusterComposeParam $postgresDevComposeParam instant" "Failed to stand up hapi-fhir postgres"
 
-  log info "Sleep 20 seconds to give Postgres time to start up before HAPI-FHIR"
-  sleep 20
+  await_postgres_start
 
   try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $hapiFhirDevComposeParam instant" "Failed to stand up hapi-fhir"
 elif [ "${ACTION}" == "down" ]; then

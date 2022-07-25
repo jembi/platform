@@ -7,10 +7,10 @@ readonly STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
 readonly OPENHIM_CORE_MEDIATOR_HOSTNAME=${OPENHIM_CORE_MEDIATOR_HOSTNAME:-"localhost"}
 readonly OPENHIM_MEDIATOR_API_PORT=${OPENHIM_MEDIATOR_API_PORT:-"8080"}
 readonly OPENHIM_CORE_INSTANCES=${OPENHIM_CORE_INSTANCES:-1}
+readonly OPENHIM_CONSOLE_INSTANCES=${OPENHIM_CONSOLE_INSTANCES:-1}
+export OPENHIM_CORE_INSTANCES
+export OPENHIM_CONSOLE_INSTANCES
 readonly MONGO_SET_COUNT=${MONGO_SET_COUNT:-3}
-
-TIMESTAMP="$(date "+%Y%m%d%H%M%S")"
-readonly TIMESTAMP
 
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
@@ -21,6 +21,7 @@ readonly COMPOSE_FILE_PATH
 # Import libraries
 ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/config-utils.sh"
+. "${ROOT_PATH}/utils/docker-utils.sh"
 . "${ROOT_PATH}/utils/log.sh"
 
 verify_core() {
@@ -94,15 +95,15 @@ prepare_console_config() {
 
 configure_nginx() {
   if [[ "${INSECURE}" == "true" ]]; then
-    try "docker config create --label name=nginx ${TIMESTAMP}-http-openhim-insecure.conf ${COMPOSE_FILE_PATH}/config/http-openhim-insecure.conf" "Failed to add openhim nginx insecure config"
-    try "docker config create --label name=nginx ${TIMESTAMP}-stream-openhim-insecure.conf ${COMPOSE_FILE_PATH}/config/stream-openhim-insecure.conf" "Failed to add openhim nginx insecure config"
+    try "docker config create --label name=nginx http-openhim-insecure.conf ${COMPOSE_FILE_PATH}/config/http-openhim-insecure.conf" "Failed to add openhim nginx insecure config"
+    try "docker config create --label name=nginx stream-openhim-insecure.conf ${COMPOSE_FILE_PATH}/config/stream-openhim-insecure.conf" "Failed to add openhim nginx insecure config"
     log info "Updating nginx service: adding openhim config file..."
-    try "docker service update --config-add source=${TIMESTAMP}-http-openhim-insecure.conf,target=/etc/nginx/conf.d/http-openhim-insecure.conf --config-add source=${TIMESTAMP}-stream-openhim-insecure.conf,target=/etc/nginx/conf.d/stream-openhim-insecure.conf instant_reverse-proxy-nginx" "Error updating nginx service"
+    try "docker service update --config-add source=http-openhim-insecure.conf,target=/etc/nginx/conf.d/http-openhim-insecure.conf --config-add source=stream-openhim-insecure.conf,target=/etc/nginx/conf.d/stream-openhim-insecure.conf instant_reverse-proxy-nginx" "Error updating nginx service"
     log info "Done updating nginx service"
   else
-    try "docker config create --label name=nginx ${TIMESTAMP}-http-openhim-secure.conf ${COMPOSE_FILE_PATH}/config/http-openhim-secure.conf" "Failed to add openhim nginx secure config"
+    try "docker config create --label name=nginx http-openhim-secure.conf ${COMPOSE_FILE_PATH}/config/http-openhim-secure.conf" "Failed to add openhim nginx secure config"
     log info "Updating nginx service: adding openhim config file..."
-    try "docker service update --config-add source=${TIMESTAMP}-http-openhim-secure.conf,target=/etc/nginx/conf.d/http-openhim-secure.conf instant_reverse-proxy-nginx" "Error updating nginx service"
+    try "docker service update --config-add source=http-openhim-secure.conf,target=/etc/nginx/conf.d/http-openhim-secure.conf instant_reverse-proxy-nginx" "Error updating nginx service"
     log info "Done updating nginx service"
   fi
 }
@@ -110,53 +111,50 @@ configure_nginx() {
 main() {
   if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
     log info "Running Interoperability Layer OpenHIM package in Cluster node mode"
-    mongo_cluster_compose_param=(-c "${COMPOSE_FILE_PATH}"/docker-compose-mongo.cluster.yml)
+    mongo_cluster_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose-mongo.cluster.yml"
   else
     log info "Running Interoperability Layer OpenHIM package in Single node mode"
-    mongo_cluster_compose_param=()
+    mongo_cluster_compose_param=""
   fi
 
   if [[ "${MODE}" == "dev" ]]; then
     log info "Running Interoperability Layer OpenHIM package in DEV mode"
-    local mongo_dev_compose_param=(-c "${COMPOSE_FILE_PATH}"/docker-compose-mongo.dev.yml)
-    local openhim_dev_compose_param=(-c "${COMPOSE_FILE_PATH}"/docker-compose.dev.yml)
+    local mongo_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose-mongo.dev.yml"
+    local openhim_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
   else
     log info "Running Interoperability Layer OpenHIM package in PROD mode"
-    local mongo_dev_compose_param=()
-    local openhim_dev_compose_param=()
+    local mongo_dev_compose_param=""
+    local openhim_dev_compose_param=""
   fi
 
   if [[ "${ACTION}" == "init" ]]; then
-    config::set_config_digests "$COMPOSE_FILE_PATH"/docker-compose.yml
-    config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
+    config::set_config_digests "${COMPOSE_FILE_PATH}"/docker-compose.yml
+    config::set_config_digests "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml
 
-    docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose-mongo.yml "${mongo_cluster_compose_param[@]}" "${mongo_dev_compose_param[@]}" instant
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose-mongo.yml $mongo_cluster_compose_param $mongo_dev_compose_param instant" "Failed to deploy mongo"
 
     if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
-
-      # Set up the replica set
       try "${COMPOSE_FILE_PATH}/initiateReplicaSet.sh" "Fatal: Initate Mongo replica set failed."
-
     fi
 
     prepare_console_config
 
-    docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.yml -c "${COMPOSE_FILE_PATH}"/docker-compose.stack-0.yml "${openhim_dev_compose_param[@]}" instant
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml -c ${COMPOSE_FILE_PATH}/docker-compose.stack-0.yml $openhim_dev_compose_param instant" "Failed to create stack-0 openhim core/console"
 
-    docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml instant
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.await-helper.yml instant" "Failed to deploy await-helper"
 
     log info "Waiting to give OpenHIM Core time to start up before OpenHIM Console run"
     verify_core
 
-    docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.yml -c "${COMPOSE_FILE_PATH}"/docker-compose.stack-1.yml "${openhim_dev_compose_param[@]}" instant
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml -c ${COMPOSE_FILE_PATH}/docker-compose.stack-1.yml $openhim_dev_compose_param instant" "Failed to create stack-1 openhim core/console"
 
-    docker stack deploy -c "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml instant
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to deploy config importer"
 
     log info "Waiting to give core config importer time to run before cleaning up service"
     remove_config_importer
 
-    # Sleep to ensure config importer is removed
-    sleep 5
+    # Ensure config importer is removed
+    config::await_service_removed instant_interoperability-layer-openhim-config-importer
 
     log info "Removing stale configs..."
     config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "openhim"
@@ -169,11 +167,11 @@ main() {
     config::set_config_digests "$COMPOSE_FILE_PATH"/docker-compose.yml
     config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
 
-    docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose-mongo.yml "${mongo_cluster_compose_param[@]}" "${mongo_dev_compose_param[@]}" instant
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose-mongo.yml $mongo_cluster_compose_param $mongo_dev_compose_param instant" "Failed to deploy mongo"
     verify_mongos
     prepare_console_config
 
-    docker stack deploy -c "${COMPOSE_FILE_PATH}"/docker-compose.yml -c "${COMPOSE_FILE_PATH}"/docker-compose.stack-1.yml "${openhim_dev_compose_param[@]}" instant
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml -c ${COMPOSE_FILE_PATH}/docker-compose.stack-1.yml $openhim_dev_compose_param instant" "Failed to create stack-1 openhim core/console"
 
     log info "Removing stale configs..."
     config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "openhim"
@@ -184,18 +182,14 @@ main() {
     fi
   elif [[ "${ACTION}" == "down" ]]; then
     log info "Scaling down services..."
-    if ! docker service scale instant_openhim-core=0 instant_openhim-console=0 instant_mongo-1=0 >/dev/null; then
-      log error "Error scaling down services"
-    fi
+    try "docker service scale instant_openhim-core=0 instant_openhim-console=0 instant_mongo-1=0" "Error scaling down services"
 
     if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
-      if ! docker service scale instant_mongo-2=0 instant_mongo-3=0 >/dev/null; then
-        log error "Error scaling down services"
-      fi
+      try "docker service scale instant_mongo-2=0 instant_mongo-3=0" "Error scaling down services"
     fi
     log info "Done scaling down services"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    docker service rm instant_openhim-core instant_openhim-console instant_mongo-1 instant_await-helper instant_interoperability-layer-openhim-config-importer &>/dev/null
+    try "docker service rm instant_openhim-core instant_openhim-console instant_mongo-1 instant_await-helper instant_interoperability-layer-openhim-config-importer" "Failed to remove interoperability-layer-openhim"
 
     config::await_service_removed instant_openhim-core
     config::await_service_removed instant_openhim-console
@@ -203,22 +197,24 @@ main() {
     config::await_service_removed instant_await-helper
     config::await_service_removed instant_interoperability-layer-openhim-config-importer
 
-    docker volume rm instant_openhim-mongo1 &>/dev/null
+    try "docker volume rm instant_openhim-mongo1" "Failed to remove openhim-mongo1 volume"
 
     # shellcheck disable=SC2046 # intentional word splitting
-    docker config rm $(docker config ls -qf label=name=openhim) &>/dev/null
+    try "docker config rm $(docker config ls -qf label=name=openhim)" "Failed to remove configs"
 
     if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
       log info "Volumes are only deleted on the host on which the command is run. Mongo volumes on other nodes are not deleted"
 
-      docker service rm instant_mongo-2 instant_mongo-3 &>/dev/null
+      try "docker service rm instant_mongo-2 instant_mongo-3" "Failed to remove mongo cluster"
       config::await_service_removed instant_mongo-2
       config::await_service_removed instant_mongo-3
-      docker volume rm instant_openhim-mongo2 instant_openhim-mongo3 &>/dev/null
+      try "docker volume rm instant_openhim-mongo2 instant_openhim-mongo3" "Failed to remove mongo volumes"
 
       # shellcheck disable=SC2046 # intentional word splitting
-      docker config rm $(docker config ls -qf label=name=openhim) &>/dev/null
+      try "docker config rm $(docker config ls -qf label=name=openhim)" "Failed to remove openhim configs"
     fi
+
+    config::remove_service_nginx_config "http-openhim-secure.conf" "http-openhim-insecure.conf" "stream-openhim-insecure.conf"
 
   else
     log error "Valid options are: init, up, down, or destroy"
