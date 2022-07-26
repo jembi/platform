@@ -1,0 +1,16 @@
+{
+  "name": "platform-test",
+  "version": "1.0.0",
+  "description": "A package to test the platform",
+  "scripts": {
+    "test": "cucumber-js",
+    "test:all": "npm run test package/**/*"
+  },
+  "devDependencies": {
+    "@cucumber/cucumber": "8.5.0",
+    "chai": "^4.3.6",
+    "chai-arrays": "^2.2.0",
+    "chai-things": "^0.2.0",
+    "dockerode": "^3.3.2"
+  }
+}
