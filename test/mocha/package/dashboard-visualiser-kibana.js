@@ -19,7 +19,7 @@ describe("dashboard-visualiser-kibana", function () {
 
     before(async function () {
       const { stderr } = await execPromise(
-        "cd ../ && ./platform-linux init dashboard-visualiser-kibana --dev --env-file=.env.test"
+        "cd ../../ && ./platform-linux init dashboard-visualiser-kibana --dev --env-file=.env.test"
       );
       if (stderr) console.log("stderr", stderr);
     });
@@ -39,10 +39,6 @@ describe("dashboard-visualiser-kibana", function () {
         label:
           "com.docker.swarm.service.name=instant_dashboard-visualiser-kibana",
       });
-      console.log(
-        "🚀 ~ file: dashboard-visualiser-kibana.js ~ line 40 ~ containers",
-        containers
-      );
       expect(containers).to.be.array();
       expect(containers).to.have.lengthOf(1);
       containers.should.all.satisfy((container) =>
@@ -56,14 +52,16 @@ describe("dashboard-visualiser-kibana", function () {
 
     before(async function () {
       const { stderr, stdout } = await execPromise(
-        "cd ../ && ./platform-linux destroy dashboard-visualiser-kibana --dev --env-file=.env.test"
+        "cd ../../ && ./platform-linux destroy dashboard-visualiser-kibana --dev --env-file=.env.test"
       );
       if (stderr) console.log("stderr", stderr);
     });
 
     it("should have removed the kibana service", async function () {
       const services = await docker.listServices({
-        name: "instant_dashboard-visualiser-kibana",
+        Filters: {
+          name: "instant_dashboard-visualiser-kibana",
+        },
       });
       expect(services).to.be.array();
       expect(services).to.be.empty;

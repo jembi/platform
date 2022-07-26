@@ -19,7 +19,7 @@ describe("analytics-datastore-elastic-search", function () {
 
     before(async function () {
       const { stderr } = await execPromise(
-        "cd ../ && ./platform-linux init analytics-datastore-elastic-search --dev --env-file=.env.test"
+        "cd ../../ && ./platform-linux init analytics-datastore-elastic-search --dev --env-file=.env.test"
       );
       if (stderr) console.log("stderr", stderr);
     });
@@ -56,7 +56,7 @@ describe("analytics-datastore-elastic-search", function () {
 
     before(async function () {
       const { stderr, stdout } = await execPromise(
-        "cd ../ && ./platform-linux destroy analytics-datastore-elastic-search --dev --env-file=.env.test"
+        "cd ../../ && ./platform-linux destroy analytics-datastore-elastic-search --dev --env-file=.env.test"
       );
       if (stderr) console.log("stderr", stderr);
     });
