@@ -4,24 +4,27 @@ defaultTargetLauncher: swarm
 disableKubernetes: true
 disableIG: true
 disableCustomTargetSelection: true
+logPath: /tmp/logs
 packages:
-    - id: interoperability-layer-openhim
-      name: Interoperability Layer - OpenHIM
-    - id: reverse-proxy-nginx
-      name: Reverse Proxy - NGINX
-    - id: fhir-datastore-hapi-fhir
-      name: FHIR Data Store - HAPI-FHIR
-    - id: message-bus-kafka
-      name: Message Bus - Kafka
-    - id: analytics-datastore-elastic-search
-      name: Analytics Datastore - ElasticSearch
-    - id: dashboard-visualiser-kibana
-      name: Dashboard Visualiser - Kibana
-    - id: data-mapper-logstash
-      name: Data Mapper - Logstash
-    - id: elastic-monitoring-metricbeats-filebeats
-      name: Elastic Monitoring - MetricBeats and FileBeats
-    - id: system-monitoring-prometheus-grafana
-      name: System Monitoring - Prometheus and Grafana
-    - id: dashboard-visualiser-jsreport
-      name: Dashboard Visualiser - JS Reports
+  - id: interoperability-layer-openhim
+    name: Interoperability Layer - OpenHIM
+  - id: reverse-proxy-nginx
+    name: Reverse Proxy - NGINX
+  - id: fhir-datastore-hapi-fhir
+    name: FHIR Data Store - HAPI-FHIR
+  - id: message-bus-kafka
+    name: Message Bus - Kafka
+  - id: analytics-datastore-elastic-search
+    name: Analytics Datastore - ElasticSearch
+  - id: dashboard-visualiser-kibana
+    name: Dashboard Visualiser - Kibana
+  - id: data-mapper-logstash
+    name: Data Mapper - Logstash
+  - id: dashboard-visualiser-jsreport
+    name: Dashboard Visualiser - JS Reports
+  - id: client-registry-santempi
+    name: Client Registry - SanteMPI
+  - id: fhir-datastore-helper-hapi-fhir
+    name: FHIR IG importer
+  - id: message-bus-helper-hapi-proxy
+    name: Message Bus Helper - HAPI Proxy to Kafka

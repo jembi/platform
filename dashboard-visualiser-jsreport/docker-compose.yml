@@ -2,11 +2,17 @@ version: '3.9'
 
 services:
   dashboard-visualiser-jsreport:
-    image: jsreport/jsreport:3.4.1
+    image: jsreport/jsreport:3.2.0
     deploy:
+<<<<<<< HEAD
       # placement:
       #   max_replicas_per_node: 1
       replicas: ${JS_REPORT_INSTANCES:-1}
+=======
+      placement:
+        max_replicas_per_node: 1
+      replicas: ${JS_REPORT_INSTANCES}
+>>>>>>> main
       resources:
         limits:
           cpus: ${JS_REPORT_CPU_LIMIT:-0.8}
@@ -25,3 +31,5 @@ services:
       extensions_authentication_admin_username: 'admin'
       extensions_authentication_admin_password: ${JS_REPORT:-dev_password_only}
       ES_PASSWORD: ${ES_ELASTIC:-dev_password_only}
+      licenseKey: ${JS_REPORT_LICENSE_KEY}
+      ES_HOSTS: ${ES_HOSTS:-analytics-datastore-elastic-search:9200}

@@ -1,0 +1,124 @@
+name: platform-e2e-tests
+on:
+  pull_request:
+    types: [ready_for_review]
+  push:
+    tags:
+      - "*"
+  workflow_dispatch:
+    inputs:
+      debug_enabled:
+        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'     
+        required: false
+        default: false
+jobs:
+  provision-e2e-server:
+    runs-on: ubuntu-20.04
+    timeout-minutes: 15
+    env:
+      TF_VAR_PROJECT_NAME: platform-e2e-tests-${{ github.run_id }}
+      TF_VAR_INSTANCE_COUNT: 1
+      TF_VAR_PUBLIC_KEY_PATH: key.pub
+      TF_VAR_HOSTED_ZONE_ID: Z00782582NSP6D0VHBCMI
+      TF_VAR_DOMAIN_NAME: ${{ github.run_id }}.jembi.cloud
+      TF_VAR_INSTANCE_TYPE: r5.2xlarge
+      TF_VAR_SUBNET_ID: subnet-0004b0dacb5862d59
+      TF_VAR_VPC_ID: vpc-067ab69f374ac9f47
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    defaults:
+      run:
+        working-directory: ./infrastructure/terraform
+    steps:
+      - uses: actions/checkout@v3
+      - uses: hashicorp/setup-terraform@v2
+      - run: 'pwd && echo "$SSH_KEY" > key.pub'
+        shell: bash
+        env:
+          SSH_KEY: ${{ secrets.DEPLOY_KEY_PUB }}
+      - run: terraform init
+      - run: terraform apply -auto-approve
+      - name: Upload terraform state
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: tfstate
+          path: infrastructure/terraform/terraform.tfstate
+  configure-e2e-server:
+    runs-on: ubuntu-20.04
+    needs: provision-e2e-server
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run playbook
+        uses: dawidd6/action-ansible-playbook@v2
+        with:
+          playbook: playbooks/provision.yml
+          directory: ./infrastructure/ansible
+          key: ${{ secrets.DEPLOY_KEY }}
+          vault_password: ${{ secrets.VAULT_PASSWORD }}
+          inventory: |
+            [leader]
+            ${{ github.run_id }}.jembi.cloud name=node-1
+
+            [managers]
+
+            [workers]
+          options: |
+            --become
+            --user=ubuntu
+            --extra-vars @./inventories/development/group_vars/all.yml
+  launch-platform:
+    runs-on: ubuntu-20.04
+    needs: configure-e2e-server
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v3
+      - run: ./get-cli.sh linux
+      - run: ./build-image.sh
+      - run: sudo sh -c 'echo "    ServerAliveInterval 30" >> /etc/ssh/ssh_config'
+      - run: sudo sh -c 'echo "    ServerAliveCountMax 999" >> /etc/ssh/ssh_config'
+      - run: sudo service ssh restart
+      - uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+      - run: ssh-keyscan -H ${{ github.run_id }}.jembi.cloud >> ~/.ssh/known_hosts
+      - run: ./remote-img-load.sh ${{ github.run_id }}.jembi.cloud
+      - run: sed -i 's/OPENHIM_CORE_MEDIATOR_HOSTNAME=localhost/OPENHIM_CORE_MEDIATOR_HOSTNAME=openhimcomms.domain/g' .env.local
+      - run: sed -i 's/OPENHIM_MEDIATOR_API_PORT=8080/OPENHIM_MEDIATOR_API_PORT=443/g' .env.local
+      - run: sed -i 's/INSECURE=true/INSECURE=false/g' .env.local
+      - run: sed -i 's/domain/${{ github.run_id }}.jembi.cloud/g' .env.local
+      - run: DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud ./platform-linux --env-file=.env.local init
+  destroy-e2e-server:
+    runs-on: ubuntu-20.04
+    if: always()
+    needs: [provision-e2e-server, configure-e2e-server, launch-platform]
+    timeout-minutes: 15
+    env:
+      TF_VAR_PROJECT_NAME: platform-e2e-tests-${{ github.run_id }}
+      TF_VAR_INSTANCE_COUNT: 1
+      TF_VAR_PUBLIC_KEY_PATH: key.pub
+      TF_VAR_HOSTED_ZONE_ID: Z00782582NSP6D0VHBCMI
+      TF_VAR_DOMAIN_NAME: ${{ github.run_id }}.jembi.cloud
+      TF_VAR_INSTANCE_TYPE: r5.2xlarge
+      TF_VAR_SUBNET_ID: subnet-0004b0dacb5862d59
+      TF_VAR_VPC_ID: vpc-067ab69f374ac9f47
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    defaults:
+      run:
+        working-directory: ./infrastructure/terraform
+    steps:
+      - uses: actions/checkout@v3
+      - uses: hashicorp/setup-terraform@v2
+      - run: 'echo "$SSH_KEY" > key.pub'
+        shell: bash
+        env:
+          SSH_KEY: ${{secrets.DEPLOY_KEY_PUB}}
+      - name: Download terraform state
+        uses: actions/download-artifact@v3
+        with:
+          name: tfstate
+          path: infrastructure/terraform/
+      - run: terraform init
+      - run: terraform destroy -auto-approve

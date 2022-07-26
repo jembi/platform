@@ -25,12 +25,18 @@ get-cli.sh
 .env.*
 .github/
 .gitignore
+.git
 
 README.md
 
 ansible/
 
 # Go CLI Conf
-
 banner.txt
 config.yml
+
+# Infrastructure code
+infrastructure
+
+# Schemas
+schemas

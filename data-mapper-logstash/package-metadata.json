@@ -3,16 +3,14 @@
   "name": "Data Mapper Logstash",
   "description": "Generic Logstash pipeline",
   "type": "infrastructure",
-  "version": "v0.0.1",
+  "version": "0.0.1",
   "dependencies": ["analytics-datastore-elastic-search"],
   "environmentVariables": {
-    "ES_ELASTIC": "${ES_ELASTIC}",
+    "ES_ELASTIC": "dev_password_only",
     "LS_JAVA_OPTS": "-Xmx2g -Xms2g",
     "LOGSTASH_DEV_MOUNT": "false",
     "LOGSTASH_PACKAGE_PATH": "",
     "LOGSTASH_MEMORY_LIMIT": "3G",
     "LOGSTASH_MEMORY_RESERVE": "500M"
-  },
-  "sharedConfigs": ["pipeline"]
-
+  }
 }

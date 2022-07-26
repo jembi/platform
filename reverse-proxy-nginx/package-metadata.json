@@ -3,12 +3,13 @@
   "name": "Nginx Reverse Proxy package",
   "description": "nginx reverse proxy",
   "type": "use-case",
-  "version": "v0.0.1",
+  "version": "0.0.1",
   "dependencies": [],
   "environment": {
     "NGINX_CPU_LIMIT": "0.8",
     "NGINX_CPU_RESERVE": "0.05",
     "NGINX_MEMORY_LIMIT": "3G",
-    "NGINX_MEMORY_RESERVE": "500M"
+    "NGINX_MEMORY_RESERVE": "500M",
+    "REVERSE_PROXY_INSTANCES": "1"
   }
 }

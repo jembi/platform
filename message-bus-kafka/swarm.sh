@@ -1,54 +1,78 @@
 #!/bin/bash
 
-statefulNodes=${STATEFUL_NODES:-"cluster"}
+STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
 
-composeFilePath=$(
-  cd "$(dirname "${BASH_SOURCE[0]}")"
+COMPOSE_FILE_PATH=$(
+  cd "$(dirname "${BASH_SOURCE[0]}")" || exit
   pwd -P
 )
 
-if [[ $statefulNodes == "cluster" ]]; then
-  printf "\nRunning Message Bus Kafka package in Cluster node mode\n"
-  kafkaClusterComposeParam="-c ${composeFilePath}/docker-compose.cluster.yml"
+# Import libraries
+ROOT_PATH="${COMPOSE_FILE_PATH}/.."
+. "${ROOT_PATH}/utils/config-utils.sh"
+. "${ROOT_PATH}/utils/docker-utils.sh"
+. "${ROOT_PATH}/utils/log.sh"
+
+readonly KAFKA_INSTANCES=${KAFKA_INSTANCES:-1}
+export KAFKA_INSTANCES
+
+if [[ $STATEFUL_NODES == "cluster" ]]; then
+  log info "Running Message Bus Kafka package in Cluster node mode"
+  kafkaClusterComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.cluster.yml"
 else
-  printf "\nRunning Message Bus Kafka package in Single node mode\n"
+  log info "Running Message Bus Kafka package in Single node mode"
   kafkaClusterComposeParam=""
 fi
 
 if [[ $2 == "dev" ]]; then
-  printf "\nRunning Message Bus Kafka package in DEV mode\n"
-  kafkaDevComposeParam="-c ${composeFilePath}/docker-compose.dev.yml"
+  log info "Running Message Bus Kafka package in DEV mode"
+  kafkaDevComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
 else
-  printf "\nRunning Message Bus Kafka package in PROD mode\n"
+  log info "Running Message Bus Kafka package in PROD mode"
   kafkaDevComposeParam=""
 fi
 
-if [[ $1 == "init" ]]; then
-  docker stack deploy -c "$composeFilePath"/docker-compose.yml $kafkaClusterComposeParam $kafkaDevComposeParam instant
-elif [[ $1 == "up" ]]; then
-  docker stack deploy -c "$composeFilePath"/docker-compose.yml $kafkaClusterComposeParam $kafkaDevComposeParam instant
+if [[ $1 == "init" ]] || [[ $1 == "up" ]]; then
+  config::set_config_digests "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml
+
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $kafkaClusterComposeParam $kafkaDevComposeParam instant" "Failed to deploy Message Bus Kafka"
+
+  config::await_service_running "kafka" "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml "${KAFKA_INSTANCES}"
+
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to deploy Message Bus Kafka"
+
+  config::remove_stale_service_configs "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml "ethiopia"
+  config::remove_config_importer message-bus-kafka-config-importer
 elif [[ $1 == "down" ]]; then
-  docker service scale instant_zookeeper-1=0 instant_kafdrop=0
+  try "docker service scale instant_zookeeper-1=0 instant_kafdrop=0" "Failed to scale down zookeeper and kafdrop"
   # You cannot scale a global service so we have to remove it
-  docker service rm instant_kafka
-  if [[ $statefulNodes == "cluster" ]]; then
-    docker service scale instant_zookeeper-2=0
-    docker service scale instant_zookeeper-3=0
+  try "docker service rm instant_kafka" "Failed to remove kafka"
+  if [[ $STATEFUL_NODES == "cluster" ]]; then
+    try "docker service scale instant_zookeeper-2=0" "Failed to scale down zookeeper cluster"
+    try "docker service scale instant_zookeeper-3=0" "Failed to scale down zookeeper cluster"
   fi
 elif [[ $1 == "destroy" ]]; then
-  docker service rm instant_zookeeper-1 instant_kafka instant_kafdrop
+  log info "Allow services to shut down before deleting volumes"
 
-  echo "Sleep 20 Seconds to allow services to shut down before deleting volumes"
-  sleep 20
+  docker::service_destroy zookeeper-1
+  docker::service_destroy kafka
+  docker::service_destroy kafdrop
 
-  docker volume rm instant_kafka-volume
-  docker volume rm instant_zookeeper-1-volume
+  docker::try_remove_volume zookeeper-1-volume
+  docker::try_remove_volume kafka-volume
 
-  if [[ $statefulNodes == "cluster" ]]; then
-    docker service rm instant_zookeeper-2
-    docker service rm instant_zookeeper-3
-    echo "Volumes are only deleted on the host on which the command is run. Kafka volumes on other nodes are not deleted"
+  if [[ $STATEFUL_NODES == "cluster" ]]; then
+    docker::service_destroy zookeeper-2
+    docker::service_destroy zookeeper-3
+
+    docker::try_remove_volume zookeeper-2-volume
+    docker::try_remove_volume zookeeper-3-volume
+    log notice "Volumes are only deleted on the host on which the command is run. Kafka volumes on other nodes are not deleted"
+  fi
+
+  if ! docker service rm instant_message-bus-kafka-config-importer; then
+    log warn "message-bus-kafka-config-importer not removed... it's possible the service has already been removed"
   fi
 else
-  echo "Valid options are: init, up, down, or destroy"
+  log error "Valid options are: init, up, down, or destroy"
 fi

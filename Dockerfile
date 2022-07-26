@@ -1,4 +1,4 @@
-FROM openhie/package-base:0.1.0
+FROM openhie/package-base:0.3.0
 
 ADD . .
 
@@ -8,4 +8,4 @@ RUN chmod +x /usr/bin/yq
 
 # Install jq
 
-RUN apt install jq -y &>/dev/null
+RUN apt-get install jq -y 1>/dev/null

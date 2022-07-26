@@ -4,7 +4,7 @@ services:
   hapi-fhir:
     image: hapiproject/hapi:v5.7.0
     environment:
-      - spring.datasource.url=jdbc:postgresql://${POSTGRES_REPLICA_SET:-postgres-1:5432,postgres-2:5432,postgres-3:5432}/hapi
+      - spring.datasource.url=jdbc:postgresql://${POSTGRES_REPLICA_SET:-postgres-1:5432}/hapi
       - spring.datasource.username=admin
       - spring.datasource.password=instant101
       - spring.datasource.driverClassName=org.postgresql.Driver
@@ -15,7 +15,7 @@ services:
       - JAVA_TOOL_OPTIONS=-Xmx2g
       - CATALINA_OPTS=-Xmx2g
     deploy:
-      replicas: ${HAPI_FHIR_INSTANCES:-1}
+      replicas: ${HAPI_FHIR_INSTANCES}
       resources:
         limits:
           cpus: ${HAPI_FHIR_CPU_LIMIT:-0.8}

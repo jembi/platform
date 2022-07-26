@@ -24,6 +24,6 @@ services:
 
   openhim-console:
     ports:
-        - target: 80
-          published: 9000
-          mode: host
+      - target: 80
+        published: 9000
+        mode: host
