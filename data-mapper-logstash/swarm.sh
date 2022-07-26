@@ -68,6 +68,9 @@ if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
 
   config::remove_stale_service_configs "${COMPOSE_FILE_PATH}/docker-compose.yml" "logstash"
 
+  # shellcheck disable=SC2046
+  docker config rm $(docker config ls -q) &>/dev/null
+
   log info "Done"
 elif [[ "${ACTION}" == "down" ]]; then
   try "docker service scale instant_data-mapper-logstash=0" "Failed to scale down data-mapper-logstash"
