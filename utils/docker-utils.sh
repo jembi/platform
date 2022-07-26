@@ -100,7 +100,7 @@ docker::service_destroy() {
 # Arguments:
 # - $1 : volume name (eg. es-data)
 #
-docker::remove_volume_retry() {
+docker::try_remove_volume() {
     local -r VOLUME_NAME=${1:?"FATAL: remove_volume_retry VOLUME_NAME not provided"}
 
     log info "Waiting for volume ${VOLUME_NAME} to be removed..."
