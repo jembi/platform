@@ -7,8 +7,8 @@ services:
       restart_policy:
         condition: none
     environment:
-      KAFDROP_HOST: ${KAFDROP_HOST:-kafdrop}
-      KAFDROP_PORT: ${KAFDROP_PORT:-9013}
+      KAFDROP_HOST: kafdrop
+      KAFDROP_PORT: 9013
       KAFKA_PARTITIONS: ${KAFKA_PARTITIONS:-3}
       KAFKA_TOPICS: ${KAFKA_TOPICS}
     command: sh -c "wait-on -t 60000 http-get://kafdrop:9013/topic && node /kafka.js && echo 'success';"
