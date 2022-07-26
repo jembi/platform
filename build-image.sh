@@ -3,7 +3,6 @@
 packages=(
     "dashboard-visualiser-jsreport"
     # "analytics-datastore-elastic-search"
-    # "dashboard-visualiser-kibana"
 )
 
 build_go_binary() {
