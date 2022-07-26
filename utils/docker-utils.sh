@@ -80,7 +80,7 @@ docker::await_service_destroy() {
     overwrite "Waiting for ${SERVICE_NAME} to be destroyed... Done"
 }
 
-# Waits for a service to be destroyed
+# Waits for a service's containers to be destroyed
 #
 # Arguments:
 # - $1 : service name (eg. analytics-datastore-elastic-search)
@@ -99,6 +99,8 @@ docker::await_service_containers_destroy() {
 }
 
 # Removes a services containers then the service itself
+# This was created to aid in removing volumes,
+# since volumes being removed were still attached to some lingering containers after container remove
 #
 # Arguments:
 # - $1 : service name (eg. analytics-datastore-elastic-search)
@@ -112,7 +114,7 @@ docker::service_destroy() {
     docker::await_service_destroy "${SERVICE_NAME}"
 }
 
-# Waits for a service to be destroyed
+# Tries to remove a volume and retries until it works with a timeout
 #
 # Arguments:
 # - $1 : volume name (eg. es-data)
