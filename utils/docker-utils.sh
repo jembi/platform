@@ -80,24 +80,6 @@ docker::await_service_destroy() {
     overwrite "Waiting for ${SERVICE_NAME} to be destroyed... Done"
 }
 
-# Waits for a service's containers to be destroyed
-#
-# Arguments:
-# - $1 : service name (eg. analytics-datastore-elastic-search)
-#
-docker::await_service_containers_destroy() {
-    local -r SERVICE_NAME=${1:?"FATAL: await_container_destroy SERVICE_NAME not provided"}
-
-    log info "Waiting for ${SERVICE_NAME} containers to be destroyed..."
-    local start_time
-    start_time=$(date +%s)
-    until [[ -z $(docker service ps -q instant_"${SERVICE_NAME}") ]]; do
-        config::timeout_check "${start_time}" "${SERVICE_NAME} to be destroyed"
-        sleep 1
-    done
-    overwrite "Waiting for ${SERVICE_NAME} containers to be destroyed... Done"
-}
-
 # Removes a services containers then the service itself
 # This was created to aid in removing volumes,
 # since volumes being removed were still attached to some lingering containers after container remove
@@ -109,7 +91,6 @@ docker::service_destroy() {
     local -r SERVICE_NAME=${1:?"FATAL: await_container_destroy SERVICE_NAME not provided"}
 
     try "docker service scale instant_${SERVICE_NAME}=0" "Failed to scale down ${SERVICE_NAME}"
-    docker::await_service_containers_destroy "${SERVICE_NAME}"
     try "docker service rm instant_${SERVICE_NAME}" "Failed to remove service ${SERVICE_NAME}"
     docker::await_service_destroy "${SERVICE_NAME}"
 }
