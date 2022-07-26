@@ -54,26 +54,19 @@ elif [[ $1 == "down" ]]; then
 elif [[ $1 == "destroy" ]]; then
   log info "Allow services to shut down before deleting volumes"
 
-  # The services are being scaled down first to ensure that the containers have been
-  # removed before removing the volumes. This is done because a service can be removed
-  # and the container can remain up for a few seconds, meaning the volumes can't be removed.
-  try "docker service scale instant_zookeeper-1=0" "Failed to scale down instant_zookeeper-1"
-  try "docker service scale instant_kafka=0" "Failed to scale down instant_kafka"
-  try "docker service scale instant_kafdrop=0" "Failed to scale down instant_kafdrop"
+  docker::service_destroy zookeeper-1
+  docker::service_destroy kafka
+  docker::service_destroy kafdrop
 
-  try "docker service rm instant_zookeeper-1" "Failed to destroy instant_zookeeper"
-  try "docker service rm instant_kafdrop" "Failed to destroy instant_kafdrop"
-  try "docker service rm instant_kafka" "Failed to destroy instant_kafka"
-
-  try "docker volume rm instant_zookeeper-1-volume" "Failed to remove instant_zookeeper-1-volume volume"
-  try "docker volume rm instant_kafka-volume" "Failed to remove instant_kafka-volume volume"
+  docker::try_remove_volume zookeeper-1-volume
+  docker::try_remove_volume kafka-volume
 
   if [[ $STATEFUL_NODES == "cluster" ]]; then
-    try "docker service scale instant_zookeeper-2=0" "Failed to scale down instant_zookeeper-2"
-    try "docker service scale instant_zookeeper-3=0" "Failed to scale down instant_zookeeper-3"
+    docker::service_destroy zookeeper-2
+    docker::service_destroy zookeeper-3
 
-    try "docker service rm instant_zookeeper-2" "Failed to remove zookeeper cluster volumes"
-    try "docker service rm instant_zookeeper-3" "Failed to remove zookeeper cluster volumes"
+    docker::try_remove_volume zookeeper-2-volume
+    docker::try_remove_volume zookeeper-3-volume
     log notice "Volumes are only deleted on the host on which the command is run. Kafka volumes on other nodes are not deleted"
   fi
 
