@@ -162,7 +162,7 @@ elif [[ "$ACTION" == "destroy" ]]; then
     docker::service_destroy analytics-datastore-elastic-search
   fi
 
-  docker::remove_volume_retry es-data
+  docker::try_remove_volume es-data
 else
   log error "Valid options are: init, up, down, or destroy"
 fi
