@@ -164,6 +164,12 @@ config::remove_config_importer() {
     local -r start_time=$(date +%s)
 
     local config_importer_state
+
+    if [[ -z $(docker service ps instant_"$config_importer_service_name") ]]; then
+        log info "instant_$config_importer_service_name service cannot be removed as it does not exist!"
+        exit 0
+    fi
+
     config_importer_state=$(docker service ps instant_"$config_importer_service_name" --format "{{.CurrentState}}")
     until [[ $config_importer_state == *"Complete"* ]]; do
         config::timeout_check "$start_time" "$config_importer_service_name to run" "$exit_time" "$warning_time"
@@ -192,6 +198,7 @@ config::await_service_removed() {
         config::timeout_check "$start_time" "${SERVICE_NAME} to be removed"
         sleep 1
     done
+    log info "Service $SERVICE_NAME successfully removed"
 }
 
 # Waits for the provided service to join the network
