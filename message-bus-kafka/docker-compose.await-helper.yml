@@ -1,0 +1,10 @@
+version: '3.9'
+
+services:
+  await-helper:
+    image: jembi/await-helper:1.0.1
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: none
+    command: '-k http://kafdrop:9013'
