@@ -126,7 +126,7 @@ docker::remove_volume_retry() {
     local start_time
     start_time=$(date +%s)
     until [[ -n "$(docker volume rm instant_"${VOLUME_NAME}")" ]]; do
-        config::timeout_check "${start_time}" "${VOLUME_NAME} to be removed"
+        config::timeout_check "${start_time}" "${VOLUME_NAME} to be removed" "10" "20"
         sleep 1
     done
     overwrite "Waiting for volume ${VOLUME_NAME} to be removed... Done"
