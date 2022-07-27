@@ -22,11 +22,24 @@ When("I launch the platform with params", async function () {
 Then("The service {string} should be started", async function (serviceName) {
   const services = await docker.listServices({
     Filters: {
-      name: `instant_${serviceName}`,
+      name: [`instant_${serviceName}`],
     },
   });
+  console.log("🚀 ~ file: platformSteps.js ~ line 28 ~ services", services);
   expect(services).to.be.array();
   expect(services).to.have.lengthOf(1);
+});
+
+Then("There should be {int} service(s)", async function (numServices) {
+  const services = await docker.listServices();
+  expect(services).to.be.array();
+  expect(services).to.have.lengthOf(numServices);
+});
+
+Then("There should be {int} volume(s)", async function (numVolumes) {
+  const volumes = await docker.listVolumes();
+  expect(volumes.Volumes).to.be.array();
+  expect(volumes.Volumes).to.have.lengthOf(numVolumes);
 });
 
 Then(
