@@ -228,8 +228,8 @@ config::await_network_join() {
 # Arguments:
 # - $1 : service name (eg. data-mapper-logstash)
 # - $2 : target base (eg. /usr/share/logstash/)
-# - $3 : target folder path in absolute format (eg. "$COMPOSE_FILE_PATH"/pipeline)
-# - $4 : compose file path (eg. "$COMPOSE_FILE_PATH")
+# - $3 : target folder path in absolute format (eg. "$PATH_TO_FILE"/pipeline)
+# - $4 : compose file path (eg. "$PATH_TO_FILE")
 #
 # Exports:
 # All exports are required for yq to process the values and are not intended for external use
@@ -244,11 +244,11 @@ config::generate_service_configs() {
     local -r SERVICE_NAME=${1:?"FATAL: generate_service_config parameter missing"}
     local -r TARGET_BASE=${2:?"FATAL: generate_service_config parameter missing"}
     local -r TARGET_FOLDER_PATH=${3:?"FATAL: generate_service_config parameter missing"}
-    local -r COMPOSE_FILE_PATH=${4:?"FATAL: generate_service_config parameter missing"}
+    local -r COMPOSE_PATH=${4:?"FATAL: generate_service_config parameter missing"}
     local -r TARGET_FOLDER_NAME=$(basename "${TARGET_FOLDER_PATH}")
     local count=0
 
-    try "touch ${COMPOSE_FILE_PATH}/docker-compose.tmp.yml" "Failed to create temp service config compose file"
+    try "touch ${COMPOSE_PATH}/docker-compose.tmp.yml" "Failed to create temp service config compose file"
 
     find "${TARGET_FOLDER_PATH}" -maxdepth 10 -mindepth 1 -type f | while read -r file; do
         file_name=${file/"${TARGET_FOLDER_PATH%/}"/}
