@@ -21,6 +21,7 @@ readonly TIMESTAMPED_NGINX="${TIMESTAMP}-nginx.conf"
 # Import libraries
 ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/log.sh"
+. "${ROOT_PATH}/utils/config-utils.sh"
 
 main() {
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
@@ -28,15 +29,18 @@ main() {
       log info "Not starting reverse proxy as we are running DEV mode"
       exit 0
     fi
-    if [[ $(docker service ps instant_reverse-proxy-nginx --format '{{.CurrentState}}') == *"Running"* ]]; then
+    if [[ $(docker service ps instant_reverse-proxy-nginx --format '{{.CurrentState}}') == *"Running"* ]] && [[ "${ACTION}" == "init" ]]; then
       log info "Skipping reverse proxy reload as it is already up"
       exit 0
     fi
 
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml instant" "Failed to deploy nginx"
-
     if [[ "${INSECURE}" == "true" ]]; then
       log info "Running reverse-proxy package in INSECURE mode"
+
+      config::generate_service_configs reverse-proxy-nginx /etc/nginx/conf.d "${COMPOSE_FILE_PATH}/package-conf-insecure" "${COMPOSE_FILE_PATH}"
+      logstash_temp_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.tmp.yml"
+      try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $logstash_temp_compose_param instant" "Failed to deploy nginx"
+
       if [ "${INSECURE_PORTS}" != "" ]; then
         IFS='-' read -ra PORTS <<<"$INSECURE_PORTS"
         local portsArray=()
@@ -63,6 +67,9 @@ main() {
       log info "Done updating nginx service"
     else
       log info "Running reverse-proxy package in SECURE mode"
+
+      config::generate_service_configs reverse-proxy-nginx /etc/nginx/conf.d "${COMPOSE_FILE_PATH}/package-conf-secure" "${COMPOSE_FILE_PATH}"
+      try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml instant" "Failed to deploy nginx"
 
       local domain_args=()
       if [ -n "$SUBDOMAINS" ]; then

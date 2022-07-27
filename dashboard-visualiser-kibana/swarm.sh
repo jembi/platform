@@ -20,21 +20,6 @@ readonly ROOT_PATH
 . "${ROOT_PATH}/utils/docker-utils.sh"
 . "${ROOT_PATH}/utils/log.sh"
 
-configure_nginx() {
-
-  if [[ "${INSECURE}" == "true" ]]; then
-    try "docker config create --label name=nginx http-kibana-insecure.conf ${COMPOSE_FILE_PATH}/config/http-kibana-insecure.conf" "Error creating insecure kibana nginx conf"
-    log info "Updating nginx service: adding kibana config file..."
-    try "docker service update --config-add source=http-kibana-insecure.conf,target=/etc/nginx/conf.d/http-kibana-insecure.conf instant_reverse-proxy-nginx" "Error updating nginx service"
-    overwrite "Updating nginx service: adding kibana config file... Done"
-  else
-    try "docker config create --label name=nginx http-kibana-secure.conf ${COMPOSE_FILE_PATH}/config/http-kibana-secure.conf" "Error creating secure kibana nginx conf"
-    log info "Updating nginx service: adding kibana config file..."
-    try "docker service update --config-add source=http-kibana-secure.conf,target=/etc/nginx/conf.d/http-kibana-secure.conf instant_reverse-proxy-nginx" "Error updating nginx service"
-    overwrite "Updating nginx service: adding kibana config file... Done"
-  fi
-}
-
 import_kibana_dashboards() {
   log info "Setting config digests"
   config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
@@ -73,16 +58,10 @@ main() {
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to start config importer"
 
     import_kibana_dashboards
-
-    if [[ "${MODE}" != "dev" ]]; then
-      configure_nginx "$@"
-    fi
-
   elif [[ "${ACTION}" == "down" ]]; then
     try "docker service scale instant_dashboard-visualiser-kibana=0" "Failed to scale down dashboard-visualiser-kibana"
   elif [[ "${ACTION}" == "destroy" ]]; then
     try "docker service rm instant_dashboard-visualiser-kibana instant_await-helper instant_kibana-config-importer" "Failed to destroy dashboard-visualiser-kibana"
-    config::remove_service_nginx_config "http-kibana-secure.conf" "http-kibana-insecure.conf"
   else
     log error "Valid options are: init, up, down, or destroy"
   fi
