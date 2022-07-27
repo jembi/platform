@@ -65,7 +65,8 @@ main() {
       log info "Running reverse-proxy package in SECURE mode"
 
       config::generate_service_configs reverse-proxy-nginx /etc/nginx/conf.d "${COMPOSE_FILE_PATH}/package-conf-secure" "${COMPOSE_FILE_PATH}"
-      try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml instant" "Failed to deploy nginx"
+      logstash_temp_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.tmp.yml"
+      try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $logstash_temp_compose_param instant" "Failed to deploy nginx"
 
       local domain_args=()
       if [ -n "$SUBDOMAINS" ]; then
