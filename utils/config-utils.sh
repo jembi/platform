@@ -273,7 +273,7 @@ config::generate_service_configs() {
         eval(strenv(config_query)).name = strenv(config_source) |
         eval(strenv(config_query)).labels.name = strenv(config_label_name) |
         eval(strenv(config_query)).labels.service = strenv(config_service_name)
-        ' "${COMPOSE_FILE_PATH}/docker-compose.tmp.yml"
+        ' "${COMPOSE_PATH}/docker-compose.tmp.yml"
 
         count=$((count + 1))
     done
