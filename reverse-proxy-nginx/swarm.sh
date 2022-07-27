@@ -29,10 +29,6 @@ main() {
       log info "Not starting reverse proxy as we are running DEV mode"
       exit 0
     fi
-    if [[ $(docker service ps instant_reverse-proxy-nginx --format '{{.CurrentState}}') == *"Running"* ]] && [[ "${ACTION}" == "init" ]]; then
-      log info "Skipping reverse proxy reload as it is already up"
-      exit 0
-    fi
 
     if [[ "${INSECURE}" == "true" ]]; then
       log info "Running reverse-proxy package in INSECURE mode"
