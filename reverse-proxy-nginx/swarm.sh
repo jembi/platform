@@ -34,8 +34,8 @@ main() {
       log info "Running reverse-proxy package in INSECURE mode"
 
       config::generate_service_configs reverse-proxy-nginx /etc/nginx/conf.d "${COMPOSE_FILE_PATH}/package-conf-insecure" "${COMPOSE_FILE_PATH}"
-      logstash_temp_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.tmp.yml"
-      try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $logstash_temp_compose_param instant" "Failed to deploy nginx"
+      nginx_temp_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.tmp.yml"
+      try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $nginx_temp_compose_param instant" "Failed to deploy nginx"
 
       if [ "${INSECURE_PORTS}" != "" ]; then
         IFS='-' read -ra PORTS <<<"$INSECURE_PORTS"
@@ -65,8 +65,8 @@ main() {
       log info "Running reverse-proxy package in SECURE mode"
 
       config::generate_service_configs reverse-proxy-nginx /etc/nginx/conf.d "${COMPOSE_FILE_PATH}/package-conf-secure" "${COMPOSE_FILE_PATH}"
-      logstash_temp_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.tmp.yml"
-      try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $logstash_temp_compose_param instant" "Failed to deploy nginx"
+      nginx_temp_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.tmp.yml"
+      try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $nginx_temp_compose_param instant" "Failed to deploy nginx"
 
       local domain_args=()
       if [ -n "$SUBDOMAINS" ]; then
