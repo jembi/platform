@@ -114,3 +114,15 @@ docker::try_remove_volume() {
     done
     overwrite "Waiting for volume ${VOLUME_NAME} to be removed... Done"
 }
+
+# Prunes configs based on a label
+#
+# Arguments:
+# - $1 : config label, e.g. "logstash"
+#
+docker::prune_configs() {
+    local -r CONFIG_LABEL=${1:?"FATAL: remove_configs_by_label CONFIG_LABEL not provided"}
+
+    # shellcheck disable=SC2046
+    docker config rm $(docker config ls -qf label=name="$CONFIG_LABEL") &>/dev/null
+}
