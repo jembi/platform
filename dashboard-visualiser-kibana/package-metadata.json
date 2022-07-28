@@ -4,7 +4,7 @@
   "description": "A dashboard to interpret the data from the ElasticSearch data store",
   "type": "infrastructure",
   "version": "0.0.1",
-  "dependencies": ["analytics-datastore-elastic-search", "reverse-proxy-nginx"],
+  "dependencies": ["analytics-datastore-elastic-search"],
   "environmentVariables": {
     "ES_KIBANA_SYSTEM": "dev_password_only",
     "KIBANA_INSTANCES": 1,
