@@ -61,7 +61,9 @@ main() {
   elif [[ "${ACTION}" == "down" ]]; then
     try "docker service scale instant_dashboard-visualiser-kibana=0" "Failed to scale down dashboard-visualiser-kibana"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    try "docker service rm instant_dashboard-visualiser-kibana instant_await-helper instant_kibana-config-importer" "Failed to destroy dashboard-visualiser-kibana"
+    docker::service_destroy dashboard-visualiser-kibana
+    docker::service_destroy await-helper
+    docker::service_destroy kibana-config-importer
   else
     log error "Valid options are: init, up, down, or destroy"
   fi

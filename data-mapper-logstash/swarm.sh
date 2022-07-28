@@ -54,6 +54,13 @@ else
 fi
 
 if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
+
+  if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
+    export LOGSTASH_YML_CONFIG="logstash-logstash.cluster.yml"
+  else
+    export LOGSTASH_YML_CONFIG="logstash-logstash.yml"
+  fi
+
   inject_pipeline_elastic_hosts
 
   config::set_config_digests "${COMPOSE_FILE_PATH}"/docker-compose.yml
