@@ -10,7 +10,8 @@ Feature: Data Mapper Logstash?
         And The service "analytics-datastore-elastic-search" should have healthy containers
         And The service "data-mapper-logstash" should have healthy containers
         And The volume "es-data" should be created
-        And There should be 1 volume
+        And The volume "logstash-data" should be created
+        And There should be 2 volumes
 
     Scenario: Destroy Data Mapper Logstash
         Given I use parameters "destroy data-mapper-logstash --dev --env-file=.env.test"
@@ -20,4 +21,5 @@ Feature: Data Mapper Logstash?
         And There should be 0 services
         And The service containers for "data-mapper-logstash" should be removed
         And The volume "es-data" should be removed
+        And The volume "logstash-data" should be removed
         And There should be 0 volumes

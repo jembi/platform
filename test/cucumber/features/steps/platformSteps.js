@@ -21,9 +21,7 @@ When("I launch the platform with params", async function () {
 
 Then("The service {string} should be started", async function (serviceName) {
   const services = await docker.listServices({
-    filters: {
-      name: [`instant_${serviceName}`],
-    },
+    filters: { name: [`instant_${serviceName}`] },
   });
   expect(services).to.be.array();
   expect(services).to.have.lengthOf(1);
@@ -55,16 +53,17 @@ Then(
 );
 
 Then("The volume {string} should be created", async function (volumeName) {
-  const volumes = await docker.listVolumes({ name: `instant_${volumeName}` });
+  const volumes = await docker.listVolumes({
+    filters: { name: [`instant_${volumeName}`] },
+  });
+
   expect(volumes.Volumes).to.be.array();
   expect(volumes.Volumes).to.have.lengthOf(1);
 });
 
 Then("The service {string} should be removed", async function (serviceName) {
   const services = await docker.listServices({
-    filters: {
-      name: [`instant_${serviceName}`],
-    },
+    filters: { name: [`instant_${serviceName}`] },
   });
   expect(services).to.be.array();
   expect(services).to.be.empty;
@@ -82,7 +81,9 @@ Then(
 );
 
 Then("The volume {string} should be removed", async function (volumeName) {
-  const volumes = await docker.listVolumes({ name: `instant_${volumeName}` });
+  const volumes = await docker.listVolumes({
+    filters: { name: [`instant_${volumeName}`] },
+  });
   expect(volumes.Volumes).to.be.array();
   expect(volumes.Volumes).to.be.empty;
 });
