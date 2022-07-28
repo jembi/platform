@@ -1,5 +1,5 @@
 Feature: Dashboard Visualiser Kibana?
-    Does the elastic search package work as expected
+    Does the kibana package work as expected
 
     Scenario: Init Dashboard Visualiser Kibana
         Given I use parameters "init dashboard-visualiser-kibana --dev --env-file=.env.test"
