@@ -4,7 +4,7 @@
   "description": "A dashboard to interpret data from ElasticSearch data store",
   "type": "infrastructure",
   "version": "0.0.1",
-  "dependencies": ["analytics-datastore-elastic-search", "reverse-proxy-nginx"],
+  "dependencies": ["analytics-datastore-elastic-search"],
   "environmentVariables": {
     "JS_REPORT_SECRET": "dev_secret_only",
     "JS_REPORT": "dev_password_only",

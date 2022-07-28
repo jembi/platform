@@ -90,9 +90,11 @@ docker::await_service_destroy() {
 docker::service_destroy() {
     local -r SERVICE_NAME=${1:?"FATAL: await_container_destroy SERVICE_NAME not provided"}
 
-    try "docker service scale instant_${SERVICE_NAME}=0" "Failed to scale down ${SERVICE_NAME}"
-    try "docker service rm instant_${SERVICE_NAME}" "Failed to remove service ${SERVICE_NAME}"
-    docker::await_service_destroy "${SERVICE_NAME}"
+    if [[ -n $(docker service ls -qf name=instant_"${SERVICE_NAME}") ]]; then
+        try "docker service scale instant_${SERVICE_NAME}=0" "Failed to scale down ${SERVICE_NAME}"
+        try "docker service rm instant_${SERVICE_NAME}" "Failed to remove service ${SERVICE_NAME}"
+        docker::await_service_destroy "${SERVICE_NAME}"
+    fi
 }
 
 # Tries to remove a volume and retries until it works with a timeout
@@ -111,4 +113,16 @@ docker::try_remove_volume() {
         sleep 1
     done
     overwrite "Waiting for volume ${VOLUME_NAME} to be removed... Done"
+}
+
+# Prunes configs based on a label
+#
+# Arguments:
+# - $1 : config label, e.g. "logstash"
+#
+docker::prune_configs() {
+    local -r CONFIG_LABEL=${1:?"FATAL: remove_configs_by_label CONFIG_LABEL not provided"}
+
+    # shellcheck disable=SC2046
+    docker config rm $(docker config ls -qf label=name="$CONFIG_LABEL") &>/dev/null
 }
