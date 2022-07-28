@@ -75,8 +75,7 @@ if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
 
   config::remove_stale_service_configs "${COMPOSE_FILE_PATH}/docker-compose.yml" "logstash"
 
-  # shellcheck disable=SC2046
-  docker config rm $(docker config ls -q) &>/dev/null
+  docker::prune_configs logstash
 
   log info "Done"
 elif [[ "${ACTION}" == "down" ]]; then
