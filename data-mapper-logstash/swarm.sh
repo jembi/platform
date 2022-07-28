@@ -81,7 +81,8 @@ if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
 elif [[ "${ACTION}" == "down" ]]; then
   try "docker service scale instant_data-mapper-logstash=0" "Failed to scale down data-mapper-logstash"
 elif [[ "${ACTION}" == "destroy" ]]; then
-  try "docker service rm instant_data-mapper-logstash" "Failed to remove data-mapper-logstash"
+  docker::service_destroy data-mapper-logstash
+  docker::try_remove_volume logstash-data
 else
   log error "Valid options are: init, up, down, or destroy"
 fi
