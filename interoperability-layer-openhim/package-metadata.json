@@ -3,7 +3,7 @@
   "name": "Interoperability Layer Package - Openhim",
   "description": "This is the interoperability layer that enables simpler data exchange between the different systems. It is also the security layer for the other systems",
   "version": "1.0.0",
-  "dependencies": ["reverse-proxy-nginx"],
+  "dependencies": [],
   "environmentVariables": {
     "OPENHIM_MEDIATOR_API_PORT": "8080",
     "MONGO_SET_COUNT": "1",
