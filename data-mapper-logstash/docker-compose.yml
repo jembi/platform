@@ -16,6 +16,7 @@ services:
     volumes:
       - logstash-data:/usr/share/logstash/data
     deploy:
+      replicas: ${LOGSTASH_INSTANCES}
       resources:
         limits:
           memory: ${LOGSTASH_MEMORY_LIMIT:-3G}
