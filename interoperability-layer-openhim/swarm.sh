@@ -157,10 +157,6 @@ main() {
     log info "Removing stale configs..."
     config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "openhim"
     config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "openhim"
-
-    if [[ "${MODE}" != "dev" ]]; then
-      configure_nginx "$@"
-    fi
   elif [[ "${ACTION}" == "down" ]]; then
     log info "Scaling down services..."
     try "docker service scale instant_openhim-core=0 instant_openhim-console=0 instant_mongo-1=0" "Error scaling down services"

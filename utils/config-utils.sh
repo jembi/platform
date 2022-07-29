@@ -129,6 +129,8 @@ config::await_service_running() {
     local -r warning_time="${5:-}"
     local -r start_time=$(date +%s)
 
+    docker service rm instant_await-helper &>/dev/null
+
     try "docker stack deploy -c $await_helper_file_path instant" "Failed to deploy await helper"
     until [[ $(docker service ls -f name=instant_"$service_name" --format "{{.Replicas}}") == *"$service_instances/$service_instances"* ]]; do
         config::timeout_check "$start_time" "$service_name to start" "$exit_time" "$warning_time"
