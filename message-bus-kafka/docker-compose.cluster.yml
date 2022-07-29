@@ -3,8 +3,8 @@ version: '3.9'
 services:
   zookeeper-1:
     environment:
-     - ZOO_SERVER_ID=1
-     - ZOO_SERVERS=0.0.0.0:2888:3888,zookeeper-2:2888:3888,zookeeper-3:2888:3888
+      - ZOO_SERVER_ID=1
+      - ZOO_SERVERS=0.0.0.0:2888:3888,zookeeper-2:2888:3888,zookeeper-3:2888:3888
     deploy:
       placement:
         constraints:
@@ -20,9 +20,9 @@ services:
   zookeeper-2:
     image: bitnami/zookeeper:3.7.0
     environment:
-     - ALLOW_ANONYMOUS_LOGIN=yes
-     - ZOO_SERVER_ID=2
-     - ZOO_SERVERS=zookeeper-1:2888:3888,0.0.0.0:2888:3888,zookeeper-3:2888:3888
+      - ALLOW_ANONYMOUS_LOGIN=yes
+      - ZOO_SERVER_ID=2
+      - ZOO_SERVERS=zookeeper-1:2888:3888,0.0.0.0:2888:3888,zookeeper-3:2888:3888
     volumes:
       - zookeeper-2-volume:/bitnami/zookeeper
     deploy:
@@ -36,13 +36,13 @@ services:
         reservations:
           cpus: ${ZOOKEEPER_CPU_RESERVE:-0.05}
           memory: ${ZOOKEEPER_MEMORY_RESERVE:-500M}
-  
+
   zookeeper-3:
     image: bitnami/zookeeper:3.7.0
     environment:
-     - ALLOW_ANONYMOUS_LOGIN=yes
-     - ZOO_SERVER_ID=3
-     - ZOO_SERVERS=zookeeper-1:2888:3888,zookeeper-2:2888:3888,0.0.0.0:2888:3888
+      - ALLOW_ANONYMOUS_LOGIN=yes
+      - ZOO_SERVER_ID=3
+      - ZOO_SERVERS=zookeeper-1:2888:3888,zookeeper-2:2888:3888,0.0.0.0:2888:3888
     volumes:
       - zookeeper-3-volume:/bitnami/zookeeper
     deploy:
@@ -61,7 +61,7 @@ services:
     environment:
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper-1:2181,zookeeper-2:2181,zookeeper-3:2181
     deploy:
-      mode: global
+      replicas: ${KAFKA_INSTANCES}
       resources:
         limits:
           cpus: ${KAFKA_CPU_LIMIT:-0.8}
