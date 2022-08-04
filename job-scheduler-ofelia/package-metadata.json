@@ -3,7 +3,5 @@
   "name": "Job Scheduler Ofelia",
   "description": "A job scheduling tool",
   "type": "use-case",
-  "version": "0.0.1",
-  "dependencies": [],
-  "environment": {}
+  "version": "0.0.1"
 }
