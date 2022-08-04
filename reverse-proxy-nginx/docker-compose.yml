@@ -15,17 +15,6 @@ services:
         reservations:
           cpus: ${NGINX_CPU_RESERVE:-0.05}
           memory: ${NGINX_MEMORY_RESERVE:-500M}
-
-  # Runs certbot to renew TLS certificates
-  ofelia:
-    image: mcuadros/ofelia:v0.3.6
-    deploy:
-      replicas: 0
-    command: daemon --docker
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    depends_on:
-      - reverse-proxy-nginx
     labels:
       ofelia.enabled: "true"
       ofelia.job-run.renew-certs.schedule: "@every 1440h" #60 days

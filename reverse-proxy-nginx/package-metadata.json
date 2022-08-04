@@ -4,7 +4,7 @@
   "description": "nginx reverse proxy",
   "type": "use-case",
   "version": "0.0.1",
-  "dependencies": [],
+  "dependencies": ["job-scheduler-ofelia"],
   "environment": {
     "NGINX_CPU_LIMIT": "0.8",
     "NGINX_CPU_RESERVE": "0.05",
