@@ -75,3 +75,9 @@ Each service's resource allocations can be piped into their .yml file through en
 - Be wary of allocating CPU limits to ELK Stack services. These seem to fail with CPU limits and their already implemented health checks.
 - Take note to not allocate less memory to ELK Stack services than their JVM heap sizes.
 - Exit code 137 indicates an out-of-memory failure. When running into this, it means that the service has been allocated too little memory.
+
+## Backups
+
+### Postgres (Hapi-FHIR)
+
+To start up Hapi FHIR and ensure that the backups can be made, ensure that you have created the directory that Hapi FHIR is intent on bind mounting to
