@@ -9,7 +9,7 @@
 
 ## Quick Start for devs (local single node)
 
-1. Ensure that you have the latest instant repository checked out in the same folder that this repo is in.
+1. Ensure that you have the latest instant repository checked out in the same folder that this repo is in (maybe you should run this command `sudo mkdir -p /tmp/logs/`).
 1. `./build-image.sh` - builds the platform image
 1. Initialise Docker Swarm mode: `docker swarm init`
 1. Run `go cli` binary to launch the project:
