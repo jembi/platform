@@ -3,22 +3,10 @@ version: '3.9'
 services:
   job-scheduler-ofelia:
     image: mcuadros/ofelia:v0.3.6
-    deploy:
-      replicas: 0
     command: daemon --docker
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-    depends_on:
-      - reverse-proxy-nginx
     labels:
       ofelia.enabled: "true"
-    configs:
-      - target: /etc/ofelia/config.ini
-        source: ofelia-config.ini
-
-configs:
-  ofelia-config.ini:
-    file: ./config.ini
-    name: ofelia-config.ini-${ofelia_config_ini_DIGEST:?err}
-    labels: 
-      name: ofelia
+      ofelia.job-local.placeholder-job.schedule: "@hourly"
+      ofelia.job-local.placeholder-job.command: "date"

@@ -11,13 +11,11 @@ readonly COMPOSE_FILE_PATH
 ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 readonly ROOT_PATH
 
-. "${ROOT_PATH}/utils/config-utils.sh"
 . "${ROOT_PATH}/utils/docker-utils.sh"
 . "${ROOT_PATH}/utils/log.sh"
 
 main() {
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    config::set_config_digests "${COMPOSE_FILE_PATH}"/docker-compose.yml
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml instant" "Failed to deploy Job Scheduler Ofelia"
   elif [[ "${ACTION}" == "down" ]]; then
     try "docker service scale instant_job-scheduler-ofelia=0" "Failed to scale down job-scheduler-ofelia"
