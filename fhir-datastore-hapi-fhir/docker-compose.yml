@@ -25,22 +25,3 @@ services:
         reservations:
           cpus: ${HAPI_FHIR_CPU_RESERVE:-0.05}
           memory: ${HAPI_FHIR_MEMORY_RESERVE:-500M}
-
-  ofelia_postgres_backup:
-      image: mcuadros/ofelia:v0.3.6
-      deploy:
-        replicas: 1
-      command: daemon --docker
-      volumes:
-        - /var/run/docker.sock:/var/run/docker.sock:ro
-        - /home/nour/Hexastack/platform/backups/postgres/:/tmp/
-      depends_on:
-        - hapi-fhir
-      labels:
-        ofelia.enabled: "true"
-        ofelia.job-run.backup_postgres.schedule: "@every 15s"
-        ofelia.job-run.backup_postgres.image: "jembi/psql-client:test"
-        ofelia.job-run.backup_postgres.volume: '["/home/nour/Hexastack/platform/backups/postgres/:/tmp/","/var/run/docker.sock:/var/run/docker.sock:ro"]'
-        # ofelia.job-run.backup_postgres.command: 'PGPASSWORD=instant101 /usr/bin/pg_dump --file "/tmp/test_backup__postgres" --host "postgres-1" --port "5432" --username "admin" --verbose --format=c --blobs "hapi"'
-        ofelia.job-run.backup_postgres.command: "sleep 500"
-        ofelia.job-run.backup_postgres.dir: "/tmp/"
