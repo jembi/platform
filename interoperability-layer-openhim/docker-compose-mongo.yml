@@ -38,7 +38,6 @@ services:
       ofelia.job-run.mongo-backup.volume: "/backups/mongo:/tmp/backups"
 volumes:
   openhim-mongo1:
-    
 
 networks:
   mongo_backup_net:
