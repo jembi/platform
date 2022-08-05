@@ -26,6 +26,7 @@ services:
           memory: ${HF_POSTGRES_MEMORY_RESERVE:-500M}
     networks:
       pg_backup_net: {}
+      instant_net: {}
 
   ofelia-postgres-backup:
     image: mcuadros/ofelia:v0.3.6
@@ -54,3 +55,7 @@ networks:
     name: pg_backup
     driver: overlay
     attachable: true
+
+  instant_net:
+    name: instant_default
+    external: true
