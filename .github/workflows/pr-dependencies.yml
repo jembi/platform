@@ -1,0 +1,32 @@
+name: Check PR Dependencies
+
+on:
+  pull_request:
+    branches: ["main"]
+    types: [opened, edited]
+
+jobs:
+  dependencies:
+    runs-on: ubuntu-latest
+
+    steps:
+      - id: num-checks-total
+        name: Set total checks
+        run: echo "::set-output name=total::$(gh pr view $PR_NUMBER --repo $REPO --json body | grep -o "\[.\]" | wc -l)"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repositoryUrl }}
+          PR_NUMBER: ${{github.event.number}}
+      - id: num-checks-checked
+        name: Set checked checks
+        run: echo "::set-output name=checked::$(gh pr view $PR_NUMBER --repo $REPO --json body | grep -o "[x]" | wc -l)"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repositoryUrl }}
+          PR_NUMBER: ${{github.event.number}}
+      - if: ${{steps.num-checks-total.outputs.total == steps.num-checks-checked.outputs.checked}}
+        name: Pass
+        run: echo "All checks have been checked" && exit 0
+      - if: ${{steps.num-checks-total.outputs.total != steps.num-checks-checked.outputs.checked}}
+        name: Fail
+        run: echo "Some checks still need to be checked" && exit 1
