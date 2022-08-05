@@ -80,4 +80,15 @@ Each service's resource allocations can be piped into their .yml file through en
 
 ### Postgres (Hapi-FHIR)
 
-To start up Hapi FHIR and ensure that the backups can be made, ensure that you have created the directory that Hapi FHIR is intent on bind mounting to
+To start up Hapi FHIR and ensure that the backups can be made, ensure that you have created the directory that Hapi FHIR is intent on bind mounting
+
+## Disaster Recovery
+
+### Postgres (Hapi-FHIR)
+
+To perform a disaster recovery, run the following command on the leader node:
+
+```sh
+docker run --network pg_backup --mount=type=bind,src=/backups/,dst=/backups/ alpine:3.15.5 sh -c 'apk update; apk add --no-cache postgresql-client>14.4; PGPASSWORD=<DB_PASSWORD> /usr/bin/pg_restore --host "postgres-1" --port "5432" --username <DB_USER> --dbname <DB_NAME> --clean /backups/<BACKUP_FILE>'
+```
+> NOTE: the above command has fields `DB_PASSWORD`, `DB_USER`, `DB_NAME` and `BACKUP_FILE` to be substituted for the correct values
