@@ -32,9 +32,9 @@ services:
       ofelia.job-run.mongo-backup.schedule: "@every 24h" #1 day
       ofelia.job-run.mongo-backup.image: "mongo"
       ofelia.job-run.mongo-backup.network: "mongo_backup"
-      ofelia.job-run.mongo-backup.command: sh -c 'mongodump --uri="mongodb://mongo-1:27017" --gzip --archive=/tmp/backups/mongodump.gz'  
+      ofelia.job-run.mongo-backup.command: sh -c 'mongodump --uri="mongodb://mongo-1:27017/openhim" --gzip --archive=/tmp/backups/mongodump_$$(date +%s).gz'
       ofelia.job-run.mongo-backup.delete: "true"
-      ofelia.job-run.mongo-backup.volume: "/backups/mongo:/tmp/backups"
+      ofelia.job-run.mongo-backup.volume: "/backups:/tmp/backups"
 volumes:
   openhim-mongo1:
 
