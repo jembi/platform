@@ -3,15 +3,15 @@ version: '3.9'
 services:
   job-scheduler-ofelia:
     image: mcuadros/ofelia:v0.3.6
-    command: daemon --docker
+    command: daemon --config=/tmp/config.ini
+    configs:
+      - target: /tmp/config.ini
+        source: ofelia-config.ini
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-    labels:
-      ofelia.enabled: "true"
-      ofelia.job-local.placeholder-job.schedule: "@hourly"
-      ofelia.job-local.placeholder-job.command: "date"
-      ofelia.job-run.renew-certs.schedule: "@every 1440h" #60 days
-      ofelia.job-run.renew-certs.image: "jembi/swarm-nginx-renewal:v1.0.0"
-      ofelia.job-run.renew-certs.volume: '["renew-certbot-conf:/instant","/var/run/docker.sock:/var/run/docker.sock:ro"]'
-      ofelia.job-run.renew-certs.environment: '["RENEWAL_EMAIL=${RENEWAL_EMAIL}", "STAGING=${STAGING}", "DOMAIN_NAME=${DOMAIN_NAME}", "SUBDOMAINS=${SUBDOMAINS}"]'
-      ofelia.job-run.renew-certs.delete: "true"
+configs:
+  ofelia-config.ini:
+    file: ./config.ini
+    name: ofelia-config.ini-${ofelia_config_ini_DIGEST:?err}
+    labels: 
+      name: ofelia
