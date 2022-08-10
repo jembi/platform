@@ -63,6 +63,12 @@ services:
           cpus: ${HF_POSTGRES_CPU_RESERVE:-0.05}
           memory: ${HF_POSTGRES_MEMORY_RESERVE:-500M}
 
+  ofelia-postgres-backup:
+    deploy:
+      placement:
+        constraints:
+          - "node.labels.name==node-1"
+
 volumes:
   hapi-postgres-2-data:
   hapi-postgres-3-data:
