@@ -2,7 +2,9 @@
 apiVersion: 1
 
 providers:
-- name: 'JembiPlatform'
-  folder: ''
-  options:
-    path: /etc/grafana/provisioning/dashboards
+  - name: dashboards
+    type: file
+    updateIntervalSeconds: 30
+    options:
+      path: /etc/grafana/provisioning/dashboards
+      foldersFromFilesStructure: true
