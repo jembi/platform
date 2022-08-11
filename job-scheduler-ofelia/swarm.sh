@@ -17,6 +17,7 @@ readonly ROOT_PATH
 
 main() {
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
+    config::substitute_env_vars "${COMPOSE_FILE_PATH}"/config.ini
     config::set_config_digests "${COMPOSE_FILE_PATH}"/docker-compose.yml
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml instant" "Failed to deploy Job Scheduler Ofelia"
   elif [[ "${ACTION}" == "down" ]]; then
