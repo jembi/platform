@@ -18,23 +18,6 @@ services:
       mongo_backup_net: {}
       instant_net: {}
 
-  ofelia:
-    image: mcuadros/ofelia:v0.3.6
-    deploy:
-      replicas: 1
-    command: daemon --docker
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    depends_on:
-      - interoperability-layer-openhim
-    labels:
-      ofelia.enabled: "true"
-      ofelia.job-run.mongo-backup.schedule: "@every 24h" #1 day
-      ofelia.job-run.mongo-backup.image: "mongo"
-      ofelia.job-run.mongo-backup.network: "mongo_backup"
-      ofelia.job-run.mongo-backup.command: sh -c 'mongodump --uri="mongodb://mongo-1:27017/openhim" --gzip --archive=/tmp/backups/mongodump_$$(date +%s).gz'
-      ofelia.job-run.mongo-backup.delete: "true"
-      ofelia.job-run.mongo-backup.volume: "/backups:/tmp/backups"
 volumes:
   openhim-mongo1:
 
