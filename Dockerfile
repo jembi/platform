@@ -9,3 +9,7 @@ RUN chmod +x /usr/bin/yq
 # Install jq
 
 RUN apt-get install jq -y 1>/dev/null
+
+# Install envsubst
+
+RUN apt-get install gettext-base -y 1>/dev/null
