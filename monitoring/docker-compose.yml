@@ -14,6 +14,18 @@ services:
         source: grafana.ini
       - target: /etc/grafana/provisioning/datasources/datasource.yml
         source: datasource.yml
+      - target: /etc/grafana/provisioning/dashboards/dashboard.yml
+        source: dashboard.yml
+      - target: /etc/grafana/provisioning/dashboards/nodes/node-exporter-full_rev27.json
+        source: node-exporter-full_rev27.json
+      - target: /etc/grafana/provisioning/dashboards/containers/docker-swarm-monitor-v2_rev2.json
+        source: docker-swarm-monitor-v2_rev2.json
+      - target: /etc/grafana/provisioning/dashboards/applications/kminion-cluster_rev1.json
+        source: kminion-cluster_rev1.json
+      - target: /etc/grafana/provisioning/dashboards/applications/kminion-groups_rev1.json
+        source: kminion-groups_rev1.json
+      - target: /etc/grafana/provisioning/dashboards/applications/kminion-topic_rev1.json
+        source: kminion-topic_rev1.json
 
   prometheus:
     image: prom/prometheus:latest
@@ -35,8 +47,6 @@ services:
     image: google/cadvisor
     hostname: '{{.Node.ID}}'
     command: -docker_only
-    ports:
-      - '8080:8080'
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run
@@ -45,9 +55,25 @@ services:
       - /dev/disk/:/dev/disk:ro
     deploy:
       mode: global
+
+  node-exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    command:
+      - '--path.rootfs=/host'
+    volumes:
+      - '/:/host:ro,rslave'
+    deploy:
+      mode: global
+
+  kafka-minion:
+    image: quay.io/cloudhut/kminion:master
+    hostname: kafka-minion
+    environment:
+      KAFKA_BROKERS: kafka:9092
+    deploy:
       labels:
-        prometheus-job: cadvisor
-        prometheus-address: 'cadvisor:8080'
+        - prometheus-job-service=kafka
+        - prometheus-address=kafka-minion:8080
 
 configs:
   grafana.ini:
@@ -60,6 +86,36 @@ configs:
     file: ./grafana/datasource.yml
     # name: datasource.yml-${datasource_yml_DIGEST:?err}
     name: datasource.yml
+    labels:
+      name: grafana
+  dashboard.yml:
+    file: ./grafana/dashboards/dashboard.yml
+    name: dashboard.yml
+    labels:
+      name: grafana
+  node-exporter-full_rev27.json:
+    file: ./grafana/dashboards/nodes/node-exporter-full_rev27.json
+    name: node-exporter-full_rev27.json
+    labels:
+      name: grafana
+  docker-swarm-monitor-v2_rev2.json:
+    file: ./grafana/dashboards/containers/docker-swarm-monitor-v2_rev2.json
+    name: docker-swarm-monitor-v2_rev2.json
+    labels:
+      name: grafana
+  kminion-cluster_rev1.json:
+    file: ./grafana/dashboards/applications/kminion-cluster_rev1.json
+    name: kminion-cluster_rev1.json
+    labels:
+      name: grafana
+  kminion-groups_rev1.json:
+    file: ./grafana/dashboards/applications/kminion-groups_rev1.json
+    name: kminion-groups_rev1.json
+    labels:
+      name: grafana
+  kminion-topic_rev1.json:
+    file: ./grafana/dashboards/applications/kminion-topic_rev1.json
+    name: kminion-topic_rev1.json
     labels:
       name: grafana
   prometheus.yml:
