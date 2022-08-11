@@ -65,16 +65,6 @@ services:
     deploy:
       mode: global
 
-  kafka-minion:
-    image: quay.io/cloudhut/kminion:master
-    hostname: kafka-minion
-    environment:
-      KAFKA_BROKERS: kafka:9092
-    deploy:
-      labels:
-        - prometheus-job-service=kafka
-        - prometheus-address=kafka-minion:8080
-
 configs:
   grafana.ini:
     file: ./grafana/grafana.ini

@@ -51,6 +51,23 @@ services:
           cpus: ${KAFDROP_CPU_RESERVE:-0.05}
           memory: ${KAFDROP_MEMORY_RESERVE:-500M}
 
+  kafka-minion:
+    image: quay.io/cloudhut/kminion:master
+    hostname: kafka-minion
+    environment:
+      KAFKA_BROKERS: kafka:9092
+    deploy:
+      resources:
+        limits:
+          cpus: ${KMINION_CPU_LIMIT:-0.8}
+          memory: ${KMINION_MEMORY_LIMIT:-3G}
+        reservations:
+          cpus: ${KMINION_CPU_RESERVE:-0.05}
+          memory: ${KMINION_MEMORY_RESERVE:-500M}
+      labels:
+        - prometheus-job-service=kafka
+        - prometheus-address=kafka-minion:8080
+
 volumes:
   kafka-volume:
   zookeeper-1-volume:
