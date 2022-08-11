@@ -167,18 +167,13 @@ main() {
         --secret-add source=${new_timestamp}-privkey.pem,target=/run/secrets/privkey.pem \
         instant_reverse-proxy-nginx" "Error updating nginx service"
       log info "Done updating nginx service"
-
-      log info "Scaling up ofelia service..."
-      try "docker service scale instant_ofelia=1" "Error scaling up ofelia service"
-      overwrite "Scaling up ofelia service... Done"
     fi
   elif [[ "${ACTION}" == "down" ]]; then
     log info "Scaling down services..."
-    try "docker service scale instant_reverse-proxy-nginx=0 instant_ofelia=0" "Error scaling down services"
+    try "docker service scale instant_reverse-proxy-nginx=0" "Error scaling down services"
     log info "Done scaling down services"
   elif [[ "${ACTION}" == "destroy" ]]; then
     try "docker service rm instant_reverse-proxy-nginx" "Failed to remove instant_reverse-proxy-nginx"
-    try "docker service rm instant_ofelia" "Failed to remove instant_ofelia"
 
     mapfile -t nginx_secrets < <(docker secret ls -qf label=name=nginx)
     if [[ "${#nginx_secrets[@]}" -ne 0 ]]; then
