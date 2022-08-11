@@ -17,6 +17,12 @@ readonly ROOT_PATH
 
 main() {
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
+    if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
+      export OFELIA_CONFIG_INI="ofelia-config-cluster.ini"
+    else
+      export OFELIA_CONFIG_INI="ofelia-config.ini"
+    fi
+
     config::substitute_env_vars "${COMPOSE_FILE_PATH}"/config.ini
     config::set_config_digests "${COMPOSE_FILE_PATH}"/docker-compose.yml
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml instant" "Failed to deploy Job Scheduler Ofelia"
