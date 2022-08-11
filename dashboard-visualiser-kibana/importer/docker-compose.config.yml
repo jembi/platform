@@ -9,7 +9,7 @@ services:
       API_USERNAME: ${KIBANA_USERNAME:-elastic}
       API_PASSWORD: ${KIBANA_PASSWORD:-dev_password_only}
       SSL: ${KIBANA_SSL:-true}
-      API_PATH: '/api/saved_objects/_import?createNewCopies=true'
+      API_PATH: '/api/saved_objects/_import?overwrite=true'
       MIME_TYPE: 'multipart/form-data'
       CONFIG_FILE: ${KIBANA_CONFIG_FILE:-kibana-export.ndjson}
       ADDITIONAL_HEADERS: '{ "kbn-xsrf": "true" }'

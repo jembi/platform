@@ -63,7 +63,6 @@ config::remove_stale_service_configs() {
         fi
 
         raftIds=($(docker config ls -f "label=name=${CONFIG_LABEL}" -f "name=${composeNameWithoutEnv}" --format "{{.ID}}"))
-
         # Only keep the most recent of all configs with the same name
         if [[ ${#raftIds[@]} -gt 1 ]]; then
             mostRecentRaftId="${raftIds[0]}"
@@ -78,17 +77,6 @@ config::remove_stale_service_configs() {
                     configsToRemove+=("${raftId}")
                 fi
             done
-        fi
-    done
-
-    # Remove configs without a reference
-    configRaftNames=($(docker config ls -f "label=name=${CONFIG_LABEL}" --format "{{.Name}}"))
-    for configRaftName in "${configRaftNames[@]}"; do
-        nameWithoutDigest=$(echo "$configRaftName" | sed 's/-[a-f0-9]*$//g')
-        raftOccurencesInCompose=$(for word in "${composeNames[@]}"; do echo "${word}"; done | grep -c "${nameWithoutDigest}")
-
-        if [[ "${raftOccurencesInCompose}" == 0 ]]; then
-            configsToRemove+=("${configRaftName}")
         fi
     done
 
@@ -141,6 +129,8 @@ config::await_service_running() {
     local -r warning_time="${5:-}"
     local -r start_time=$(date +%s)
 
+    docker service rm instant_await-helper &>/dev/null
+
     try "docker stack deploy -c $await_helper_file_path instant" "Failed to deploy await helper"
     until [[ $(docker service ls -f name=instant_"$service_name" --format "{{.Replicas}}") == *"$service_instances/$service_instances"* ]]; do
         config::timeout_check "$start_time" "$service_name to start" "$exit_time" "$warning_time"
@@ -176,6 +166,12 @@ config::remove_config_importer() {
     local -r start_time=$(date +%s)
 
     local config_importer_state
+
+    if [[ -z $(docker service ps instant_"$config_importer_service_name") ]]; then
+        log info "instant_$config_importer_service_name service cannot be removed as it does not exist!"
+        exit 0
+    fi
+
     config_importer_state=$(docker service ps instant_"$config_importer_service_name" --format "{{.CurrentState}}")
     until [[ $config_importer_state == *"Complete"* ]]; do
         config::timeout_check "$start_time" "$config_importer_service_name to run" "$exit_time" "$warning_time"
@@ -204,6 +200,29 @@ config::await_service_removed() {
         config::timeout_check "$start_time" "${SERVICE_NAME} to be removed"
         sleep 1
     done
+    log info "Service $SERVICE_NAME successfully removed"
+}
+
+# Waits for the provided service to join the network
+#
+# Arguments:
+# $1 : service name (eg. instant_analytics-datastore-elastic-search)
+config::await_network_join() {
+    local -r SERVICE_NAME="${1:?"FATAL: await_service_removed SERVICE_NAME not provided"}"
+    local start_time=$(date +%s)
+    local exit_time=30
+    local warning_time=10
+
+    log info "Waiting for ${SERVICE_NAME} to join network..."
+
+    # TODO: do a better regex/string matching check to ensure that we don't accidentally
+    # check for services with append to this service name, e.g., if we're looking for
+    # instant_analytics-datastore-elastic-search and we have instant_analytics-datastore-elastic-search-helper
+    # we could get a false-positive
+    until [[ $(docker network inspect -v instant_default -f "{{.Services}}") == *"${SERVICE_NAME}"* ]]; do
+        config::timeout_check "$start_time" "${SERVICE_NAME} to join the network" $exit_time $warning_time
+        sleep 1
+    done
 }
 
 # Generates configs for a service from a folder and adds them to a temp docker-compose file
@@ -211,8 +230,8 @@ config::await_service_removed() {
 # Arguments:
 # - $1 : service name (eg. data-mapper-logstash)
 # - $2 : target base (eg. /usr/share/logstash/)
-# - $3 : target folder path in absolute format (eg. "$COMPOSE_FILE_PATH"/pipeline)
-# - $4 : compose file path (eg. "$COMPOSE_FILE_PATH")
+# - $3 : target folder path in absolute format (eg. "$PATH_TO_FILE"/pipeline)
+# - $4 : compose file path (eg. "$PATH_TO_FILE")
 #
 # Exports:
 # All exports are required for yq to process the values and are not intended for external use
@@ -227,11 +246,11 @@ config::generate_service_configs() {
     local -r SERVICE_NAME=${1:?"FATAL: generate_service_config parameter missing"}
     local -r TARGET_BASE=${2:?"FATAL: generate_service_config parameter missing"}
     local -r TARGET_FOLDER_PATH=${3:?"FATAL: generate_service_config parameter missing"}
-    local -r COMPOSE_FILE_PATH=${4:?"FATAL: generate_service_config parameter missing"}
+    local -r COMPOSE_PATH=${4:?"FATAL: generate_service_config parameter missing"}
     local -r TARGET_FOLDER_NAME=$(basename "${TARGET_FOLDER_PATH}")
     local count=0
 
-    try "touch ${COMPOSE_FILE_PATH}/docker-compose.tmp.yml" "Failed to create temp service config compose file"
+    try "touch ${COMPOSE_PATH}/docker-compose.tmp.yml" "Failed to create temp service config compose file"
 
     find "${TARGET_FOLDER_PATH}" -maxdepth 10 -mindepth 1 -type f | while read -r file; do
         file_name=${file/"${TARGET_FOLDER_PATH%/}"/}
@@ -256,8 +275,27 @@ config::generate_service_configs() {
         eval(strenv(config_query)).name = strenv(config_source) |
         eval(strenv(config_query)).labels.name = strenv(config_label_name) |
         eval(strenv(config_query)).labels.service = strenv(config_service_name)
-        ' "${COMPOSE_FILE_PATH}/docker-compose.tmp.yml"
+        ' "${COMPOSE_PATH}/docker-compose.tmp.yml"
 
         count=$((count + 1))
     done
+}
+
+# Removes nginx configs for destroyed services
+#
+# Arguments:
+# - $@ : a list of configs to remove
+config::remove_service_nginx_config() {
+    local configs=("$@")
+    local config_rm_command=""
+    local config_rm_list=""
+    for config in "${configs[@]}"; do
+        if [[ -n $(docker config ls -qf name="$config") ]]; then
+            config_rm_command="$config_rm_command --config-rm $config"
+            config_rm_list="$config_rm_list $config"
+        fi
+    done
+
+    try "docker service update $config_rm_command instant_reverse-proxy-nginx" "Error updating nginx service"
+    try "docker config rm $config_rm_list" "Failed to remove configs"
 }

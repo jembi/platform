@@ -1,4 +1,4 @@
-FROM openhie/package-base:0.1.0
+FROM openhie/package-base:0.4.0
 
 ADD . .
 

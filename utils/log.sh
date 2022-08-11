@@ -183,18 +183,15 @@ try() {
     if [ "${BASHLOG_FILE}" -eq 1 ]; then
         if ! eval "$COMMAND" >>"$LOG_FILE_PATH" 2>&1; then
             log error "$ERROR_MESSAGE"
-            exit 1
         fi
     else
         if [ "${DEBUG}" -eq 1 ]; then
             if ! eval "$COMMAND"; then
                 log error "$ERROR_MESSAGE"
-                exit 1
             fi
         else
             if ! eval "$COMMAND" 1>/dev/null; then
                 log error "$ERROR_MESSAGE"
-                exit 1
             fi
         fi
     fi

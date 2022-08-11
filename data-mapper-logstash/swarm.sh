@@ -3,6 +3,10 @@
 # Arguments
 ACTION=$1
 MODE=$2
+STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
+
+readonly LOGSTASH_INSTANCES=${LOGSTASH_INSTANCES:-1}
+export LOGSTASH_INSTANCES
 
 readonly LOGSTASH_DEV_MOUNT=$LOGSTASH_DEV_MOUNT
 
@@ -45,6 +49,13 @@ else
 fi
 
 if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
+
+  if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
+    export LOGSTASH_YML_CONFIG="logstash-logstash.cluster.yml"
+  else
+    export LOGSTASH_YML_CONFIG="logstash-logstash.yml"
+  fi
+
   inject_pipeline_elastic_hosts
 
   config::set_config_digests "${COMPOSE_FILE_PATH}"/docker-compose.yml
@@ -55,15 +66,18 @@ if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
   try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $LogstashDevComposeParam $LogstashDevMountComposeParam $LogstashTempComposeParam instant" "Failed to deploy Data Mapper Logstash"
 
   docker::await_container_startup data-mapper-logstash
-  docker::await_container_status data-mapper-logstash running
+  docker::await_container_status data-mapper-logstash Running
 
   config::remove_stale_service_configs "${COMPOSE_FILE_PATH}/docker-compose.yml" "logstash"
+
+  docker::prune_configs logstash
 
   log info "Done"
 elif [[ "${ACTION}" == "down" ]]; then
   try "docker service scale instant_data-mapper-logstash=0" "Failed to scale down data-mapper-logstash"
 elif [[ "${ACTION}" == "destroy" ]]; then
-  try "docker service rm instant_data-mapper-logstash" "Failed to remove data-mapper-logstash"
+  docker::service_destroy data-mapper-logstash
+  docker::try_remove_volume logstash-data
 else
   log error "Valid options are: init, up, down, or destroy"
 fi

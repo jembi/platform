@@ -15,7 +15,9 @@ services:
       - JAVA_TOOL_OPTIONS=-Xmx2g
       - CATALINA_OPTS=-Xmx2g
     deploy:
-      replicas: ${HAPI_FHIR_INSTANCES:-1}
+      replicas: ${HAPI_FHIR_INSTANCES}
+      placement:
+        max_replicas_per_node: 1
       resources:
         limits:
           cpus: ${HAPI_FHIR_CPU_LIMIT:-0.8}
