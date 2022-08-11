@@ -86,7 +86,7 @@ To start up Hapi FHIR and ensure that the backups can be made, ensure that you h
 
 ### Postgres (Hapi-FHIR)
 
-To perform a disaster recovery, run the following command on the leader node:
+To restore postgres, run the following command on the leader node:
 
 ```sh
 docker run --network pg_backup --mount=type=bind,src=/backups/,dst=/backups/ alpine:3.15.5 sh -c 'apk update; apk add --no-cache postgresql-client>14.4; PGPASSWORD=<DB_PASSWORD> /usr/bin/pg_restore --host "postgres-1" --port "5432" --username <DB_USER> --dbname <DB_NAME> --clean /backups/<BACKUP_FILE>'
