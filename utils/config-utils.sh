@@ -299,3 +299,15 @@ config::remove_service_nginx_config() {
     try "docker service update $config_rm_command instant_reverse-proxy-nginx" "Error updating nginx service"
     try "docker config rm $config_rm_list" "Failed to remove configs"
 }
+
+#######################################
+# Replaces all environment variables in a file with the environment variable value
+# Arguments:
+# - $1 : the path to the file that you wish to substitute env vars into (eg. "${COMPOSE_FILE_PATH}"/config.ini)
+#######################################
+config::substitute_env_vars() {
+    local -r FILE_PATH="${1:?"substitute_env_vars is missing a parameter"}"
+    config_with_env=$(envsubst <"${FILE_PATH}")
+    echo "" >"${FILE_PATH}"
+    echo "$config_with_env" >>"${FILE_PATH}"
+}
