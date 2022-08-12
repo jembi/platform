@@ -1,7 +1,7 @@
 #!/bin/bash
 
 option="${1:-all}"
-cli_version=${2:-0.4.0}
+cli_version=${2:-0.5.0}
 
 case ${option} in
 linux)
