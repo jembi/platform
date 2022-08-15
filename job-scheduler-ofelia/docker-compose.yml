@@ -6,17 +6,12 @@ services:
     command: daemon --config=/tmp/config.ini
     configs:
       - target: /tmp/config.ini
-        source: ${OFELIA_CONFIG_INI:-ofelia-config.ini}
+        source: ofelia-config.ini
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
 configs:
   ofelia-config.ini:
     file: ./config.ini
     name: ofelia-config.ini-${ofelia_config_ini_DIGEST:?err}
-    labels: 
-      name: ofelia
-  ofelia-config-cluster.ini:
-    file: ./config.cluster.ini
-    name: ofelia-config-cluster.ini-${ofelia_config_cluster_ini_DIGEST:?err}
     labels: 
       name: ofelia
