@@ -70,7 +70,7 @@ Each service's resource allocations can be piped into their .yml file through en
 
 ### Notes on Resource Allocations
 
-- CPU allocations are specified as a portion of unity, i.e., 0.01 --> 1.
+- CPU allocations are specified as a portion of the total number of cores on the host system, i.e., a CPU limit of `2` in a `6-core` system is an effective limit of `33.33%` of the CPU, and a CPU limit of `6` in a `6-core` system is an effective limit of `100%` of the CPU.
 - Memory (RAM) allocations are specified as a number followed by their multiplier, i.e., 500M, 1G, 10G, etc.
 - Be wary of allocating CPU limits to ELK Stack services. These seem to fail with CPU limits and their already implemented health checks.
 - Take note to not allocate less memory to ELK Stack services than their JVM heap sizes.
