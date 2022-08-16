@@ -78,6 +78,8 @@ Each service's resource allocations can be piped into their .yml file through en
 
 ## Backups
 
+> This section assumes postgres backups are made using `pg_basebackup`
+
 ### Postgres (Hapi-FHIR)
 
 To start up Hapi FHIR and ensure that the backups can be made, ensure that you have created the Hapi FHIR bind mount directory (eg./backup)
