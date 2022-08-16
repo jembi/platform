@@ -35,7 +35,7 @@ schedule= @every 24h
 image= mongo:4.2
 network= mongo_backup
 volume= /backups:/tmp/backups
-command= sh -c 'mongodump --uri="mongodb://mongo-1:27017/openhim" --gzip --archive=/tmp/backups/mongodump_$(date +%s).gz'
+command= sh -c 'mongodump --uri=${OPENHIM_MONGO_URL} --gzip --archive=/tmp/backups/mongodump_$(date +%s).gz'
 delete= true
 ```
 
@@ -51,7 +51,7 @@ schedule= @every 24h
 image= mongo:4.2
 network= mongo_backup
 volume= /backups:/tmp/backups
-command= sh -c 'mongodump --uri="mongodb://mongo-1:27017,mongo-2:27017,mongo-3:27017/openhim?replicaSet=mongo-set" --gzip --archive=/tmp/backups/mongodump_$(date +%s).gz'
+command= sh -c 'mongodump --uri=${OPENHIM_MONGO_URL} --gzip --archive=/tmp/backups/mongodump_$(date +%s).gz'
 delete= true
 ```
 
