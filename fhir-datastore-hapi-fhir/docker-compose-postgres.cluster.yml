@@ -35,6 +35,10 @@ services:
         reservations:
           cpus: ${HF_POSTGRES_CPU_RESERVE:-0.05}
           memory: ${HF_POSTGRES_MEMORY_RESERVE:-500M}
+    networks:
+      pg_backup_net: {}
+      instant_net: {}
+
 
   postgres-3:
     image: bitnami/postgresql-repmgr:14
@@ -62,6 +66,10 @@ services:
         reservations:
           cpus: ${HF_POSTGRES_CPU_RESERVE:-0.05}
           memory: ${HF_POSTGRES_MEMORY_RESERVE:-500M}
+    networks:
+      pg_backup_net: {}
+      instant_net: {}
+
 
 volumes:
   hapi-postgres-2-data:
