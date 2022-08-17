@@ -36,7 +36,7 @@ services:
           cpus: ${HF_POSTGRES_CPU_RESERVE:-0.05}
           memory: ${HF_POSTGRES_MEMORY_RESERVE:-500M}
     networks:
-      pg_backup_net: {}
+      default:
       instant_net: {}
 
 
@@ -67,7 +67,7 @@ services:
           cpus: ${HF_POSTGRES_CPU_RESERVE:-0.05}
           memory: ${HF_POSTGRES_MEMORY_RESERVE:-500M}
     networks:
-      pg_backup_net: {}
+      default:
       instant_net: {}
 
 
