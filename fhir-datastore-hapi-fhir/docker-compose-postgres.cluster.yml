@@ -37,7 +37,7 @@ services:
           memory: ${HF_POSTGRES_MEMORY_RESERVE:-500M}
     networks:
       default:
-      instant_net: {}
+      pg_backup_net: {}
 
 
   postgres-3:
@@ -68,7 +68,7 @@ services:
           memory: ${HF_POSTGRES_MEMORY_RESERVE:-500M}
     networks:
       default:
-      instant_net: {}
+      pg_backup_net: {}
 
 
 volumes:
