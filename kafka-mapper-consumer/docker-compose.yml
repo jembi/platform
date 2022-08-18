@@ -1,0 +1,8 @@
+version: '3.9'
+
+services:
+  kafka-mapper-consumer:
+    image: jembi/kafka-mapper-consumer
+    environment:
+      KAFKA_HOST: kafka
+      KAFKA_PORT: 9092
