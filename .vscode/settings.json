@@ -11,10 +11,10 @@
   "json.schemas": [
     {
       "fileMatch": ["package-metadata.json"],
-      "url": "./schemas/package-metadata.json"
+      "url": "./schemas/package-metadata.schema.json"
     }
   ],
   "yaml.schemas": {
-    "./schemas/config.json": "config.yml"
+    "./schemas/config.schema.json": "config.yml"
   }
 }
