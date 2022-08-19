@@ -19,7 +19,7 @@ jobs:
           PR_NUMBER: ${{github.event.number}}
       - id: num-checks-checked
         name: Set checked checks
-        run: echo "::set-output name=checked::$(gh pr view $PR_NUMBER --repo $REPO --json body | grep -o "[x]" | wc -l)"
+        run: echo "::set-output name=checked::$(gh pr view $PR_NUMBER --repo $REPO --json body | grep -o "\[x\]" | wc -l)"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repositoryUrl }}
