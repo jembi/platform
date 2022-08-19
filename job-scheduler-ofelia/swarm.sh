@@ -17,9 +17,14 @@ readonly ROOT_PATH
 
 main() {
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
+    if [[ ! -f "${COMPOSE_FILE_PATH}/config.ini" ]]; then
+      log error "config.ini file does not exist! Aborting!!!"
+      exit 1
+    fi
+
     config::substitute_env_vars "${COMPOSE_FILE_PATH}"/config.ini
     config::set_config_digests "${COMPOSE_FILE_PATH}"/docker-compose.yml
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml instant" "Failed to deploy Job Scheduler Ofelia"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml instant" "Failed to deploy Job Scheduler Ofelia, does your .env file include all environment variables in your config.ini file?"
   elif [[ "${ACTION}" == "down" ]]; then
     try "docker service scale instant_job-scheduler-ofelia=0" "Failed to scale down job-scheduler-ofelia"
   elif [[ "${ACTION}" == "destroy" ]]; then
