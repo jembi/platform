@@ -5,8 +5,5 @@
   "type": "infrastructure",
   "version": "0.0.1",
   "dependencies": [],
-  "environmentVariables": {
-    "KAFKA_HOST": "kafka",
-    "KAFKA_PORT": "9092"
-  }
+  "environmentVariables": {}
 }
