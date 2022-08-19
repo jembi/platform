@@ -32,3 +32,5 @@ packages:
     name: Job Scheduler Ofelia
   - id: kafka-unbundler-consumer
     name: Kafka Unbundler Consumer
+  - id: kafka-mapper-consumer
+    name: Kafka Mapper Consumer
