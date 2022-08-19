@@ -11,10 +11,10 @@
   "json.schemas": [
     {
       "fileMatch": ["package-metadata.json"],
-      "url": "./schemas/package-metadata.schema.json"
+      "url": "https://raw.githubusercontent.com/openhie/package-starter-kit/main/schema/package-metadata.schema.json"
     }
   ],
   "yaml.schemas": {
-    "./schemas/config.schema.json": "config.yml"
+    "https://raw.githubusercontent.com/openhie/package-starter-kit/main/schema/config.schema.json": "config.yml"
   }
 }
