@@ -32,3 +32,5 @@ packages:
     name: Job Scheduler Ofelia
   - id: kafka-unbundler-consumer
     name: Kafka Unbundler Consumer
+  - id: analytics-datastore-clickhouse
+    name: Analytics Datastore Clickhouse

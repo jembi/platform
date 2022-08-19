@@ -1,0 +1,7 @@
+version: '3.9'
+
+services:
+  clickhouse:
+    ports:
+      - 18123:8123
+      - 19000:9000
