@@ -24,7 +24,7 @@ configure_nginx() {
     docker config create --label name=nginx "${TIMESTAMP}-http-client-registry-santempi-insecure.conf" "${COMPOSE_FILE_PATH}/config/http-client-registry-santempi-insecure.conf"
     echo "Updating nginx service: adding client-registry-santempi config file..."
     if ! docker service update \
-      --config-add source="${TIMESTAMP}-http-client-registry-santempi-insecure.conf",target=/etc/nginx/conf.d/http-client-registry-santempi-insecure.conf \
+      --config-add source="${TIMESTAMP}-http-client-registry-santempi-insecure.conf",target=/etc/nginx/conf.d/package-conf-secure/http-client-registry-santempi-insecure.conf \
       instant_reverse-proxy-nginx >/dev/null; then
       echo "Error updating nginx service"
       exit 1
@@ -34,7 +34,7 @@ configure_nginx() {
     docker config create --label name=nginx "${TIMESTAMP}-http-client-registry-santempi-secure.conf" "${COMPOSE_FILE_PATH}/config/http-client-registry-santempi-secure.conf"
     echo "Updating nginx service: adding client-registry-santempi config file..."
     if ! docker service update \
-      --config-add source="${TIMESTAMP}-http-client-registry-santempi-secure.conf",target=/etc/nginx/conf.d/http-client-registry-santempi-secure.conf \
+      --config-add source="${TIMESTAMP}-http-client-registry-santempi-secure.conf",target=/etc/nginx/conf.d/package-conf-secure/http-client-registry-santempi-secure.conf \
       instant_reverse-proxy-nginx >/dev/null; then
       echo "Error updating nginx service"
       exit 1
@@ -82,7 +82,7 @@ main() {
 
     docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $SANTE_MPI_DEV_COMPOSE_PARAM instant
   elif [ "$1" == "down" ]; then
-    docker service scale instant_santedb-mpi=0 instant_santempi-psql-1=0 instant_santempi-psql-2=0 instant_santempi-psql-3=0
+    docker service scale instant_santedb-mpi=0 instant_santedb-www=0 instant_santempi-psql-1=0 instant_santempi-psql-2=0 instant_santempi-psql-3=0
   elif [ "$1" == "destroy" ]; then
     docker service rm instant_santedb-www instant_santedb-mpi instant_santempi-psql-1 instant_santempi-psql-2 instant_santempi-psql-3
 
