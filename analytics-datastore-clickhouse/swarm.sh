@@ -17,10 +17,10 @@ readonly ROOT_PATH
 
 main() {
   if [[ "${MODE}" == "dev" ]]; then
-    log info "Running Dashboard Visualiser Clickhouse package in DEV mode"
+    log info "Running Analytics Datastore Clickhouse package in DEV mode"
     clickhouse_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
   else
-    log info "Running Dashboard Visualiser Clickhouse package in PROD mode"
+    log info "Running Analytics Datastore Clickhouse package in PROD mode"
     clickhouse_dev_compose_param=""
   fi
 
