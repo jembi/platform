@@ -1,0 +1,19 @@
+# test folder
+test/
+
+# vscode config
+.vscode
+
+# Dependency directories
+node_modules/
+
+# Dockerfiles
+Dockerfile
+
+.env.*
+.github/
+.gitignore
+.git
+
+README.md
+
