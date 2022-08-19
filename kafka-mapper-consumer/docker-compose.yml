@@ -4,5 +4,5 @@ services:
   kafka-mapper-consumer:
     image: jembi/kafka-mapper-consumer
     environment:
-      KAFKA_HOST: kafka
-      KAFKA_PORT: 9092
+      KAFKA_HOST: ${KAFKA_HOST:-kafka}
+      KAFKA_PORT: ${KAFKA_PORT:-9092}
