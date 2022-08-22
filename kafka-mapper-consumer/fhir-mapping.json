@@ -1,0 +1,24 @@
+[
+  {
+    "resourceType": "Patient",
+    "tableMappings": [
+      {
+        "targetTable": "patient_enrich",
+        "columnMappings": [
+          {
+            "columnName": "patientGivenName",
+            "fhirPath": "Patient.name.given"
+          },
+          {
+            "columnName": "patientFamilyName",
+            "fhirPath": "Patient.name.family"
+          },
+          {
+            "columnName": "patientName",
+            "fhirPath": "Patient.name.where(use = 'usual').select(given.first() + ' ' + family).first()"
+          }
+        ]
+      }
+    ]
+  }
+]

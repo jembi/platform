@@ -14,10 +14,12 @@ ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 readonly ROOT_PATH
 
 . "${ROOT_PATH}/utils/docker-utils.sh"
+. "${ROOT_PATH}/utils/config-utils.sh"
 . "${ROOT_PATH}/utils/log.sh"
 
 main() {
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
+    config::set_config_digests "${COMPOSE_FILE_PATH}"/docker-compose.yml
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml instant" "Failed to deploy Kafka Mapper Consumer"
   elif [[ "${ACTION}" == "down" ]]; then
     try "docker service scale instant_kafka-mapper-consumer=0" "Failed to scale down kafka-mapper-consumer"

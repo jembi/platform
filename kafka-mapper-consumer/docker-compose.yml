@@ -6,3 +6,13 @@ services:
     environment:
       KAFKA_HOST: ${KAFKA_HOST:-kafka}
       KAFKA_PORT: ${KAFKA_PORT:-9092}
+    configs:
+      - target: /app/src/data/fhir-mapping.json
+        source: fhir-mapping.json
+
+configs:
+  fhir-mapping.json:
+    file: ./fhir-mapping.json
+    name: fhir-mapping.json-${fhir_mapping_json_DIGEST:?err}
+    labels: 
+      name: kafka-mapper-consumer
