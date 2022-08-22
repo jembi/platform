@@ -17,10 +17,25 @@ services:
       - SDB_DELAY_START=5000
     deploy:
       replicas: ${SANTEMPI_INSTANCES}
+      resources:
+        limits:
+          cpus: ${SANTE_MPI_CPU_LIMIT:-0.8}
+          memory: ${SANTE_MPI_MEMORY_LIMIT:-3G}
+        reservations:
+          cpus: ${SANTE_MPI_CPU_RESERVE:-0.05}
+          memory: ${SANTE_MPI_MEMORY_RESERVE:-500M}
     volumes:
          - santedb-data:/santedb
   santedb-www:
     image: santesuite/santedb-www:2.2.1.10
+    deploy:
+      resources:
+        limits:
+          cpus: ${SANTE_WWW_CPU_LIMIT:-0.8}
+          memory: ${SANTE_WWW_MEMORY_LIMIT:-2G}
+        reservations:
+          cpus: ${SANTE_WWW_CPU_RESERVE:-0.05}
+          memory: ${SANTE_WWW_MEMORY_RESERVE:-500M}
     depends_on:
       - santedb-mpi
 
