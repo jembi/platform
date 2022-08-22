@@ -4,17 +4,17 @@ services:
   zookeeper-1:
     image: bitnami/zookeeper:3.7.0
     environment:
-     - ALLOW_ANONYMOUS_LOGIN=yes
+      - ALLOW_ANONYMOUS_LOGIN=yes
     volumes:
       - zookeeper-1-volume:/bitnami/zookeeper
     deploy:
       resources:
-          limits:
-            cpus: ${ZOOKEEPER_CPU_LIMIT:-0.8}
-            memory: ${ZOOKEEPER_MEMORY_LIMIT:-3G}
-          reservations:
-            cpus: ${ZOOKEEPER_CPU_RESERVE:-0.05}
-            memory: ${ZOOKEEPER_MEMORY_RESERVE:-500M}
+        limits:
+          cpus: ${ZOOKEEPER_CPU_LIMIT:-2}
+          memory: ${ZOOKEEPER_MEMORY_LIMIT:-3G}
+        reservations:
+          cpus: ${ZOOKEEPER_CPU_RESERVE:-0.05}
+          memory: ${ZOOKEEPER_MEMORY_RESERVE:-500M}
 
   kafka:
     image: bitnami/kafka:3.1.0
@@ -28,7 +28,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: ${KAFKA_CPU_LIMIT:-0.8}
+          cpus: ${KAFKA_CPU_LIMIT:-2}
           memory: ${KAFKA_MEMORY_LIMIT:-3G}
         reservations:
           cpus: ${KAFKA_CPU_RESERVE:-0.05}
@@ -45,7 +45,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: ${KAFDROP_CPU_LIMIT:-0.8}
+          cpus: ${KAFDROP_CPU_LIMIT:-2}
           memory: ${KAFDROP_MEMORY_LIMIT:-3G}
         reservations:
           cpus: ${KAFDROP_CPU_RESERVE:-0.05}

@@ -13,7 +13,7 @@ services:
         max_replicas_per_node: 1
       resources:
         limits:
-          cpus: ${OPENHIM_CPU_LIMIT:-0.8}
+          cpus: ${OPENHIM_CPU_LIMIT:-2}
           memory: ${OPENHIM_MEMORY_LIMIT:-3G}
         reservations:
           cpus: ${OPENHIM_CPU_RESERVE:-0.05}
@@ -31,7 +31,7 @@ services:
         max_replicas_per_node: 1
       resources:
         limits:
-          cpus: ${OPENHIM_CONSOLE_CPU_LIMIT:-0.8}
+          cpus: ${OPENHIM_CONSOLE_CPU_LIMIT:-2}
           memory: ${OPENHIM_CONSOLE_MEMORY_LIMIT:-2G}
         reservations:
           cpus: ${OPENHIM_CONSOLE_CPU_RESERVE:-0.05}
