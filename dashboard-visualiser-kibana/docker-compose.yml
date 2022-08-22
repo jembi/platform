@@ -15,8 +15,10 @@ services:
       replicas: ${KIBANA_INSTANCES}
       resources:
         limits:
-          memory: ${KIBANA_MEMORY_LIMIT:-3G}
+          cpus: ${KIBANA_CPU_LIMIT:-0.8}
+          memory: ${KIBANA_MEMORY_LIMIT:-2G}
         reservations:
+          cpus: ${KIBANA_CPU_RESERVE:-0.05}
           memory: ${KIBANA_MEMORY_RESERVE:-500M}
     configs:
       - target: /usr/share/kibana/config/kibana.yml

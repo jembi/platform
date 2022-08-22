@@ -21,8 +21,10 @@ services:
       replicas: ${LOGSTASH_INSTANCES}
       resources:
         limits:
-          memory: ${LOGSTASH_MEMORY_LIMIT:-3G}
+          cpus: ${LOGSTASH_CPU_LIMIT:-0.8}
+          memory: ${LOGSTASH_MEMORY_LIMIT:-2G}
         reservations:
+          cpus: ${LOGSTASH_CPU_RESERVE:-0.05}
           memory: ${LOGSTASH_MEMORY_RESERVE:-500M}
     configs:
       - target: /usr/share/logstash/config/logstash.yml
