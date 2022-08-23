@@ -20,7 +20,7 @@ services:
         max_replicas_per_node: 1
       resources:
         limits:
-          cpus: ${HAPI_FHIR_CPU_LIMIT:-0.8}
+          cpus: ${HAPI_FHIR_CPU_LIMIT:-0}
           memory: ${HAPI_FHIR_MEMORY_LIMIT:-3G}
         reservations:
           cpus: ${HAPI_FHIR_CPU_RESERVE:-0.05}
