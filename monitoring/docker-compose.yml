@@ -45,7 +45,6 @@ services:
 
   cadvisor:
     image: google/cadvisor
-    hostname: '{{.Node.ID}}'
     command: -docker_only
     volumes:
       - /:/rootfs:ro
@@ -58,12 +57,19 @@ services:
 
   node-exporter:
     image: quay.io/prometheus/node-exporter:latest
+    hostname: "{{.Node.ID}}"
     command:
       - '--path.rootfs=/host'
     volumes:
       - '/:/host:ro,rslave'
     deploy:
       mode: global
+
+  prometheus-kafka-adapter:
+    image: telefonica/prometheus-kafka-adapter:1.8.0
+    environment:
+      - KAFKA_BROKER_LIST=kafka:9092
+      - KAFKA_COMPRESSION=gzip
 
 configs:
   grafana.ini:
