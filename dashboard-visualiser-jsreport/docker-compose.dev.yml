@@ -1,0 +1,8 @@
+version: '3.9'
+
+services:
+  dashboard-visualiser-jsreport:
+    ports:
+      - target: 5488
+        published: 5488
+        mode: host
