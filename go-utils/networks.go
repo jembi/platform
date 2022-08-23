@@ -23,7 +23,7 @@ func NetworkJoinAwait(serviceName, networkName string) error {
 		}
 
 		if netResources.Services != nil && len(netResources.Services[serviceName].Tasks) > 0 {
-			break
+			return nil
 		}
 	}
 
