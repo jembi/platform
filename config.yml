@@ -28,5 +28,9 @@ packages:
     name: FHIR IG importer
   - id: message-bus-helper-hapi-proxy
     name: Message Bus Helper - HAPI Proxy to Kafka
+  - id: job-scheduler-ofelia
+    name: Job Scheduler Ofelia
+  - id: kafka-unbundler-consumer
+    name: Kafka Unbundler Consumer
   - id: monitoring
     name: Monitoring package

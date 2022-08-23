@@ -1,4 +1,4 @@
-FROM openhie/package-base:0.4.0
+FROM openhie/package-base:0.5.0
 
 ADD . .
 
@@ -7,5 +7,6 @@ RUN curl -L https://github.com/mikefarah/yq/releases/download/v4.23.1/yq_linux_a
 RUN chmod +x /usr/bin/yq
 
 # Install jq
-
 RUN apt-get install jq -y 1>/dev/null
+# Install envsubst
+RUN apt-get install gettext-base -y 1>/dev/null
