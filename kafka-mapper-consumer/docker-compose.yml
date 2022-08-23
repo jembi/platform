@@ -6,6 +6,8 @@ services:
     environment:
       KAFKA_HOST: ${KAFKA_HOST:-kafka}
       KAFKA_PORT: ${KAFKA_PORT:-9092}
+      CLICKHOUSE_HOST: ${CLICKHOUSE_HOST:-analytics-datastore-clickhouse}
+      CLICKHOUSE_PORT: ${CLICKHOUSE_PORT:-8123}
     configs:
       - target: /app/src/data/fhir-mapping.json
         source: fhir-mapping.json

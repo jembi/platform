@@ -12,10 +12,6 @@
           {
             "columnName": "patientFamilyName",
             "fhirPath": "Patient.name.family"
-          },
-          {
-            "columnName": "patientName",
-            "fhirPath": "Patient.name.where(use = 'usual').select(given.first() + ' ' + family).first()"
           }
         ]
       }
