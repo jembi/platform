@@ -1,7 +1,11 @@
 version: '3.9'
 
 services:
-  clickhouse:
+  analytics-datastore-clickhouse:
     ports:
-      - 18123:8123
-      - 19000:9000
+      - target: 8123
+        published: 8124
+        mode: host
+      - target: 9000
+        published: 9001
+        mode: host
