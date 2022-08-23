@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -76,7 +77,7 @@ func BashExecute(command string, pathChange ...string) (string, error) {
 	return stdout, nil
 }
 
-func NewCliFromCompose(options options.Deploy, composeFiles ...string) (*command.DockerCli, *composeTypes.Config, error) {
+func NewCliFromCompose(options options.Deploy) (*command.DockerCli, *composeTypes.Config, error) {
 	cli, err := command.NewDockerCli()
 	if err != nil {
 		return nil, nil, err
@@ -89,6 +90,20 @@ func NewCliFromCompose(options options.Deploy, composeFiles ...string) (*command
 
 	config, err := loader.LoadComposefile(cli, options)
 	return cli, config, err
+}
+
+func NewDummyCli() (*command.DockerCli, error) {
+	cli, err := command.NewDockerCli()
+	if err != nil {
+		return nil, err
+	}
+
+	err = cli.Initialize(cliflags.NewClientOptions())
+	if err != nil {
+		return nil, err
+	}
+
+	return cli, nil
 }
 
 func ValidateArgs(args ...string) error {
@@ -253,4 +268,23 @@ func timeoutCheck(startTime time.Time, warningTime, exitTime time.Duration, serv
 	}
 
 	return nil
+}
+
+func PathPrepend(files []string, preString ...string) []string {
+	strPrep := filepath.Join(preString...)
+
+	var newFiles []string
+	for i := range files {
+		newFiles = append(newFiles, filepath.Join(strPrep, files[i]))
+	}
+	return newFiles
+}
+
+func Config(files ...string) (*composeTypes.Config, error) {
+	_, config, err := NewCliFromCompose(options.Deploy{
+		Composefiles: files,
+		Namespace:    "instant",
+		ResolveImage: "always",
+	})
+	return config, err
 }

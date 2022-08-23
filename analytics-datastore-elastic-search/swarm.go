@@ -5,6 +5,9 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"path/filepath"
+
+	"github.com/docker/cli/cli/command/stack/options"
 )
 
 var (
@@ -54,17 +57,29 @@ func main() {
 }
 
 func packageInit(dir string, composeFiles ...string) error {
-	err := utils.StackDeployFromBash(dir, composeFiles...)
+	option := options.Deploy{
+		Composefiles: utils.PathPrepend(composeFiles, dir, "compose"),
+		Namespace:    "instant",
+		ResolveImage: "always",
+	}
+
+	err := utils.StackDeploy(option)
 	if err != nil {
 		return err
 	}
 
-	err = utils.AwaitContainerStartup("analytics-datastore-elastic-search", 0, 0)
+	configImporter := options.Deploy{
+		Composefiles: []string{filepath.Join(*packagePath, "importer", "docker-compose.config.yml")},
+		Namespace:    "instant",
+		ResolveImage: "always",
+	}
+
+	err = utils.SetConfigDigests(configImporter.Composefiles...)
 	if err != nil {
 		return err
 	}
 
-	err = utils.AwaitContainerReady("analytics-datastore-elastic-search", 0, 0)
+	err = utils.RemoveStaleServiceConfigs(configImporter.Composefiles...)
 	if err != nil {
 		return err
 	}
@@ -79,11 +94,21 @@ func packageInit(dir string, composeFiles ...string) error {
 		return err
 	}
 
+	err = utils.NetworkJoinAwait(option.Namespace+"_analytics-datastore-elastic-search", option.Namespace+"_default")
+	if err != nil {
+		return err
+	}
+
+	err = utils.StackDeploy(configImporter)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func packageDestroy() error {
-	output, err := utils.Bash("docker service rm instant_dashboard-visualiser-jsreport instant_jsreport-config-importer instant_await-helper")
+	output, err := utils.Bash("docker service rm instant_analytics-datastore-elastic-search")
 	if err != nil {
 		return err
 	}

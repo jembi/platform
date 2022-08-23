@@ -22,8 +22,8 @@ func StackDeployFromBash(dir string, composeFiles ...string) error {
 	return err
 }
 
-func StackDeploy(options options.Deploy, composeFiles ...string) error {
-	cli, config, err := NewCliFromCompose(options, composeFiles...)
+func StackDeploy(options options.Deploy) error {
+	cli, config, err := NewCliFromCompose(options)
 	if err != nil {
 		return err
 	}

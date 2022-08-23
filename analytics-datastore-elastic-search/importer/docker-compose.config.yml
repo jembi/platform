@@ -24,6 +24,6 @@ services:
 configs:
   fhir-enrich-reports.json:
     file: ./fhir-enrich-reports.json
-    name: fhir-enrich-reports.json-${fhir_enrich_reports_json_DIGEST:?err}
+    name: fhir-enrich-reports.json-${ferj_DIGEST:-csig_ferj_DIGEST}
     labels:
       name: elastic-search

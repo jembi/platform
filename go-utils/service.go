@@ -31,7 +31,7 @@ func CreateService(option options.Deploy) error {
 	// 	return err
 	// }
 
-	_, config, err := NewCliFromCompose(option, option.Composefiles...)
+	_, config, err := NewCliFromCompose(option)
 	if err != nil {
 		return err
 	}
