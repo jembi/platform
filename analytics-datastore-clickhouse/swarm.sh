@@ -31,6 +31,7 @@ main() {
     try "docker service scale instant_analytics-datastore-clickhouse=0" "Failed to scale down analytics-datastore-clickhouse"
   elif [[ "${ACTION}" == "destroy" ]]; then
     docker::service_destroy analytics-datastore-clickhouse
+    docker::try_remove_volume clickhouse-data
   else
     log error "Valid options are: init, up, down, or destroy"
   fi
