@@ -129,6 +129,8 @@ config::await_service_running() {
     local -r warning_time="${5:-}"
     local -r start_time=$(date +%s)
 
+    docker service rm instant_await-helper &>/dev/null
+
     try "docker stack deploy -c $await_helper_file_path instant" "Failed to deploy await helper"
     until [[ $(docker service ls -f name=instant_"$service_name" --format "{{.Replicas}}") == *"$service_instances/$service_instances"* ]]; do
         config::timeout_check "$start_time" "$service_name to start" "$exit_time" "$warning_time"
@@ -228,8 +230,8 @@ config::await_network_join() {
 # Arguments:
 # - $1 : service name (eg. data-mapper-logstash)
 # - $2 : target base (eg. /usr/share/logstash/)
-# - $3 : target folder path in absolute format (eg. "$COMPOSE_FILE_PATH"/pipeline)
-# - $4 : compose file path (eg. "$COMPOSE_FILE_PATH")
+# - $3 : target folder path in absolute format (eg. "$PATH_TO_FILE"/pipeline)
+# - $4 : compose file path (eg. "$PATH_TO_FILE")
 #
 # Exports:
 # All exports are required for yq to process the values and are not intended for external use
@@ -244,11 +246,11 @@ config::generate_service_configs() {
     local -r SERVICE_NAME=${1:?"FATAL: generate_service_config parameter missing"}
     local -r TARGET_BASE=${2:?"FATAL: generate_service_config parameter missing"}
     local -r TARGET_FOLDER_PATH=${3:?"FATAL: generate_service_config parameter missing"}
-    local -r COMPOSE_FILE_PATH=${4:?"FATAL: generate_service_config parameter missing"}
+    local -r COMPOSE_PATH=${4:?"FATAL: generate_service_config parameter missing"}
     local -r TARGET_FOLDER_NAME=$(basename "${TARGET_FOLDER_PATH}")
     local count=0
 
-    try "touch ${COMPOSE_FILE_PATH}/docker-compose.tmp.yml" "Failed to create temp service config compose file"
+    try "touch ${COMPOSE_PATH}/docker-compose.tmp.yml" "Failed to create temp service config compose file"
 
     find "${TARGET_FOLDER_PATH}" -maxdepth 10 -mindepth 1 -type f | while read -r file; do
         file_name=${file/"${TARGET_FOLDER_PATH%/}"/}
@@ -273,7 +275,7 @@ config::generate_service_configs() {
         eval(strenv(config_query)).name = strenv(config_source) |
         eval(strenv(config_query)).labels.name = strenv(config_label_name) |
         eval(strenv(config_query)).labels.service = strenv(config_service_name)
-        ' "${COMPOSE_FILE_PATH}/docker-compose.tmp.yml"
+        ' "${COMPOSE_PATH}/docker-compose.tmp.yml"
 
         count=$((count + 1))
     done
@@ -296,4 +298,16 @@ config::remove_service_nginx_config() {
 
     try "docker service update $config_rm_command instant_reverse-proxy-nginx" "Error updating nginx service"
     try "docker config rm $config_rm_list" "Failed to remove configs"
+}
+
+#######################################
+# Replaces all environment variables in a file with the environment variable value
+# Arguments:
+# - $1 : the path to the file that you wish to substitute env vars into (eg. "${COMPOSE_FILE_PATH}"/config.ini)
+#######################################
+config::substitute_env_vars() {
+    local -r FILE_PATH="${1:?"substitute_env_vars is missing a parameter"}"
+    config_with_env=$(envsubst <"${FILE_PATH}")
+    echo "" >"${FILE_PATH}"
+    echo "$config_with_env" >>"${FILE_PATH}"
 }

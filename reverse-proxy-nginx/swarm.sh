@@ -21,6 +21,7 @@ readonly TIMESTAMPED_NGINX="${TIMESTAMP}-nginx.conf"
 # Import libraries
 ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/log.sh"
+. "${ROOT_PATH}/utils/config-utils.sh"
 
 main() {
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
@@ -28,15 +29,14 @@ main() {
       log info "Not starting reverse proxy as we are running DEV mode"
       exit 0
     fi
-    if [[ $(docker service ps instant_reverse-proxy-nginx --format '{{.CurrentState}}') == *"Running"* ]]; then
-      log info "Skipping reverse proxy reload as it is already up"
-      exit 0
-    fi
-
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml instant" "Failed to deploy nginx"
 
     if [[ "${INSECURE}" == "true" ]]; then
       log info "Running reverse-proxy package in INSECURE mode"
+
+      config::generate_service_configs reverse-proxy-nginx /etc/nginx/conf.d "${COMPOSE_FILE_PATH}/package-conf-insecure" "${COMPOSE_FILE_PATH}"
+      nginx_temp_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.tmp.yml"
+      try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $nginx_temp_compose_param instant" "Failed to deploy nginx"
+
       if [ "${INSECURE_PORTS}" != "" ]; then
         IFS='-' read -ra PORTS <<<"$INSECURE_PORTS"
         local portsArray=()
@@ -63,6 +63,10 @@ main() {
       log info "Done updating nginx service"
     else
       log info "Running reverse-proxy package in SECURE mode"
+
+      config::generate_service_configs reverse-proxy-nginx /etc/nginx/conf.d "${COMPOSE_FILE_PATH}/package-conf-secure" "${COMPOSE_FILE_PATH}"
+      nginx_temp_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.tmp.yml"
+      try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $nginx_temp_compose_param instant" "Failed to deploy nginx"
 
       local domain_args=()
       if [ -n "$SUBDOMAINS" ]; then
@@ -163,18 +167,13 @@ main() {
         --secret-add source=${new_timestamp}-privkey.pem,target=/run/secrets/privkey.pem \
         instant_reverse-proxy-nginx" "Error updating nginx service"
       log info "Done updating nginx service"
-
-      log info "Scaling up ofelia service..."
-      try "docker service scale instant_ofelia=1" "Error scaling up ofelia service"
-      overwrite "Scaling up ofelia service... Done"
     fi
   elif [[ "${ACTION}" == "down" ]]; then
     log info "Scaling down services..."
-    try "docker service scale instant_reverse-proxy-nginx=0 instant_ofelia=0" "Error scaling down services"
+    try "docker service scale instant_reverse-proxy-nginx=0" "Error scaling down services"
     log info "Done scaling down services"
   elif [[ "${ACTION}" == "destroy" ]]; then
     try "docker service rm instant_reverse-proxy-nginx" "Failed to remove instant_reverse-proxy-nginx"
-    try "docker service rm instant_ofelia" "Failed to remove instant_ofelia"
 
     mapfile -t nginx_secrets < <(docker secret ls -qf label=name=nginx)
     if [[ "${#nginx_secrets[@]}" -ne 0 ]]; then

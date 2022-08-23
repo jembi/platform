@@ -1,0 +1,12 @@
+{
+  "id": "kafka-unbundler-consumer",
+  "name": "Kafka Unbundler Consumer",
+  "description": "A kafka processor to unbundle resources into their own kafka topics",
+  "type": "infrastructure",
+  "version": "0.0.1",
+  "dependencies": ["message-bus-kafka"],
+  "environmentVariables": {
+    "KAFKA_HOST": "kafka",
+    "KAFKA_PORT": "9092"
+  }
+}

@@ -16,18 +16,21 @@ services:
     volumes:
       - logstash-data:/usr/share/logstash/data
     deploy:
+      placement:
+        max_replicas_per_node: 1
+      replicas: ${LOGSTASH_INSTANCES}
       resources:
         limits:
           memory: ${LOGSTASH_MEMORY_LIMIT:-3G}
         reservations:
           memory: ${LOGSTASH_MEMORY_RESERVE:-500M}
     configs:
+      - target: /usr/share/logstash/config/logstash.yml
+        source: ${LOGSTASH_YML_CONFIG:-logstash-logstash.yml}
       - target: /usr/share/logstash/config/log4j2.properties
         source: logstash-log4j2.properties
       - target: /usr/share/logstash/config/jvm.options
         source: logstash-jvm.options
-      - target: /usr/share/logstash/config/logstash.yml
-        source: logstash-logstash.yml
       - target: /usr/share/logstash/config/pipelines.yml
         source: logstash-pipelines.yml
 
@@ -35,22 +38,27 @@ configs:
   logstash-log4j2.properties:
     file: ./log4j2.properties
     name: logstash-log4j2.properties-${logstash_log4j2_properties_DIGEST:?err}
-    labels: 
+    labels:
       name: logstash
   logstash-jvm.options:
     file: ./jvm.options
     name: logstash-jvm.options-${logstash_jvm_options_DIGEST:?err}
-    labels: 
+    labels:
       name: logstash
   logstash-logstash.yml:
     file: ./logstash.yml
     name: logstash-logstash.yml-${logstash_logstash_yml_DIGEST:?err}
-    labels: 
+    labels:
+      name: logstash
+  logstash-logstash.cluster.yml:
+    file: ./logstash.cluster.yml
+    name: logstash-logstash.cluster.yml-${logstash_logstash_cluster_yml_DIGEST:?err}
+    labels:
       name: logstash
   logstash-pipelines.yml:
     file: ./pipelines.yml
     name: logstash-pipelines.yml-${logstash_pipelines_yml_DIGEST:?err}
-    labels: 
+    labels:
       name: logstash
 volumes:
   logstash-data:

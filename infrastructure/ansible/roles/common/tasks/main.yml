@@ -1,107 +1,47 @@
 ---
-- name: 'pre : update apt cache'
+- name: "pre : update apt cache"
   apt:
     update_cache: yes
 
 - name: enable passwordless sudo
   lineinfile:
     dest: /etc/sudoers
-    regexp: '^%sudo'
-    line: '%sudo ALL=(ALL) NOPASSWD: ALL'
+    regexp: "^%sudo"
+    line: "%sudo ALL=(ALL) NOPASSWD: ALL"
     validate: visudo -cf %s
     state: present
 
+- name: create backup path if it doesn't exist
+  raw: sudo mkdir -p /backups
+
 - name: update authorized keys
   authorized_key:
-    user: 'ubuntu'
-    key: '{{ item.key }}'
-    comment: '{{ item.name }}'
-    state: '{{ item.state }}'
-  loop: '{{ users }}'
+    user: "ubuntu"
+    key: "{{ item.key }}"
+    comment: "{{ item.name }}"
+    state: "{{ item.state }}"
+  loop: "{{ users }}"
 
 - name: disable root login
   lineinfile:
     dest: /etc/ssh/sshd_config
-    regexp: '^PermitRootLogin'
-    line: 'PermitRootLogin no'
+    regexp: "^PermitRootLogin"
+    line: "PermitRootLogin no"
     state: present
   notify: restart sshd
 
 - name: disable password authentication
   lineinfile:
     dest: /etc/ssh/sshd_config
-    regexp: '^PasswordAuthentication'
-    line: 'PasswordAuthentication no'
+    regexp: "^PasswordAuthentication"
+    line: "PasswordAuthentication no"
     state: present
   notify: restart sshd
 
-- name: enable ufw
-  ufw:
-    state: enabled
-
-- name: allow openssh
-  ufw:
-    rule: allow
-    name: OpenSSH
-  notify:
-    - reload ufw
-
-- name: allow port 80 for certificate verification
-  ufw:
-    rule: allow
-    port: '80'
-    proto: tcp
-  notify:
-    - reload ufw
-
-- name: allow port 443 for services
-  ufw:
-    rule: allow
-    port: '443'
-    proto: tcp
-  notify:
-    - reload ufw
-
-- name: 'allow Docker Swarm port 2377 tcp'
-  ufw:
-    rule: allow
-    port: "2377"
-    from_ip: "'{{ firewall_subnet_restriction }}'"
-    proto: tcp
-  notify:
-    - reload ufw
-
-- name: 'allow Docker Swarm port 4789 udp'
-  ufw:
-    rule: allow
-    port: "4789"
-    from_ip: "'{{ firewall_subnet_restriction }}'"
-    proto: udp
-  notify:
-    - reload ufw
-
-- name: 'allow Docker Swarm port 7946 udp'
-  ufw:
-    rule: allow
-    port: "7946"
-    from_ip: "'{{ firewall_subnet_restriction }}'"
-    proto: udp
-  notify:
-    - reload ufw
-
-- name: 'allow Docker Swarm port 7946 tcp'
-  ufw:
-    rule: allow
-    port: "7946"
-    from_ip: "'{{ firewall_subnet_restriction }}'"
-    proto: tcp
-  notify:
-    - reload ufw
-
-- name: 'set vm.max_map_count to 262144 in sysctl for elasticsearch'
+- name: "set vm.max_map_count to 262144 in sysctl for elasticsearch"
   sysctl: name={{ item.key }} value={{ item.value }}
   with_items:
-    - { key: 'vm.max_map_count', value: '262144' }
+    - { key: "vm.max_map_count", value: "262144" }
 
 - name: Creates platform CLI logs directory
   file:

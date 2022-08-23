@@ -93,21 +93,6 @@ prepare_console_config() {
   sed -i "s/localhost/${OPENHIM_CORE_MEDIATOR_HOSTNAME}/g; s/8080/${OPENHIM_MEDIATOR_API_PORT}/g" /instant/interoperability-layer-openhim/importer/volume/default.json
 }
 
-configure_nginx() {
-  if [[ "${INSECURE}" == "true" ]]; then
-    try "docker config create --label name=nginx http-openhim-insecure.conf ${COMPOSE_FILE_PATH}/config/http-openhim-insecure.conf" "Failed to add openhim nginx insecure config"
-    try "docker config create --label name=nginx stream-openhim-insecure.conf ${COMPOSE_FILE_PATH}/config/stream-openhim-insecure.conf" "Failed to add openhim nginx insecure config"
-    log info "Updating nginx service: adding openhim config file..."
-    try "docker service update --config-add source=http-openhim-insecure.conf,target=/etc/nginx/conf.d/http-openhim-insecure.conf --config-add source=stream-openhim-insecure.conf,target=/etc/nginx/conf.d/stream-openhim-insecure.conf instant_reverse-proxy-nginx" "Error updating nginx service"
-    log info "Done updating nginx service"
-  else
-    try "docker config create --label name=nginx http-openhim-secure.conf ${COMPOSE_FILE_PATH}/config/http-openhim-secure.conf" "Failed to add openhim nginx secure config"
-    log info "Updating nginx service: adding openhim config file..."
-    try "docker service update --config-add source=http-openhim-secure.conf,target=/etc/nginx/conf.d/http-openhim-secure.conf instant_reverse-proxy-nginx" "Error updating nginx service"
-    log info "Done updating nginx service"
-  fi
-}
-
 main() {
   if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
     log info "Running Interoperability Layer OpenHIM package in Cluster node mode"
@@ -159,10 +144,6 @@ main() {
     log info "Removing stale configs..."
     config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "openhim"
     config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "openhim"
-
-    if [[ "${MODE}" != "dev" ]]; then
-      configure_nginx "$@"
-    fi
   elif [[ "${ACTION}" == "up" ]]; then
     config::set_config_digests "$COMPOSE_FILE_PATH"/docker-compose.yml
     config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
@@ -176,10 +157,6 @@ main() {
     log info "Removing stale configs..."
     config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "openhim"
     config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "openhim"
-
-    if [[ "${MODE}" != "dev" ]]; then
-      configure_nginx "$@"
-    fi
   elif [[ "${ACTION}" == "down" ]]; then
     log info "Scaling down services..."
     try "docker service scale instant_openhim-core=0 instant_openhim-console=0 instant_mongo-1=0" "Error scaling down services"
@@ -189,32 +166,26 @@ main() {
     fi
     log info "Done scaling down services"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    try "docker service rm instant_openhim-core instant_openhim-console instant_mongo-1 instant_await-helper instant_interoperability-layer-openhim-config-importer" "Failed to remove interoperability-layer-openhim"
+    docker::service_destroy openhim-core
+    docker::service_destroy openhim-console
+    docker::service_destroy mongo-1
+    docker::service_destroy await-helper
+    docker::service_destroy interoperability-layer-openhim-config-importer
 
-    config::await_service_removed instant_openhim-core
-    config::await_service_removed instant_openhim-console
-    config::await_service_removed instant_mongo-1
-    config::await_service_removed instant_await-helper
-    config::await_service_removed instant_interoperability-layer-openhim-config-importer
-
-    try "docker volume rm instant_openhim-mongo1" "Failed to remove openhim-mongo1 volume"
-
-    # shellcheck disable=SC2046 # intentional word splitting
-    try "docker config rm $(docker config ls -qf label=name=openhim)" "Failed to remove configs"
+    docker::try_remove_volume openhim-mongo1
 
     if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
       log info "Volumes are only deleted on the host on which the command is run. Mongo volumes on other nodes are not deleted"
 
-      try "docker service rm instant_mongo-2 instant_mongo-3" "Failed to remove mongo cluster"
-      config::await_service_removed instant_mongo-2
-      config::await_service_removed instant_mongo-3
-      try "docker volume rm instant_openhim-mongo2 instant_openhim-mongo3" "Failed to remove mongo volumes"
+      docker::service_destroy mongo-2
+      docker::service_destroy mongo-3
 
-      # shellcheck disable=SC2046 # intentional word splitting
-      try "docker config rm $(docker config ls -qf label=name=openhim)" "Failed to remove openhim configs"
+      docker::try_remove_volume openhim-mongo2
+      docker::try_remove_volume openhim-mongo3
     fi
 
-    config::remove_service_nginx_config "http-openhim-secure.conf" "http-openhim-insecure.conf" "stream-openhim-insecure.conf"
+    # shellcheck disable=SC2046 # intentional word splitting
+    try "docker config rm $(docker config ls -qf label=name=openhim)" "Failed to remove openhim configs"
 
   else
     log error "Valid options are: init, up, down, or destroy"
