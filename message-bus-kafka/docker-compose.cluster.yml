@@ -11,7 +11,7 @@ services:
           - "node.labels.name==node-1"
       resources:
         limits:
-          cpus: ${ZOOKEEPER_CPU_LIMIT:-2}
+          cpus: ${ZOOKEEPER_CPU_LIMIT:-0}
           memory: ${ZOOKEEPER_MEMORY_LIMIT:-3G}
         reservations:
           cpus: ${ZOOKEEPER_CPU_RESERVE:-0.05}
@@ -31,7 +31,7 @@ services:
           - "node.labels.name==node-2"
       resources:
         limits:
-          cpus: ${ZOOKEEPER_CPU_LIMIT:-2}
+          cpus: ${ZOOKEEPER_CPU_LIMIT:-0}
           memory: ${ZOOKEEPER_MEMORY_LIMIT:-3G}
         reservations:
           cpus: ${ZOOKEEPER_CPU_RESERVE:-0.05}
@@ -51,7 +51,7 @@ services:
           - "node.labels.name==node-3"
       resources:
         limits:
-          cpus: ${ZOOKEEPER_CPU_LIMIT:-2}
+          cpus: ${ZOOKEEPER_CPU_LIMIT:-0}
           memory: ${ZOOKEEPER_MEMORY_LIMIT:-3G}
         reservations:
           cpus: ${ZOOKEEPER_CPU_RESERVE:-0.05}
@@ -66,7 +66,7 @@ services:
       replicas: ${KAFKA_INSTANCES}
       resources:
         limits:
-          cpus: ${KAFKA_CPU_LIMIT:-2}
+          cpus: ${KAFKA_CPU_LIMIT:-0}
           memory: ${KAFKA_MEMORY_LIMIT:-3G}
         reservations:
           cpus: ${KAFKA_CPU_RESERVE:-0.05}

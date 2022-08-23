@@ -10,7 +10,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: ${ZOOKEEPER_CPU_LIMIT:-2}
+          cpus: ${ZOOKEEPER_CPU_LIMIT:-0}
           memory: ${ZOOKEEPER_MEMORY_LIMIT:-3G}
         reservations:
           cpus: ${ZOOKEEPER_CPU_RESERVE:-0.05}
@@ -28,7 +28,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: ${KAFKA_CPU_LIMIT:-2}
+          cpus: ${KAFKA_CPU_LIMIT:-0}
           memory: ${KAFKA_MEMORY_LIMIT:-3G}
         reservations:
           cpus: ${KAFKA_CPU_RESERVE:-0.05}
@@ -45,7 +45,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: ${KAFDROP_CPU_LIMIT:-2}
+          cpus: ${KAFDROP_CPU_LIMIT:-0}
           memory: ${KAFDROP_MEMORY_LIMIT:-3G}
         reservations:
           cpus: ${KAFDROP_CPU_RESERVE:-0.05}

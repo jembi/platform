@@ -12,7 +12,7 @@ services:
       replicas: ${HAPI_PROXY_INSTANCES}
       resources:
         limits:
-          cpus: ${HAPI_PROXY_CPU_LIMIT:-2}
+          cpus: ${HAPI_PROXY_CPU_LIMIT:-0}
           memory: ${HAPI_PROXY_MEMORY_LIMIT:-3G}
         reservations:
           cpus: ${HAPI_PROXY_CPU_RESERVE:-0.05}
