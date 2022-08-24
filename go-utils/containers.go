@@ -15,11 +15,10 @@ import (
 var ErrEmptyContainersObject = errors.New("empty supplied/returned container object")
 
 func ListContainerByName(containerName string) (types.Container, error) {
-	cli, err := NewDummyCli()
+	client, err := NewApiClient()
 	if err != nil {
 		return types.Container{}, err
 	}
-	client := cli.Client()
 
 	filtersPair := filters.KeyValuePair{
 		Key:   "name",
@@ -54,7 +53,7 @@ func LatestContainer(containers []types.Container, allowAllFails bool) (types.Co
 }
 
 func AwaitContainerComplete(containerName string) error {
-	cli, err := NewDummyCli()
+	cli, err := NewCli()
 	if err != nil {
 		return err
 	}

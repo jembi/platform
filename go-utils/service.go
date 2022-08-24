@@ -32,7 +32,7 @@ func CreateService(option options.Deploy) error {
 	// 	return err
 	// }
 
-	_, config, err := NewCliFromCompose(option)
+	config, err := ConfigFromCompose(option.Namespace)
 	if err != nil {
 		return err
 	}
@@ -102,11 +102,10 @@ func CreateService(option options.Deploy) error {
 }
 
 func RemoveService(serviceName string) error {
-	cli, err := NewDummyCli()
+	client, err := NewApiClient()
 	if err != nil {
 		return err
 	}
-	client := cli.Client()
 
 	filtersPair := filters.KeyValuePair{
 		Key:   "name",

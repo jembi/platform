@@ -9,7 +9,7 @@ import (
 )
 
 func NetworkJoinAwait(serviceName, networkName string) error {
-	cli, err := NewDummyCli()
+	cli, err := NewCli()
 	if err != nil {
 		return err
 	}

@@ -13,6 +13,7 @@ import (
 	"github.com/docker/cli/cli/command/stack/options"
 	composeTypes "github.com/docker/cli/cli/compose/types"
 	cliflags "github.com/docker/cli/cli/flags"
+	"github.com/docker/docker/client"
 	"github.com/pkg/errors"
 )
 
@@ -77,33 +78,34 @@ func BashExecute(command string, pathChange ...string) (string, error) {
 	return stdout, nil
 }
 
-func NewCliFromCompose(options options.Deploy) (*command.DockerCli, *composeTypes.Config, error) {
+// refactor the two below functions and Config()
+func NewCli() (*command.DockerCli, error) {
 	cli, err := command.NewDockerCli()
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
-
-	err = cli.Initialize(cliflags.NewClientOptions())
-	if err != nil {
-		return nil, nil, err
-	}
-
-	config, err := loader.LoadComposefile(cli, options)
-	return cli, config, err
+	return cli, cli.Initialize(cliflags.NewClientOptions())
 }
 
-func NewDummyCli() (*command.DockerCli, error) {
-	cli, err := command.NewDockerCli()
+func NewApiClient() (client.APIClient, error) {
+	cli, err := NewCli()
+	if err != nil {
+		return nil, err
+	}
+	return cli.Client(), nil
+}
+
+func ConfigFromCompose(namespace string, files ...string) (*composeTypes.Config, error) {
+	cli, err := NewCli()
 	if err != nil {
 		return nil, err
 	}
 
-	err = cli.Initialize(cliflags.NewClientOptions())
-	if err != nil {
-		return nil, err
-	}
-
-	return cli, nil
+	return loader.LoadComposefile(cli, options.Deploy{
+		Composefiles: files,
+		Namespace:    namespace,
+		ResolveImage: "always",
+	})
 }
 
 func ValidateArgs(args ...string) error {
@@ -278,13 +280,4 @@ func PathPrepend(files []string, preString ...string) []string {
 		newFiles = append(newFiles, filepath.Join(strPrep, files[i]))
 	}
 	return newFiles
-}
-
-func Config(files ...string) (*composeTypes.Config, error) {
-	_, config, err := NewCliFromCompose(options.Deploy{
-		Composefiles: files,
-		Namespace:    "instant",
-		ResolveImage: "always",
-	})
-	return config, err
 }

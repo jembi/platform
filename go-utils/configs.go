@@ -11,8 +11,8 @@ import (
 	"github.com/docker/docker/api/types/filters"
 )
 
-func SetConfigDigests(filePath ...string) error {
-	config, err := Config(filePath...)
+func SetConfigDigests(namespace string, filePath ...string) error {
+	config, err := ConfigFromCompose(namespace, filePath...)
 	if err != nil {
 		return err
 	}
@@ -44,14 +44,13 @@ func SetConfigDigests(filePath ...string) error {
 	return nil
 }
 
-func RemoveStaleServiceConfigs(files ...string) error {
-	cli, err := NewDummyCli()
+func RemoveStaleServiceConfigs(namespace string, files ...string) error {
+	client, err := NewApiClient()
 	if err != nil {
 		return err
 	}
-	client := cli.Client()
 
-	serviceConfig, err := Config(files...)
+	serviceConfig, err := ConfigFromCompose(namespace, files...)
 	if err != nil {
 		return err
 	}

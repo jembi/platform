@@ -22,11 +22,16 @@ func StackDeployFromBash(dir string, composeFiles ...string) error {
 	return err
 }
 
-func StackDeploy(options options.Deploy) error {
-	cli, config, err := NewCliFromCompose(options)
+func StackDeploy(option options.Deploy) error {
+	cli, err := NewCli()
 	if err != nil {
 		return err
 	}
 
-	return deploy.RunDeploy(cli, options, config)
+	config, err := ConfigFromCompose(option.Namespace, option.Composefiles...)
+	if err != nil {
+		return err
+	}
+
+	return deploy.RunDeploy(cli, option, config)
 }

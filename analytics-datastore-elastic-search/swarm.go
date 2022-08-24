@@ -91,12 +91,12 @@ func packageInit(namespace string) error {
 		ResolveImage: "always",
 	}
 
-	err = utils.SetConfigDigests(configImporter.Composefiles...)
+	err = utils.SetConfigDigests(configImporter.Namespace, configImporter.Composefiles...)
 	if err != nil {
 		return err
 	}
 
-	err = utils.RemoveStaleServiceConfigs(configImporter.Composefiles...)
+	err = utils.RemoveStaleServiceConfigs(configImporter.Namespace, configImporter.Composefiles...)
 	if err != nil {
 		return err
 	}
