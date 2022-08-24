@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 	"path/filepath"
 
 	"github.com/docker/cli/cli/command/stack/options"
@@ -15,6 +16,8 @@ var (
 	action        *string
 	packagePath   *string
 	statefulNodes *string
+
+	esLeaderNode string
 )
 
 func init() {
@@ -28,38 +31,52 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	esLeaderNode = os.Getenv("ES_LEADER_NODE")
+	if esLeaderNode == "" {
+		esLeaderNode = "analytics-datastore-elastic-search"
+	}
 }
 
 func main() {
-	composeFiles := []string{"docker-compose.yml"}
-	if *mode == "dev" {
-		composeFiles = append(composeFiles, "docker-compose.dev.yml")
-	}
-	if *statefulNodes == "cluster" {
-		composeFiles = append(composeFiles, "docker-compose.cluster.yml")
-		fmt.Println("Running in cluster mode")
-	}
-
-	var err error
 	switch *action {
 	case "init":
-		err = packageInit(*packagePath, composeFiles...)
+		err := packageInit("instant")
 		if err != nil {
 			log.Println(err)
 		}
 
 	case "destroy":
-		err = packageDestroy()
+		err := packageDestroy()
 		if err != nil {
 			log.Println(err)
 		}
 	}
 }
 
-func packageInit(dir string, composeFiles ...string) error {
+func packageInit(namespace string) error {
+	var composeFiles []string
+	if *statefulNodes == "cluster" {
+		fmt.Println("Running in cluster mode")
+
+		// TODO: implement remaining cluster functionality
+		err := createCerts(namespace)
+		if err != nil {
+			return err
+		}
+
+		composeFiles = append(composeFiles, "docker-compose.cluster.yml")
+	} else {
+		composeFiles = append(composeFiles, "docker-compose.yml")
+	}
+
+	if *mode == "dev" {
+		composeFiles = append(composeFiles, "docker-compose.dev.yml")
+	}
+
 	option := options.Deploy{
-		Composefiles: utils.PathPrepend(composeFiles, dir, "compose"),
-		Namespace:    "instant",
+		Composefiles: utils.PathPrepend(composeFiles, *packagePath, "compose"),
+		Namespace:    namespace,
 		ResolveImage: "always",
 	}
 
@@ -70,7 +87,7 @@ func packageInit(dir string, composeFiles ...string) error {
 
 	configImporter := options.Deploy{
 		Composefiles: []string{filepath.Join(*packagePath, "importer", "docker-compose.config.yml")},
-		Namespace:    "instant",
+		Namespace:    namespace,
 		ResolveImage: "always",
 	}
 
@@ -89,12 +106,12 @@ func packageInit(dir string, composeFiles ...string) error {
 		return err
 	}
 
-	err = utils.SetElasticsearchPasswords(dir)
+	err = utils.SetElasticsearchPasswords(*packagePath)
 	if err != nil {
 		return err
 	}
 
-	err = utils.NetworkJoinAwait(option.Namespace+"_analytics-datastore-elastic-search", option.Namespace+"_default")
+	err = utils.NetworkJoinAwait(option.Namespace+"_"+esLeaderNode, option.Namespace+"_default")
 	if err != nil {
 		return err
 	}
@@ -104,15 +121,40 @@ func packageInit(dir string, composeFiles ...string) error {
 		return err
 	}
 
-	return nil
+	err = utils.AwaitContainerComplete(namespace + "_elastic-search-config-importer")
+	if err != nil {
+		return err
+	}
+
+	return utils.RemoveService(namespace + "_elastic-search-config-importer")
 }
 
 func packageDestroy() error {
-	output, err := utils.Bash("docker service rm instant_analytics-datastore-elastic-search")
+	output, err := utils.Bash("docker service rm instant_" + esLeaderNode)
 	if err != nil {
 		return err
 	}
 	fmt.Println(output)
 
 	return nil
+}
+
+func createCerts(namespace string) error {
+	option := options.Deploy{
+		Composefiles: utils.PathPrepend([]string{"docker-compose.certs.yml"}, *packagePath, "compose"),
+		Namespace:    namespace,
+		ResolveImage: "always",
+	}
+
+	err := utils.StackDeploy(option)
+	if err != nil {
+		return err
+	}
+
+	err = utils.AwaitContainerComplete(namespace + "_create_certs")
+	if err != nil {
+		return err
+	}
+
+	return utils.RemoveService(namespace + "_create_certs")
 }

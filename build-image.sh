@@ -27,4 +27,4 @@ build_go_binary "$packages"
 TAG_NAME=${1:-latest}
 docker build -t jembi/platform:"$TAG_NAME" .
 
-remove_go_binary $packages
+remove_go_binary "$packages"

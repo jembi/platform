@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/swarm"
 	"github.com/docker/docker/client"
 
@@ -98,6 +99,28 @@ func CreateService(option options.Deploy) error {
 	// fmt.Println(spec)
 
 	return nil
+}
+
+func RemoveService(serviceName string) error {
+	cli, err := NewDummyCli()
+	if err != nil {
+		return err
+	}
+	client := cli.Client()
+
+	filtersPair := filters.KeyValuePair{
+		Key:   "name",
+		Value: serviceName,
+	}
+
+	serv, err := client.ServiceList(context.Background(), types.ServiceListOptions{
+		Filters: filters.NewArgs(filtersPair),
+	})
+	if err != nil {
+		return err
+	}
+
+	return client.ServiceRemove(context.Background(), serv[0].ID)
 }
 
 func parseContainerOptions(conf *composeTypes.Config) (*swarm.ContainerSpec, error) {
