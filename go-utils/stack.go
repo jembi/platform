@@ -5,6 +5,7 @@ import (
 
 	"github.com/docker/cli/cli/command/stack/options"
 	deploy "github.com/docker/cli/cli/command/stack/swarm"
+	"github.com/luno/jettison/errors"
 )
 
 func StackDeployFromBash(dir string, composeFiles ...string) error {
@@ -15,11 +16,11 @@ func StackDeployFromBash(dir string, composeFiles ...string) error {
 
 	output, err := Bash("docker stack deploy" + fileString + " instant")
 	if err != nil {
-		return err
+		return errors.Wrap(err, "")
 	}
 	fmt.Println(output)
 
-	return err
+	return nil
 }
 
 func StackDeploy(option options.Deploy) error {
@@ -33,5 +34,9 @@ func StackDeploy(option options.Deploy) error {
 		return err
 	}
 
-	return deploy.RunDeploy(cli, option, config)
+	err = deploy.RunDeploy(cli, option, config)
+	if err != nil {
+		return errors.Wrap(err, "")
+	}
+	return nil
 }

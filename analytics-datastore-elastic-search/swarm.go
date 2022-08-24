@@ -2,13 +2,15 @@ package main
 
 import (
 	"JSR/go-utils"
+	"context"
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 
 	"github.com/docker/cli/cli/command/stack/options"
+	"github.com/luno/jettison/errors"
+	"github.com/luno/jettison/log"
 )
 
 var (
@@ -43,13 +45,13 @@ func main() {
 	case "init":
 		err := packageInit("instant")
 		if err != nil {
-			log.Println(err)
+			log.Error(context.Background(), err)
 		}
 
 	case "destroy":
 		err := packageDestroy()
 		if err != nil {
-			log.Println(err)
+			log.Error(context.Background(), err)
 		}
 	}
 }
@@ -62,7 +64,7 @@ func packageInit(namespace string) error {
 		// TODO: implement remaining cluster functionality
 		err := createCerts(namespace)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "")
 		}
 
 		composeFiles = append(composeFiles, "docker-compose.cluster.yml")

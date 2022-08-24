@@ -9,7 +9,7 @@ import (
 	"github.com/docker/docker/api/types"
 	cont "github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
-	"github.com/pkg/errors"
+	"github.com/luno/jettison/errors"
 )
 
 var ErrEmptyContainersObject = errors.New("empty supplied/returned container object")
@@ -30,7 +30,7 @@ func ListContainerByName(containerName string) (types.Container, error) {
 		All:     true,
 	})
 	if err != nil {
-		return types.Container{}, err
+		return types.Container{}, errors.Wrap(err, "")
 	}
 
 	return LatestContainer(containers, false)
@@ -39,7 +39,7 @@ func ListContainerByName(containerName string) (types.Container, error) {
 // This code attempts to combat old/dead containers lying around and being selected instead of the new container
 func LatestContainer(containers []types.Container, allowAllFails bool) (types.Container, error) {
 	if len(containers) == 0 {
-		return types.Container{}, ErrEmptyContainersObject
+		return types.Container{}, errors.Wrap(ErrEmptyContainersObject, "")
 	}
 
 	var latestContainer types.Container
@@ -64,7 +64,7 @@ func AwaitContainerComplete(containerName string) error {
 	var warned bool
 	for time.Since(startTime) < 1*time.Minute {
 		container, err = ListContainerByName(containerName)
-		if err != nil && err != ErrEmptyContainersObject {
+		if err != nil && !strings.Contains(err.Error(), ErrEmptyContainersObject.Error()) {
 			return err
 		}
 
@@ -85,7 +85,7 @@ func AwaitContainerComplete(containerName string) error {
 	case err := <-errCh:
 		if err != nil && !strings.Contains(err.Error(), "No such container") {
 			cancel()
-			return err
+			return errors.Wrap(err, "")
 		}
 		// errors.New("Waited 60 seconds for " + containerName + " container to complete, aborting...")
 	case status := <-statusCh:

@@ -14,7 +14,7 @@ import (
 	composeTypes "github.com/docker/cli/cli/compose/types"
 	cliflags "github.com/docker/cli/cli/flags"
 	"github.com/docker/docker/client"
-	"github.com/pkg/errors"
+	"github.com/luno/jettison/errors"
 )
 
 func Bash(command string, pathChange ...string) (string, error) {
@@ -78,13 +78,16 @@ func BashExecute(command string, pathChange ...string) (string, error) {
 	return stdout, nil
 }
 
-// refactor the two below functions and Config()
 func NewCli() (*command.DockerCli, error) {
 	cli, err := command.NewDockerCli()
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "")
 	}
-	return cli, cli.Initialize(cliflags.NewClientOptions())
+	err = cli.Initialize(cliflags.NewClientOptions())
+	if err != nil {
+		return nil, errors.Wrap(err, "")
+	}
+	return cli, nil
 }
 
 func NewApiClient() (client.APIClient, error) {
@@ -101,11 +104,16 @@ func ConfigFromCompose(namespace string, files ...string) (*composeTypes.Config,
 		return nil, err
 	}
 
-	return loader.LoadComposefile(cli, options.Deploy{
+	config, err := loader.LoadComposefile(cli, options.Deploy{
 		Composefiles: files,
 		Namespace:    namespace,
 		ResolveImage: "always",
 	})
+	if err != nil {
+		return nil, errors.Wrap(err, "")
+	}
+
+	return config, nil
 }
 
 func ValidateArgs(args ...string) error {
@@ -241,7 +249,7 @@ func InstallExpect() error {
 	fmt.Println("Installing expect...")
 	_, err := Bash("apt-get install -y expect")
 	if err != nil {
-		return err
+		return errors.Wrap(err, "")
 	}
 
 	return nil

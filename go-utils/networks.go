@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/docker/docker/api/types"
-	"github.com/pkg/errors"
+	"github.com/luno/jettison/errors"
 )
 
 func NetworkJoinAwait(serviceName, networkName string) error {
@@ -19,7 +19,7 @@ func NetworkJoinAwait(serviceName, networkName string) error {
 	for time.Since(startTime) < 1*time.Minute {
 		netResources, err := client.NetworkInspect(context.Background(), networkName, types.NetworkInspectOptions{Verbose: true})
 		if err != nil {
-			return err
+			return errors.Wrap(err, "")
 		}
 
 		if netResources.Services != nil && len(netResources.Services[serviceName].Tasks) > 0 {
@@ -27,5 +27,5 @@ func NetworkJoinAwait(serviceName, networkName string) error {
 		}
 	}
 
-	return errors.New(serviceName + " network join timed out.")
+	return errors.Wrap(errors.New(serviceName+" network join timed out."), "")
 }

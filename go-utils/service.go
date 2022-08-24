@@ -10,6 +10,7 @@ import (
 
 	"github.com/docker/cli/cli/command/stack/options"
 	composeTypes "github.com/docker/cli/cli/compose/types"
+	"github.com/luno/jettison/errors"
 	// composeTypes "github.com/docker/cli/cli/compose/types"
 	// dockerclient "github.com/docker/docker/client"
 )
@@ -24,12 +25,12 @@ type ServiceSpec struct {
 func CreateService(option options.Deploy) error {
 	// dockerCli, config, err := NewCliFromCompose(option, option.Composefiles...)
 	// if err != nil {
-	// 	return err
+	// 	return errors.Wrap(err, "")
 	// }
 
 	// services, err := convert.Services(convert.NewNamespace(option.Namespace), config, dockerCli.Client())
 	// if err != nil {
-	// 	return err
+	// 	return errors.Wrap(err, "")
 	// }
 
 	config, err := ConfigFromCompose(option.Namespace)
@@ -37,15 +38,8 @@ func CreateService(option options.Deploy) error {
 		return err
 	}
 
-	containerSpec, err := parseContainerOptions(config)
-	if err != nil {
-		return err
-	}
-
-	serviceSpec, err := parseServiceOptions(config)
-	if err != nil {
-		return err
-	}
+	containerSpec:= parseContainerOptions(config)
+	serviceSpec:= parseServiceOptions(config)
 
 	spec := swarm.ServiceSpec{
 		Annotations: swarm.Annotations{
@@ -83,17 +77,17 @@ func CreateService(option options.Deploy) error {
 
 	sClient, err := client.NewClientWithOpts()
 	if err != nil {
-		return err
+		return errors.Wrap(err, "")
 	}
 
 	_, err = sClient.ServiceCreate(context.Background(), spec, createOptions)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "")
 	}
 
 	// _, err = sClient.ServiceCreate(context.Background(), services["await-helper"], createOptions)
 	// if err != nil {
-	// 	return err
+	// 	return errors.Wrap(err, "")
 	// }
 
 	// fmt.Println(spec)
@@ -116,13 +110,17 @@ func RemoveService(serviceName string) error {
 		Filters: filters.NewArgs(filtersPair),
 	})
 	if err != nil {
-		return err
+		return errors.Wrap(err, "")
 	}
 
-	return client.ServiceRemove(context.Background(), serv[0].ID)
+	err = client.ServiceRemove(context.Background(), serv[0].ID)
+	if err != nil {
+		return errors.Wrap(err, "")
+	}
+	return nil
 }
 
-func parseContainerOptions(conf *composeTypes.Config) (*swarm.ContainerSpec, error) {
+func parseContainerOptions(conf *composeTypes.Config) *swarm.ContainerSpec {
 	service := conf.Services[0]
 
 	var environment []string
@@ -137,10 +135,10 @@ func parseContainerOptions(conf *composeTypes.Config) (*swarm.ContainerSpec, err
 		Env:    environment,
 	}
 
-	return containerSpec, nil
+	return containerSpec
 }
 
-func parseServiceOptions(conf *composeTypes.Config) (ServiceSpec, error) {
+func parseServiceOptions(conf *composeTypes.Config) ServiceSpec {
 	service := conf.Services[0]
 
 	var replicas uint64 = 1
@@ -166,7 +164,7 @@ func parseServiceOptions(conf *composeTypes.Config) (ServiceSpec, error) {
 			Limits:       limits,
 		},
 		Ports: parsePorts(service),
-	}, nil
+	}
 }
 
 func parsePorts(service composeTypes.ServiceConfig) []swarm.PortConfig {
