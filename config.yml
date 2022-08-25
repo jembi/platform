@@ -34,3 +34,5 @@ packages:
     name: Kafka Unbundler Consumer
   - id: analytics-datastore-clickhouse
     name: Analytics Datastore Clickhouse
+  - id: dashboard-visualiser-superset
+    name: Dashboard Visualiser Superset

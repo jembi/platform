@@ -1,0 +1,9 @@
+{
+  "id": "dashboard-visualiser-superset",
+  "name": "Dashboard Visualiser Superset",
+  "description": "A dashboard to interpret the data from the Clickhouse data store",
+  "type": "infrastructure",
+  "version": "0.0.1",
+  "dependencies": ["analytics-datastore-clickhouse"],
+  "environmentVariables": {}
+}

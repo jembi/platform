@@ -1,0 +1,14 @@
+version: '3.9'
+
+services:
+  dashboard-visualiser-superset:
+    image: jembi/superset:latest
+    volumes:
+      - superset_home:/app/superset_home
+      - superset:/app/superset
+      - superset-frontend:/app/superset-frontend
+
+volumes:
+  superset_home:
+  superset:
+  superset-frontend:
