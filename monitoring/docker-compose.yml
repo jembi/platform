@@ -74,13 +74,11 @@ services:
 configs:
   grafana.ini:
     file: ./grafana/grafana.ini
-    # name: grafana.ini-${grafana_ini_DIGEST:?err}
     name: grafana.ini
     labels:
       name: grafana
   datasource.yml:
     file: ./grafana/datasource.yml
-    # name: datasource.yml-${datasource_yml_DIGEST:?err}
     name: datasource.yml
     labels:
       name: grafana
@@ -116,7 +114,6 @@ configs:
       name: grafana
   prometheus.yml:
     file: ./prometheus/prometheus.yml
-    # name: prometheus.yml-${prometheus_yml_DIGEST:?err}
     name: prometheus.yml
     labels:
       name: prometheus
