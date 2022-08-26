@@ -1,0 +1,8 @@
+version: '3.9'
+
+services:
+  dashboard-visualiser-superset:
+    ports:
+      - target: 8088
+        published: 8089
+        mode: host
