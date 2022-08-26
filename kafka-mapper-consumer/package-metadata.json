@@ -1,0 +1,14 @@
+{
+  "id": "kafka-mapper-consumer",
+  "name": "Kafka Mapper Consumer",
+  "description": "A kafka consumer that maps fhir resources to a flattened data structure",
+  "type": "use-case",
+  "version": "0.0.1",
+  "dependencies": ["message-bus-kafka"],
+  "environmentVariables": {
+    "KAFKA_HOST": "kafka",
+    "KAFKA_PORT": "9092",
+    "CLICKHOUSE_HOST": "analytics-datastore-clickhouse",
+    "CLICKHOUSE_PORT": "8123"
+  }
+}
