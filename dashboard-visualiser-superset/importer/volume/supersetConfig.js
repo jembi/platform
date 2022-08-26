@@ -59,8 +59,6 @@ const getAccessToken = async () => {
           fs.createReadStream(path.resolve(__dirname, CONFIG_FILE))
         );
 
-        console.log(path.resolve(__dirname, CONFIG_FILE));
-
         var config = {
           method: 'POST',
           url: `${protocol}://${SUPERSET_SERVICE_NAME}:${SUPERSET_API_PORT}${SUPERSET_IMPORT_PATH}`,
