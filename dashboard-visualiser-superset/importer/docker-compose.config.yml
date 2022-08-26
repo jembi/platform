@@ -1,0 +1,33 @@
+version: '3.9'
+
+services:
+  superset-config-importer:
+    image: jembi/instantohie-config-importer
+    deploy:
+      restart_policy:
+        condition: none
+    environment:
+      SUPERSET_SERVICE_NAME: 'dashboard-visualiser-superset'
+      SUPERSET_API_PORT: 8088
+      SUPERSET_API_PASSWORD: ${SUPERSET_API_PASSWORD:-admin}
+      SUPERSET_API_USERNAME: ${SUPERSET_API_USERNAME:-admin}
+      CONFIG_FILE: ${CONFIG_FILE:-superset-export.zip}
+      SUPERSET_SSL: ${SUPERSET_SSL:-false}
+    configs:
+      - source: cares-config-supersetConfig.js
+        target: /supersetConfig.js
+      - source: cares-config-superset-export.zip
+        target: /superset-export.zip
+    command: sh -c "cd / && npm i axios form-data && node /supersetConfig.js"
+
+configs:
+  cares-config-supersetConfig.js:
+    file: ./volume/supersetConfig.js
+    name: cares-config-supersetConfig.js-${cares_config_supersetConfig_js_DIGEST:?err}
+    labels:
+      name: superset
+  cares-config-superset-export.zip:
+    file: ./volume/superset-export.zip
+    name: cares-config-superset-export.zip-${cares_config_superset_export_zip_DIGEST:?err}
+    labels:
+      name: superset
