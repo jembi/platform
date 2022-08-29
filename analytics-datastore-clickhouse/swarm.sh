@@ -32,6 +32,8 @@ main() {
   elif [[ "${ACTION}" == "destroy" ]]; then
     docker::service_destroy analytics-datastore-clickhouse
     docker::try_remove_volume clickhouse-data
+
+    docker::prune_configs "clickhouse"
   else
     log error "Valid options are: init, up, down, or destroy"
   fi
