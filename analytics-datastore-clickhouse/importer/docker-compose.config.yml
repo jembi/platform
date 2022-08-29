@@ -1,0 +1,29 @@
+version: '3.9'
+
+services:
+  clickhouse-config-importer:
+    image: jembi/instantohie-config-importer
+    deploy:
+      restart_policy:
+        condition: none
+    environment:
+      CLICKHOUSE_HOST: ${CLICKHOUSE_HOST:-analytics-datastore-clickhouse}
+      CLICKHOUSE_PORT: ${CLICKHOUSE_PORT:-8123}
+    configs:
+      - source: config-importer-clickhouseConfig.js
+        target: /clickhouseConfig.js
+      - source: config-importer-clickhouseTables.js
+        target: /clickhouseTables.js
+    command: sh -c "cd / && npm i clickhouse && node /clickhouseConfig.js"
+
+configs:
+  config-importer-clickhouseConfig.js:
+    file: ./volume/clickhouseConfig.js
+    name: config-importer-clickhouseConfig.js-${config_importer_clickhouseConfig_js_DIGEST:?err}
+    labels:
+      name: clickhouse
+  config-importer-clickhouseTables.js:
+    file: ./volume/clickhouseTables.js
+    name: config-importer-clickhouseTables.js-${config_importer_clickhouseTables_js_DIGEST:?err}
+    labels:
+      name: clickhouse
