@@ -45,9 +45,11 @@ services:
       ES_ELASTIC: ${ES_ELASTIC:-dev_password_only}
       ES_KIBANA_SYSTEM: ${ES_KIBANA_SYSTEM:-dev_password_only}
       ES_BEATS_SYSTEM: ${ES_BEATS_SYSTEM:-dev_password_only}
+      path.repo: ${ES_PATH_REPO:-/backups/elasticsearch}
     volumes:
       - es01-data:/usr/share/elasticsearch/data
       - certs:/usr/share/elasticsearch/config/certs
+      - /backups/elasticsearch:/backups/elasticsearch
 
   analytics-datastore-elastic-search-02:
     depends_on:
@@ -93,9 +95,11 @@ services:
       ES_ELASTIC: ${ES_ELASTIC:-dev_password_only}
       ES_KIBANA_SYSTEM: ${ES_KIBANA_SYSTEM:-dev_password_only}
       ES_BEATS_SYSTEM: ${ES_BEATS_SYSTEM:-dev_password_only}
+      path.repo: ${ES_PATH_REPO:-/backups/elasticsearch}
     volumes:
       - es02-data:/usr/share/elasticsearch/data
       - certs:/usr/share/elasticsearch/config/certs
+      - /backups/elasticsearch:/backups/elasticsearch
 
   analytics-datastore-elastic-search-03:
     depends_on:
@@ -141,9 +145,11 @@ services:
       ES_ELASTIC: ${ES_ELASTIC:-dev_password_only}
       ES_KIBANA_SYSTEM: ${ES_KIBANA_SYSTEM:-dev_password_only}
       ES_BEATS_SYSTEM: ${ES_BEATS_SYSTEM:-dev_password_only}
+      path.repo: ${ES_PATH_REPO:-/backups/elasticsearch}
     volumes:
       - es03-data:/usr/share/elasticsearch/data
       - certs:/usr/share/elasticsearch/config/certs
+      - /backups/elasticsearch:/backups/elasticsearch
 
 volumes:
   es01-data:
