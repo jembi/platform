@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   clickhouse-config-importer:
-    image: jembi/instantohie-config-importer
+    image: node:erbium-alpine
     deploy:
       restart_policy:
         condition: none
@@ -18,12 +18,12 @@ services:
 
 configs:
   config-importer-clickhouseConfig.js:
-    file: ./volume/clickhouseConfig.js
+    file: ./config/clickhouseConfig.js
     name: config-importer-clickhouseConfig.js-${config_importer_clickhouseConfig_js_DIGEST:?err}
     labels:
       name: clickhouse
   config-importer-clickhouseTables.js:
-    file: ./volume/clickhouseTables.js
+    file: ./config/clickhouseTables.js
     name: config-importer-clickhouseTables.js-${config_importer_clickhouseTables_js_DIGEST:?err}
     labels:
       name: clickhouse

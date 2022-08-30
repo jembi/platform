@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   superset-config-importer:
-    image: jembi/instantohie-config-importer
+    image: node:erbium-alpine
     deploy:
       restart_policy:
         condition: none
@@ -22,12 +22,12 @@ services:
 
 configs:
   config-importer-supersetConfig.js:
-    file: ./volume/supersetConfig.js
+    file: ./config/supersetConfig.js
     name: config-importer-supersetConfig.js-${config_importer_supersetConfig_js_DIGEST:?err}
     labels:
       name: superset
   config-importer-superset-export.zip:
-    file: ./volume/superset-export.zip
+    file: ./config/superset-export.zip
     name: config-importer-superset-export.zip-${config_importer_superset_export_zip_DIGEST:?err}
     labels:
       name: superset
