@@ -14,7 +14,7 @@
 - name: create backup path if it doesn't exist
   raw: sudo mkdir -p /backups
 
-- name: Add users to group sudo
+- name: Create and add users to group sudo
   ansible.builtin.user:
     name: "{{ item.username }}"
     comment: "{{ item.name }}"
