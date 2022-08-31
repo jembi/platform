@@ -31,7 +31,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: ${SANTE_WWW_CPU_LIMIT:-0.8}
+          cpus: ${SANTE_WWW_CPU_LIMIT:-0}
           memory: ${SANTE_WWW_MEMORY_LIMIT:-2G}
         reservations:
           cpus: ${SANTE_WWW_CPU_RESERVE:-0.05}
