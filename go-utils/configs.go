@@ -12,6 +12,11 @@ import (
 	"github.com/luno/jettison/errors"
 )
 
+/*
+Environment variables to replace must take the from of the below example, making sure to set the
+default value (csig_ferj_DIGEST) in this case, to start with 'csig':
+	name: fhir-enrich-reports.json-${ferj_DIGEST:-csig_ferj_DIGEST}
+*/
 func SetConfigDigests(namespace string, filePath ...string) error {
 	config, err := ConfigFromCompose(namespace, filePath...)
 	if err != nil {
