@@ -1,0 +1,9 @@
+{
+  "id": "analytics-datastore-clickhouse",
+  "name": "Analytics Datastore Clickhouse",
+  "description": "A column database",
+  "type": "infrastructure",
+  "version": "0.0.1",
+  "dependencies": [],
+  "environmentVariables": {}
+}

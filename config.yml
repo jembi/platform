@@ -30,5 +30,11 @@ packages:
     name: Message Bus Helper - HAPI Proxy to Kafka
   - id: job-scheduler-ofelia
     name: Job Scheduler Ofelia
+  - id: kafka-mapper-consumer
+    name: Kafka Mapper Consumer
   - id: kafka-unbundler-consumer
     name: Kafka Unbundler Consumer
+  - id: analytics-datastore-clickhouse
+    name: Analytics Datastore Clickhouse
+  - id: dashboard-visualiser-superset
+    name: Dashboard Visualiser Superset
