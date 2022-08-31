@@ -22,11 +22,13 @@ main() {
     config::set_config_digests "${COMPOSE_FILE_PATH}"/docker-compose.yml
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml instant" "Failed to deploy Kafka Mapper Consumer"
 
-    config::config::remove_stale_service_configs "${COMPOSE_FILE_PATH}"/docker-compose.yml
+    config::remove_stale_service_configs "${COMPOSE_FILE_PATH}"/docker-compose.yml "kafka-mapper-consumer"
   elif [[ "${ACTION}" == "down" ]]; then
     try "docker service scale instant_kafka-mapper-consumer=0" "Failed to scale down kafka-mapper-consumer"
   elif [[ "${ACTION}" == "destroy" ]]; then
     docker::service_destroy kafka-mapper-consumer
+
+    docker::prune_configs "kafka-mapper-consumer"
   else
     log error "Valid options are: init, up, down, or destroy"
   fi

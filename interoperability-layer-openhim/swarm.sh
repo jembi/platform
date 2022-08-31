@@ -166,7 +166,7 @@ main() {
     fi
 
     # shellcheck disable=SC2046 # intentional word splitting
-    try "docker config rm $(docker config ls -qf label=name=openhim)" "Failed to remove openhim configs"
+    docker::prune_configs "openhim"
 
   else
     log error "Valid options are: init, up, down, or destroy"

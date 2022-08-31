@@ -64,6 +64,8 @@ main() {
     docker::service_destroy dashboard-visualiser-kibana
     docker::service_destroy await-helper
     docker::service_destroy kibana-config-importer
+
+    docker::prune_configs "kibana"
   else
     log error "Valid options are: init, up, down, or destroy"
   fi
