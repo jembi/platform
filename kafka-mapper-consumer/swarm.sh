@@ -27,6 +27,8 @@ main() {
     try "docker service scale instant_kafka-mapper-consumer=0" "Failed to scale down kafka-mapper-consumer"
   elif [[ "${ACTION}" == "destroy" ]]; then
     docker::service_destroy kafka-mapper-consumer
+
+    docker::prune_configs "kafka-mapper-consumer"
   else
     log error "Valid options are: init, up, down, or destroy"
   fi
