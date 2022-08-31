@@ -19,6 +19,6 @@ services:
 configs:
   kafka.js:
     file: ./kafka.js
-    name: kafka-config.js-${kafka_config_DIGEST:?err}
+    name: kafka-config.js-${kc_DIGEST:-csig_kc_DIGEST}
     labels:
       name: ethiopia
