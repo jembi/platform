@@ -19,7 +19,7 @@ services:
       replicas: ${SANTEMPI_INSTANCES}
       resources:
         limits:
-          cpus: ${SANTE_MPI_CPU_LIMIT:-0.8}
+          cpus: ${SANTE_MPI_CPU_LIMIT:-0}
           memory: ${SANTE_MPI_MEMORY_LIMIT:-3G}
         reservations:
           cpus: ${SANTE_MPI_CPU_RESERVE:-0.05}
