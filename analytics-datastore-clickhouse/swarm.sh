@@ -54,6 +54,8 @@ main() {
     docker::service_destroy analytics-datastore-clickhouse
     docker::service_destroy clickhouse-config-importer
     docker::try_remove_volume clickhouse-data
+
+    docker::prune_configs "clickhouse"
   else
     log error "Valid options are: init, up, down, or destroy"
   fi

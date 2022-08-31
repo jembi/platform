@@ -58,6 +58,8 @@ main() {
     docker::try_remove_volume superset
     docker::try_remove_volume superset-frontend
     docker::try_remove_volume superset_home
+
+    docker::prune_configs "superset"
   else
     log error "Valid options are: init, up, down, or destroy"
   fi
