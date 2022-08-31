@@ -14,13 +14,23 @@
 - name: create backup path if it doesn't exist
   raw: sudo mkdir -p /backups
 
+- name: Create and add users to group sudo
+  ansible.builtin.user:
+    name: "{{ item.username }}"
+    comment: "{{ item.name }}"
+    append: yes
+    groups: 
+      - sudo
+    shell: /bin/bash
+  loop: "{{ sudoers }}"
+
 - name: update authorized keys
   authorized_key:
-    user: "ubuntu"
+    user: "{{ item.username }}"
     key: "{{ item.key }}"
     comment: "{{ item.name }}"
     state: "{{ item.state }}"
-  loop: "{{ users }}"
+  loop: "{{ sudoers + docker_users }}"
 
 - name: disable root login
   lineinfile:
