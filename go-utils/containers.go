@@ -9,6 +9,7 @@ import (
 	"github.com/docker/docker/api/types"
 	cont "github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
+	"github.com/docker/docker/api/types/swarm"
 	"github.com/luno/jettison/errors"
 )
 
@@ -52,6 +53,21 @@ func LatestContainer(containers []types.Container, allowAllFails bool) (types.Co
 	return latestContainer, nil
 }
 
+func LatestTask(containers []swarm.Task) (swarm.Task, error) {
+	if len(containers) == 0 {
+		return swarm.Task{}, errors.Wrap(ErrEmptyContainersObject, "")
+	}
+
+	var latestContainer swarm.Task
+	for _, container := range containers {
+		if time.Since(container.CreatedAt) < time.Since(latestContainer.CreatedAt) {
+			latestContainer = container
+		}
+	}
+
+	return latestContainer, nil
+}
+
 func AwaitContainerComplete(containerName string) error {
 	cli, err := NewCli()
 	if err != nil {
@@ -87,7 +103,6 @@ func AwaitContainerComplete(containerName string) error {
 			cancel()
 			return errors.Wrap(err, "")
 		}
-		// errors.New("Waited 60 seconds for " + containerName + " container to complete, aborting...")
 	case status := <-statusCh:
 		if status.StatusCode != 0 {
 			fmt.Println("[WARN]", containerName, "exited with code", status.StatusCode)
