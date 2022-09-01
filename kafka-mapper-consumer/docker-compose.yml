@@ -18,3 +18,4 @@ configs:
     name: fhir-mapping.json-${fhir_mapping_json_DIGEST:?err}
     labels:
       name: kafka-mapper-consumer
+      tag: kafka-mapper-consumer-fhir-mapping.json
