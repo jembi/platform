@@ -20,4 +20,4 @@ configs:
     file: ./kafka.js
     name: kafka-config.js-${kafka_config_DIGEST:?err}
     labels:
-      name: ethiopia
+      name: kafka

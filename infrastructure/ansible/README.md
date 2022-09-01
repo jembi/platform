@@ -18,7 +18,9 @@ Please see the `/inventories/{ENVIRONMENT}/hosts` file for IP details of the des
 
 ### SSH Access
 
-To authenticate yourself on the remote servers your ssh key will need to be added to the `users` var in the _/inventories/{ENVIRONMENT}/group_vars/all.yml_.
+To authenticate yourself on the remote servers your ssh key will need to be added to the `sudoers` var in the _/inventories/{ENVIRONMENT}/group_vars/all.yml_.
+
+To have docker access you need to add your ssh key to the  `docker_users` var in the _/inventories/{ENVIRONMENT}/group_vars/all.yml_.
 
 An authorised user will need to run the `provision_servers.yml` playbook to add your ssh key to the servers.
 

@@ -1,11 +1,6 @@
 ---
-- name: "pre : install python-simplejson and python3-pip"
-  apt:
-    pkg:
-      - python-simplejson
-      - python3-pip
-      - virtualenv
-    lock_timeout: 300
+- name: "pre : install python3-pip and virtualenv"
+  raw: sudo apt install -y python3-pip virtualenv
 
 - name: install certain python modules for docker
   pip:
@@ -72,6 +67,14 @@
     groups:
       - docker
     append: yes
+
+- name: Add user to docker group
+  user:
+    name: "{{ item.username }}"
+    append: yes
+    groups: 
+      - docker
+  loop: "{{ docker_users }}"
 
 - name: reset ssh connection to allow user changes to affect ansible user
   meta: reset_connection

@@ -1,0 +1,20 @@
+version: '3.9'
+
+services:
+  dashboard-visualiser-superset:
+    image: jembi/superset:latest
+    volumes:
+      - superset_home:/app/superset_home
+      - superset:/app/superset
+      - superset-frontend:/app/superset-frontend
+    command: sh -c "superset fab create-admin \
+      --username ${SUPERSET_USERNAME:-admin} \
+      --firstname ${SUPERSET_FIRSTNAME:-SUPERSET}  \
+      --lastname ${SUPERSET_LASTNAME:-ADMIN} \
+      --email ${SUPERSET_EMAIL:-admin@superset.com} \
+      --password ${SUPERSET_PASSWORD:-admin} && superset db upgrade && superset init && cd /usr/bin && ./run-server.sh"
+
+volumes:
+  superset_home:
+  superset:
+  superset-frontend:
