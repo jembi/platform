@@ -14,7 +14,10 @@ ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/log.sh"
 
 readonly GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER:-"admin"}
+export GF_SECURITY_ADMIN_USER
+
 readonly GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD:-"dev_password_only"}
+export GF_SECURITY_ADMIN_PASSWORD
 
 if [[ "${MODE}" == "dev" ]]; then
   log info "Running Message Bus Kafka package in DEV mode"
@@ -25,7 +28,14 @@ else
 fi
 
 if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
+  log info "Setting config digests"
+  config::set_config_digests "$COMPOSE_FILE_PATH"/docker-compose.yml
+
   try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml ${monitoring_dev_compose_param} instant" "Failed to deploy monitoring stack"
+
+  log info "Removing stale configs..."
+  config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "grafana"
+  config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "prometheus"
 elif [[ "${ACTION}" == "down" ]]; then
   try "docker service scale instant_grafana=0 instant_prometheus=0 instant_prometheus-kafka-adapter=0" "Failed to down monitoring stack"
   try "docker service rm instant_cadvisor" "Failed to remove global service cadvisor"

@@ -74,47 +74,47 @@ services:
 configs:
   grafana.ini:
     file: ./grafana/grafana.ini
-    name: grafana.ini
+    name: grafana.ini-${grafana_ini_DIGEST:?err}
     labels:
       name: grafana
   datasource.yml:
     file: ./grafana/datasource.yml
-    name: datasource.yml
+    name: datasource.yml-${datasource_yml_DIGEST:?err}
     labels:
       name: grafana
   dashboard.yml:
     file: ./grafana/dashboards/dashboard.yml
-    name: dashboard.yml
+    name: dashboard.yml-${dashboard_yml_DIGEST:?err}
     labels:
       name: grafana
   node-exporter-full_rev27.json:
     file: ./grafana/dashboards/nodes/node-exporter-full_rev27.json
-    name: node-exporter-full_rev27.json
+    name: node-exporter-full_rev27.json-${node_exporter_full_rev27_json_DIGEST:?err}
     labels:
       name: grafana
   docker-swarm-monitor-v2_rev2.json:
     file: ./grafana/dashboards/containers/docker-swarm-monitor-v2_rev2.json
-    name: docker-swarm-monitor-v2_rev2.json
+    name: docker-swarm-monitor-v2_rev2.json-${docker_swarm_monitor_v2_rev2_json_DIGEST:?err}
     labels:
       name: grafana
   kminion-cluster_rev1.json:
     file: ./grafana/dashboards/applications/kminion-cluster_rev1.json
-    name: kminion-cluster_rev1.json
+    name: kminion-cluster_rev1.json-${kminion_cluster_rev1_json_DIGEST:?err}
     labels:
       name: grafana
   kminion-groups_rev1.json:
     file: ./grafana/dashboards/applications/kminion-groups_rev1.json
-    name: kminion-groups_rev1.json
+    name: kminion-groups_rev1.json-${kminion_groups_rev1_json_DIGEST:?err}
     labels:
       name: grafana
   kminion-topic_rev1.json:
     file: ./grafana/dashboards/applications/kminion-topic_rev1.json
-    name: kminion-topic_rev1.json
+    name: kminion-topic_rev1.json-${kminion_topic_rev1_json_DIGEST:?err}
     labels:
       name: grafana
   prometheus.yml:
     file: ./prometheus/prometheus.yml
-    name: prometheus.yml
+    name: prometheus.yml-${prometheus_yml_DIGEST:?err}
     labels:
       name: prometheus
 
