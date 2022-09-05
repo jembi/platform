@@ -82,12 +82,6 @@ Tests are located in `/test`
 
 ### Cucumber
 
-`node v16.13.2`
+Tests that execute platform-linux with parameters and observe docker to assert expected outcomes
 
-The cucumber tests are used to assert that a package starts and is destroyed as expected
-
-To run the set of cucumber tests enter the cumcumber test directory `/test/cucumber`
-
-Install dependencies `npm i`
-
-Run tests `npm run test`
+View `/test/cucumber/README.md` for more information
