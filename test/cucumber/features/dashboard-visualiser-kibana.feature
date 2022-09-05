@@ -18,7 +18,5 @@ Feature: Dashboard Visualiser Kibana?
         Then The service "analytics-datastore-elastic-search" should be removed
         Then The service "dashboard-visualiser-kibana" should be removed
         And There should be 0 services
-        And The service containers for "analytics-datastore-elastic-search" should be removed
-        And The service containers for "dashboard-visualiser-kibana" should be removed
         And The volume "es-data" should be removed
         And There should be 0 volumes
