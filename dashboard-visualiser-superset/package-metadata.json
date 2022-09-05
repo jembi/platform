@@ -1,0 +1,15 @@
+{
+  "id": "dashboard-visualiser-superset",
+  "name": "Dashboard Visualiser Superset",
+  "description": "A dashboard to interpret the data from the Clickhouse data store",
+  "type": "infrastructure",
+  "version": "0.0.1",
+  "dependencies": ["analytics-datastore-clickhouse"],
+  "environmentVariables": {
+    "SUPERSET_USERNAME": "admin",
+    "SUPERSET_FIRSTNAME": "SUPERSET",
+    "SUPERSET_LASTNAME": "ADMIN",
+    "SUPERSET_EMAIL": "admin@superset.com",
+    "SUPERSET_PASSWORD": "admin"
+  }
+}

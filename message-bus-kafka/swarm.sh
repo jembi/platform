@@ -45,8 +45,8 @@ if [[ $1 == "init" ]] || [[ $1 == "up" ]]; then
   config::remove_config_importer message-bus-kafka-config-importer
 elif [[ $1 == "down" ]]; then
   try "docker service scale instant_zookeeper-1=0 instant_kafdrop=0" "Failed to scale down zookeeper and kafdrop"
-  # You cannot scale a global service so we have to remove it
-  try "docker service rm instant_kafka" "Failed to remove kafka"
+
+  try "docker service scale instant_kafka=0" "Failed to scale kafka down"
   if [[ $STATEFUL_NODES == "cluster" ]]; then
     try "docker service scale instant_zookeeper-2=0" "Failed to scale down zookeeper cluster"
     try "docker service scale instant_zookeeper-3=0" "Failed to scale down zookeeper cluster"
@@ -73,6 +73,8 @@ elif [[ $1 == "destroy" ]]; then
   if ! docker service rm instant_message-bus-kafka-config-importer; then
     log warn "message-bus-kafka-config-importer not removed... it's possible the service has already been removed"
   fi
+
+  docker::prune_configs "kafka"
 else
   log error "Valid options are: init, up, down, or destroy"
 fi

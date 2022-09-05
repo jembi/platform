@@ -1,0 +1,12 @@
+version: '3.9'
+
+services:
+  analytics-datastore-clickhouse:
+    image: clickhouse/clickhouse-server
+    ulimits:
+      noFile: 262144
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse/
+
+volumes:
+  clickhouse-data:

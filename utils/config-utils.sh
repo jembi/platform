@@ -129,6 +129,8 @@ config::await_service_running() {
     local -r warning_time="${5:-}"
     local -r start_time=$(date +%s)
 
+    docker service rm instant_await-helper &>/dev/null
+
     try "docker stack deploy -c $await_helper_file_path instant" "Failed to deploy await helper"
     until [[ $(docker service ls -f name=instant_"$service_name" --format "{{.Replicas}}") == *"$service_instances/$service_instances"* ]]; do
         config::timeout_check "$start_time" "$service_name to start" "$exit_time" "$warning_time"
@@ -194,7 +196,7 @@ config::await_service_removed() {
     local -r SERVICE_NAME="${1:?"FATAL: await_service_removed SERVICE_NAME not provided"}"
     local start_time=$(date +%s)
 
-    until [[ -z $(docker stack ps instant -qf name="${SERVICE_NAME}") ]]; do
+    until [[ -z $(docker stack ps instant -qf name="${SERVICE_NAME}" 2>/dev/null) ]]; do
         config::timeout_check "$start_time" "${SERVICE_NAME} to be removed"
         sleep 1
     done
@@ -296,4 +298,60 @@ config::remove_service_nginx_config() {
 
     try "docker service update $config_rm_command instant_reverse-proxy-nginx" "Error updating nginx service"
     try "docker config rm $config_rm_list" "Failed to remove configs"
+}
+
+#######################################
+# Replaces all environment variables in a file with the environment variable value
+# Arguments:
+# - $1 : the path to the file that you wish to substitute env vars into (eg. "${COMPOSE_FILE_PATH}"/config.ini)
+#######################################
+config::substitute_env_vars() {
+    local -r FILE_PATH="${1:?"substitute_env_vars is missing a parameter"}"
+    config_with_env=$(envsubst <"${FILE_PATH}")
+    echo "" >"${FILE_PATH}"
+    echo "$config_with_env" >>"${FILE_PATH}"
+}
+
+#######################################
+# Updates a service's configs based off newly created docker configs for a provided folder
+# Arguments:
+# - $1 : service name (eg. data-mapper-logstash)
+# - $2 : target base (eg. /usr/share/logstash/)
+# - $3 : target folder path in absolute format (eg. "$PATH_TO_FILE"/pipeline)
+# - $4 : config label name (eg. cares)
+#######################################
+config::update_service_configs() {
+    docker config rm $(docker config ls -q) &>/dev/null
+
+    local -r SERVICE_NAME=${1:?"FATAL: update_service_configs parameter missing"}
+    local -r TARGET_BASE=${2:?"FATAL: update_service_configs parameter missing"}
+    local -r TARGET_FOLDER_PATH=${3:?"FATAL: update_service_configs parameter missing"}
+    local -r CONFIG_LABEL_NAME="${4:?"FATAL: update_service_configs is missing a parameter"}"
+    local -r TARGET_FOLDER_NAME=$(basename "${TARGET_FOLDER_PATH}")
+    local config_rm_string=""
+
+    file_names=()
+    files=$(find "${TARGET_FOLDER_PATH}" -maxdepth 10 -mindepth 1 -type f)
+
+    for file in $files; do
+        file_name=${file/"${TARGET_FOLDER_PATH%/}"/}
+        file_name=${file_name:1}
+        file_hash=$(cksum "${file}" | awk '{print $1}')
+        file_names+=("$file_name")
+        config_file="${TARGET_FOLDER_PATH}/${file_name}"
+        config_target="${TARGET_BASE%/}/${file_name}"
+        config_name=$(basename "$file_name")-$file_hash
+        old_config_name=$(docker config inspect --format="{{.Spec.Name}}" "$(docker config ls -qf name="$(basename "$file_name")")")
+
+        if [[ -n $old_config_name ]]; then
+            config_rm_string+="--config-rm $old_config_name "
+        fi
+        config_add_string+="--config-add source=$config_name,target=$config_target "
+
+        docker config create \
+            --label name="$CONFIG_LABEL_NAME" "$config_name" "$config_file" &>/dev/null
+    done
+    try "docker service update $config_rm_string $config_add_string $SERVICE_NAME" "Failed to update config for $SERVICE_NAME"
+
+    try "docker container prune -f" "Failed to prune containers"
 }

@@ -1,0 +1,63 @@
+---
+- name: enable ufw
+  ufw:
+    state: enabled
+
+- name: allow openssh
+  ufw:
+    rule: allow
+    name: OpenSSH
+  notify:
+    - reload ufw
+
+- name: allow port 80 for certificate verification
+  ufw:
+    rule: allow
+    port: "80"
+    proto: tcp
+  notify:
+    - reload ufw
+
+- name: allow port 443 for services
+  ufw:
+    rule: allow
+    port: "443"
+    proto: tcp
+  notify:
+    - reload ufw
+
+- name: "allow Docker Swarm port 2377 tcp"
+  ufw:
+    rule: allow
+    port: "2377"
+    from_ip: "'{{ firewall_subnet_restriction }}'"
+    proto: tcp
+  notify:
+    - reload ufw
+
+- name: "allow Docker Swarm port 4789 udp"
+  ufw:
+    rule: allow
+    port: "4789"
+    from_ip: "'{{ firewall_subnet_restriction }}'"
+    proto: udp
+  notify:
+    - reload ufw
+
+- name: "allow Docker Swarm port 7946 udp"
+  ufw:
+    rule: allow
+    port: "7946"
+    from_ip: "'{{ firewall_subnet_restriction }}'"
+    proto: udp
+  notify:
+    - reload ufw
+
+- name: "allow Docker Swarm port 7946 tcp"
+  ufw:
+    rule: allow
+    port: "7946"
+    from_ip: "'{{ firewall_subnet_restriction }}'"
+    proto: tcp
+  notify:
+    - reload ufw
