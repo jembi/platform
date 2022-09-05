@@ -313,7 +313,7 @@ config::substitute_env_vars() {
 }
 
 #######################################
-# Updates all the config files in a service
+# Updates a service's configs based off newly created docker configs for a provided folder
 # Arguments:
 # - $1 : service name (eg. data-mapper-logstash)
 # - $2 : target base (eg. /usr/share/logstash/)
