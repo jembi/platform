@@ -311,3 +311,47 @@ config::substitute_env_vars() {
     echo "" >"${FILE_PATH}"
     echo "$config_with_env" >>"${FILE_PATH}"
 }
+
+#######################################
+# Updates a service's configs based off newly created docker configs for a provided folder
+# Arguments:
+# - $1 : service name (eg. data-mapper-logstash)
+# - $2 : target base (eg. /usr/share/logstash/)
+# - $3 : target folder path in absolute format (eg. "$PATH_TO_FILE"/pipeline)
+# - $4 : config label name (eg. cares)
+#######################################
+config::update_service_configs() {
+    docker config rm $(docker config ls -q) &>/dev/null
+
+    local -r SERVICE_NAME=${1:?"FATAL: update_service_configs parameter missing"}
+    local -r TARGET_BASE=${2:?"FATAL: update_service_configs parameter missing"}
+    local -r TARGET_FOLDER_PATH=${3:?"FATAL: update_service_configs parameter missing"}
+    local -r CONFIG_LABEL_NAME="${4:?"FATAL: update_service_configs is missing a parameter"}"
+    local -r TARGET_FOLDER_NAME=$(basename "${TARGET_FOLDER_PATH}")
+    local config_rm_string=""
+
+    file_names=()
+    files=$(find "${TARGET_FOLDER_PATH}" -maxdepth 10 -mindepth 1 -type f)
+
+    for file in $files; do
+        file_name=${file/"${TARGET_FOLDER_PATH%/}"/}
+        file_name=${file_name:1}
+        file_hash=$(cksum "${file}" | awk '{print $1}')
+        file_names+=("$file_name")
+        config_file="${TARGET_FOLDER_PATH}/${file_name}"
+        config_target="${TARGET_BASE%/}/${file_name}"
+        config_name=$(basename "$file_name")-$file_hash
+        old_config_name=$(docker config inspect --format="{{.Spec.Name}}" "$(docker config ls -qf name="$(basename "$file_name")")")
+
+        if [[ -n $old_config_name ]]; then
+            config_rm_string+="--config-rm $old_config_name "
+        fi
+        config_add_string+="--config-add source=$config_name,target=$config_target "
+
+        docker config create \
+            --label name="$CONFIG_LABEL_NAME" "$config_name" "$config_file" &>/dev/null
+    done
+    try "docker service update $config_rm_string $config_add_string $SERVICE_NAME" "Failed to update config for $SERVICE_NAME"
+
+    try "docker container prune -f" "Failed to prune containers"
+}
