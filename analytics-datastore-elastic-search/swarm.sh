@@ -163,6 +163,7 @@ elif [[ "$ACTION" == "destroy" ]]; then
   fi
 
   docker::try_remove_volume es-data
+  docker::prune_configs "elastic-search"
 else
   log error "Valid options are: init, up, down, or destroy"
 fi
