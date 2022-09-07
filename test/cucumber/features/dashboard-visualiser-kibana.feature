@@ -16,7 +16,7 @@ Feature: Dashboard Visualiser Kibana?
         Given I use parameters "destroy dashboard-visualiser-kibana --dev --env-file=.env.test"
         When I launch the platform with params
         Then The service "analytics-datastore-elastic-search" should be removed
-        Then The service "dashboard-visualiser-kibana" should be removed
+        And The service "dashboard-visualiser-kibana" should be removed
         And There should be 0 services
         And The volume "es-data" should be removed
         And There should be 0 volumes
