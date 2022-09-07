@@ -3,8 +3,12 @@ version: '3.9'
 services:
   hapi-fhir-config-importer:
     image: jembi/instantohie-config-importer:v1.0.0
-    restart_policy:
-      condition: none
+    deploy:
+      restart_policy:
+        condition: none
+      placement:
+        constraints:
+          - "node.labels.name==node-1"
     environment:
       HAPI_FHIR_BASE_URL: http://hapi-fhir:8080/fhir
       FHIR_IG_URL: ${FHIR_IG_URL}
