@@ -17,7 +17,7 @@ Feature: Data Mapper Logstash?
         Given I use parameters "destroy data-mapper-logstash --dev --env-file=.env.test"
         When I launch the platform with params
         Then The service "analytics-datastore-elastic-search" should be removed
-        Then The service "data-mapper-logstash" should be removed
+        And The service "data-mapper-logstash" should be removed
         And There should be 0 services
         And The volume "es-data" should be removed
         And The volume "logstash-data" should be removed
