@@ -5,7 +5,7 @@ Feature: Dashboard Visualiser Kibana?
         Given I use parameters "init dashboard-visualiser-kibana --dev --env-file=.env.test"
         When I launch the platform with params
         Then The service "analytics-datastore-elastic-search" should be started
-        Then The service "dashboard-visualiser-kibana" should be started
+        And The service "dashboard-visualiser-kibana" should be started
         And There should be 2 services
         And The service "analytics-datastore-elastic-search" should have healthy containers
         And The service "dashboard-visualiser-kibana" should have healthy containers
