@@ -49,7 +49,7 @@ services:
     volumes:
       - es01-data:/usr/share/elasticsearch/data
       - certs:/usr/share/elasticsearch/config/certs
-      - /backups/elasticsearch:/backups/elasticsearch
+      - /backups:/backups/elasticsearch
 
   analytics-datastore-elastic-search-02:
     depends_on:
@@ -99,7 +99,7 @@ services:
     volumes:
       - es02-data:/usr/share/elasticsearch/data
       - certs:/usr/share/elasticsearch/config/certs
-      - /backups/elasticsearch:/backups/elasticsearch
+      - /backups:/backups/elasticsearch
 
   analytics-datastore-elastic-search-03:
     depends_on:
