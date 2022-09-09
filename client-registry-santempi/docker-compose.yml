@@ -19,6 +19,7 @@ services:
       replicas: ${SANTEMPI_INSTANCES}
     volumes:
          - santedb-data:/santedb
+         
   santedb-www:
     image: santesuite/santedb-www:2.2.1.10
     depends_on:
