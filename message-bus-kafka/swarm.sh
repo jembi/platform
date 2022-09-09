@@ -57,6 +57,7 @@ elif [[ $1 == "destroy" ]]; then
   docker::service_destroy zookeeper-1
   docker::service_destroy kafka
   docker::service_destroy kafdrop
+  docker::service_destroy message-bus-kafka-config-importer
 
   docker::try_remove_volume zookeeper-1-volume
   docker::try_remove_volume kafka-volume
@@ -70,9 +71,6 @@ elif [[ $1 == "destroy" ]]; then
     log notice "Volumes are only deleted on the host on which the command is run. Kafka volumes on other nodes are not deleted"
   fi
 
-  if ! docker service rm instant_message-bus-kafka-config-importer; then
-    log warn "message-bus-kafka-config-importer not removed... it's possible the service has already been removed"
-  fi
 
   docker::prune_configs "kafka"
 else

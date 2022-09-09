@@ -76,3 +76,12 @@ Each service's resource allocations can be piped into their .yml file through en
 - Take note to not allocate less memory to ELK Stack services than their JVM heap sizes.
 - Exit code 137 indicates an out-of-memory failure. When running into this, it means that the service has been allocated too little memory.
 
+## Tests
+
+Tests are located in `/test`
+
+### Cucumber
+
+Tests that execute platform-linux with parameters and observe docker to assert expected outcomes
+
+View `/test/cucumber/README.md` for more information
