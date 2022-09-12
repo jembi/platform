@@ -28,6 +28,7 @@ services:
       ES_ELASTIC: ${ES_ELASTIC:-dev_password_only}
       ES_KIBANA_SYSTEM: ${ES_KIBANA_SYSTEM:-dev_password_only}
       ES_BEATS_SYSTEM: ${ES_BEATS_SYSTEM:-dev_password_only}
+      path.repo: ${ES_PATH_REPO:-/backups/elasticsearch}
     healthcheck:
       test: curl -u elastic:${ES_ELASTIC:-dev_password_only} -s -f localhost:9200/_cat/health >/dev/null || exit 1
       interval: 10s
@@ -36,6 +37,7 @@ services:
       start_period: 1m
     volumes:
       - es-data:/usr/share/elasticsearch/data
+      - /backups:/backups/elasticsearch
 
 volumes:
   es-data:
