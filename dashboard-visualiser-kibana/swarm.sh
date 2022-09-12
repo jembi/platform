@@ -21,7 +21,7 @@ readonly ROOT_PATH
 . "${ROOT_PATH}/utils/log.sh"
 
 import_kibana_dashboards() {
-  log info "Setting config digests"
+  log info "Importing Kibana dashboard"
   config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
   try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to start config importer"
   config::remove_config_importer "kibana-config-importer"

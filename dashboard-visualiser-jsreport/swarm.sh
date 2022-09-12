@@ -4,8 +4,6 @@ readonly ACTION=$1
 readonly MODE=$2
 readonly JS_REPORT_INSTANCES=${JS_REPORT_INSTANCES:-1}
 export JS_REPORT_INSTANCES
-TIMESTAMP="$(date "+%Y%m%d%H%M%S")"
-readonly TIMESTAMP
 
 STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
 
@@ -16,6 +14,7 @@ COMPOSE_FILE_PATH=$(
 
 ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/config-utils.sh"
+. "${ROOT_PATH}/utils/docker-utils.sh"
 . "${ROOT_PATH}/utils/log.sh"
 
 unbound_ES_HOSTS_check() {
@@ -64,7 +63,11 @@ main() {
   elif [[ "${ACTION}" == "down" ]]; then
     try "docker service scale instant_dashboard-visualiser-jsreport=0" "Failed to scale down dashboard-visualiser-jsreport"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    try "docker service rm instant_dashboard-visualiser-jsreport instant_jsreport-config-importer instant_await-helper" "Failed to destroy dashboard-visualiser-jsreport"
+    docker::service_destroy dashboard-visualiser-jsreport
+    docker::service_destroy jsreport-config-importer
+    docker::service_destroy await-helper
+    
+    docker::prune_configs "jsreport"
   else
     log error "Valid options are: init, up, down, or destroy"
   fi
