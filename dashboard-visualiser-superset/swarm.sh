@@ -28,6 +28,7 @@ main() {
   fi
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
+    config::set_config_digests "$COMPOSE_FILE_PATH"/docker-compose.yml
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $superset_dev_compose_param instant" "Failed to deploy Dashboard Visualiser Superset"
 
     docker::await_container_startup dashboard-visualiser-superset
@@ -48,6 +49,7 @@ main() {
 
     log info "Removing stale configs..."
     config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "superset"
+    config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "superset"
   elif [[ "${ACTION}" == "down" ]]; then
     try "docker service scale instant_dashboard-visualiser-superset=0" "Failed to scale down dashboard-visualiser-superset"
   elif [[ "${ACTION}" == "destroy" ]]; then
