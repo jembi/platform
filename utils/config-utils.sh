@@ -317,23 +317,23 @@ config::substitute_env_vars() {
 # configs based off newly created docker configs for a provided folder. The modified variable must then be
 # used in a `docker service update` command, like follows:
 # ```
-#   config_var=""
-#   config::update_service_configs /usr/share/logstash/ "$PATH_TO_FILE"/pipeline cares config_var
-#   docker service update $config_var instant_data-mapper-logstash
+#   service_update_args=""
+#   config::update_service_configs service_update_args /usr/share/logstash/ "$PATH_TO_FILE"/pipeline cares
+#   docker service update $service_update_args instant_data-mapper-logstash
 # ```
 # Arguments:
-# - $1 : target base (eg. /usr/share/logstash/)
-# - $2 : target folder path in absolute format (eg. "$PATH_TO_FILE"/pipeline)
-# - $3 : config label name (eg. cares)
-# - $4 : config update variable name (eg. config_var)
+# - $1 : config update variable name (eg. service_update_args)
+# - $2 : target base (eg. /usr/share/logstash/)
+# - $3 : target folder path in absolute format (eg. "$PATH_TO_FILE"/pipeline)
+# - $4 : config label name (eg. cares)
 #######################################
 config::update_service_configs() {
     docker config rm $(docker config ls -q) &>/dev/null
 
-    local -r TARGET_BASE=${1:?"FATAL: update_service_configs parameter missing"}
-    local -r TARGET_FOLDER_PATH=${2:?"FATAL: update_service_configs parameter missing"}
-    local -r CONFIG_LABEL_NAME="${3:?"FATAL: update_service_configs is missing a parameter"}"
-    declare -n config_update_var="${4:?"FATAL: update_service_configs is missing a parameter"}"
+    declare -n config_update_var="${1:?"FATAL: update_service_configs is missing a parameter"}"
+    local -r TARGET_BASE=${2:?"FATAL: update_service_configs parameter missing"}
+    local -r TARGET_FOLDER_PATH=${3:?"FATAL: update_service_configs parameter missing"}
+    local -r CONFIG_LABEL_NAME="${4:?"FATAL: update_service_configs is missing a parameter"}"
     local config_rm_string=""
 
     file_names=()
