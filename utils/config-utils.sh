@@ -360,3 +360,51 @@ config::update_service_configs() {
 
     config_update_var+="$config_rm_string $config_add_string"
 }
+
+#######################################
+# Modify a variable to contain the necessary `--env-add` arguments to update a service's
+# environment specified in a .env file. The modified variable must then be
+# used in a `docker service update` command, like follows:
+# ```
+#   service_update_args=""
+#   config::env_var_add_from_file service_update_args "$PATH_TO_FILE"/.env.add
+#   docker service update $service_update_args instant_data-mapper-logstash
+# ```
+# Arguments:
+# - $1 : service update variable name (eg. service_update_args)
+# - $2 : .env file (eg. "$PATH_TO_FILE"/.env.add)
+#######################################
+config::env_var_add_from_file() {
+    declare -n service_update_var="${1:?"FATAL: env_var_add_from_file is missing a parameter"}"
+    local -r ENV_FILE=${2:?"FATAL: env_var_add_from_file parameter missing"}
+
+    if [[ ! -f $ENV_FILE ]]; then
+        log error "Fatal: $ENV_FILE: No such file or directory. Exiting..."
+        return 1
+    fi
+
+    readarray -t env_vars <"$ENV_FILE"
+    for env_var in "${env_vars[@]}"; do
+        service_update_var+=" --env-add $env_var"
+    done
+}
+
+#######################################
+# Modify a variable to contain the necessary `--env-add` arguments to update a service's
+# environment based on the provided env var. The modified variable must then be
+# used in a `docker service update` command, like follows:
+# ```
+#   service_update_args=""
+#   config::env_var_add service_update_args MY_ENV_VAR=my_value
+#   docker service update $service_update_args instant_data-mapper-logstash
+# ```
+# Arguments:
+# - $1 : service update variable name (eg. service_update_args)
+# - $2 : env var (eg. MY_ENV_VAR=my_value)
+#######################################
+config::env_var_add() {
+    declare -n service_update_var="${1:?"FATAL: env_var_add is missing a parameter"}"
+    local -r ENV_VAR=${2:?"FATAL: env_var_add parameter missing"}
+
+    service_update_var+=" --env-add $ENV_VAR"
+}
