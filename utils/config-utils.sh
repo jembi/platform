@@ -379,7 +379,7 @@ config::env_var_add_from_file() {
     local -r ENV_FILE=${2:?"FATAL: env_var_add_from_file parameter missing"}
 
     if [[ ! -f $ENV_FILE ]]; then
-        log error "Fatal: $ENV_FILE: No such file or directory. Exiting..."
+        log error "$ENV_FILE: No such file or directory. Exiting..."
         return 1
     fi
 
