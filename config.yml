@@ -38,3 +38,5 @@ packages:
     name: Analytics Datastore Clickhouse
   - id: dashboard-visualiser-superset
     name: Dashboard Visualiser Superset
+  - id: monitoring
+    name: Monitoring package

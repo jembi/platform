@@ -1,0 +1,14 @@
+version: '3.9'
+
+services:
+  grafana:
+    ports:
+      - target: 3000
+        published: 3030
+        mode: host
+
+  prometheus:
+    ports:
+      - target: 9090
+        published: 9090
+        mode: host

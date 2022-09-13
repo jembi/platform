@@ -29,7 +29,7 @@ An authorised user will need to run the `provision_servers.yml` playbook to add 
 Before running the ansible script add the server to your known hosts file else ansible might complains, for each server run:
 
 ```sh
- ssh-keyscan -H <host> >> ~/.ssh/known_hosts
+ssh-keyscan -H <host> >> ~/.ssh/known_hosts
 ```
 
 To run a playbook you should do:

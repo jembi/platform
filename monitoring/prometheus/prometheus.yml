@@ -1,0 +1,79 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: "prometheus"
+    static_configs:
+    - targets: ["prometheus:9090"]
+
+  - job_name: "grafana"
+    static_configs:
+    - targets: ["grafana:3000"]
+
+  # Create a job for Docker daemons.
+  - job_name: 'docker'
+    dockerswarm_sd_configs:
+      - host: unix:///var/run/docker.sock
+        role: nodes
+    relabel_configs:
+      # Fetch metrics on port 9323.
+      - source_labels: [__meta_dockerswarm_node_address]
+        target_label: __address__
+        replacement: $1:9323
+      # Set hostname as instance label
+      - source_labels: [__meta_dockerswarm_node_hostname]
+        target_label: instance
+
+  # Create a job for reading metrics from nodes
+  - job_name: 'node-exporter'
+    dns_sd_configs:
+    - names:
+      - 'tasks.node-exporter'
+      type: 'A'
+      port: 9100
+
+  # Create a job for reading metrics from containers
+  - job_name: 'cadvisor'
+    dns_sd_configs:
+    - names:
+      - 'tasks.cadvisor'
+      type: 'A'
+      port: 8080
+
+  # Create a job for Docker Swarm services with particular labels (one target for the whole service, possibly multiple containers)
+  - job_name: 'dockerswarm-services'
+    dockerswarm_sd_configs:
+      - host: unix:///var/run/docker.sock
+        role: services
+    relabel_configs:
+      # Only keep services that have a `prometheus-job-service` label.
+      - source_labels: [__meta_dockerswarm_service_label_prometheus_job_service]
+        regex: .+
+        action: keep
+      # Use the prometheus-job Swarm label as Prometheus job label.
+      - source_labels: [__meta_dockerswarm_service_label_prometheus_job_service]
+        target_label: job
+      # Use the prometheus-address Swarm label as the target address for swarm service.
+      - source_labels: [__meta_dockerswarm_service_label_prometheus_address]
+        target_label: __address__
+
+  # Create a job for Docker Swarm container with particular labels (one target per container/task)
+  - job_name: 'dockerswarm-tasks'
+    dockerswarm_sd_configs:
+      - host: unix:///var/run/docker.sock
+        role: tasks
+    relabel_configs:
+      # Only keep containers that should be running.
+      - source_labels: [__meta_dockerswarm_task_desired_state]
+        regex: running
+        action: keep
+      # Only keep containers that have a `prometheus-job-task` label.
+      - source_labels: [__meta_dockerswarm_service_label_prometheus_job_task]
+        regex: .+
+        action: keep
+      # Use the prometheus-job Swarm label as Prometheus job label.
+      - source_labels: [__meta_dockerswarm_service_label_prometheus_job_task]
+        target_label: job
+
+remote_write:
+  - url: "http://prometheus-kafka-adapter:8080/receive"
