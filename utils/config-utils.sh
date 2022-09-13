@@ -334,13 +334,12 @@ config::substitute_env_vars() {
 #
 #######################################
 config::update_service_configs() {
-    docker config rm $(docker config ls -q) &>/dev/null
-
     declare -n REF_config_update_var="${1:?"FATAL: update_service_configs is missing a parameter"}"
     local -r TARGET_BASE=${2:?"FATAL: update_service_configs parameter missing"}
     local -r TARGET_FOLDER_PATH=${3:?"FATAL: update_service_configs parameter missing"}
     local -r CONFIG_LABEL_NAME="${4:?"FATAL: update_service_configs is missing a parameter"}"
     local config_rm_string=""
+    local config_add_string=""
 
     file_names=()
     files=$(find "${TARGET_FOLDER_PATH}" -maxdepth 10 -mindepth 1 -type f)
@@ -353,15 +352,14 @@ config::update_service_configs() {
         config_file="${TARGET_FOLDER_PATH}/${file_name}"
         config_target="${TARGET_BASE%/}/${file_name}"
         config_name=$(basename "$file_name")-$file_hash
-        old_config_name=$(docker config inspect --format="{{.Spec.Name}}" "$(docker config ls -qf name="$(basename "$file_name")")")
+        old_config_name=$(docker config inspect --format="{{.Spec.Name}}" "$(docker config ls -qf name="$(basename "$file_name")")" 2>/dev/null)
 
         if [[ -n $old_config_name ]]; then
             config_rm_string+="--config-rm $old_config_name "
         fi
         config_add_string+="--config-add source=$config_name,target=$config_target "
 
-        docker config create \
-            --label name="$CONFIG_LABEL_NAME" "$config_name" "$config_file" &>/dev/null
+        try "docker config create --label name=$CONFIG_LABEL_NAME $config_name $config_file" "Failed to create config"
     done
 
     REF_config_update_var+="$config_rm_string $config_add_string"
