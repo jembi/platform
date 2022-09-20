@@ -1,0 +1,16 @@
+# Table of contents
+
+* [Getting Started](README.md)
+* [Packages](packages/README.md)
+  * [Analytics Datastore - Clickhouse](packages/analytics-datastore-clickhouse.md)
+  * [Analytics Datastore - ElasticSearch](packages/analytics-datastore-elasticsearch.md)
+  * [Client Registry - SanteMPI](packages/client-registry-santempi.md)
+  * [Dashboard Visualiser - JS Report](packages/dashboard-visualiser-js-report/README.md)
+    * [Local Development](packages/dashboard-visualiser-js-report/local-development.md)
+    * [Environment Variables](packages/dashboard-visualiser-js-report/environment-variables.md)
+  * [Dashboard Visualiser - Kibana](packages/dashboard-visualiser-kibana/README.md)
+    * [Local Development](packages/dashboard-visualiser-kibana/local-development.md)
+    * [Environment Variables](packages/dashboard-visualiser-kibana/environment-variables.md)
+  * [Dashboard Visualiser - Superset](packages/dashboard-visualiser-superset.md)
+* [Development](development.md)
+* [Resource Allocations](resource-allocations.md)
