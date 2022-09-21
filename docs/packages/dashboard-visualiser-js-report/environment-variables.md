@@ -26,7 +26,7 @@ description: Listed in this page are all environment variables needed to run JS 
 
 **Type**: String
 
-**Default Value**: dev\_password\_only
+**Default Value**: admin
 
 ### JS\_REPORT\_SECRET
 
