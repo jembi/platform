@@ -38,7 +38,7 @@ description: Listed in this page are all environment variables needed to run JS 
 
 ### &#x20;JS\_REPORT\_SSL
 
-**Relevance**: Required service http protocol
+**Relevance**: SSL protocol requirement
 
 **Type**: Boolean
 
