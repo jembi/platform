@@ -20,5 +20,8 @@
   * [Dashboard Visualiser - Superset](packages/dashboard-visualiser-superset/README.md)
     * [Local Development](packages/dashboard-visualiser-superset/local-development.md)
     * [Environment Variables](packages/dashboard-visualiser-superset/environment-variables.md)
+  * [Reverse Proxy Nginx](packages/reverse-proxy-nginx/README.md)
+    * [Local Development](packages/reverse-proxy-nginx/local-development.md)
+    * [Environment Variables](packages/reverse-proxy-nginx/environment-variables.md)
 * [Development](development.md)
 * [Resource Allocations](resource-allocations.md)
