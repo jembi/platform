@@ -2,6 +2,9 @@
 
 * [Getting Started](README.md)
 * [Packages](packages/README.md)
+  * [Job Scheduler Ofelia](packages/job-scheduler-ofelia/README.md)
+    * [Local Development](packages/job-scheduler-ofelia/local-development.md)
+    * [Environment Variables](packages/job-scheduler-ofelia/environment-variables.md)
   * [Analytics Datastore - Clickhouse](../docs/packages/analytics-datastore-clickhouse.md)
   * [Analytics Datastore - Elasticsearch](packages/analytics-datastore-elasticsearch/README.md)
     * [Local Development](packages/analytics-datastore-elasticsearch/local-development.md)
