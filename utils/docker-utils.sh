@@ -73,7 +73,7 @@ docker::await_service_destroy() {
     log info "Waiting for ${SERVICE_NAME} to be destroyed..."
     local start_time
     start_time=$(date +%s)
-    until [[ -z $(docker service ls -qf name=instant_"${SERVICE_NAME}") ]]; do
+    while docker service ls | grep -q "\sinstant_${SERVICE_NAME}\s"; do
         config::timeout_check "${start_time}" "${SERVICE_NAME} to be destroyed"
         sleep 1
     done
@@ -105,11 +105,16 @@ docker::service_destroy() {
 docker::try_remove_volume() {
     local -r VOLUME_NAME=${1:?"FATAL: remove_volume_retry VOLUME_NAME not provided"}
 
+    if ! docker volume ls | grep -q "\sinstant_${VOLUME_NAME}$"; then
+        log info "Tried to remove volume ${VOLUME_NAME} but it doesn't exist on this node"
+        return 1
+    fi
+
     log info "Waiting for volume ${VOLUME_NAME} to be removed..."
     local start_time
     start_time=$(date +%s)
     until [[ -n "$(docker volume rm instant_"${VOLUME_NAME}" 2>/dev/null)" ]]; do
-        config::timeout_check "${start_time}" "${VOLUME_NAME} to be removed" "20" "10"
+        config::timeout_check "${start_time}" "${VOLUME_NAME} to be removed" "60" "10"
         sleep 1
     done
     overwrite "Waiting for volume ${VOLUME_NAME} to be removed... Done"

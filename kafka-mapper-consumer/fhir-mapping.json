@@ -1,0 +1,20 @@
+[
+  {
+    "resourceType": "Patient",
+    "tableMappings": [
+      {
+        "targetTable": "patient",
+        "columnMappings": [
+          {
+            "columnName": "patientGivenName",
+            "fhirPath": "Patient.name.given"
+          },
+          {
+            "columnName": "patientFamilyName",
+            "fhirPath": "Patient.name.family"
+          }
+        ]
+      }
+    ]
+  }
+]

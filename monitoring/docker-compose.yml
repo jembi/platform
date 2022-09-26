@@ -1,0 +1,123 @@
+version: '3.9'
+
+services:
+  grafana:
+    image: grafana/grafana-oss:9.1.0
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    configs:
+      - target: /etc/grafana/grafana.ini
+        source: grafana.ini
+      - target: /etc/grafana/provisioning/datasources/datasource.yml
+        source: datasource.yml
+      - target: /etc/grafana/provisioning/dashboards/dashboard.yml
+        source: dashboard.yml
+      - target: /etc/grafana/provisioning/dashboards/nodes/node-exporter-full_rev27.json
+        source: node-exporter-full_rev27.json
+      - target: /etc/grafana/provisioning/dashboards/containers/docker-swarm-monitor-v2_rev2.json
+        source: docker-swarm-monitor-v2_rev2.json
+      - target: /etc/grafana/provisioning/dashboards/applications/kminion-cluster_rev1.json
+        source: kminion-cluster_rev1.json
+      - target: /etc/grafana/provisioning/dashboards/applications/kminion-groups_rev1.json
+        source: kminion-groups_rev1.json
+      - target: /etc/grafana/provisioning/dashboards/applications/kminion-topic_rev1.json
+        source: kminion-topic_rev1.json
+
+  prometheus:
+    image: prom/prometheus:v2.38.0
+    user: root
+    volumes:
+      - prometheus_data:/prometheus
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    configs:
+      - target: /etc/prometheus/prometheus.yml
+        source: prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.45.0
+    command: -docker_only
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker
+      - /dev/disk/:/dev/disk:ro
+    deploy:
+      mode: global
+
+  node-exporter:
+    image: quay.io/prometheus/node-exporter:v1.3.1
+    hostname: "{{.Node.ID}}"
+    command:
+      - '--path.rootfs=/host'
+    volumes:
+      - '/:/host:ro,rslave'
+    deploy:
+      mode: global
+
+  prometheus-kafka-adapter:
+    image: telefonica/prometheus-kafka-adapter:1.8.0
+    environment:
+      - KAFKA_BROKER_LIST=kafka:9092
+      - KAFKA_COMPRESSION=gzip
+
+configs:
+  grafana.ini:
+    file: ./grafana/grafana.ini
+    name: grafana.ini-${grafana_ini_DIGEST:?err}
+    labels:
+      name: grafana
+  datasource.yml:
+    file: ./grafana/datasource.yml
+    name: datasource.yml-${datasource_yml_DIGEST:?err}
+    labels:
+      name: grafana
+  dashboard.yml:
+    file: ./grafana/dashboards/dashboard.yml
+    name: dashboard.yml-${dashboard_yml_DIGEST:?err}
+    labels:
+      name: grafana
+  node-exporter-full_rev27.json:
+    file: ./grafana/dashboards/nodes/node-exporter-full_rev27.json
+    name: node-exporter-full_rev27.json-${node_exporter_full_rev27_json_DIGEST:?err}
+    labels:
+      name: grafana
+  docker-swarm-monitor-v2_rev2.json:
+    file: ./grafana/dashboards/containers/docker-swarm-monitor-v2_rev2.json
+    name: docker-swarm-monitor-v2_rev2.json-${docker_swarm_monitor_v2_rev2_json_DIGEST:?err}
+    labels:
+      name: grafana
+  kminion-cluster_rev1.json:
+    file: ./grafana/dashboards/applications/kminion-cluster_rev1.json
+    name: kminion-cluster_rev1.json-${kminion_cluster_rev1_json_DIGEST:?err}
+    labels:
+      name: grafana
+  kminion-groups_rev1.json:
+    file: ./grafana/dashboards/applications/kminion-groups_rev1.json
+    name: kminion-groups_rev1.json-${kminion_groups_rev1_json_DIGEST:?err}
+    labels:
+      name: grafana
+  kminion-topic_rev1.json:
+    file: ./grafana/dashboards/applications/kminion-topic_rev1.json
+    name: kminion-topic_rev1.json-${kminion_topic_rev1_json_DIGEST:?err}
+    labels:
+      name: grafana
+  prometheus.yml:
+    file: ./prometheus/prometheus.yml
+    name: prometheus.yml-${prometheus_yml_DIGEST:?err}
+    labels:
+      name: prometheus
+
+volumes:
+  prometheus_data:
+  grafana_data:

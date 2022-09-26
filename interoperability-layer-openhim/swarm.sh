@@ -49,26 +49,6 @@ verify_core() {
   try "docker service rm instant_await-helper" "Failed to remove await helper"
 }
 
-remove_config_importer() {
-  local start_time
-  start_time=$(date +%s)
-  local config_importer_state
-  config_importer_state=$(docker service ps instant_interoperability-layer-openhim-config-importer --format "{{.CurrentState}}")
-  until [[ "${config_importer_state}" == *"Complete"* ]]; do
-    config::timeout_check "${start_time}" "interoperability-layer-openhim-config-importer to run"
-    sleep 1
-
-    config_importer_state=$(docker service ps instant_interoperability-layer-openhim-config-importer --format "{{.CurrentState}}")
-    if [[ "${config_importer_state}" == *"Failed"* ]] || [[ ${config_importer_state} == *"Rejected"* ]]; then
-      log error "Fatal: Core config importer failed with error:
-       $(docker service ps instant_interoperability-layer-openhim-config-importer --no-trunc --format '{{.Error}}')"
-      exit 1
-    fi
-  done
-
-  try "docker service rm instant_interoperability-layer-openhim-config-importer" "Failed to remove config importer"
-}
-
 verify_mongos() {
   log info 'Waiting to ensure all the mongo instances for the replica set are up and running'
   local -i running_instance_count
@@ -136,7 +116,8 @@ main() {
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to deploy config importer"
 
     log info "Waiting to give core config importer time to run before cleaning up service"
-    remove_config_importer
+    
+    config::remove_config_importer interoperability-layer-openhim-config-importer
 
     # Ensure config importer is removed
     config::await_service_removed instant_interoperability-layer-openhim-config-importer
@@ -185,7 +166,7 @@ main() {
     fi
 
     # shellcheck disable=SC2046 # intentional word splitting
-    try "docker config rm $(docker config ls -qf label=name=openhim)" "Failed to remove openhim configs"
+    docker::prune_configs "openhim"
 
   else
     log error "Valid options are: init, up, down, or destroy"

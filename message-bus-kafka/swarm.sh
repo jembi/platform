@@ -44,7 +44,7 @@ if [[ $1 == "init" ]] || [[ $1 == "up" ]]; then
   config::remove_stale_service_configs "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml "ethiopia"
   config::remove_config_importer message-bus-kafka-config-importer
 elif [[ $1 == "down" ]]; then
-  try "docker service scale instant_zookeeper-1=0 instant_kafdrop=0" "Failed to scale down zookeeper and kafdrop"
+  try "docker service scale instant_zookeeper-1=0 instant_kafdrop=0 instant_kafka-minion=0" "Failed to scale down zookeeper, kafdrop and kafka-minion"
 
   try "docker service scale instant_kafka=0" "Failed to scale kafka down"
   if [[ $STATEFUL_NODES == "cluster" ]]; then
@@ -57,6 +57,8 @@ elif [[ $1 == "destroy" ]]; then
   docker::service_destroy zookeeper-1
   docker::service_destroy kafka
   docker::service_destroy kafdrop
+  docker::service_destroy message-bus-kafka-config-importer
+  docker::service_destroy kafka-minion
 
   docker::try_remove_volume zookeeper-1-volume
   docker::try_remove_volume kafka-volume
@@ -67,12 +69,10 @@ elif [[ $1 == "destroy" ]]; then
 
     docker::try_remove_volume zookeeper-2-volume
     docker::try_remove_volume zookeeper-3-volume
-    log notice "Volumes are only deleted on the host on which the command is run. Kafka volumes on other nodes are not deleted"
+    log warn "Volumes are only deleted on the host on which the command is run. Kafka volumes on other nodes are not deleted"
   fi
 
-  if ! docker service rm instant_message-bus-kafka-config-importer; then
-    log warn "message-bus-kafka-config-importer not removed... it's possible the service has already been removed"
-  fi
+  docker::prune_configs "kafka"
 else
   log error "Valid options are: init, up, down, or destroy"
 fi

@@ -1,0 +1,8 @@
+version: '3.9'
+
+services:
+  kafka-unbundler-consumer:
+    image: jembi/kafka-unbundler-consumer:0.0.2
+    environment:
+      KAFKA_HOST: ${KAFKA_HOST:-kafka}
+      KAFKA_PORT: ${KAFKA_PORT:-9092}

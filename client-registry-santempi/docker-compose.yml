@@ -26,6 +26,7 @@ services:
           memory: ${SANTE_MPI_MEMORY_RESERVE:-500M}
     volumes:
          - santedb-data:/santedb
+         
   santedb-www:
     image: santesuite/santedb-www:2.2.1.10
     deploy:
