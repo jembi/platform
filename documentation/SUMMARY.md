@@ -49,3 +49,7 @@
   * [Terraform](provisioning-up-remote-servers/terraform.md)
 * [Config Importing](config-importing.md)
 * [Resource Allocations](resource-allocations.md)
+* [Disaster Recovery Process](disaster-recovery-process/README.md)
+  * [Elasticsearch](disaster-recovery-process/elasticsearch.md)
+  * [HAPI FHIR Data](disaster-recovery-process/hapi-fhir-data.md)
+  * [OpenHIM Data](disaster-recovery-process/openhim-data.md)
