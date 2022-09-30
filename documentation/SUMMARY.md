@@ -31,4 +31,5 @@
     * [Local Development](packages/reverse-proxy-nginx/local-development.md)
     * [Environment Variables](packages/reverse-proxy-nginx/environment-variables.md)
 * [Development](development.md)
+* [Config Importing](config-importing.md)
 * [Resource Allocations](resource-allocations.md)
