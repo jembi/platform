@@ -2,6 +2,9 @@
 
 * [Getting Started](README.md)
 * [Packages](packages/README.md)
+  * [Data Mapper Logstash](packages/data-mapper-logstash/README.md)
+    * [Local Development](packages/data-mapper-logstash/local-development.md)
+    * [Environment Variables](packages/data-mapper-logstash/environment-variables.md)
   * [Job Scheduler Ofelia](packages/job-scheduler-ofelia/README.md)
     * [Local Development](packages/job-scheduler-ofelia/local-development.md)
     * [Environment Variables](packages/job-scheduler-ofelia/environment-variables.md)
