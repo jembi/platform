@@ -25,6 +25,8 @@
   * [Dashboard Visualiser - Superset](packages/dashboard-visualiser-superset/README.md)
     * [Local Development](packages/dashboard-visualiser-superset/local-development.md)
     * [Environment Variables](packages/dashboard-visualiser-superset/environment-variables.md)
+  * [Message Bus Helper Hapi Proxy](packages/message-bus-helper-hapi-proxy/README.md)
+    * [Environment Variables](packages/message-bus-helper-hapi-proxy/environment-variables.md)
   * [Reverse Proxy Nginx](packages/reverse-proxy-nginx/README.md)
     * [Local Development](packages/reverse-proxy-nginx/local-development.md)
     * [Environment Variables](packages/reverse-proxy-nginx/environment-variables.md)
