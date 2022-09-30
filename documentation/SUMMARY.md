@@ -2,6 +2,9 @@
 
 * [Getting Started](README.md)
 * [Packages](packages/README.md)
+  * [Kafka Mapper Consumer](packages/kafka-mapper-consumer/README.md)
+    * [Local Development](packages/kafka-mapper-consumer/local-development.md)
+    * [Environment Variables](packages/kafka-mapper-consumer/environment-variables.md)
   * [Data Mapper Logstash](packages/data-mapper-logstash/README.md)
     * [Local Development](packages/data-mapper-logstash/local-development.md)
     * [Environment Variables](packages/data-mapper-logstash/environment-variables.md)
