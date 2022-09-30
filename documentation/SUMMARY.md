@@ -39,5 +39,8 @@
     * [Local Development](packages/reverse-proxy-nginx/local-development.md)
     * [Environment Variables](packages/reverse-proxy-nginx/environment-variables.md)
 * [Development](development.md)
+* [Provisioning up remote servers](provisioning-up-remote-servers/README.md)
+  * [Ansible](provisioning-up-remote-servers/ansible.md)
+  * [Terraform](provisioning-up-remote-servers/terraform.md)
 * [Config Importing](config-importing.md)
 * [Resource Allocations](resource-allocations.md)
