@@ -2,6 +2,9 @@
 
 * [Getting Started](README.md)
 * [Packages](packages/README.md)
+  * [Interoperability Layer Openhim](packages/interoperability-layer-openhim/README.md)
+    * [Local Development](packages/interoperability-layer-openhim/local-development.md)
+    * [Environment Variables](packages/interoperability-layer-openhim/environment-variables.md)
   * [Monitoring](packages/monitoring/README.md)
     * [Environment Variables](packages/monitoring/environment-variables.md)
   * [Kafka Mapper Consumer](packages/kafka-mapper-consumer/README.md)
