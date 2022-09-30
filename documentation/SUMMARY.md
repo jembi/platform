@@ -2,6 +2,8 @@
 
 * [Getting Started](README.md)
 * [Packages](packages/README.md)
+  * [Monitoring](packages/monitoring/README.md)
+    * [Environment Variables](packages/monitoring/environment-variables.md)
   * [Kafka Mapper Consumer](packages/kafka-mapper-consumer/README.md)
     * [Local Development](packages/kafka-mapper-consumer/local-development.md)
     * [Environment Variables](packages/kafka-mapper-consumer/environment-variables.md)
