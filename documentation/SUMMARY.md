@@ -33,6 +33,8 @@
   * [Message Bus - Kafka](packages/message-bus-kafka/README.md)
     * [Local Development](packages/message-bus-kafka/local-development.md)
     * [Environment Variables](packages/message-bus-kafka/environment-variables.md)
+  * [Kafka Unbundler Consumer](packages/kafka-unbundler-consumer/README.md)
+    * [Environment Variables](packages/kafka-unbundler-consumer/environment-variables.md)
   * [Message Bus Helper Hapi Proxy](packages/message-bus-helper-hapi-proxy/README.md)
     * [Environment Variables](packages/message-bus-helper-hapi-proxy/environment-variables.md)
   * [Reverse Proxy Nginx](packages/reverse-proxy-nginx/README.md)
