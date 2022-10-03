@@ -19,7 +19,7 @@ services:
       bootstrap.memory_lock: 'true'
       xpack.security.enabled: 'true'
       xpack.monitoring.collection.enabled: 'true'
-      ES_JAVA_OPTS: ${ES_HEAP_SIZE:--Xms2048m -Xmx2048m}
+      ES_JAVA_OPTS: ${ES_HEAP_SIZE}
       search.max_buckets: 1000000
       search.default_search_timeout: -1
       ES_LOGSTASH_SYSTEM: ${ES_LOGSTASH_SYSTEM}
@@ -28,7 +28,7 @@ services:
       ES_ELASTIC: ${ES_ELASTIC}
       ES_KIBANA_SYSTEM: ${ES_KIBANA_SYSTEM}
       ES_BEATS_SYSTEM: ${ES_BEATS_SYSTEM}
-      path.repo: ${ES_PATH_REPO:-/backups/elasticsearch}
+      path.repo: ${ES_PATH_REPO}
     healthcheck:
       test: curl -u elastic:${ES_ELASTIC} -s -f localhost:9200/_cat/health >/dev/null || exit 1
       interval: 10s
