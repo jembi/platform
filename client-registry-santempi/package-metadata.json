@@ -6,6 +6,7 @@
   "version": "0.0.1",
   "dependencies": ["reverse-proxy-nginx"],
   "environmentVariables": {
+    "STATEFUL_NODES": "single",
     "SANTEMPI_INSTANCES": "1",
     "SANTEMPI_POSTGRESQL_PASSWORD": "SanteDB123",
     "SANTEMPI_POSTGRESQL_USERNAME": "santedb",

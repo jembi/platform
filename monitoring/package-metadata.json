@@ -4,8 +4,9 @@
   "description": "A package for monitoring the platform services",
   "type": "infrastructure",
   "version": "0.0.1",
-  "dependencies": [ "message-bus-kafka" ],
+  "dependencies": ["message-bus-kafka"],
   "environmentVariables": {
+    "STATEFUL_NODES": "single",
     "GF_SECURITY_ADMIN_USER": "admin",
     "GF_SECURITY_ADMIN_PASSWORD": "dev_password_only"
   }

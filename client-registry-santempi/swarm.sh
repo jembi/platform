@@ -3,10 +3,6 @@
 # Constants
 readonly ACTION=$1
 readonly MODE=$2
-readonly SANTEMPI_INSTANCES=${SANTEMPI_INSTANCES:-1}
-export SANTEMPI_INSTANCES
-
-readonly STATEFUL_NODES=${STATEFUL_NODES:-"single"}
 
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit

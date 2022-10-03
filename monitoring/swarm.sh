@@ -4,13 +4,6 @@
 readonly ACTION=$1
 readonly MODE=$2
 
-readonly STATEFUL_NODES=${STATEFUL_NODES:-"single"}
-readonly GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER:-"admin"}
-export GF_SECURITY_ADMIN_USER
-
-readonly GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD:-"dev_password_only"}
-export GF_SECURITY_ADMIN_PASSWORD
-
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
   pwd -P
