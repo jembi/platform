@@ -1,9 +1,10 @@
 #!/bin/bash
 
 # Arguments
-ACTION=$1
-MODE=$2
-STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
+readonly ACTION=$1
+readonly MODE=$2
+
+readonly STATEFUL_NODES=${STATEFUL_NODES:-"single"}
 
 readonly LOGSTASH_INSTANCES=${LOGSTASH_INSTANCES:-1}
 export LOGSTASH_INSTANCES

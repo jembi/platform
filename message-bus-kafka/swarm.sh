@@ -1,6 +1,8 @@
 #!/bin/bash
 
-STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
+readonly STATEFUL_NODES=${STATEFUL_NODES:-"single"}
+readonly KAFKA_INSTANCES=${KAFKA_INSTANCES:-1}
+export KAFKA_INSTANCES
 
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
@@ -13,8 +15,6 @@ ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/docker-utils.sh"
 . "${ROOT_PATH}/utils/log.sh"
 
-readonly KAFKA_INSTANCES=${KAFKA_INSTANCES:-1}
-export KAFKA_INSTANCES
 
 if [[ $STATEFUL_NODES == "cluster" ]]; then
   log info "Running Message Bus Kafka package in Cluster node mode"

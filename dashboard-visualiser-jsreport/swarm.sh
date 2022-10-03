@@ -5,7 +5,7 @@ readonly MODE=$2
 readonly JS_REPORT_INSTANCES=${JS_REPORT_INSTANCES:-1}
 export JS_REPORT_INSTANCES
 
-STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
+readonly STATEFUL_NODES=${STATEFUL_NODES:-"single"}
 
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit

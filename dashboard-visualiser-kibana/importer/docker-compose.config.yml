@@ -6,12 +6,12 @@ services:
     environment:
       SERVICE_NAME: 'dashboard-visualiser-kibana'
       SERVICE_API_PORT: 5601
-      API_USERNAME: ${KIBANA_USERNAME:-elastic}
-      API_PASSWORD: ${KIBANA_PASSWORD:-dev_password_only}
-      SSL: ${KIBANA_SSL:-true}
+      API_USERNAME: ${KIBANA_USERNAME}
+      API_PASSWORD: ${KIBANA_PASSWORD}
+      SSL: ${KIBANA_SSL}
       API_PATH: '/api/saved_objects/_import?overwrite=true'
       MIME_TYPE: 'multipart/form-data'
-      CONFIG_FILE: ${KIBANA_CONFIG_FILE:-kibana-export.ndjson}
+      CONFIG_FILE: ${KIBANA_CONFIG_FILE}
       ADDITIONAL_HEADERS: '{ "kbn-xsrf": "true" }'
     deploy:
       replicas: 1

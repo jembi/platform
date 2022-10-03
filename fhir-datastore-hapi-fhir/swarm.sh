@@ -3,9 +3,10 @@
 # Constants
 readonly ACTION=$1
 readonly MODE=$2
-readonly STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
+readonly STATEFUL_NODES=${STATEFUL_NODES:-"single"}
 readonly HAPI_FHIR_INSTANCES=${HAPI_FHIR_INSTANCES:-1}
 export HAPI_FHIR_INSTANCES
+
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
   pwd -P

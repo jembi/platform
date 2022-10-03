@@ -12,7 +12,7 @@ services:
     environment:
       ES_HOSTS: ${ES_HOSTS}
       ES_ELASTIC: ${ES_ELASTIC}
-      LS_JAVA_OPTS: ${LS_JAVA_OPTS:--Xmx2g -Xms2g}
+      LS_JAVA_OPTS: ${LS_JAVA_OPTS}
     volumes:
       - logstash-data:/usr/share/logstash/data
     deploy:
@@ -21,12 +21,12 @@ services:
       replicas: ${LOGSTASH_INSTANCES}
       resources:
         limits:
-          memory: ${LOGSTASH_MEMORY_LIMIT:-3G}
+          memory: ${LOGSTASH_MEMORY_LIMIT}
         reservations:
-          memory: ${LOGSTASH_MEMORY_RESERVE:-500M}
+          memory: ${LOGSTASH_MEMORY_RESERVE}
     configs:
       - target: /usr/share/logstash/config/logstash.yml
-        source: ${LOGSTASH_YML_CONFIG:-logstash-logstash.yml}
+        source: ${LOGSTASH_YML_CONFIG}
       - target: /usr/share/logstash/config/log4j2.properties
         source: logstash-log4j2.properties
       - target: /usr/share/logstash/config/jvm.options

@@ -10,6 +10,8 @@
     "SUPERSET_FIRSTNAME": "SUPERSET",
     "SUPERSET_LASTNAME": "ADMIN",
     "SUPERSET_EMAIL": "admin@superset.com",
-    "SUPERSET_PASSWORD": "admin"
+    "SUPERSET_PASSWORD": "admin",
+    "SUPERSET_CONFIG_FILE": "superset-export.zip",
+    "SUPERSET_SSL": "false"
   }
 }

@@ -10,9 +10,9 @@ services:
     deploy:
       resources:
         limits:
-          memory: ${ES_MEMORY_LIMIT:-3G}
+          memory: ${ES_MEMORY_LIMIT}
         reservations:
-          memory: ${ES_MEMORY_RESERVE:-500M}
+          memory: ${ES_MEMORY_RESERVE}
     environment:
       node.name: es01
       discovery.type: single-node
@@ -22,15 +22,15 @@ services:
       ES_JAVA_OPTS: ${ES_HEAP_SIZE:--Xms2048m -Xmx2048m}
       search.max_buckets: 1000000
       search.default_search_timeout: -1
-      ES_LOGSTASH_SYSTEM: ${ES_LOGSTASH_SYSTEM:-dev_password_only}
-      ES_APM_SYSTEM: ${ES_APM_SYSTEM:-dev_password_only}
-      ES_REMOTE_MONITORING_USER: ${ES_REMOTE_MONITORING_USER:-dev_password_only}
-      ES_ELASTIC: ${ES_ELASTIC:-dev_password_only}
-      ES_KIBANA_SYSTEM: ${ES_KIBANA_SYSTEM:-dev_password_only}
-      ES_BEATS_SYSTEM: ${ES_BEATS_SYSTEM:-dev_password_only}
+      ES_LOGSTASH_SYSTEM: ${ES_LOGSTASH_SYSTEM}
+      ES_APM_SYSTEM: ${ES_APM_SYSTEM}
+      ES_REMOTE_MONITORING_USER: ${ES_REMOTE_MONITORING_USER}
+      ES_ELASTIC: ${ES_ELASTIC}
+      ES_KIBANA_SYSTEM: ${ES_KIBANA_SYSTEM}
+      ES_BEATS_SYSTEM: ${ES_BEATS_SYSTEM}
       path.repo: ${ES_PATH_REPO:-/backups/elasticsearch}
     healthcheck:
-      test: curl -u elastic:${ES_ELASTIC:-dev_password_only} -s -f localhost:9200/_cat/health >/dev/null || exit 1
+      test: curl -u elastic:${ES_ELASTIC} -s -f localhost:9200/_cat/health >/dev/null || exit 1
       interval: 10s
       timeout: 5s
       retries: 5
