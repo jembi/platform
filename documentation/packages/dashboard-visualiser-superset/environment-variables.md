@@ -15,4 +15,3 @@ description: Listed in this page are all environment variables needed to run Sup
 | SUPERSET\_API\_PASSWORD | String  | Service password                  | No       | admin               |
 | SUPERSET\_SSL           | Boolean | SSL protocol requirement          | No       | False               |
 | CONFIG_\__FILE          | String  | Path to the dashboard import file | No       | superset-export.zip |
-

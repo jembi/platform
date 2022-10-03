@@ -21,7 +21,7 @@ services:
       replicas: ${LOGSTASH_INSTANCES}
       resources:
         limits:
-          cpus: ${LOGSTASH_CPU_LIMIT:-0.8}
+          cpus: ${LOGSTASH_CPU_LIMIT:-0}
           memory: ${LOGSTASH_MEMORY_LIMIT:-2G}
         reservations:
           cpus: ${LOGSTASH_CPU_RESERVE:-0.05}

@@ -8,6 +8,8 @@ description: A job scheduling tool.
 
 [Job Docs](https://github.com/mcuadros/ofelia/blob/master/docs/jobs.md)
 
+The platform uses image: mcuadros/ofelia:v0.3.6 which has the following limitations:
+
 * Ofelia does not support config.ini files when run in docker mode (which enables scheduling jobs with docker labels) thus we need to always use the config.ini file for creating jobs.
 * Ofelia does not support attaching to a running instance of a service.
 * Ofelia does not support job-run (which allows you to launch a job with a specified image name) labels on non-ofelia services (ie. you may not specify a job of type job-run within the nginx package as ofelia will not pick it up)&#x20;
