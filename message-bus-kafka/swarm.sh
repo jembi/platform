@@ -1,6 +1,6 @@
 #!/bin/bash
 readonly ACTION=$1
-readonly MODE="${MODE}"
+readonly MODE=$2
 
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
@@ -30,7 +30,7 @@ else
   kafkaDevComposeParam=""
 fi
 
-if [[ $1 == "init" ]] || [[ $1 == "up" ]]; then
+if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
   config::set_config_digests "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml
 
   try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $kafkaClusterComposeParam $kafkaDevComposeParam instant" "Failed to deploy Message Bus Kafka"
