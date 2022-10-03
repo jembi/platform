@@ -65,17 +65,9 @@ main() {
 
     await_postgres_start
 
-<<<<<<< HEAD
-    docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $SANTE_MPI_DEV_COMPOSE_PARAM instant
-  elif [ "$1" == "down" ]; then
-    docker service scale instant_santedb-mpi=0 instant_santedb-www=0 instant_santempi-psql-1=0 instant_santempi-psql-2=0 instant_santempi-psql-3=0
-  elif [ "$1" == "destroy" ]; then
-    docker service rm instant_santedb-www instant_santedb-mpi instant_santempi-psql-1 instant_santempi-psql-2 instant_santempi-psql-3
-=======
     try "docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $SANTE_MPI_DEV_COMPOSE_PARAM instant" "Failed to stand up SanteMPI"
   elif [ "$ACTION" == "down" ]; then
     try "docker service scale instant_santedb-mpi=0 instant_santempi-psql-1=0" "Failed to scale down santeMPI"
->>>>>>> 10d57a5018870b53d50ec377349efd2c6380800e
 
     if [ "$STATEFUL_NODES" == "cluster" ]; then
       try "docker service scale instant_santempi-psql-2=0 instant_santempi-psql-3=0" "Failed to scale down santeMPI postgres replicas"
