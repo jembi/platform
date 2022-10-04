@@ -19,6 +19,15 @@ readonly ROOT_PATH
 . "${ROOT_PATH}/utils/log.sh"
 
 main() {
+
+  if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
+    log info "Running Superset package in Cluster node mode"
+    superset_cluster_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose-mongo.cluster.yml"
+  else
+    log info "Running Superset package in Single node mode"
+    superset_cluster_compose_param=""
+  fi
+
   if [[ "${MODE}" == "dev" ]]; then
     log info "Running Dashboard Visualiser Superset package in DEV mode"
     superset_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
@@ -29,7 +38,7 @@ main() {
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
     config::set_config_digests "$COMPOSE_FILE_PATH"/docker-compose.yml
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $superset_dev_compose_param instant" "Failed to deploy Dashboard Visualiser Superset"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $superset_dev_compose_param $superset_dev_compose_param instant" "Failed to deploy Dashboard Visualiser Superset"
 
     docker::await_container_startup dashboard-visualiser-superset
     docker::await_container_status dashboard-visualiser-superset Running

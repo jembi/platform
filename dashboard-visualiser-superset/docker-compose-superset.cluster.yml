@@ -1,0 +1,64 @@
+version: '3.9'
+
+services:
+  dashboard-visualiser-superset:
+    deploy: 
+      placement: 
+        constraints: 
+          - "node.labels.name==node-1"
+
+  dashboard-visualiser-superset-2:
+    image: jembi/superset:latest
+    volumes:
+      - superset_home-2:/app/superset_home
+      - superset-2:/app/superset
+      - superset-frontend-2:/app/superset-frontend
+    deploy: 
+      placement: 
+        constraints: 
+          - "node.labels.name==node-2"
+    command: sh -c "superset fab create-admin \
+      --username ${SUPERSET_USERNAME:-admin} \
+      --firstname ${SUPERSET_FIRSTNAME:-SUPERSET}  \
+      --lastname ${SUPERSET_LASTNAME:-ADMIN} \
+      --email ${SUPERSET_EMAIL:-admin@superset.com} \
+      --password ${SUPERSET_PASSWORD:-admin} && superset db upgrade && superset init && cd /usr/bin && ./run-server.sh"
+    configs:
+      - source: superset_config.py
+        target: /app/pythonpath/superset_config.py
+
+  dashboard-visualiser-superset-3:
+    image: jembi/superset:latest
+    volumes:
+      - superset_home-3:/app/superset_home
+      - superset-3:/app/superset
+      - superset-frontend-3:/app/superset-frontend
+    deploy: 
+      placement: 
+        constraints: 
+          - "node.labels.name==node-3"
+    command: sh -c "superset fab create-admin \
+      --username ${SUPERSET_USERNAME:-admin} \
+      --firstname ${SUPERSET_FIRSTNAME:-SUPERSET}  \
+      --lastname ${SUPERSET_LASTNAME:-ADMIN} \
+      --email ${SUPERSET_EMAIL:-admin@superset.com} \
+      --password ${SUPERSET_PASSWORD:-admin} && superset db upgrade && superset init && cd /usr/bin && ./run-server.sh"
+    configs:
+      - source: superset_config.py
+        target: /app/pythonpath/superset_config.py
+
+configs:
+  superset_config.py:
+    file: ./config/superset_config.py
+    name: superset_config.py-${superset_config_py_DIGEST:?err}
+    labels:
+      name: superset
+
+volumes:
+  superset_home-2:
+  superset-2:
+  superset-frontend-2:
+
+  superset_home-3:
+  superset-3:
+  superset-frontend-3:
