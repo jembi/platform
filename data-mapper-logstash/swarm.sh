@@ -1,12 +1,8 @@
 #!/bin/bash
 
 # Arguments
-ACTION=$1
-MODE=$2
-STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
-
-readonly LOGSTASH_INSTANCES=${LOGSTASH_INSTANCES:-1}
-export LOGSTASH_INSTANCES
+readonly ACTION=$1
+readonly MODE=$2
 
 readonly LOGSTASH_DEV_MOUNT=$LOGSTASH_DEV_MOUNT
 
@@ -15,18 +11,18 @@ COMPOSE_FILE_PATH=$(
   pwd -P
 )
 
+# Import libraries
+ROOT_PATH="${COMPOSE_FILE_PATH}/.."
+. "${ROOT_PATH}/utils/config-utils.sh"
+. "${ROOT_PATH}/utils/docker-utils.sh"
+. "${ROOT_PATH}/utils/log.sh"
+
 inject_pipeline_elastic_hosts() {
   ES_HOSTS=${ES_HOSTS:-"\"analytics-datastore-elastic-search:9200\""}
   for file in "${COMPOSE_FILE_PATH}"/pipeline/*.conf; do
     sed -i "s/\$ES_HOSTS/${ES_HOSTS}/g" "${file}"
   done
 }
-
-# Import libraries
-ROOT_PATH="${COMPOSE_FILE_PATH}/.."
-. "${ROOT_PATH}/utils/config-utils.sh"
-. "${ROOT_PATH}/utils/docker-utils.sh"
-. "${ROOT_PATH}/utils/log.sh"
 
 if [[ "$MODE" == "dev" ]]; then
   log info "Running Data Mapper Logstash package in DEV mode"

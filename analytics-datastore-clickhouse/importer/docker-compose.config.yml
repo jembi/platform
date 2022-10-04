@@ -7,8 +7,8 @@ services:
       restart_policy:
         condition: none
     environment:
-      CLICKHOUSE_HOST: ${CLICKHOUSE_HOST:-analytics-datastore-clickhouse}
-      CLICKHOUSE_PORT: ${CLICKHOUSE_PORT:-8123}
+      CLICKHOUSE_HOST: ${CLICKHOUSE_HOST}
+      CLICKHOUSE_PORT: ${CLICKHOUSE_PORT}
     configs:
       - source: config-importer-clickhouseConfig.js
         target: /clickhouseConfig.js

@@ -3,8 +3,6 @@
 readonly ACTION=$1
 readonly MODE=$2
 
-readonly STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
-
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
   pwd -P
