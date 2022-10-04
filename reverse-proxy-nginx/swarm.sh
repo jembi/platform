@@ -3,19 +3,15 @@
 # Constants
 readonly ACTION=$1
 readonly MODE=$2
-readonly REVERSE_PROXY_INSTANCES=${REVERSE_PROXY_INSTANCES:-1}
-export REVERSE_PROXY_INSTANCES
+
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
   pwd -P
 )
 readonly COMPOSE_FILE_PATH
-readonly DOMAIN_NAME=${DOMAIN_NAME:-localhost}
-readonly SUBDOMAINS=${SUBDOMAINS:-""}
-readonly RENEWAL_EMAIL=${RENEWAL_EMAIL}
+
 TIMESTAMP="$(date "+%Y%m%d%H%M%S")"
 readonly TIMESTAMP
-readonly STAGING=${STAGING:-false}
 readonly TIMESTAMPED_NGINX="${TIMESTAMP}-nginx.conf"
 
 # Import libraries

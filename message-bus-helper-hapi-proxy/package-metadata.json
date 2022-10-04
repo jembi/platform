@@ -3,12 +3,16 @@
   "name": "Message Bus Helper Package - Hapi Proxy",
   "description": "This is a helper package for the Kafka message bus. It sends data to the Hapi FHIR datastore and then to the Kafka message bus based on the response from Hapi FHIR",
   "version": "1.0.0",
+  "type": "infrastructure",
   "dependencies": ["message-bus-kafka", "fhir-datastore-hapi-fhir"],
   "environmentVariables": {
     "HAPI_PROXY_INSTANCES": 1,
-    "HAPI_PROXY_CPU_LIMIT": "0.8",
+    "HAPI_PROXY_CPU_LIMIT": "0",
     "HAPI_PROXY_CPU_RESERVE": "0.05",
     "HAPI_PROXY_MEMORY_LIMIT": "3G",
-    "HAPI_PROXY_MEMORY_RESERVE": "500M"
+    "HAPI_PROXY_MEMORY_RESERVE": "500M",
+    "HAPI_SERVER_URL": "http://hapi-fhir:8080/fhir",
+    "KAFKA_BOOTSTRAP_SERVERS": "kafka:9092",
+    "HAPI_SERVER_VALIDATE_FORMAT": "NONE"
   }
 }
