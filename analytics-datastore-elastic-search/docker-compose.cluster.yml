@@ -149,7 +149,7 @@ services:
     volumes:
       - es03-data:/usr/share/elasticsearch/data
       - certs:/usr/share/elasticsearch/config/certs
-      - /backups/elasticsearch:/backups/elasticsearch
+      - /backups:/backups/elasticsearch
 
 volumes:
   es01-data:
