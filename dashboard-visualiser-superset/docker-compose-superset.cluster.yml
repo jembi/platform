@@ -47,13 +47,6 @@ services:
       - source: superset_config.py
         target: /app/pythonpath/superset_config.py
 
-configs:
-  superset_config.py:
-    file: ./config/superset_config.py
-    name: superset_config.py-${superset_config_py_DIGEST:?err}
-    labels:
-      name: superset
-
 volumes:
   superset_home-2:
   superset-2:
