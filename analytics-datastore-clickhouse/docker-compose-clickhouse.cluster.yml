@@ -1,0 +1,33 @@
+version: '3.9'
+
+services:
+  analytics-datastore-clickhouse:
+    deploy: 
+      placement: 
+        constraints: 
+          - node.labels.name==node-1"
+
+  analytics-datastore-clickhouse-02:
+    image: clickhouse/clickhouse-server
+    deploy: 
+      placement: 
+        constraints: 
+          - node.labels.name==node-2"
+    ulimits:
+      noFile: 262144
+    volumes:
+      - clickhouse-data-02:/var/lib/clickhouse/
+  analytics-datastore-clickhouse-03:
+    image: clickhouse/clickhouse-server
+    deploy: 
+      placement: 
+        constraints: 
+          - node.labels.name==node-3"
+    ulimits:
+      noFile: 262144
+    volumes:
+      - clickhouse-data-03:/var/lib/clickhouse/        
+
+volumes:
+  clickhouse-data-02:
+  clickhouse-data-03:

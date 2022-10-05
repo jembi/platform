@@ -2,6 +2,7 @@
 
 readonly ACTION=$1
 readonly MODE=$2
+readonly STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
 
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
@@ -17,6 +18,14 @@ readonly ROOT_PATH
 . "${ROOT_PATH}/utils/log.sh"
 
 main() {
+
+  if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
+    log info "Running Clickhouse package in Cluster node mode"
+    clickhouse_cluster_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose-clickhouse.cluster.yml"
+  else
+    log info "Running Clickhouse package in Single node mode"
+    clickhouse_cluster_compose_param=""
+  fi
   if [[ "${MODE}" == "dev" ]]; then
     log info "Running Analytics Datastore Clickhouse package in DEV mode"
     clickhouse_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
@@ -26,7 +35,7 @@ main() {
   fi
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $clickhouse_dev_compose_param instant" "Failed to deploy Analytics Datastore Clickhouse"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $clickhouse_cluster_compose_param $clickhouse_dev_compose_param instant" "Failed to deploy Analytics Datastore Clickhouse"
 
     docker::await_container_startup analytics-datastore-clickhouse
     docker::await_container_status analytics-datastore-clickhouse Running
