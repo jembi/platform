@@ -3,5 +3,13 @@
   "name": "Job Scheduler Ofelia",
   "description": "A job scheduling tool",
   "type": "use-case",
-  "version": "0.0.1"
+  "version": "0.0.1",
+  "dependencies": [],
+  "environmentVariables": {
+    "RENEWAL_EMAIL": "dummy@jembi.org",
+    "STAGING": "true",
+    "DOMAIN_NAME": "localhost",
+    "SUBDOMAINS": "",
+    "OPENHIM_MONGO_URL": "mongodb://mongo-1:27017/openhim"
+  }
 }

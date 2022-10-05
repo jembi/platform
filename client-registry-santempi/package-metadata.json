@@ -2,9 +2,15 @@
   "id": "client-registry-santempi",
   "name": "Client Registry Package - SanteMPI",
   "description": "A patient matching and deduplicater for the platform",
+  "type": "infrastructure",
   "version": "0.0.1",
   "dependencies": ["reverse-proxy-nginx"],
   "environmentVariables": {
-    "SANTEMPI_INSTANCES": "1"
+    "STATEFUL_NODES": "single",
+    "SANTEMPI_INSTANCES": "1",
+    "SANTEMPI_POSTGRESQL_PASSWORD": "SanteDB123",
+    "SANTEMPI_POSTGRESQL_USERNAME": "santedb",
+    "SANTEMPI_REPMGR_PRIMARY_HOST": "santempi-psql-1",
+    "SANTEMPI_REPMGR_PARTNER_NODES": "santempi-psql-1"
   }
 }

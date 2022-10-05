@@ -3,6 +3,7 @@
 # Constants
 readonly ACTION=$1
 readonly MODE=$2
+
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
   pwd -P
@@ -13,11 +14,6 @@ ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/docker-utils.sh"
 . "${ROOT_PATH}/utils/log.sh"
 
-readonly GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER:-"admin"}
-export GF_SECURITY_ADMIN_USER
-
-readonly GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD:-"dev_password_only"}
-export GF_SECURITY_ADMIN_PASSWORD
 
 if [[ "${MODE}" == "dev" ]]; then
   log info "Running Message Bus Kafka package in DEV mode"

@@ -6,12 +6,12 @@ services:
     environment:
       SERVICE_NAME: 'dashboard-visualiser-jsreport'
       SERVICE_API_PORT: 5488
-      API_USERNAME: ${JS_REPORT_USERNAME:-admin}
-      API_PASSWORD: ${JS_REPORT:-dev_password_only}
-      SSL: ${JS_REPORT_SSL:-true}
+      API_USERNAME: ${JS_REPORT_USERNAME}
+      API_PASSWORD: ${JS_REPORT}
+      SSL: ${JS_REPORT_SSL}
       API_PATH: '/api/import'
       MIME_TYPE: 'multipart/form-data'
-      CONFIG_FILE: ${JS_REPORT_CONFIG_FILE:-export.jsrexport}
+      CONFIG_FILE: ${JS_REPORT_CONFIG_FILE}
     deploy:
       replicas: 1
       restart_policy:
