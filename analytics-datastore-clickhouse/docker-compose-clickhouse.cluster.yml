@@ -5,14 +5,14 @@ services:
     deploy: 
       placement: 
         constraints: 
-          - node.labels.name==node-1"
+          - "node.labels.name==node-1"
 
   analytics-datastore-clickhouse-02:
     image: clickhouse/clickhouse-server
     deploy: 
       placement: 
         constraints: 
-          - node.labels.name==node-2"
+          - "node.labels.name==node-2"
     ulimits:
       noFile: 262144
     volumes:
@@ -23,7 +23,7 @@ services:
     deploy: 
       placement: 
         constraints: 
-          - node.labels.name==node-3"
+          - "node.labels.name==node-3"
     ulimits:
       noFile: 262144
     volumes:
