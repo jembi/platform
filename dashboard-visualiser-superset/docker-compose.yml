@@ -3,6 +3,10 @@ version: '3.9'
 services:
   dashboard-visualiser-superset:
     image: jembi/superset:latest
+    deploy:
+      placement:
+        max_replicas_per_node: 1
+      replicas: ${SUPERSET_INSTANCES}
     volumes:
       - superset_home:/app/superset_home
       - superset:/app/superset
