@@ -29,7 +29,7 @@ main() {
     if [[ "${INSECURE}" == "true" ]]; then
       log info "Running reverse-proxy package in INSECURE mode"
 
-      config::generate_service_configs reverse-proxy-nginx /etc/nginx/conf.d "${COMPOSE_FILE_PATH}/package-conf-insecure" "${COMPOSE_FILE_PATH}"
+      config::generate_service_configs reverse-proxy-nginx /etc/nginx/conf.d "${COMPOSE_FILE_PATH}/package-conf-insecure" "${COMPOSE_FILE_PATH}" nginx
       nginx_temp_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.tmp.yml"
       try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $nginx_temp_compose_param instant" "Failed to deploy nginx"
 
@@ -60,7 +60,7 @@ main() {
     else
       log info "Running reverse-proxy package in SECURE mode"
 
-      config::generate_service_configs reverse-proxy-nginx /etc/nginx/conf.d "${COMPOSE_FILE_PATH}/package-conf-secure" "${COMPOSE_FILE_PATH}"
+      config::generate_service_configs reverse-proxy-nginx /etc/nginx/conf.d "${COMPOSE_FILE_PATH}/package-conf-secure" "${COMPOSE_FILE_PATH}" nginx
       nginx_temp_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.tmp.yml"
       try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $nginx_temp_compose_param instant" "Failed to deploy nginx"
 
@@ -187,6 +187,8 @@ main() {
     fi
 
     try "docker volume rm renew-certbot-conf data-certbot-conf dummy-data-certbot-conf" "Failed to remove certbot volumes"
+
+    docker::prune_configs nginx
   else
     log error "Valid options are: init, up, down or destroy"
   fi
