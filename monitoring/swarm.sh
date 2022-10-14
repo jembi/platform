@@ -54,6 +54,9 @@ elif [[ "${ACTION}" == "destroy" ]]; then
   if [[ $STATEFUL_NODES == "cluster" ]]; then
     log warn "Volumes are only deleted on the host on which the command is run. Monitoring volumes on other nodes are not deleted"
   fi
+
+  docker::prune_configs grafana
+  docker::prune_configs prometheus
 else
   log error "Valid options are: init, up, down, or destroy"
 fi

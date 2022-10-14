@@ -56,7 +56,7 @@ if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
 
   config::set_config_digests "${COMPOSE_FILE_PATH}"/docker-compose.yml
 
-  config::generate_service_configs data-mapper-logstash /usr/share/logstash "${COMPOSE_FILE_PATH}/pipeline" "${COMPOSE_FILE_PATH}"
+  config::generate_service_configs data-mapper-logstash /usr/share/logstash "${COMPOSE_FILE_PATH}/pipeline" "${COMPOSE_FILE_PATH}" logstash
   LogstashTempComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.tmp.yml"
 
   try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $LogstashDevComposeParam $LogstashDevMountComposeParam $LogstashTempComposeParam instant" "Failed to deploy Data Mapper Logstash"
@@ -74,6 +74,8 @@ elif [[ "${ACTION}" == "down" ]]; then
 elif [[ "${ACTION}" == "destroy" ]]; then
   docker::service_destroy data-mapper-logstash
   docker::try_remove_volume logstash-data
+
+  docker::prune_configs logstash
 else
   log error "Valid options are: init, up, down, or destroy"
 fi
