@@ -1,0 +1,11 @@
+version: '3.9'
+
+services:
+  mpi-checker:
+    deploy:
+      placement:
+        max_replicas_per_node: 1
+  mpi-updater:
+    deploy:
+      placement:
+        max_replicas_per_node: 1

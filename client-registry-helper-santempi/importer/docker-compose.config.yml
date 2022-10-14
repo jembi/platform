@@ -1,0 +1,24 @@
+version: '3.9'
+
+services:
+  santempi-kafka-config-importer:
+    image: jembi/instantohie-config-importer
+    deploy:
+      restart_policy:
+        condition: none
+    environment:
+      KAFDROP_HOST: ${KAFDROP_HOST}
+      KAFDROP_PORT: ${KAFDROP_PORT}
+      KAFKA_BUNDLE_TOPIC: ${KAFKA_BUNDLE_TOPIC}
+      KAFKA_PATIENT_TOPIC: ${KAFKA_PATIENT_TOPIC}
+    command: sh -c "wait-on -t 60000 http-get://${KAFDROP_HOST}:${KAFDROP_PORT}/topic && ls && pwd && node /kafka.js && echo 'success';"
+    configs:
+      - source: santempi-kafka.js
+        target: /kafka.js
+
+configs:
+  santempi-kafka.js:
+    file: ./kafka/kafka.js
+    name: santempi-kafka.js-${santempi_kafka_js_DIGEST:?err}
+    labels:
+      name: santempi-kafka

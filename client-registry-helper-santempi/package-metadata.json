@@ -1,0 +1,27 @@
+{
+  "id": "client-registry-helper-santempi",
+  "name": "Client Registry Helper Package - SanteMPI Mediators",
+  "description": "This package creates mediator services used in facilitating patient creation, updating and reading from the SanteMPI and Hapi-Fhir, from FHIR bundles using Kafka",
+  "type": "infrastructure",
+  "version": "0.0.1",
+  "dependencies": [
+    "fhir-datastore-hapi-fhir",
+    "message-bus-kafka",
+    "client-registry-santempi"
+  ],
+  "environmentVariables": {
+    "STATEFUL_NODES": "single",
+    "CLIENT_REGISTRY_URL": "http://santedb-mpi:8080",
+    "FHIR_SERVER_URL": "http://hapi-fhir:8080",
+    "KAFKA_URL": "kafka:9092",
+    "KAFKA_BUNDLE_TOPIC": "2xx",
+    "KAFKA_PATIENT_TOPIC": "2xx-patient",
+    "KAFDROP_HOST": "kafdrop",
+    "KAFDROP_PORT": 9013,
+    "TRUST_SELF_SIGNED": true,
+    "OPENHIM_MEDIATOR_URL": "https://openhim-core:8080",
+    "REGISTER_MEDIATOR": false,
+    "MPI_UPDATER_VERSION": "latest",
+    "MPI_CHECKER_VERSION": "latest"
+  }
+}
