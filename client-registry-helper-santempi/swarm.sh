@@ -15,7 +15,6 @@ ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/docker-utils.sh"
 . "${ROOT_PATH}/utils/log.sh"
 
-
 main() {
   echo "Removing stale configs..."
   config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "santempi-kafka"
