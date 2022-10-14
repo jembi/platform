@@ -22,7 +22,7 @@ services:
         mode: host
       - target: 9181
         published: 9182
-        mode: host
+        mode: host 
   analytics-datastore-clickhouse-03:
     ports:
       - target: 8123
