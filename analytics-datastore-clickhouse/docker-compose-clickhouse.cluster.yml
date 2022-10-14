@@ -1,7 +1,9 @@
 version: '3.9'
 
 services:
-  analytics-datastore-clickhouse:
+  analytics-datastore-clickhouse-01:
+    volumes:
+      - /analytics-datastore-clickhouse/configs/clickhouse/cluster_config/gen/analytics-datastore-clickhouse-01:/etc/clickhouse-server/config.d/
     deploy: 
       placement: 
         constraints: 
@@ -17,6 +19,7 @@ services:
       noFile: 262144
     volumes:
       - clickhouse-data-02:/var/lib/clickhouse/
+      - /analytics-datastore-clickhouse/configs/clickhouse/cluster_config/gen/analytics-datastore-clickhouse-02:/etc/clickhouse-server/config.d/
       
   analytics-datastore-clickhouse-03:
     image: clickhouse/clickhouse-server
@@ -28,6 +31,7 @@ services:
       noFile: 262144
     volumes:
       - clickhouse-data-03:/var/lib/clickhouse/        
+      - /analytics-datastore-clickhouse/configs/clickhouse/cluster_config/gen/analytics-datastore-clickhouse-03:/etc/clickhouse-server/config.d/
 
 volumes:
   clickhouse-data-02:

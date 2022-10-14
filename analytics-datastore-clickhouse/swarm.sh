@@ -36,8 +36,8 @@ main() {
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $clickhouse_cluster_compose_param $clickhouse_dev_compose_param instant" "Failed to deploy Analytics Datastore Clickhouse"
 
-    docker::await_container_startup analytics-datastore-clickhouse
-    docker::await_container_status analytics-datastore-clickhouse Running
+    docker::await_container_startup analytics-datastore-clickhouse-01
+    docker::await_container_status analytics-datastore-clickhouse-01 Running
 
     config::await_network_join "instant_analytics-datastore-clickhouse"
 
@@ -57,9 +57,9 @@ main() {
   elif [[ "${ACTION}" == "down" ]]; then
     try "docker service scale instant_analytics-datastore-clickhouse=0" "Failed to scale down analytics-datastore-clickhouse"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    docker::service_destroy analytics-datastore-clickhouse
+    docker::service_destroy analytics-datastore-clickhouse-01
     docker::service_destroy clickhouse-config-importer
-    docker::try_remove_volume clickhouse-data
+    docker::try_remove_volume clickhouse-data-01
 
     docker::prune_configs "clickhouse"
   else
