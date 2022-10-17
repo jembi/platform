@@ -20,7 +20,7 @@ readonly ROOT_PATH
 
   for node in "$@"; do
     docker create --name clickhouse_helper-"${node}" -v clickhouse-configs-"${node}":/etc/clickhouse-server/config.d busybox
-    docker cp "${COMPOSE_FILE_PATH}"/configs/gen/analytics-datastore-clickhouse-"${node}" clickhouse_helper-"${node}":/etc/clickhouse-server/config.d/
+    docker cp "${COMPOSE_FILE_PATH}"/cluster_configs/analytics-datastore-clickhouse-"${node}" clickhouse_helper-"${node}":/etc/clickhouse-server/config.d/
     docker rm clickhouse_helper-"${node}"
   done
 }
