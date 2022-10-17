@@ -20,7 +20,17 @@ services:
     volumes:
       - clickhouse-data-02:/var/lib/clickhouse/
       - clickhouse-configs-02:/etc/clickhouse-server/config.d/
-      
+    ports:
+      - target: 8123
+        published: 8125
+        mode: host
+      - target: 9000
+        published: 9002
+        mode: host
+      - target: 9181
+        published: 9182
+        mode: host   
+        
   analytics-datastore-clickhouse-03:
     image: clickhouse/clickhouse-server
     deploy: 
@@ -32,6 +42,16 @@ services:
     volumes:
       - clickhouse-data-03:/var/lib/clickhouse/        
       - clickhouse-configs-03:/etc/clickhouse-server/config.d/
+    ports:
+      - target: 8123
+        published: 8126
+        mode: host
+      - target: 9000
+        published: 9003
+        mode: host
+      - target: 9181
+        published: 9184
+        mode: host
 
 volumes:
   clickhouse-data-02:
