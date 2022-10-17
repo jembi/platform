@@ -249,6 +249,7 @@ config::generate_service_configs() {
     local -r TARGET_BASE=${2:?"FATAL: generate_service_config parameter missing"}
     local -r TARGET_FOLDER_PATH=${3:?"FATAL: generate_service_config parameter missing"}
     local -r COMPOSE_PATH=${4:?"FATAL: generate_service_config parameter missing"}
+    local -r LABEL_NAME=${5:?"FATAL: generate_service_config parameter missing"}
     local -r TARGET_FOLDER_NAME=$(basename "${TARGET_FOLDER_PATH}")
     local count=0
 
@@ -266,7 +267,7 @@ config::generate_service_configs() {
 
         export config_query=".configs.${config_source}"
         export config_file="./${TARGET_FOLDER_NAME}/${file_name}"
-        export config_label_name="${TARGET_FOLDER_NAME}/${file_name}"
+        export config_label_name=$LABEL_NAME
         export config_service_name=$SERVICE_NAME
 
         yq -i '

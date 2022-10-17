@@ -80,6 +80,8 @@ elif [ "${ACTION}" == "destroy" ]; then
     docker::try_remove_volume hapi-postgres-3-data
     log warn "Volumes are only deleted on the host on which the command is run. Postgres volumes on other nodes are not deleted"
   fi
+
+  docker::prune_configs "hapi-fhir"
 else
   log error "Valid options are: init, up, down, or destroy"
 fi
