@@ -4,7 +4,7 @@ services:
   hapi-fhir:
     image: jembi/hapi
     environment:
-      - spring.datasource.url=jdbc:postgresql://${POSTGRES_REPLICA_SET:-postgres-1:5432}/hapi
+      - spring.datasource.url=jdbc:postgresql://${POSTGRES_REPLICA_SET}/hapi
       - spring.datasource.username=admin
       - spring.datasource.password=instant101
       - spring.datasource.driverClassName=org.postgresql.Driver
@@ -20,11 +20,11 @@ services:
         max_replicas_per_node: 1
       resources:
         limits:
-          cpus: ${HAPI_FHIR_CPU_LIMIT:-0.8}
-          memory: ${HAPI_FHIR_MEMORY_LIMIT:-3G}
+          cpus: ${HAPI_FHIR_CPU_LIMIT}
+          memory: ${HAPI_FHIR_MEMORY_LIMIT}
         reservations:
-          cpus: ${HAPI_FHIR_CPU_RESERVE:-0.05}
-          memory: ${HAPI_FHIR_MEMORY_RESERVE:-500M}
+          cpus: ${HAPI_FHIR_CPU_RESERVE}
+          memory: ${HAPI_FHIR_MEMORY_RESERVE}
     healthcheck:
       test: /bin/wget --no-verbose --tries=1 --spider http://localhost:8080
       interval: 30s
