@@ -1,0 +1,33 @@
+version: '3.9'
+
+services:
+  superset-config-importer:
+    image: node:erbium-alpine
+    deploy:
+      restart_policy:
+        condition: none
+    environment:
+      SUPERSET_SERVICE_NAME: 'dashboard-visualiser-superset'
+      SUPERSET_API_PORT: 8088
+      SUPERSET_API_PASSWORD: ${SUPERSET_PASSWORD}
+      SUPERSET_API_USERNAME: ${SUPERSET_USERNAME}
+      CONFIG_FILE: ${SUPERSET_CONFIG_FILE}
+      SUPERSET_SSL: ${SUPERSET_SSL}
+    configs:
+      - source: config-importer-supersetConfig.js
+        target: /supersetConfig.js
+      - source: config-importer-superset-export.zip
+        target: /superset-export.zip
+    command: sh -c "cd / && npm i axios form-data && node /supersetConfig.js"
+
+configs:
+  config-importer-supersetConfig.js:
+    file: ./config/supersetConfig.js
+    name: config-importer-supersetConfig.js-${config_importer_supersetConfig_js_DIGEST:?err}
+    labels:
+      name: superset
+  config-importer-superset-export.zip:
+    file: ./config/superset-export.zip
+    name: config-importer-superset-export.zip-${config_importer_superset_export_zip_DIGEST:?err}
+    labels:
+      name: superset

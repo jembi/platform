@@ -5,11 +5,17 @@
   "type": "use-case",
   "version": "0.0.1",
   "dependencies": [],
-  "environment": {
-    "NGINX_CPU_LIMIT": "0.8",
+  "environmentVariables": {
+    "REVERSE_PROXY_INSTANCES": "1",
+    "NGINX_CPU_LIMIT": "0",
     "NGINX_CPU_RESERVE": "0.05",
     "NGINX_MEMORY_LIMIT": "3G",
     "NGINX_MEMORY_RESERVE": "500M",
-    "REVERSE_PROXY_INSTANCES": "1"
+    "DOMAIN_NAME": "localhost",
+    "SUBDOMAINS": "",
+    "RENEWAL_EMAIL": "dummy@jembi.org",
+    "STAGING": "true",
+    "INSECURE": "true",
+    "INSECURE_PORTS": "5001:5001-80:80-8080:8080-5601:5601-5488:5488-3000:3000-9200:9200-8088:8088"
   }
 }

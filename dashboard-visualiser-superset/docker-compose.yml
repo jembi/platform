@@ -1,0 +1,30 @@
+version: '3.9'
+
+services:
+  dashboard-visualiser-superset:
+    image: jembi/superset:latest
+    volumes:
+      - superset_home:/app/superset_home
+      - superset:/app/superset
+      - superset-frontend:/app/superset-frontend
+    command: sh -c "superset fab create-admin \
+      --username ${SUPERSET_USERNAME} \
+      --firstname ${SUPERSET_FIRSTNAME}  \
+      --lastname ${SUPERSET_LASTNAME} \
+      --email ${SUPERSET_EMAIL} \
+      --password ${SUPERSET_PASSWORD} && superset db upgrade && superset init && cd /usr/bin && ./run-server.sh"
+    configs:
+      - source: superset_config.py
+        target: /app/pythonpath/superset_config.py
+
+configs:
+  superset_config.py:
+    file: ./config/superset_config.py
+    name: superset_config.py-${superset_config_py_DIGEST:?err}
+    labels:
+      name: superset
+
+volumes:
+  superset_home:
+  superset:
+  superset-frontend:

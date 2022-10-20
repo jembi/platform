@@ -1,0 +1,20 @@
+version: '3.9'
+
+services:
+  kafka-mapper-consumer:
+    image: jembi/kafka-mapper-consumer
+    environment:
+      KAFKA_HOST: ${KAFKA_HOST}
+      KAFKA_PORT: ${KAFKA_PORT}
+      CLICKHOUSE_HOST: ${CLICKHOUSE_HOST}
+      CLICKHOUSE_PORT: ${CLICKHOUSE_PORT}
+    configs:
+      - target: /app/src/data/fhir-mapping.json
+        source: fhir-mapping.json
+
+configs:
+  fhir-mapping.json:
+    file: ./fhir-mapping.json
+    name: fhir-mapping.json-${fhir_mapping_json_DIGEST:?err}
+    labels:
+      name: kafka-mapper-consumer

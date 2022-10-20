@@ -24,9 +24,17 @@ packages:
     name: Dashboard Visualiser - JS Reports
   - id: client-registry-santempi
     name: Client Registry - SanteMPI
-  - id: fhir-datastore-helper-hapi-fhir
-    name: FHIR IG importer
   - id: message-bus-helper-hapi-proxy
     name: Message Bus Helper - HAPI Proxy to Kafka
   - id: job-scheduler-ofelia
     name: Job Scheduler Ofelia
+  - id: kafka-mapper-consumer
+    name: Kafka Mapper Consumer
+  - id: kafka-unbundler-consumer
+    name: Kafka Unbundler Consumer
+  - id: analytics-datastore-clickhouse
+    name: Analytics Datastore Clickhouse
+  - id: dashboard-visualiser-superset
+    name: Dashboard Visualiser Superset
+  - id: monitoring
+    name: Monitoring package

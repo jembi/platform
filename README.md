@@ -9,7 +9,7 @@
 
 ## Quick Start for devs (local single node)
 
-1. Ensure that you have the latest instant repository checked out in the same folder that this repo is in.
+1. If running into an error `invalid mount config for type "bind": bind source path does not exist: /tmp/logs` on running the CLI binary, run the following command: `sudo mkdir -p /tmp/logs/`.
 1. `./build-image.sh` - builds the platform image
 1. Initialise Docker Swarm mode: `docker swarm init`
 1. Run `go cli` binary to launch the project:
@@ -70,8 +70,18 @@ Each service's resource allocations can be piped into their .yml file through en
 
 ### Notes on Resource Allocations
 
-- CPU allocations are specified as a portion of unity, i.e., 0.01 --> 1.
+- CPU allocations are specified as a portion of the total number of cores on the host system, i.e., a CPU limit of `2` in a `6-core` system is an effective limit of `33.33%` of the CPU, and a CPU limit of `6` in a `6-core` system is an effective limit of `100%` of the CPU.
 - Memory (RAM) allocations are specified as a number followed by their multiplier, i.e., 500M, 1G, 10G, etc.
 - Be wary of allocating CPU limits to ELK Stack services. These seem to fail with CPU limits and their already implemented health checks.
 - Take note to not allocate less memory to ELK Stack services than their JVM heap sizes.
 - Exit code 137 indicates an out-of-memory failure. When running into this, it means that the service has been allocated too little memory.
+
+## Tests
+
+Tests are located in `/test`
+
+### Cucumber
+
+Tests that execute platform-linux with parameters and observe docker to assert expected outcomes
+
+View `/test/cucumber/README.md` for more information

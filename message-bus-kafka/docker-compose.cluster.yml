@@ -11,11 +11,11 @@ services:
           - "node.labels.name==node-1"
       resources:
         limits:
-          cpus: ${ZOOKEEPER_CPU_LIMIT:-0.8}
-          memory: ${ZOOKEEPER_MEMORY_LIMIT:-3G}
+          cpus: ${ZOOKEEPER_CPU_LIMIT}
+          memory: ${ZOOKEEPER_MEMORY_LIMIT}
         reservations:
-          cpus: ${ZOOKEEPER_CPU_RESERVE:-0.05}
-          memory: ${ZOOKEEPER_MEMORY_RESERVE:-500M}
+          cpus: ${ZOOKEEPER_CPU_RESERVE}
+          memory: ${ZOOKEEPER_MEMORY_RESERVE}
 
   zookeeper-2:
     image: bitnami/zookeeper:3.7.0
@@ -31,11 +31,11 @@ services:
           - "node.labels.name==node-2"
       resources:
         limits:
-          cpus: ${ZOOKEEPER_CPU_LIMIT:-0.8}
-          memory: ${ZOOKEEPER_MEMORY_LIMIT:-3G}
+          cpus: ${ZOOKEEPER_CPU_LIMIT}
+          memory: ${ZOOKEEPER_MEMORY_LIMIT}
         reservations:
-          cpus: ${ZOOKEEPER_CPU_RESERVE:-0.05}
-          memory: ${ZOOKEEPER_MEMORY_RESERVE:-500M}
+          cpus: ${ZOOKEEPER_CPU_RESERVE}
+          memory: ${ZOOKEEPER_MEMORY_RESERVE}
 
   zookeeper-3:
     image: bitnami/zookeeper:3.7.0
@@ -51,11 +51,11 @@ services:
           - "node.labels.name==node-3"
       resources:
         limits:
-          cpus: ${ZOOKEEPER_CPU_LIMIT:-0.8}
-          memory: ${ZOOKEEPER_MEMORY_LIMIT:-3G}
+          cpus: ${ZOOKEEPER_CPU_LIMIT}
+          memory: ${ZOOKEEPER_MEMORY_LIMIT}
         reservations:
-          cpus: ${ZOOKEEPER_CPU_RESERVE:-0.05}
-          memory: ${ZOOKEEPER_MEMORY_RESERVE:-500M}
+          cpus: ${ZOOKEEPER_CPU_RESERVE}
+          memory: ${ZOOKEEPER_MEMORY_RESERVE}
 
   kafka:
     environment:
@@ -66,11 +66,11 @@ services:
       replicas: ${KAFKA_INSTANCES}
       resources:
         limits:
-          cpus: ${KAFKA_CPU_LIMIT:-0.8}
-          memory: ${KAFKA_MEMORY_LIMIT:-3G}
+          cpus: ${KAFKA_CPU_LIMIT}
+          memory: ${KAFKA_MEMORY_LIMIT}
         reservations:
-          cpus: ${KAFKA_CPU_RESERVE:-0.05}
-          memory: ${KAFKA_MEMORY_RESERVE:-500M}
+          cpus: ${KAFKA_CPU_RESERVE}
+          memory: ${KAFKA_MEMORY_RESERVE}
 
 volumes:
   kafka-volume:

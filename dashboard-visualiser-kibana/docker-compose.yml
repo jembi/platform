@@ -15,12 +15,12 @@ services:
       replicas: ${KIBANA_INSTANCES}
       resources:
         limits:
-          memory: ${KIBANA_MEMORY_LIMIT:-3G}
+          memory: ${KIBANA_MEMORY_LIMIT}
         reservations:
-          memory: ${KIBANA_MEMORY_RESERVE:-500M}
+          memory: ${KIBANA_MEMORY_RESERVE}
     configs:
       - target: /usr/share/kibana/config/kibana.yml
-        source: ${KIBANA_YML_CONFIG:-kibana-kibana.yml}
+        source: ${KIBANA_YML_CONFIG}
 configs:
   kibana-kibana.yml:
     file: ./kibana.yml

@@ -3,9 +3,7 @@
 # Constants
 readonly ACTION=$1
 readonly MODE=$2
-readonly STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
-readonly HAPI_FHIR_INSTANCES=${HAPI_FHIR_INSTANCES:-1}
-export HAPI_FHIR_INSTANCES
+
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
   pwd -P
@@ -71,21 +69,19 @@ elif [ "${ACTION}" == "down" ]; then
   fi
 
 elif [ "${ACTION}" == "destroy" ]; then
-  try "docker service rm instant_hapi-fhir instant_postgres-1" "Failed to destroy hapi-fhir"
-
-  config::await_service_removed instant_hapi-fhir
-  config::await_service_removed instant_postgres-1
-
-  try "docker volume rm instant_hapi-postgres-1-data" "Failed to destroy hapi-fhir volume"
+  docker::service_destroy hapi-fhir
+  docker::service_destroy postgres-1
+  docker::try_remove_volume hapi-postgres-1-data
 
   if [ "${STATEFUL_NODES}" == "cluster" ]; then
-    try "docker service rm instant_postgres-2 instant_postgres-3" "Failed to destroy hapi-fhir postgres replicas"
-    config::await_service_removed instant_postgres-2
-    config::await_service_removed instant_postgres-3
-    try "docker volume rm instant_hapi-postgres-2-data instant_hapi-postgres-3-data" "Failed to remove hapi-fhir postgres volumes"
-
+    docker::service_destroy postgres-2
+    docker::service_destroy postgres-3
+    docker::try_remove_volume hapi-postgres-2-data
+    docker::try_remove_volume hapi-postgres-3-data
     log warn "Volumes are only deleted on the host on which the command is run. Postgres volumes on other nodes are not deleted"
   fi
+
+  docker::prune_configs "hapi-fhir"
 else
   log error "Valid options are: init, up, down, or destroy"
 fi

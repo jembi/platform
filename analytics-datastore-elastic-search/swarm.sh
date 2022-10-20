@@ -3,8 +3,6 @@
 ACTION=$1
 MODE=$2
 
-STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
-
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
   pwd -P
@@ -163,6 +161,7 @@ elif [[ "$ACTION" == "destroy" ]]; then
   fi
 
   docker::try_remove_volume es-data
+  docker::prune_configs "elastic-search"
 else
   log error "Valid options are: init, up, down, or destroy"
 fi

@@ -5,15 +5,15 @@ services:
     image: jembi/springproxyserver:20211217-170809.3f57ef5
     hostname: hapi-proxy
     environment:
-      HAPI_SERVER_URL: ${HAPI_SERVER_URL:-http://hapi-fhir:8080/fhir}
-      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS:-kafka:9092}
-      HAPI_SERVER_VALIDATE_FORMAT: ${HAPI_SERVER_VALIDATE_FORMAT:-NONE}
+      HAPI_SERVER_URL: ${HAPI_SERVER_URL}
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
+      HAPI_SERVER_VALIDATE_FORMAT: ${HAPI_SERVER_VALIDATE_FORMAT}
     deploy:
       replicas: ${HAPI_PROXY_INSTANCES}
       resources:
         limits:
-          cpus: ${HAPI_PROXY_CPU_LIMIT:-0.8}
-          memory: ${HAPI_PROXY_MEMORY_LIMIT:-3G}
+          cpus: ${HAPI_PROXY_CPU_LIMIT}
+          memory: ${HAPI_PROXY_MEMORY_LIMIT}
         reservations:
-          cpus: ${HAPI_PROXY_CPU_RESERVE:-0.05}
-          memory: ${HAPI_PROXY_MEMORY_RESERVE:-500M}
+          cpus: ${HAPI_PROXY_CPU_RESERVE}
+          memory: ${HAPI_PROXY_MEMORY_RESERVE}

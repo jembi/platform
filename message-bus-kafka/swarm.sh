@@ -1,6 +1,6 @@
 #!/bin/bash
-
-STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
+readonly ACTION=$1
+readonly MODE=$2
 
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
@@ -13,8 +13,6 @@ ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/docker-utils.sh"
 . "${ROOT_PATH}/utils/log.sh"
 
-readonly KAFKA_INSTANCES=${KAFKA_INSTANCES:-1}
-export KAFKA_INSTANCES
 
 if [[ $STATEFUL_NODES == "cluster" ]]; then
   log info "Running Message Bus Kafka package in Cluster node mode"
@@ -24,7 +22,7 @@ else
   kafkaClusterComposeParam=""
 fi
 
-if [[ $2 == "dev" ]]; then
+if [[ "${MODE}" == "dev" ]]; then
   log info "Running Message Bus Kafka package in DEV mode"
   kafkaDevComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
 else
@@ -32,7 +30,7 @@ else
   kafkaDevComposeParam=""
 fi
 
-if [[ $1 == "init" ]] || [[ $1 == "up" ]]; then
+if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
   config::set_config_digests "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml
 
   try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $kafkaClusterComposeParam $kafkaDevComposeParam instant" "Failed to deploy Message Bus Kafka"
@@ -43,20 +41,22 @@ if [[ $1 == "init" ]] || [[ $1 == "up" ]]; then
 
   config::remove_stale_service_configs "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml "ethiopia"
   config::remove_config_importer message-bus-kafka-config-importer
-elif [[ $1 == "down" ]]; then
-  try "docker service scale instant_zookeeper-1=0 instant_kafdrop=0" "Failed to scale down zookeeper and kafdrop"
+elif [[ "${ACTION}" == "down" ]]; then
+  try "docker service scale instant_zookeeper-1=0 instant_kafdrop=0 instant_kafka-minion=0" "Failed to scale down zookeeper, kafdrop and kafka-minion"
 
   try "docker service scale instant_kafka=0" "Failed to scale kafka down"
   if [[ $STATEFUL_NODES == "cluster" ]]; then
     try "docker service scale instant_zookeeper-2=0" "Failed to scale down zookeeper cluster"
     try "docker service scale instant_zookeeper-3=0" "Failed to scale down zookeeper cluster"
   fi
-elif [[ $1 == "destroy" ]]; then
+elif [[ "${ACTION}" == "destroy" ]]; then
   log info "Allow services to shut down before deleting volumes"
 
   docker::service_destroy zookeeper-1
   docker::service_destroy kafka
   docker::service_destroy kafdrop
+  docker::service_destroy message-bus-kafka-config-importer
+  docker::service_destroy kafka-minion
 
   docker::try_remove_volume zookeeper-1-volume
   docker::try_remove_volume kafka-volume
@@ -67,12 +67,10 @@ elif [[ $1 == "destroy" ]]; then
 
     docker::try_remove_volume zookeeper-2-volume
     docker::try_remove_volume zookeeper-3-volume
-    log notice "Volumes are only deleted on the host on which the command is run. Kafka volumes on other nodes are not deleted"
+    log warn "Volumes are only deleted on the host on which the command is run. Kafka volumes on other nodes are not deleted"
   fi
 
-  if ! docker service rm instant_message-bus-kafka-config-importer; then
-    log warn "message-bus-kafka-config-importer not removed... it's possible the service has already been removed"
-  fi
+  docker::prune_configs "kafka"
 else
   log error "Valid options are: init, up, down, or destroy"
 fi

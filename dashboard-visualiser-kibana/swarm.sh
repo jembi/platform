@@ -2,10 +2,6 @@
 
 readonly ACTION=$1
 readonly MODE=$2
-readonly KIBANA_INSTANCES=${KIBANA_INSTANCES:-1}
-export KIBANA_INSTANCES
-
-readonly STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
 
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
@@ -21,7 +17,7 @@ readonly ROOT_PATH
 . "${ROOT_PATH}/utils/log.sh"
 
 import_kibana_dashboards() {
-  log info "Setting config digests"
+  log info "Importing Kibana dashboard"
   config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
   try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to start config importer"
   config::remove_config_importer "kibana-config-importer"
@@ -64,6 +60,8 @@ main() {
     docker::service_destroy dashboard-visualiser-kibana
     docker::service_destroy await-helper
     docker::service_destroy kibana-config-importer
+
+    docker::prune_configs "kibana"
   else
     log error "Valid options are: init, up, down, or destroy"
   fi

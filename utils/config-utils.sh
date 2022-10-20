@@ -2,6 +2,8 @@
 #
 # Library name: config
 # This is a library that contains functions to assist with docker configs
+#
+# For functions using `declare -n`, note the following explanation https://linuxhint.com/bash_declare_command/#:~:text=giving%20them%20attributes.-,Namerefs,-If%20you%20are
 
 . "$(pwd)/utils/log.sh"
 
@@ -196,7 +198,7 @@ config::await_service_removed() {
     local -r SERVICE_NAME="${1:?"FATAL: await_service_removed SERVICE_NAME not provided"}"
     local start_time=$(date +%s)
 
-    until [[ -z $(docker stack ps instant -qf name="${SERVICE_NAME}") ]]; do
+    until [[ -z $(docker stack ps instant -qf name="${SERVICE_NAME}" 2>/dev/null) ]]; do
         config::timeout_check "$start_time" "${SERVICE_NAME} to be removed"
         sleep 1
     done
@@ -247,6 +249,7 @@ config::generate_service_configs() {
     local -r TARGET_BASE=${2:?"FATAL: generate_service_config parameter missing"}
     local -r TARGET_FOLDER_PATH=${3:?"FATAL: generate_service_config parameter missing"}
     local -r COMPOSE_PATH=${4:?"FATAL: generate_service_config parameter missing"}
+    local -r LABEL_NAME=${5:?"FATAL: generate_service_config parameter missing"}
     local -r TARGET_FOLDER_NAME=$(basename "${TARGET_FOLDER_PATH}")
     local count=0
 
@@ -264,7 +267,7 @@ config::generate_service_configs() {
 
         export config_query=".configs.${config_source}"
         export config_file="./${TARGET_FOLDER_NAME}/${file_name}"
-        export config_label_name="${TARGET_FOLDER_NAME}/${file_name}"
+        export config_label_name=$LABEL_NAME
         export config_service_name=$SERVICE_NAME
 
         yq -i '
@@ -310,4 +313,111 @@ config::substitute_env_vars() {
     config_with_env=$(envsubst <"${FILE_PATH}")
     echo "" >"${FILE_PATH}"
     echo "$config_with_env" >>"${FILE_PATH}"
+}
+
+#######################################
+#
+# Modify a variable to contain the necessary `--config-rm` and `--config-add` arguments to update a service's
+# configs based off newly created docker configs for a provided folder. The modified variable must then be
+# used in a `docker service update` command, like follows:
+# ```
+#   service_update_args=""
+#   config::update_service_configs service_update_args /usr/share/logstash/ "$PATH_TO_FILE"/pipeline cares
+#   docker service update $service_update_args instant_data-mapper-logstash
+# ```
+# Reference arguments:
+# - $1 : config update variable name (eg. service_update_args)
+#
+# Arguments:
+# - $2 : target base (eg. /usr/share/logstash/)
+# - $3 : target folder path in absolute format (eg. "$PATH_TO_FILE"/pipeline)
+# - $4 : config label name (eg. cares)
+#
+#######################################
+config::update_service_configs() {
+    declare -n REF_config_update_var="${1:?"FATAL: update_service_configs is missing a parameter"}"
+    local -r TARGET_BASE=${2:?"FATAL: update_service_configs parameter missing"}
+    local -r TARGET_FOLDER_PATH=${3:?"FATAL: update_service_configs parameter missing"}
+    local -r CONFIG_LABEL_NAME="${4:?"FATAL: update_service_configs is missing a parameter"}"
+    local config_rm_string=""
+    local config_add_string=""
+
+    file_names=()
+    files=$(find "${TARGET_FOLDER_PATH}" -maxdepth 10 -mindepth 1 -type f)
+
+    for file in $files; do
+        file_name=${file/"${TARGET_FOLDER_PATH%/}"/}
+        file_name=${file_name:1}
+        file_hash=$(cksum "${file}" | awk '{print $1}')
+        file_names+=("$file_name")
+        config_file="${TARGET_FOLDER_PATH}/${file_name}"
+        config_target="${TARGET_BASE%/}/${file_name}"
+        config_name=$(basename "$file_name")-$file_hash
+        old_config_name=$(docker config inspect --format="{{.Spec.Name}}" "$(docker config ls -qf name="$(basename "$file_name")")" 2>/dev/null)
+
+        if [[ -n $old_config_name ]]; then
+            config_rm_string+="--config-rm $old_config_name "
+        fi
+        config_add_string+="--config-add source=$config_name,target=$config_target "
+
+        try "docker config create --label name=$CONFIG_LABEL_NAME $config_name $config_file" "Failed to create config"
+    done
+
+    REF_config_update_var+="$config_rm_string $config_add_string"
+}
+
+#######################################
+#
+# Modify a variable to contain the necessary `--env-add` arguments to update a service's
+# environment specified in a .env file. The modified variable must then be
+# used in a `docker service update` command, like follows:
+# ```
+#   service_update_args=""
+#   config::env_var_add_from_file service_update_args "$PATH_TO_FILE"/.env.add
+#   docker service update $service_update_args instant_data-mapper-logstash
+# ```
+# Reference arguments:
+# - $1 : service update variable name (eg. service_update_args)
+#
+# Arguments:
+# - $2 : .env file (eg. "$PATH_TO_FILE"/.env.add)
+#
+#######################################
+config::env_var_add_from_file() {
+    declare -n REF_service_update_var="${1:?"FATAL: env_var_add_from_file is missing a parameter"}"
+    local -r ENV_FILE=${2:?"FATAL: env_var_add_from_file parameter missing"}
+
+    if [[ ! -f $ENV_FILE ]]; then
+        log error "$ENV_FILE: No such file or directory. Exiting..."
+        return 1
+    fi
+
+    readarray -t env_vars <"$ENV_FILE"
+    for env_var in "${env_vars[@]}"; do
+        REF_service_update_var+=" --env-add $env_var"
+    done
+}
+
+#######################################
+#
+# Modify a variable to contain the necessary `--env-add` arguments to update a service's
+# environment based on the provided env var. The modified variable must then be
+# used in a `docker service update` command, like follows:
+# ```
+#   service_update_args=""
+#   config::env_var_add service_update_args MY_ENV_VAR=my_value
+#   docker service update $service_update_args instant_data-mapper-logstash
+# ```
+# Reference arguments:
+# - $1 : service update variable name (eg. service_update_args)
+#
+# Arguments:
+# - $2 : env var (eg. MY_ENV_VAR=my_value)
+#
+#######################################
+config::env_var_add() {
+    declare -n REF_service_update_var="${1:?"FATAL: env_var_add is missing a parameter"}"
+    local -r ENV_VAR=${2:?"FATAL: env_var_add parameter missing"}
+
+    REF_service_update_var+=" --env-add $ENV_VAR"
 }

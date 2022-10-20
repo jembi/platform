@@ -20,11 +20,14 @@ services:
       replicas: 1
       resources:
         limits:
-          cpus: ${OPENHIM_MONGO_CPU_LIMIT:-0.8}
-          memory: ${OPENHIM_MONGO_MEMORY_LIMIT:-3G}
+          cpus: ${OPENHIM_MONGO_CPU_LIMIT}
+          memory: ${OPENHIM_MONGO_MEMORY_LIMIT}
         reservations:
-          cpus: ${OPENHIM_MONGO_CPU_RESERVE:-0.05}
-          memory: ${OPENHIM_MONGO_MEMORY_RESERVE:-500M}
+          cpus: ${OPENHIM_MONGO_CPU_RESERVE}
+          memory: ${OPENHIM_MONGO_MEMORY_RESERVE}
+    networks:
+      default:
+      mongo_backup_net: {}
 
   mongo-3:
     image: mongo:4.2
@@ -38,11 +41,14 @@ services:
       replicas: 1
       resources:
         limits:
-          cpus: ${OPENHIM_MONGO_CPU_LIMIT:-0.8}
-          memory: ${OPENHIM_MONGO_MEMORY_LIMIT:-3G}
+          cpus: ${OPENHIM_MONGO_CPU_LIMIT}
+          memory: ${OPENHIM_MONGO_MEMORY_LIMIT}
         reservations:
-          cpus: ${OPENHIM_MONGO_CPU_RESERVE:-0.05}
-          memory: ${OPENHIM_MONGO_MEMORY_RESERVE:-500M}
+          cpus: ${OPENHIM_MONGO_CPU_RESERVE}
+          memory: ${OPENHIM_MONGO_MEMORY_RESERVE}
+    networks:
+      default:
+      mongo_backup_net: {}
 
 volumes:
   openhim-mongo2:

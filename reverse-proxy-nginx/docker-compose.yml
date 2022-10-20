@@ -10,9 +10,8 @@ services:
         max_replicas_per_node: 1
       resources:
         limits:
-          cpus: ${NGINX_CPU_LIMIT:-0.8}
-          memory: ${NGINX_MEMORY_LIMIT:-3G}
+          cpus: ${NGINX_CPU_LIMIT}
+          memory: ${NGINX_MEMORY_LIMIT}
         reservations:
-          cpus: ${NGINX_CPU_RESERVE:-0.05}
-          memory: ${NGINX_MEMORY_RESERVE:-500M}
-
+          cpus: ${NGINX_CPU_RESERVE}
+          memory: ${NGINX_MEMORY_RESERVE}

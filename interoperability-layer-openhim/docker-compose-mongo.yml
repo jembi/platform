@@ -1,19 +1,30 @@
-version: '3.9'
+version: "3.9"
 
 services:
   mongo-1:
     image: mongo:4.2
     volumes:
-      - 'openhim-mongo1:/data/db'
+      - "openhim-mongo1:/data/db"
     deploy:
       replicas: 1
       resources:
         limits:
-          cpus: ${OPENHIM_MONGO_CPU_LIMIT:-0.8}
-          memory: ${OPENHIM_MONGO_MEMORY_LIMIT:-3G}
+          cpus: ${OPENHIM_MONGO_CPU_LIMIT}
+          memory: ${OPENHIM_MONGO_MEMORY_LIMIT}
         reservations:
-          cpus: ${OPENHIM_MONGO_CPU_RESERVE:-0.05}
-          memory: ${OPENHIM_MONGO_MEMORY_RESERVE:-500M}
+          cpus: ${OPENHIM_MONGO_CPU_RESERVE}
+          memory: ${OPENHIM_MONGO_MEMORY_RESERVE}
+    networks:
+      default:
+      mongo_backup_net: {}
 
 volumes:
   openhim-mongo1:
+
+networks:
+  default:
+    name: instant_default
+  mongo_backup_net:
+    name: mongo_backup
+    driver: overlay
+    attachable: true

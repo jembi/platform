@@ -3,14 +3,6 @@
 # Constants
 readonly ACTION=$1
 readonly MODE=$2
-readonly STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
-readonly OPENHIM_CORE_MEDIATOR_HOSTNAME=${OPENHIM_CORE_MEDIATOR_HOSTNAME:-"localhost"}
-readonly OPENHIM_MEDIATOR_API_PORT=${OPENHIM_MEDIATOR_API_PORT:-"8080"}
-readonly OPENHIM_CORE_INSTANCES=${OPENHIM_CORE_INSTANCES:-1}
-readonly OPENHIM_CONSOLE_INSTANCES=${OPENHIM_CONSOLE_INSTANCES:-1}
-export OPENHIM_CORE_INSTANCES
-export OPENHIM_CONSOLE_INSTANCES
-readonly MONGO_SET_COUNT=${MONGO_SET_COUNT:-3}
 
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
@@ -47,26 +39,6 @@ verify_core() {
   done
 
   try "docker service rm instant_await-helper" "Failed to remove await helper"
-}
-
-remove_config_importer() {
-  local start_time
-  start_time=$(date +%s)
-  local config_importer_state
-  config_importer_state=$(docker service ps instant_interoperability-layer-openhim-config-importer --format "{{.CurrentState}}")
-  until [[ "${config_importer_state}" == *"Complete"* ]]; do
-    config::timeout_check "${start_time}" "interoperability-layer-openhim-config-importer to run"
-    sleep 1
-
-    config_importer_state=$(docker service ps instant_interoperability-layer-openhim-config-importer --format "{{.CurrentState}}")
-    if [[ "${config_importer_state}" == *"Failed"* ]] || [[ ${config_importer_state} == *"Rejected"* ]]; then
-      log error "Fatal: Core config importer failed with error:
-       $(docker service ps instant_interoperability-layer-openhim-config-importer --no-trunc --format '{{.Error}}')"
-      exit 1
-    fi
-  done
-
-  try "docker service rm instant_interoperability-layer-openhim-config-importer" "Failed to remove config importer"
 }
 
 verify_mongos() {
@@ -136,7 +108,8 @@ main() {
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to deploy config importer"
 
     log info "Waiting to give core config importer time to run before cleaning up service"
-    remove_config_importer
+    
+    config::remove_config_importer interoperability-layer-openhim-config-importer
 
     # Ensure config importer is removed
     config::await_service_removed instant_interoperability-layer-openhim-config-importer
@@ -166,30 +139,27 @@ main() {
     fi
     log info "Done scaling down services"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    try "docker service rm instant_openhim-core instant_openhim-console instant_mongo-1 instant_await-helper instant_interoperability-layer-openhim-config-importer" "Failed to remove interoperability-layer-openhim"
+    docker::service_destroy openhim-core
+    docker::service_destroy openhim-console
+    docker::service_destroy mongo-1
+    docker::service_destroy await-helper
+    docker::service_destroy interoperability-layer-openhim-config-importer
 
-    config::await_service_removed instant_openhim-core
-    config::await_service_removed instant_openhim-console
-    config::await_service_removed instant_mongo-1
-    config::await_service_removed instant_await-helper
-    config::await_service_removed instant_interoperability-layer-openhim-config-importer
-
-    try "docker volume rm instant_openhim-mongo1" "Failed to remove openhim-mongo1 volume"
-
-    # shellcheck disable=SC2046 # intentional word splitting
-    try "docker config rm $(docker config ls -qf label=name=openhim)" "Failed to remove configs"
+    docker::try_remove_volume openhim-mongo1
 
     if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
       log info "Volumes are only deleted on the host on which the command is run. Mongo volumes on other nodes are not deleted"
 
-      try "docker service rm instant_mongo-2 instant_mongo-3" "Failed to remove mongo cluster"
-      config::await_service_removed instant_mongo-2
-      config::await_service_removed instant_mongo-3
-      try "docker volume rm instant_openhim-mongo2 instant_openhim-mongo3" "Failed to remove mongo volumes"
+      docker::service_destroy mongo-2
+      docker::service_destroy mongo-3
 
-      # shellcheck disable=SC2046 # intentional word splitting
-      try "docker config rm $(docker config ls -qf label=name=openhim)" "Failed to remove openhim configs"
+      docker::try_remove_volume openhim-mongo2
+      docker::try_remove_volume openhim-mongo3
     fi
+
+    # shellcheck disable=SC2046 # intentional word splitting
+    docker::prune_configs "openhim"
+
   else
     log error "Valid options are: init, up, down, or destroy"
   fi
