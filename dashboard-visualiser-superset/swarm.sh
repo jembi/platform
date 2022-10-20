@@ -27,7 +27,7 @@ main() {
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
     config::set_config_digests "$COMPOSE_FILE_PATH"/docker-compose.yml
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $superset_dev_compose_param instant" "Failed to deploy Dashboard Visualiser Superset"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $superset_dev_compose_param --with-registry-auth instant" "Failed to deploy Dashboard Visualiser Superset"
 
     docker::await_container_startup dashboard-visualiser-superset
     docker::await_container_status dashboard-visualiser-superset Running
@@ -36,10 +36,10 @@ main() {
 
     log info "Setting config digests"
     config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to start config importer"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml --with-registry-auth instant" "Failed to start config importer"
 
     log info "Waiting to give core config importer time to run before cleaning up service"
-    
+
     config::remove_config_importer superset-config-importer
 
     # Ensure config importer is removed

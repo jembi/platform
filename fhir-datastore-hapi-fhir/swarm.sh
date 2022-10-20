@@ -50,17 +50,17 @@ else
 fi
 
 if [ "${ACTION}" == "init" ]; then
-  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose-postgres.yml $postgresClusterComposeParam $postgresDevComposeParam instant" "Failed to deploy FHIR Datastore HAPI FHIR Postgres"
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose-postgres.yml $postgresClusterComposeParam $postgresDevComposeParam --with-registry-auth instant" "Failed to deploy FHIR Datastore HAPI FHIR Postgres"
 
   await_postgres_start
 
-  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $hapiFhirDevComposeParam instant" "Failed to deploy FHIR Datastore HAPI FHIR"
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $hapiFhirDevComposeParam --with-registry-auth instant" "Failed to deploy FHIR Datastore HAPI FHIR"
 elif [ "${ACTION}" == "up" ]; then
-  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose-postgres.yml $postgresClusterComposeParam $postgresDevComposeParam instant" "Failed to stand up hapi-fhir postgres"
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose-postgres.yml $postgresClusterComposeParam $postgresDevComposeParam --with-registry-auth instant" "Failed to stand up hapi-fhir postgres"
 
   await_postgres_start
 
-  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $hapiFhirDevComposeParam instant" "Failed to stand up hapi-fhir"
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $hapiFhirDevComposeParam --with-registry-auth instant" "Failed to stand up hapi-fhir"
 elif [ "${ACTION}" == "down" ]; then
   try "docker service scale instant_hapi-fhir=0 instant_postgres-1=0" "Failed to scale down hapi-fhir"
 

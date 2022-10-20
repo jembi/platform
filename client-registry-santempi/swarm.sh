@@ -51,17 +51,17 @@ main() {
   fi
 
   if [ "$ACTION" == "init" ]; then
-    try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose-postgres.yml $POSTGRES_CLUSTER_COMPOSE_PARAM $POSTGRES_DEV_COMPOSE_PARAM instant" "Failed to deploy SanteMPI Postgres"
+    try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose-postgres.yml $POSTGRES_CLUSTER_COMPOSE_PARAM $POSTGRES_DEV_COMPOSE_PARAM --with-registry-auth instant" "Failed to deploy SanteMPI Postgres"
 
     await_postgres_start
 
-    try "docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $SANTE_MPI_DEV_COMPOSE_PARAM instant" "Failed to deploy SanteMPI"
+    try "docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $SANTE_MPI_DEV_COMPOSE_PARAM --with-registry-auth instant" "Failed to deploy SanteMPI"
   elif [ "$ACTION" == "up" ]; then
-     try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose-postgres.yml $POSTGRES_CLUSTER_COMPOSE_PARAM $POSTGRES_DEV_COMPOSE_PARAM instant" "Failed to stand up SanteMPI Postgres"
+    try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose-postgres.yml $POSTGRES_CLUSTER_COMPOSE_PARAM $POSTGRES_DEV_COMPOSE_PARAM --with-registry-auth instant" "Failed to stand up SanteMPI Postgres"
 
     await_postgres_start
 
-    try "docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $SANTE_MPI_DEV_COMPOSE_PARAM instant" "Failed to stand up SanteMPI"
+    try "docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $SANTE_MPI_DEV_COMPOSE_PARAM --with-registry-auth instant" "Failed to stand up SanteMPI"
   elif [ "$ACTION" == "down" ]; then
     try "docker service scale instant_santedb-mpi=0 instant_santempi-psql-1=0" "Failed to scale down santeMPI"
 
@@ -70,7 +70,7 @@ main() {
     fi
 
   elif [ "$ACTION" == "destroy" ]; then
-    docker::service_destroy santedb-www 
+    docker::service_destroy santedb-www
     docker::service_destroy santedb-mpi
     docker::service_destroy santempi-psql-1
     docker::try_remove_volume santedb-data

@@ -33,7 +33,7 @@ import_elastic_index() {
   # TODO: (castelloG) [PLAT-255] Add support for multiple index imports
   log info "Importing Elasticsearch index mapping"
   config::set_config_digests "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml
-  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to start elastic search config importer"
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml --with-registry-auth instant" "Failed to start elastic search config importer"
   config::remove_stale_service_configs "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml "elastic-search"
   config::remove_config_importer elastic-search-config-importer
 }
@@ -56,7 +56,7 @@ fi
 
 create_certs() {
   log info "Creating certificates"
-  try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose.certs.yml instant" "Creating certificates failed"
+  try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose.certs.yml --with-registry-auth instant" "Creating certificates failed"
   docker::await_container_startup create_certs
   docker::await_container_status create_certs Complete
 
@@ -113,13 +113,13 @@ add_docker_configs() {
 if [[ "$ACTION" == "init" ]]; then
   if [[ "$STATEFUL_NODES" == "cluster" ]]; then
     create_certs
-    try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose.cluster.yml instant" "Failed to deploy cluster"
+    try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose.cluster.yml --with-registry-auth instant" "Failed to deploy cluster"
     add_docker_configs
 
     log info "Waiting for elasticsearch to start before automatically setting built-in passwords"
     docker::await_container_status $leader_node Running
   else
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $elastic_search_dev_compose_param instant" "Failed to deploy Analytics Datastore Elastic Search"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $elastic_search_dev_compose_param --with-registry-auth instant" "Failed to deploy Analytics Datastore Elastic Search"
 
     log info "Waiting for elasticsearch to start before automatically setting built-in passwords"
     docker::await_container_status $leader_node Starting

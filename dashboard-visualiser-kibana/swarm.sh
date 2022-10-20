@@ -19,7 +19,7 @@ readonly ROOT_PATH
 import_kibana_dashboards() {
   log info "Importing Kibana dashboard"
   config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
-  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to start config importer"
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml --with-registry-auth instant" "Failed to start config importer"
   config::remove_config_importer "kibana-config-importer"
   config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "kibana"
 }
@@ -42,7 +42,7 @@ main() {
     fi
 
     config::set_config_digests "${COMPOSE_FILE_PATH}"/docker-compose.yml
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $kibana_dev_compose_param instant" "Failed to deploy Dashboard Visualiser Kibana"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $kibana_dev_compose_param --with-registry-auth instant" "Failed to deploy Dashboard Visualiser Kibana"
 
     docker::await_container_startup dashboard-visualiser-kibana
     docker::await_container_status dashboard-visualiser-kibana Running
@@ -51,7 +51,7 @@ main() {
 
     log info "Setting config digests"
     config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to start config importer"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml --with-registry-auth instant" "Failed to start config importer"
 
     import_kibana_dashboards
   elif [[ "${ACTION}" == "down" ]]; then

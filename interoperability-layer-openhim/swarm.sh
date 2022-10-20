@@ -88,7 +88,7 @@ main() {
     config::set_config_digests "${COMPOSE_FILE_PATH}"/docker-compose.yml
     config::set_config_digests "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml
 
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose-mongo.yml $mongo_cluster_compose_param $mongo_dev_compose_param instant" "Failed to deploy mongo"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose-mongo.yml $mongo_cluster_compose_param $mongo_dev_compose_param --with-registry-auth instant" "Failed to deploy mongo"
 
     if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
       try "${COMPOSE_FILE_PATH}/initiateReplicaSet.sh" "Fatal: Initate Mongo replica set failed."
@@ -96,19 +96,19 @@ main() {
 
     prepare_console_config
 
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml -c ${COMPOSE_FILE_PATH}/docker-compose.stack-0.yml $openhim_dev_compose_param instant" "Failed to create stack-0 openhim core/console"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml -c ${COMPOSE_FILE_PATH}/docker-compose.stack-0.yml $openhim_dev_compose_param --with-registry-auth instant" "Failed to create stack-0 openhim core/console"
 
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.await-helper.yml instant" "Failed to deploy await-helper"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.await-helper.yml --with-registry-auth instant" "Failed to deploy await-helper"
 
     log info "Waiting to give OpenHIM Core time to start up before OpenHIM Console run"
     verify_core
 
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml -c ${COMPOSE_FILE_PATH}/docker-compose.stack-1.yml $openhim_dev_compose_param instant" "Failed to create stack-1 openhim core/console"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml -c ${COMPOSE_FILE_PATH}/docker-compose.stack-1.yml $openhim_dev_compose_param --with-registry-auth instant" "Failed to create stack-1 openhim core/console"
 
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to deploy config importer"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml --with-registry-auth instant" "Failed to deploy config importer"
 
     log info "Waiting to give core config importer time to run before cleaning up service"
-    
+
     config::remove_config_importer interoperability-layer-openhim-config-importer
 
     # Ensure config importer is removed
@@ -121,11 +121,11 @@ main() {
     config::set_config_digests "$COMPOSE_FILE_PATH"/docker-compose.yml
     config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
 
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose-mongo.yml $mongo_cluster_compose_param $mongo_dev_compose_param instant" "Failed to deploy mongo"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose-mongo.yml $mongo_cluster_compose_param $mongo_dev_compose_param --with-registry-auth instant" "Failed to deploy mongo"
     verify_mongos
     prepare_console_config
 
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml -c ${COMPOSE_FILE_PATH}/docker-compose.stack-1.yml $openhim_dev_compose_param instant" "Failed to create stack-1 openhim core/console"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml -c ${COMPOSE_FILE_PATH}/docker-compose.stack-1.yml $openhim_dev_compose_param --with-registry-auth instant" "Failed to create stack-1 openhim core/console"
 
     log info "Removing stale configs..."
     config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "openhim"
