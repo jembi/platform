@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   hapi-fhir:
-    image: jembi/hapi:v5.7.0
+    image: jembi/hapi:v5.7.0-wget
     environment:
       - spring.datasource.url=jdbc:postgresql://${POSTGRES_REPLICA_SET}/hapi
       - spring.datasource.username=admin
