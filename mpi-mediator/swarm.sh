@@ -2,6 +2,7 @@
 
 # Constants
 readonly ACTION=$1
+readonly MODE=$2
 
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
@@ -33,15 +34,21 @@ main() {
   fi
 
   if [[ "$ACTION" == "init" ]]; then
-    log info "Deploying..."
+    log info "Deploying MPI-Mediator..."
     try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose.yml $mpi_mediator_cluster_compose_param $mpi_mediator_dev_compose_param instant" "Failed to deploy mpi-mediator"
-    overwrite "Deploying... Done"
+    overwrite "Deploying MPI-Mediator... Done"
   elif [[ "$ACTION" == "up" ]]; then
+    log info "Updating MPI-Mediator..."
     try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose.yml $mpi_mediator_cluster_compose_param $mpi_mediator_dev_compose_param instant" "Failed to stand up mpi-mediator"
+    overwrite "Updating MPI-Mediator... Done"
   elif [[ "$ACTION" == "down" ]]; then
+    log info "Scaling MPI-Mediator down..."
     try "docker service scale instant_mpi-mediator=0" "Failed to scale down mpi-mediator"
+    log info "Scaling MPI-Mediator down... Done"
   elif [[ "$ACTION" == "destroy" ]]; then
+    log info "Destroying MPI-Mediator..."
     docker::service_destroy mpi-mediator
+    log info "Destroying MPI-Mediator... Done"
   else
     log error "Valid options are: init, up, down, or destroy"
   fi
