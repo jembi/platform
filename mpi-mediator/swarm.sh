@@ -44,11 +44,11 @@ main() {
   elif [[ "$ACTION" == "down" ]]; then
     log info "Scaling MPI-Mediator down..."
     try "docker service scale instant_mpi-mediator=0" "Failed to scale down mpi-mediator"
-    log info "Scaling MPI-Mediator down... Done"
+    overwrite "Scaling MPI-Mediator down... Done"
   elif [[ "$ACTION" == "destroy" ]]; then
     log info "Destroying MPI-Mediator..."
     docker::service_destroy mpi-mediator
-    log info "Destroying MPI-Mediator... Done"
+    overwrite "Destroying MPI-Mediator... Done"
   else
     log error "Valid options are: init, up, down, or destroy"
   fi
