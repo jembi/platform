@@ -8,6 +8,3 @@ services:
       REGISTER_MEDIATOR: ${REGISTER_MEDIATOR}
       OPENHIM_MEDIATOR_URL: ${OPENHIM_MEDIATOR_URL}
       TRUST_SELF_SIGNED: ${TRUST_SELF_SIGNED}
-    deploy:
-      restart_policy:
-        condition: none
