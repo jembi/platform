@@ -1,0 +1,13 @@
+version: '3.9'
+
+services:
+  mpi-mediator:
+    image: jembi/mpi-mediator:${MPI_CHECKER_VERSION}
+    environment:
+      CLIENT_REGISTRY_URL: ${CLIENT_REGISTRY_URL}
+      REGISTER_MEDIATOR: ${REGISTER_MEDIATOR}
+      OPENHIM_MEDIATOR_URL: ${OPENHIM_MEDIATOR_URL}
+      TRUST_SELF_SIGNED: ${TRUST_SELF_SIGNED}
+    deploy:
+      restart_policy:
+        condition: none
