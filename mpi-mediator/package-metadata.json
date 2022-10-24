@@ -1,7 +1,7 @@
 {
   "id": "mpi-mediator",
   "name": "OpenHIM-Sante Mediator",
-  "description": "This package creates mediator services used in facilitating patient creation, updating and reading from the SanteMPI and Hapi-Fhir, from FHIR bundles using Kafka",
+  "description": "This package creates a mediator service that is used in facilitating patient creation, updating and reading from SanteMPI and Hapi-Fhir, from FHIR bundles using Kafka",
   "type": "infrastructure",
   "version": "0.0.1",
   "dependencies": [
