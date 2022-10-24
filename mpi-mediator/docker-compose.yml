@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   mpi-mediator:
-    image: jembi/mpi-mediator:${MPI_CHECKER_VERSION}
+    image: jembi/mpi-mediator:0.1.0
     environment:
       CLIENT_REGISTRY_URL: ${CLIENT_REGISTRY_URL}
       REGISTER_MEDIATOR: ${REGISTER_MEDIATOR}
