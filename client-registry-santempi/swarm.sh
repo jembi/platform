@@ -63,7 +63,7 @@ main() {
 
     try "docker stack deploy -c ""$COMPOSE_FILE_PATH""/docker-compose.yml $sante_mpi_dev_compose_param instant" "Failed to stand up SanteMPI"
   elif [ "$ACTION" == "down" ]; then
-    try "docker service scale instant_santedb-mpi=0 instant_santempi-psql-1=0" "Failed to scale down santeMPI"
+    try "docker service scale instant_santedb-mpi=0 instant_santedb-www=0 instant_santempi-psql-1=0" "Failed to scale down santeMPI"
 
     if [ "$STATEFUL_NODES" == "cluster" ]; then
       try "docker service scale instant_santempi-psql-2=0 instant_santempi-psql-3=0" "Failed to scale down santeMPI postgres replicas"
