@@ -13,27 +13,26 @@ ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/docker-utils.sh"
 . "${ROOT_PATH}/utils/log.sh"
 
-
 if [[ $STATEFUL_NODES == "cluster" ]]; then
   log info "Running Message Bus Kafka package in Cluster node mode"
-  kafkaClusterComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.cluster.yml"
+  kafka_cluster_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.cluster.yml"
 else
   log info "Running Message Bus Kafka package in Single node mode"
-  kafkaClusterComposeParam=""
+  kafka_cluster_compose_param=""
 fi
 
 if [[ "${MODE}" == "dev" ]]; then
   log info "Running Message Bus Kafka package in DEV mode"
-  kafkaDevComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
+  kafka_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
 else
   log info "Running Message Bus Kafka package in PROD mode"
-  kafkaDevComposeParam=""
+  kafka_dev_compose_param=""
 fi
 
 if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
   config::set_config_digests "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml
 
-  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $kafkaClusterComposeParam $kafkaDevComposeParam instant" "Failed to deploy Message Bus Kafka"
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $kafka_cluster_compose_param $kafka_dev_compose_param instant" "Failed to deploy Message Bus Kafka"
 
   config::await_service_running "kafka" "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml "${KAFKA_INSTANCES}"
 

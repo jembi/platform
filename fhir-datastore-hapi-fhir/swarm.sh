@@ -33,34 +33,34 @@ await_postgres_start() {
 
 if [ "${STATEFUL_NODES}" == "cluster" ]; then
   log info "Running FHIR Datastore HAPI FHIR package in Cluster node mode"
-  postgresClusterComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose-postgres.cluster.yml"
+  postgres_cluster_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose-postgres.cluster.yml"
 else
   log info "Running FHIR Datastore HAPI FHIR package in Single node mode"
-  postgresClusterComposeParam=""
+  postgres_cluster_compose_param=""
 fi
 
 if [ "${MODE}" == "dev" ]; then
   log info "Running FHIR Datastore HAPI FHIR package in DEV mode"
-  postgresDevComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose-postgres.dev.yml"
-  hapiFhirDevComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
+  postgres_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose-postgres.dev.yml"
+  hapi_fhir_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
 else
   log info "Running FHIR Datastore HAPI FHIR package in PROD mode"
-  postgresDevComposeParam=""
-  hapiFhirDevComposeParam=""
+  postgres_dev_compose_param=""
+  hapi_fhir_dev_compose_param=""
 fi
 
 if [ "${ACTION}" == "init" ]; then
-  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose-postgres.yml $postgresClusterComposeParam $postgresDevComposeParam instant" "Failed to deploy FHIR Datastore HAPI FHIR Postgres"
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose-postgres.yml $postgres_cluster_compose_param $postgres_dev_compose_param instant" "Failed to deploy FHIR Datastore HAPI FHIR Postgres"
 
   await_postgres_start
 
-  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $hapiFhirDevComposeParam instant" "Failed to deploy FHIR Datastore HAPI FHIR"
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $hapi_fhir_dev_compose_param instant" "Failed to deploy FHIR Datastore HAPI FHIR"
 elif [ "${ACTION}" == "up" ]; then
-  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose-postgres.yml $postgresClusterComposeParam $postgresDevComposeParam instant" "Failed to stand up hapi-fhir postgres"
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose-postgres.yml $postgres_cluster_compose_param $postgres_dev_compose_param instant" "Failed to stand up hapi-fhir postgres"
 
   await_postgres_start
 
-  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $hapiFhirDevComposeParam instant" "Failed to stand up hapi-fhir"
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $hapi_fhir_dev_compose_param instant" "Failed to stand up hapi-fhir"
 elif [ "${ACTION}" == "down" ]; then
   try "docker service scale instant_hapi-fhir=0 instant_postgres-1=0" "Failed to scale down hapi-fhir"
 
