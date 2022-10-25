@@ -34,34 +34,34 @@ await_postgres_start() {
 main() {
   if [ "${STATEFUL_NODES}" == "cluster" ]; then
     log info "Running Client Registry SanteMPI package in Cluster node mode"
-    local POSTGRES_CLUSTER_COMPOSE_PARAM="-c ${COMPOSE_FILE_PATH}/docker-compose-postgres.cluster.yml"
+    local postgres_cluster_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose-postgres.cluster.yml"
   else
     log info "Running Client Registry SanteMPI package in Single node mode"
-    local POSTGRES_CLUSTER_COMPOSE_PARAM=""
+    local postgres_cluster_compose_param=""
   fi
 
   if [ "$MODE" == "dev" ]; then
     log info "Running Client Registry SanteMPI package in DEV mode"
-    local POSTGRES_DEV_COMPOSE_PARAM="-c ${COMPOSE_FILE_PATH}/docker-compose-postgres.dev.yml"
-    local SANTE_MPI_DEV_COMPOSE_PARAM="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
+    local postgres_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose-postgres.dev.yml"
+    local sante_mpi_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
   else
     log info "Running Client Registry SanteMPI package in PROD mode"
-    local POSTGRES_DEV_COMPOSE_PARAM=""
-    local SANTE_MPI_DEV_COMPOSE_PARAM=""
+    local postgres_dev_compose_param=""
+    local sante_mpi_dev_compose_param=""
   fi
 
   if [ "$ACTION" == "init" ]; then
-    try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose-postgres.yml $POSTGRES_CLUSTER_COMPOSE_PARAM $POSTGRES_DEV_COMPOSE_PARAM instant" "Failed to deploy SanteMPI Postgres"
+    try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose-postgres.yml $postgres_cluster_compose_param $postgres_dev_compose_param instant" "Failed to deploy SanteMPI Postgres"
 
     await_postgres_start
 
-    try "docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $SANTE_MPI_DEV_COMPOSE_PARAM instant" "Failed to deploy SanteMPI"
+    try "docker stack deploy -c ""$COMPOSE_FILE_PATH""/docker-compose.yml $sante_mpi_dev_compose_param instant" "Failed to deploy SanteMPI"
   elif [ "$ACTION" == "up" ]; then
-     try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose-postgres.yml $POSTGRES_CLUSTER_COMPOSE_PARAM $POSTGRES_DEV_COMPOSE_PARAM instant" "Failed to stand up SanteMPI Postgres"
+    try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose-postgres.yml $postgres_cluster_compose_param $postgres_dev_compose_param instant" "Failed to stand up SanteMPI Postgres"
 
     await_postgres_start
 
-    try "docker stack deploy -c "$COMPOSE_FILE_PATH"/docker-compose.yml $SANTE_MPI_DEV_COMPOSE_PARAM instant" "Failed to stand up SanteMPI"
+    try "docker stack deploy -c ""$COMPOSE_FILE_PATH""/docker-compose.yml $sante_mpi_dev_compose_param instant" "Failed to stand up SanteMPI"
   elif [ "$ACTION" == "down" ]; then
     try "docker service scale instant_santedb-mpi=0 instant_santedb-www=0 instant_santempi-psql-1=0" "Failed to scale down santeMPI"
 
@@ -70,7 +70,7 @@ main() {
     fi
 
   elif [ "$ACTION" == "destroy" ]; then
-    docker::service_destroy santedb-www 
+    docker::service_destroy santedb-www
     docker::service_destroy santedb-mpi
     docker::service_destroy santempi-psql-1
     docker::try_remove_volume santedb-data
