@@ -16,21 +16,11 @@ readonly ROOT_PATH
 . "${ROOT_PATH}/utils/docker-utils.sh"
 . "${ROOT_PATH}/utils/log.sh"
 
-  create-clickhouse-volumes-with-node-index() {
-
-  for node in "$@"; do
-    docker create --name clickhouse_helper-"${node}" -v clickhouse-configs-"${node}":/etc/clickhouse-server/config.d busybox
-    docker cp "${COMPOSE_FILE_PATH}"/cluster_configs/analytics-datastore-clickhouse-"${node}" clickhouse_helper-"${node}":/etc/clickhouse-server/config.d/
-    docker rm clickhouse_helper-"${node}"
-  done
-}
-
 main() {
 
   if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
     log info "Running Clickhouse package in Cluster node mode"
-    create-clickhouse-volumes-with-node-index "01" "02" "03"
-    clickhouse_cluster_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose-clickhouse.cluster.yml"
+    clickhouse_cluster_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.cluster.yml"
   else
     log info "Running Clickhouse package in Single node mode"
     clickhouse_cluster_compose_param=""
