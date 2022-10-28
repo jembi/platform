@@ -38,7 +38,7 @@ main() {
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to start config importer"
 
     log info "Waiting to give core config importer time to run before cleaning up service"
-    
+
     config::remove_config_importer clickhouse-config-importer
 
     # Ensure config importer is removed
@@ -46,6 +46,8 @@ main() {
 
     log info "Removing stale configs..."
     config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "clickhouse"
+
+    docker::deploy_sanity analytics-datastore-clickhouse
   elif [[ "${ACTION}" == "down" ]]; then
     try "docker service scale instant_analytics-datastore-clickhouse=0" "Failed to scale down analytics-datastore-clickhouse"
   elif [[ "${ACTION}" == "destroy" ]]; then

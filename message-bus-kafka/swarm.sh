@@ -40,6 +40,12 @@ if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
 
   config::remove_stale_service_configs "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml "ethiopia"
   config::remove_config_importer message-bus-kafka-config-importer
+
+  if [ "$STATEFUL_NODES" == "cluster" ]; then
+    docker::deploy_sanity openhim-core kafka kafdrop kafka-minion zookeeper-1 zookeeper-2 zookeeper-3
+  else
+    docker::deploy_sanity openhim-core kafka kafdrop kafka-minion zookeeper-1
+  fi
 elif [[ "${ACTION}" == "down" ]]; then
   try "docker service scale instant_zookeeper-1=0 instant_kafdrop=0 instant_kafka-minion=0" "Failed to scale down zookeeper, kafdrop and kafka-minion"
 

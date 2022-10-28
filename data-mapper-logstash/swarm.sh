@@ -68,6 +68,7 @@ if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
 
   docker::prune_configs logstash
 
+  docker::deploy_sanity data-mapper-logstash
   log info "Done"
 elif [[ "${ACTION}" == "down" ]]; then
   try "docker service scale instant_data-mapper-logstash=0" "Failed to scale down data-mapper-logstash"

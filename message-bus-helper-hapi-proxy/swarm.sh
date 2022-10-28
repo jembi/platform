@@ -10,6 +10,7 @@ COMPOSE_FILE_PATH=$(
 
 # Import libraries
 ROOT_PATH="${COMPOSE_FILE_PATH}/.."
+. "${ROOT_PATH}/utils/docker-utils.sh"
 . "${ROOT_PATH}/utils/log.sh"
 
 if [ "${ACTION}" == "init" ]; then
@@ -18,6 +19,8 @@ if [ "${ACTION}" == "init" ]; then
   else
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml -c ${COMPOSE_FILE_PATH}/docker-compose.prod.yml instant" "Failed to deploy hapi-proxy"
   fi
+
+  docker::deploy_sanity hapi-proxy
 elif [ "${ACTION}" == "up" ]; then
   if [ "${MODE}" == "dev" ]; then
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml instant" "Failed to deploy hapi-proxy"

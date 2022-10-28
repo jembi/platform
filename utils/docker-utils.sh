@@ -131,3 +131,33 @@ docker::prune_configs() {
     # shellcheck disable=SC2046
     docker config rm $(docker config ls -qf label=name="$CONFIG_LABEL") &>/dev/null
 }
+
+# Check for errors when deploy
+#
+# Arguments:
+# - $1 : service name 1, e.g. "monitoring"
+# - $2 : service name 2, e.g. "hapi-fhir"
+#
+docker::deploy_sanity() {
+    log info "Check deploy sanity..."
+    for i in "$@"; do
+        local start_time
+        start_time=$(date +%s)
+
+        until [[ $(docker service ps instant_"$i" --format "{{.CurrentState}}" 2>/dev/null) == *"Running"* ]]; do
+            config::timeout_check "${start_time}" "$i to start"
+            sleep 1
+
+            # Get unique error messages using sort -u
+            error_message=$(docker service ps instant_"$i" --no-trunc --format '{{ .Error }}' 2>&1 | sort -u)
+            if [[ -n $error_message ]]; then
+                log error "$error_message"
+                if [[ $error_message == *"No such image"* ]]; then
+                    log error "do you have access to pull the image?"
+                fi
+                exit 124
+            fi
+        done
+    done
+    overwrite "Check deploy sanity ... Done"
+}

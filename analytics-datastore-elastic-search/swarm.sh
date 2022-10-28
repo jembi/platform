@@ -132,6 +132,11 @@ if [[ "$ACTION" == "init" ]]; then
 
   import_elastic_index
 
+  if [[ "$STATEFUL_NODES" == "cluster" ]]; then
+    docker::deploy_sanity analytics-datastore-elastic-search-01 analytics-datastore-elastic-search-02 analytics-datastore-elastic-search-03
+  else
+    docker::deploy_sanity analytics-datastore-elastic-search
+  fi
   log info "Done"
 elif [[ "$ACTION" == "up" ]]; then
   if [[ "$STATEFUL_NODES" == "cluster" ]]; then
