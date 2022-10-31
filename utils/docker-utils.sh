@@ -143,7 +143,7 @@ docker::deploy_sanity() {
         exit 1
     fi
 
-    log info "Check deploy sanity..."
+    log info "Checking for deployment errors..."
     for i in "$@"; do
         local start_time
         start_time=$(date +%s)
@@ -163,5 +163,5 @@ docker::deploy_sanity() {
             fi
         done
     done
-    overwrite "Check deploy sanity ... Done"
+    overwrite "No errors found during deployment of $i"
 }
