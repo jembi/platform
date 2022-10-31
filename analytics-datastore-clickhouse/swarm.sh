@@ -21,6 +21,10 @@ main() {
   if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
     log info "Running Clickhouse package in Cluster node mode"
     clickhouse_cluster_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.cluster.yml"
+
+    log info "Setting config digests"
+    config::set_config_digests "${COMPOSE_FILE_PATH}/docker-compose.cluster.yml"
+
   else
     log info "Running Clickhouse package in Single node mode"
     clickhouse_cluster_compose_param=""

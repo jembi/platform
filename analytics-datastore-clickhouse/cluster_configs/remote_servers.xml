@@ -1,0 +1,21 @@
+<clickhouse>
+    <remote_servers>
+        <events>
+            <shard>
+                <internal_replication>true</internal_replication>
+                <replica>
+                    <host>analytics-datastore-clickhouse-01</host>
+                    <port>9000</port>
+                </replica>
+                <replica>
+                    <host>analytics-datastore-clickhouse-02</host>
+                    <port>9000</port>
+                </replica>
+                <replica>
+                    <host>analytics-datastore-clickhouse-03</host>
+                    <port>9000</port>
+                </replica>
+            </shard>
+        </events>
+    </remote_servers>
+</clickhouse>
