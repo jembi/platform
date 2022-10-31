@@ -150,7 +150,7 @@ docker::deploy_sanity() {
             # Get unique error messages using sort -u
             error_message=$(docker service ps instant_"$i" --no-trunc --format '{{ .Error }}' 2>&1 | sort -u)
             if [[ -n $error_message ]]; then
-                log error "$error_message"
+                log error "deploy error in service $i: $error_message"
                 if [[ $error_message == *"No such image"* ]]; then
                     log error "do you have access to pull the image?"
                 fi
