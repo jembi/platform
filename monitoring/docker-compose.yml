@@ -34,6 +34,8 @@ services:
   prometheus:
     image: prom/prometheus:v2.38.0
     user: root
+    deploy:
+      mode: global
     volumes:
       - prometheus_data:/prometheus
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -71,6 +73,8 @@ services:
 
   prometheus-kafka-adapter:
     image: telefonica/prometheus-kafka-adapter:1.8.0
+    deploy:
+      mode: global
     environment:
       - KAFKA_BROKER_LIST=kafka:9092
       - KAFKA_COMPRESSION=gzip
