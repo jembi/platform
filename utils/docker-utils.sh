@@ -138,7 +138,7 @@ docker::prune_configs() {
 # - $1 : service names, e.g. "monitoring" "hapi-fhir" ...
 #
 docker::deploy_sanity() {
-    if [ -z "$*" ]; then
+    if [[ -z "$*" ]]; then
         log error "FATAL: deploy_sanity parameter missing"
         exit 1
     fi
