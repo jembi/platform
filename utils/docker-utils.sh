@@ -135,8 +135,7 @@ docker::prune_configs() {
 # Check for errors when deploying
 #
 # Arguments:
-# - $1 : service name 1, e.g. "monitoring"
-# - $2 : service name 2, e.g. "hapi-fhir"
+# - $1 : service names, e.g. "monitoring" "hapi-fhir" ...
 #
 docker::deploy_sanity() {
     log info "Check deploy sanity..."
