@@ -132,7 +132,7 @@ docker::prune_configs() {
     docker config rm $(docker config ls -qf label=name="$CONFIG_LABEL") &>/dev/null
 }
 
-# Check for errors when deploy
+# Check for errors when deploying
 #
 # Arguments:
 # - $1 : service name 1, e.g. "monitoring"
