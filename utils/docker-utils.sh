@@ -163,5 +163,5 @@ docker::deploy_sanity() {
             fi
         done
     done
-    overwrite "No errors found during deployment of $i"
+    overwrite "No errors found during deployment"
 }
