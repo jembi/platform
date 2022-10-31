@@ -139,6 +139,11 @@ docker::prune_configs() {
 # - $2 : service name 2, e.g. "hapi-fhir"
 #
 docker::deploy_sanity() {
+    if [ -z "$*" ]; then
+        log error "FATAL: deploy_sanity parameter missing"
+        exit 1
+    fi
+
     log info "Check deploy sanity..."
     for i in "$@"; do
         local start_time
