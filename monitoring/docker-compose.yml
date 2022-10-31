@@ -35,7 +35,9 @@ services:
     image: prom/prometheus:v2.38.0
     user: root
     deploy:
-      mode: global
+      replicas: ${MONITORING_INSTANCES}
+      placement:
+        max_replicas_per_node: 1
     volumes:
       - prometheus_data:/prometheus
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -74,7 +76,9 @@ services:
   prometheus-kafka-adapter:
     image: telefonica/prometheus-kafka-adapter:1.8.0
     deploy:
-      mode: global
+      replicas: ${MONITORING_INSTANCES}
+      placement:
+        max_replicas_per_node: 1
     environment:
       - KAFKA_BROKER_LIST=kafka:9092
       - KAFKA_COMPRESSION=gzip
