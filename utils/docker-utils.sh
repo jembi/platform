@@ -132,11 +132,10 @@ docker::prune_configs() {
     docker config rm $(docker config ls -qf label=name="$CONFIG_LABEL") &>/dev/null
 }
 
-# Check for errors when deploy
+# Check for errors when deploying
 #
 # Arguments:
-# - $1 : service name 1, e.g. "monitoring"
-# - $2 : service name 2, e.g. "hapi-fhir"
+# - $1 : service names, e.g. "monitoring" "hapi-fhir" ...
 #
 docker::deploy_sanity() {
     if [ -z "$*" ]; then
@@ -156,7 +155,7 @@ docker::deploy_sanity() {
             # Get unique error messages using sort -u
             error_message=$(docker service ps instant_"$i" --no-trunc --format '{{ .Error }}' 2>&1 | sort -u)
             if [[ -n $error_message ]]; then
-                log error "$error_message"
+                log error "deploy error in service $i: $error_message"
                 if [[ $error_message == *"No such image"* ]]; then
                     log error "do you have access to pull the image?"
                 fi
