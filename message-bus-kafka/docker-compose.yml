@@ -53,6 +53,8 @@ services:
 
   kafka-minion:
     image: quay.io/cloudhut/kminion:master
+    depends_on:
+      - kafka
     hostname: kafka-minion
     environment:
       KAFKA_BROKERS: kafka:9092
