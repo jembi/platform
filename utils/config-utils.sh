@@ -342,14 +342,12 @@ config::update_service_configs() {
     local config_rm_string=""
     local config_add_string=""
 
-    file_names=()
     files=$(find "${TARGET_FOLDER_PATH}" -maxdepth 10 -mindepth 1 -type f)
 
     for file in $files; do
         file_name=${file/"${TARGET_FOLDER_PATH%/}"/}
         file_name=${file_name:1}
-        file_hash=$(cksum "${file}" | awk '{print $1}')
-        file_names+=("$file_name")
+        file_hash=$(date +%s)$(cksum "${file}" | awk '{print $1}')
         config_file="${TARGET_FOLDER_PATH}/${file_name}"
         config_target="${TARGET_BASE%/}/${file_name}"
         config_name=$(basename "$file_name")-$file_hash
