@@ -1,0 +1,8 @@
+version: '3.9'
+
+services:
+  mpi-mediator:
+    ports:
+      - target: 3000
+        published: 3010
+        mode: host
