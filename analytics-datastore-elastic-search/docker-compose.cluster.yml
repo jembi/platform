@@ -2,8 +2,6 @@ version: '3.9'
 
 services:
   analytics-datastore-elastic-search-01:
-    depends_on:
-      - create_certs
     image: docker.elastic.co/elasticsearch/elasticsearch:7.13.0
     ulimits:
       memlock:
@@ -52,8 +50,6 @@ services:
       - /backups:/backups/elasticsearch
 
   analytics-datastore-elastic-search-02:
-    depends_on:
-      - create_certs
     image: docker.elastic.co/elasticsearch/elasticsearch:7.13.0
     ulimits:
       memlock:
@@ -102,8 +98,6 @@ services:
       - /backups:/backups/elasticsearch
 
   analytics-datastore-elastic-search-03:
-    depends_on:
-      - create_certs
     image: docker.elastic.co/elasticsearch/elasticsearch:7.13.0
     ulimits:
       memlock:

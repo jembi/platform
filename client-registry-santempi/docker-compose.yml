@@ -22,8 +22,6 @@ services:
          
   santedb-www:
     image: santesuite/santedb-www:2.2.1.10
-    depends_on:
-      - santedb-mpi
 
 # Sante's Match configuration is stored in the container. This will prevent the matching rules of the client registry from being lost. A docker config cannot be used for this case as the settings can be changed on Sante's UI.
 volumes: 
