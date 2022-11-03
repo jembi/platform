@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   grafana:
-    image: grafana/grafana-oss:9.1.0
+    image: grafana/grafana-oss:9.2.3
     volumes:
       - grafana_data:/var/lib/grafana
     environment:
