@@ -56,13 +56,15 @@ main() {
       config::remove_config_importer "jsreport-config-importer"
       config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "jsreport"
     fi
+
+    docker::deploy_sanity dashboard-visualiser-jsreport
   elif [[ "${ACTION}" == "down" ]]; then
     try "docker service scale instant_dashboard-visualiser-jsreport=0" "Failed to scale down dashboard-visualiser-jsreport"
   elif [[ "${ACTION}" == "destroy" ]]; then
     docker::service_destroy dashboard-visualiser-jsreport
     docker::service_destroy jsreport-config-importer
     docker::service_destroy await-helper
-    
+
     docker::prune_configs "jsreport"
   else
     log error "Valid options are: init, up, down, or destroy"
