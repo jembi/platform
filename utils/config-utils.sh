@@ -347,18 +347,20 @@ config::update_service_configs() {
     for file in $files; do
         file_name=${file/"${TARGET_FOLDER_PATH%/}"/}
         file_name=${file_name:1}
-        file_hash=$(date +%s)$(cksum "${file}" | awk '{print $1}')
+        file_hash=$(md5sum "${file}" | awk '{print $1}')
         config_file="${TARGET_FOLDER_PATH}/${file_name}"
         config_target="${TARGET_BASE%/}/${file_name}"
         config_name=$(basename "$file_name")-$file_hash
         old_config_name=$(docker config inspect --format="{{.Spec.Name}}" "$(docker config ls -qf name="$(basename "$file_name")")" 2>/dev/null)
 
-        if [[ -n $old_config_name ]]; then
-            config_rm_string+="--config-rm $old_config_name "
-        fi
-        config_add_string+="--config-add source=$config_name,target=$config_target "
+        if [[ "$config_name" != "$old_config_name" ]]; then
+            if [[ -n $old_config_name ]]; then
+                config_rm_string+="--config-rm $old_config_name "
+            fi
+            config_add_string+="--config-add source=$config_name,target=$config_target "
 
-        try "docker config create --label name=$CONFIG_LABEL_NAME $config_name $config_file" "Failed to create config"
+            try "docker config create --label name=$CONFIG_LABEL_NAME $config_name $config_file" "Failed to create config"
+        fi
     done
 
     REF_config_update_var+="$config_rm_string $config_add_string"
