@@ -10,3 +10,4 @@ services:
 
 volumes:
   clickhouse-data-01:
+  
