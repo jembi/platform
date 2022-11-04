@@ -14,7 +14,6 @@ ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/docker-utils.sh"
 . "${ROOT_PATH}/utils/log.sh"
 
-
 if [[ "${MODE}" == "dev" ]]; then
   log info "Running Message Bus Kafka package in DEV mode"
   monitoring_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
@@ -32,6 +31,8 @@ if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
   log info "Removing stale configs..."
   config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "grafana"
   config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "prometheus"
+
+  docker::deploy_sanity grafana prometheus prometheus-kafka-adapter cadvisor node-exporter
 elif [[ "${ACTION}" == "down" ]]; then
   try "docker service scale instant_grafana=0 instant_prometheus=0 instant_prometheus-kafka-adapter=0" "Failed to down monitoring stack"
   try "docker service rm instant_cadvisor" "Failed to remove global service cadvisor"

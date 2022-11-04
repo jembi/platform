@@ -38,3 +38,5 @@ packages:
     name: Dashboard Visualiser Superset
   - id: monitoring
     name: Monitoring package
+  - id: mpi-mediator
+    name: OpenHIM-Sante Mediator
