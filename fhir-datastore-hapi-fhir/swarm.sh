@@ -55,6 +55,12 @@ if [ "${ACTION}" == "init" ]; then
   await_postgres_start
 
   try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $hapi_fhir_dev_compose_param instant" "Failed to deploy FHIR Datastore HAPI FHIR"
+
+  if [ "$STATEFUL_NODES" == "cluster" ]; then
+    docker::deploy_sanity hapi-fhir postgres-1 postgres-2 postgres-3
+  else
+    docker::deploy_sanity hapi-fhir postgres-1
+  fi
 elif [ "${ACTION}" == "up" ]; then
   try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose-postgres.yml $postgres_cluster_compose_param $postgres_dev_compose_param instant" "Failed to stand up hapi-fhir postgres"
 

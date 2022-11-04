@@ -24,6 +24,8 @@ main() {
     config::substitute_env_vars "${COMPOSE_FILE_PATH}"/config.ini
     config::set_config_digests "${COMPOSE_FILE_PATH}"/docker-compose.yml
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml instant" "Failed to deploy Job Scheduler Ofelia, does your .env file include all environment variables in your config.ini file?"
+
+    docker::deploy_sanity job-scheduler-ofelia
   elif [[ "${ACTION}" == "down" ]]; then
     try "docker service scale instant_job-scheduler-ofelia=0" "Failed to scale down job-scheduler-ofelia"
   elif [[ "${ACTION}" == "destroy" ]]; then
