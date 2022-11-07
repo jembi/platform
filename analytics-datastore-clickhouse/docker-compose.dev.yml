@@ -12,3 +12,25 @@ services:
       - target: 9181
         published: 9181
         mode: host
+  analytics-datastore-clickhouse-02:
+    ports:
+      - target: 8123
+        published: 8125
+        mode: host
+      - target: 9000
+        published: 9002
+        mode: host
+      - target: 9181
+        published: 9182
+        mode: host
+  analytics-datastore-clickhouse-03:
+    ports:
+      - target: 8123
+        published: 8126
+        mode: host
+      - target: 9000
+        published: 9003
+        mode: host
+      - target: 9181
+        published: 9183
+        mode: host

@@ -43,7 +43,13 @@ main() {
     docker::await_container_startup analytics-datastore-clickhouse-01
     docker::await_container_status analytics-datastore-clickhouse-01 Running
 
-    config::await_network_join "instant_analytics-datastore-clickhouse"
+    if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
+      docker::await_container_startup analytics-datastore-clickhouse-02
+      docker::await_container_status analytics-datastore-clickhouse-02 Running
+
+      docker::await_container_startup analytics-datastore-clickhouse-03
+      docker::await_container_status analytics-datastore-clickhouse-03 Running
+    fi
 
     log info "Setting config digests"
     config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
@@ -59,13 +65,27 @@ main() {
     log info "Removing stale configs..."
     config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "clickhouse"
 
-    docker::deploy_sanity analytics-datastore-clickhouse
+    if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
+      docker::deploy_sanity analytics-datastore-clickhouse-01 analytics-datastore-clickhouse-02 analytics-datastore-clickhouse-03
+    else
+      docker::deploy_sanity analytics-datastore-clickhouse-01
+    fi
   elif [[ "${ACTION}" == "down" ]]; then
-    try "docker service scale instant_analytics-datastore-clickhouse=0" "Failed to scale down analytics-datastore-clickhouse"
+    try "docker service scale instant_analytics-datastore-clickhouse-01=0" "Failed to scale down analytics-datastore-clickhouse-01"
+
+    if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
+      try "docker service scale instant_analytics-datastore-clickhouse-02=0" "Failed to scale down analytics-datastore-clickhouse-02"
+      try "docker service scale instant_analytics-datastore-clickhouse-03=0" "Failed to scale down analytics-datastore-clickhouse-03"
+    fi
   elif [[ "${ACTION}" == "destroy" ]]; then
     docker::service_destroy analytics-datastore-clickhouse-01
     docker::service_destroy clickhouse-config-importer
     docker::try_remove_volume clickhouse-data-01
+
+    if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
+      docker::service_destroy analytics-datastore-clickhouse-02
+      docker::service_destroy analytics-datastore-clickhouse-03
+    fi
 
     docker::prune_configs "clickhouse"
   else

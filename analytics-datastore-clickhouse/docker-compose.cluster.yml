@@ -10,13 +10,13 @@ services:
       - target: /etc/clickhouse-server/config.d/docker_related_config.xml
         source: docker_related_config.xml
       - target: /etc/clickhouse-server/config.d/enable_keeper_01.xml
-        source: enable_keeper_01.xml
+        source: clickhouse_enable_keeper_01.xml
       - target: /etc/clickhouse-server/config.d/macros_01.xml
-        source: macros_01.xml
+        source: clickhouse_macros_01.xml
       - target: /etc/clickhouse-server/config.d/remote_servers.xml
-        source: remote_servers.xml
+        source: clickhouse_remote_servers.xml
       - target: /etc/clickhouse-server/config.d/use_keeper.xml
-        source: use_keeper.xml
+        source: clickhouse_use_keeper.xml
 
   analytics-datastore-clickhouse-02:
     image: clickhouse/clickhouse-server
@@ -32,13 +32,13 @@ services:
       - target: /etc/clickhouse-server/config.d/docker_related_config.xml
         source: docker_related_config.xml
       - target: /etc/clickhouse-server/config.d/enable_keeper_02.xml
-        source: enable_keeper_02.xml
+        source: clickhouse_enable_keeper_02.xml
       - target: /etc/clickhouse-server/config.d/macros_02.xml
-        source: macros_02.xml
+        source: clickhouse_macros_02.xml
       - target: /etc/clickhouse-server/config.d/remote_servers.xml
-        source: remote_servers.xml
+        source: clickhouse_remote_servers.xml
       - target: /etc/clickhouse-server/config.d/use_keeper.xml
-        source: use_keeper.xml
+        source: clickhouse_use_keeper.xml
 
   analytics-datastore-clickhouse-03:
     image: clickhouse/clickhouse-server
@@ -54,13 +54,13 @@ services:
       - target: /etc/clickhouse-server/config.d/docker_related_config.xml
         source: docker_related_config.xml
       - target: /etc/clickhouse-server/config.d/enable_keeper_03.xml
-        source: enable_keeper_03.xml
+        source: clickhouse_enable_keeper_03.xml
       - target: /etc/clickhouse-server/config.d/macros_03.xml
-        source: macros_03.xml
+        source: clickhouse_macros_03.xml
       - target: /etc/clickhouse-server/config.d/remote_servers.xml
-        source: remote_servers.xml
+        source: clickhouse_remote_servers.xml
       - target: /etc/clickhouse-server/config.d/use_keeper.xml
-        source: use_keeper.xml
+        source: clickhouse_use_keeper.xml
 
 volumes:
   clickhouse-data-02:
