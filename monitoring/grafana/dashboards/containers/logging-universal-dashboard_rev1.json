@@ -1,0 +1,926 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Universal and flexible dashboard for logging",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "gnetId": 12611,
+  "graphTooltip": 0,
+  "id": 11,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "P00201832B18B88C3"
+      },
+      "description": "Total  Count of log lines in the specified time range",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "color": "rgb(31, 255, 7)",
+                  "text": "0"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "rgb(31, 255, 7)",
+                "value": null
+              },
+              {
+                "color": "rgb(31, 255, 7)",
+                "value": 10
+              },
+              {
+                "color": "rgb(31, 255, 7)",
+                "value": 50
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 11,
+      "links": [],
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "P00201832B18B88C3"
+          },
+          "editorMode": "code",
+          "expr": "sum(count_over_time(({swarm_service_name=\"$service_name\", stream=~\"$stream\", swarm_task_name=~\"$task_name\"})[$__interval]))",
+          "hide": false,
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Total  Count of logs",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "P00201832B18B88C3"
+      },
+      "description": "Total Count: of $searchable_pattern in the specified time range",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "color": "rgb(222, 15, 43)",
+                  "text": "0"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "rgb(222, 15, 43)",
+                "value": null
+              },
+              {
+                "color": "rgb(222, 15, 43)",
+                "value": 10
+              },
+              {
+                "color": "rgb(222, 15, 43)",
+                "value": 50
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "id": 6,
+      "links": [],
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "P00201832B18B88C3"
+          },
+          "editorMode": "code",
+          "expr": "sum(count_over_time(({swarm_service_name=\"$service_name\", stream=~\"$stream\", swarm_task_name=~\"$task_name\"} |~ \"(?i)$searchable_pattern\")[$__interval]))",
+          "hide": false,
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Total Count: of \"$searchable_pattern\"",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "P00201832B18B88C3"
+      },
+      "description": "Live logs is a like 'tail -f | grep' in a real time",
+      "gridPos": {
+        "h": 22,
+        "w": 24,
+        "x": 0,
+        "y": 3
+      },
+      "id": 2,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": true,
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "P00201832B18B88C3"
+          },
+          "editorMode": "code",
+          "expr": "{swarm_service_name=\"$service_name\", stream=~\"$stream\", swarm_task_name=~\"$task_name\"} |~ \"(?i)$searchable_pattern\"",
+          "hide": false,
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Live logs (filtered by \"$searchable_pattern\")",
+      "type": "logs"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "P00201832B18B88C3"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 7,
+        "x": 0,
+        "y": 25
+      },
+      "id": 19,
+      "links": [],
+      "maxDataPoints": 100,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "7.0.4",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "P00201832B18B88C3"
+          },
+          "editorMode": "code",
+          "expr": "sum(count_over_time(({swarm_service_name=\"$service_name\", stream=~\"$stream\", swarm_task_name=~\"$task_name\"})[$__interval])) by (stream)",
+          "hide": false,
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Total count of stderr / stdout pie",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "P00201832B18B88C3"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 7,
+        "y": 25
+      },
+      "id": 20,
+      "interval": "1m",
+      "links": [],
+      "maxDataPoints": "",
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "6.4.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "P00201832B18B88C3"
+          },
+          "editorMode": "code",
+          "expr": "sum(count_over_time(({swarm_service_name=\"$service_name\", stream=~\"$stream\", swarm_task_name=~\"$task_name\"} |~ \"(?i)$searchable_pattern\")[$__interval])) by (swarm_task_name)",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Matched word: \"$searchable_pattern\" donut",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "P00201832B18B88C3"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "color": "#299c46",
+                  "text": "0"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "max": 100,
+          "min": 0,
+          "noValue": "0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#299c46",
+                "value": null
+              },
+              {
+                "color": "rgba(237, 129, 40, 0.89)",
+                "value": 10
+              },
+              {
+                "color": "#C4162A",
+                "value": 50
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 5,
+        "x": 19,
+        "y": 25
+      },
+      "id": 9,
+      "links": [],
+      "maxDataPoints": 100,
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": false
+      },
+      "pluginVersion": "9.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "P00201832B18B88C3"
+          },
+          "editorMode": "code",
+          "expr": "sum(count_over_time(({swarm_service_name=\"$service_name\", stream=~\"$stream\", swarm_task_name=~\"$task_name\"} |~ \"(?i)$searchable_pattern\")[$__interval])) * 100 / sum(count_over_time(({swarm_service_name=\"$service_name\", stream=~\"$stream\", swarm_task_name=~\"$task_name\"})[$__interval]))",
+          "hide": false,
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "\"$searchable_pattern\" Percentage for specified time",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "P00201832B18B88C3"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Count",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 3,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 32
+      },
+      "id": 18,
+      "interval": "1m",
+      "links": [],
+      "maxDataPoints": "",
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "9.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "P00201832B18B88C3"
+          },
+          "editorMode": "code",
+          "expr": "sum(count_over_time(({swarm_service_name=\"$service_name\", stream=~\"$stream\", swarm_task_name=~\"$task_name\"} |~ \"(?i)$searchable_pattern\")[$__interval])) by (swarm_task_name)",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Matched word: \"$searchable_pattern\" historical",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "P00201832B18B88C3"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 100,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "log": 10,
+              "type": "log"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 32
+      },
+      "id": 10,
+      "links": [],
+      "maxDataPoints": 100,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "9.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "P00201832B18B88C3"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(({swarm_service_name=\"$service_name\", stream=~\"$stream\", swarm_task_name=~\"$task_name\"} |~ \"(?i)$searchable_pattern\")[30s])) by (swarm_task_name)",
+          "hide": false,
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "\"$searchable_pattern\" Rate per Task",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "P00201832B18B88C3"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 40,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 6,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "always",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "{stream=\"stderr\"} stderr"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#C4162A",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "{stream=\"stdout\"} stdout"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#56A64B",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 2
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 41
+      },
+      "id": 7,
+      "links": [],
+      "maxDataPoints": 100,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "9.1.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "P00201832B18B88C3"
+          },
+          "editorMode": "code",
+          "expr": "sum(count_over_time(({swarm_service_name=\"$service_name\", stream=~\"$stream\", swarm_task_name=~\"$task_name\"})[$__interval])) by (stream)",
+          "hide": false,
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Count of stderr / stdout historical",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 37,
+  "style": "dark",
+  "tags": [
+    "Loki",
+    "logging"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "instant_prometheus-kafka-adapter",
+          "value": "instant_prometheus-kafka-adapter"
+        },
+        "datasource": {
+          "type": "loki",
+          "uid": "P00201832B18B88C3"
+        },
+        "definition": "label_values({swarm_service_name=~\".+\"}, swarm_service_name)",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Service",
+        "multi": false,
+        "name": "service_name",
+        "options": [],
+        "query": "label_values({swarm_service_name=~\".+\"}, swarm_service_name)",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "loki",
+          "uid": "P00201832B18B88C3"
+        },
+        "definition": "label_values({swarm_service_name=\"$service_name\"}, swarm_task_name)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Task",
+        "multi": true,
+        "name": "task_name",
+        "options": [],
+        "query": "label_values({swarm_service_name=\"$service_name\"}, swarm_task_name)",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "loki",
+          "uid": "P00201832B18B88C3"
+        },
+        "definition": "label_values({swarm_service_name=\"$service_name\"}, stream)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Stream",
+        "multi": false,
+        "name": "stream",
+        "options": [],
+        "query": "label_values({swarm_service_name=\"$service_name\"}, stream)",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "error",
+          "value": "error"
+        },
+        "hide": 0,
+        "label": "Search (case insensitive)",
+        "name": "searchable_pattern",
+        "options": [
+          {
+            "selected": true,
+            "text": "error",
+            "value": "error"
+          }
+        ],
+        "query": "error",
+        "skipUrlSync": false,
+        "type": "textbox"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ]
+  },
+  "timezone": "",
+  "title": "Container logs",
+  "uid": "fRIvzUZMf",
+  "version": 4,
+  "weekStart": ""
+}
