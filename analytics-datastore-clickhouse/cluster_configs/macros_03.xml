@@ -3,8 +3,8 @@
             <path>/clickhouse/task_queue/ddl</path>
     </distributed_ddl>
     <macros>
-        <cluster>events</cluster>
+        <cluster>cluster_3R</cluster>
         <shard>clickhouse</shard>
-        <replica>r1</replica>
+        <replica>r3</replica>
     </macros>
 </clickhouse>

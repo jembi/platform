@@ -9,9 +9,9 @@ services:
     configs:
       - target: /etc/clickhouse-server/config.d/docker_related_config.xml
         source: docker_related_config.xml
-      - target: /etc/clickhouse-server/config.d/enable_keeper_01.xml
+      - target: /etc/clickhouse-server/config.d/enable_keeper.xml
         source: clickhouse_enable_keeper_01.xml
-      - target: /etc/clickhouse-server/config.d/macros_01.xml
+      - target: /etc/clickhouse-server/config.d/macros.xml
         source: clickhouse_macros_01.xml
       - target: /etc/clickhouse-server/config.d/remote_servers.xml
         source: clickhouse_remote_servers.xml
@@ -31,9 +31,9 @@ services:
     configs:
       - target: /etc/clickhouse-server/config.d/docker_related_config.xml
         source: docker_related_config.xml
-      - target: /etc/clickhouse-server/config.d/enable_keeper_02.xml
+      - target: /etc/clickhouse-server/config.d/enable_keeper.xml
         source: clickhouse_enable_keeper_02.xml
-      - target: /etc/clickhouse-server/config.d/macros_02.xml
+      - target: /etc/clickhouse-server/config.d/macros.xml
         source: clickhouse_macros_02.xml
       - target: /etc/clickhouse-server/config.d/remote_servers.xml
         source: clickhouse_remote_servers.xml
@@ -53,9 +53,9 @@ services:
     configs:
       - target: /etc/clickhouse-server/config.d/docker_related_config.xml
         source: docker_related_config.xml
-      - target: /etc/clickhouse-server/config.d/enable_keeper_03.xml
+      - target: /etc/clickhouse-server/config.d/enable_keeper.xml
         source: clickhouse_enable_keeper_03.xml
-      - target: /etc/clickhouse-server/config.d/macros_03.xml
+      - target: /etc/clickhouse-server/config.d/macros.xml
         source: clickhouse_macros_03.xml
       - target: /etc/clickhouse-server/config.d/remote_servers.xml
         source: clickhouse_remote_servers.xml
@@ -65,6 +65,7 @@ services:
 volumes:
   clickhouse-data-02:
   clickhouse-data-03:
+  
 configs:
   docker_related_config.xml:
     file: ./cluster_configs/docker_related_config.xml
