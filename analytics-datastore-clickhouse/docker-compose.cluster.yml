@@ -2,6 +2,11 @@ version: '3.9'
 
 services:
   analytics-datastore-clickhouse-01:
+    image: clickhouse/clickhouse-server
+    ulimits:
+      noFile: 262144
+    volumes:
+      - clickhouse-data-01:/var/lib/clickhouse/
     hostname: analytics-datastore-clickhouse-01
     deploy: 
       placement: 
@@ -83,6 +88,7 @@ services:
         source: clickhouse_use_keeper.xml
 
 volumes:
+  clickhouse-data-01:
   clickhouse-data-02:
   clickhouse-data-03:
   clickhouse-data-04:
