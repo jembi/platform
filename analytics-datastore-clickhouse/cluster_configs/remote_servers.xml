@@ -2,6 +2,7 @@
     <remote_servers>
         <cluster_3R>
             <shard>
+                <internal_replication>true</internal_replication>
                 <replica>
                     <host>analytics-datastore-clickhouse-01</host>
                     <port>9000</port>

@@ -12,5 +12,9 @@
             <host>analytics-datastore-clickhouse-03</host>
             <port>9181</port>
         </node>
+        <node index="4">
+            <host>analytics-datastore-clickhouse-04</host>
+            <port>9181</port>
+        </node>
     </zookeeper>
 </clickhouse>

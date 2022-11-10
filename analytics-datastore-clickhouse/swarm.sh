@@ -19,14 +19,14 @@ readonly ROOT_PATH
 main() {
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
     if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
-      log info "Running Clickhouse package in Cluster node mode"
+      log info "Running Analytics Datastore Clickhouse package in Cluster node mode"
       clickhouse_cluster_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.cluster.yml"
 
       log info "Setting config digests"
       config::set_config_digests "${COMPOSE_FILE_PATH}/docker-compose.cluster.yml"
 
     else
-      log info "Running Clickhouse package in Single node mode"
+      log info "Running Analytics Datastore Clickhouse package in Single node mode"
       clickhouse_cluster_compose_param=""
     fi
     if [[ "${MODE}" == "dev" ]]; then
@@ -47,6 +47,9 @@ main() {
 
       docker::await_container_startup analytics-datastore-clickhouse-03
       docker::await_container_status analytics-datastore-clickhouse-03 Running
+
+      docker::await_container_startup analytics-datastore-clickhouse-04
+      docker::await_container_status analytics-datastore-clickhouse-04 Running
     fi
 
     log info "Setting config digests"
@@ -64,7 +67,7 @@ main() {
     config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "clickhouse"
 
     if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
-      docker::deploy_sanity analytics-datastore-clickhouse-01 analytics-datastore-clickhouse-02 analytics-datastore-clickhouse-03
+      docker::deploy_sanity analytics-datastore-clickhouse-01 analytics-datastore-clickhouse-02 analytics-datastore-clickhouse-03 analytics-datastore-clickhouse-04
     else
       docker::deploy_sanity analytics-datastore-clickhouse-01
     fi
@@ -74,6 +77,7 @@ main() {
     if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
       try "docker service scale instant_analytics-datastore-clickhouse-02=0" "Failed to scale down analytics-datastore-clickhouse-02"
       try "docker service scale instant_analytics-datastore-clickhouse-03=0" "Failed to scale down analytics-datastore-clickhouse-03"
+      try "docker service scale instant_analytics-datastore-clickhouse-04=0" "Failed to scale down analytics-datastore-clickhouse-04"
     fi
   elif [[ "${ACTION}" == "destroy" ]]; then
     docker::service_destroy analytics-datastore-clickhouse-01
@@ -83,6 +87,7 @@ main() {
     if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
       docker::service_destroy analytics-datastore-clickhouse-02
       docker::service_destroy analytics-datastore-clickhouse-03
+      docker::service_destroy analytics-datastore-clickhouse-04
     fi
 
     docker::prune_configs "clickhouse"

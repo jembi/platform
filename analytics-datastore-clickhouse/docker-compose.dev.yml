@@ -34,3 +34,14 @@ services:
       - target: 9181
         published: 9183
         mode: host
+  analytics-datastore-clickhouse-04:
+    ports:
+      - target: 8123
+        published: 8127
+        mode: host
+      - target: 9000
+        published: 9004
+        mode: host
+      - target: 9181
+        published: 9184
+        mode: host

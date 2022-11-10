@@ -5,6 +5,6 @@
     <macros>
         <cluster>cluster_3R</cluster>
         <shard>1</shard>
-        <replica>r3</replica>
+        <replica>r4</replica>
     </macros>
 </clickhouse>
