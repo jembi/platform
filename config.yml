@@ -40,3 +40,5 @@ packages:
     name: Monitoring package
   - id: mpi-mediator
     name: OpenHIM-Sante Mediator
+  - id: identity-access-manager-keycloak
+    name: Identity Access Manager Keycloak

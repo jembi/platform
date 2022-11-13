@@ -1,0 +1,13 @@
+version: '3.9'
+
+services:
+  identity-access-manager-keycloak:
+    image: keycloak/keycloak
+    command: start-dev
+    hostname: identity-access-manager-keycloak
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+    deploy:
+      placement:
+        max_replicas_per_node: 1

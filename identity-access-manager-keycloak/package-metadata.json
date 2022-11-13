@@ -1,0 +1,13 @@
+{
+  "id": "identity-access-manager-keycloak",
+  "name": "Identity Access Manager Keycloak",
+  "description": "An identity and access management solution",
+  "type": "infrastructure",
+  "version": "0.0.1",
+  "dependencies": [],
+  "environmentVariables": {
+    "STATEFUL_NODES": "single",
+    "KEYCLOAK_ADMIN": "admin",
+    "KEYCLOAK_ADMIN_PASSWORD": "admin"
+  }
+}
