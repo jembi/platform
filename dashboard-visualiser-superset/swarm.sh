@@ -17,7 +17,6 @@ readonly ROOT_PATH
 . "${ROOT_PATH}/utils/log.sh"
 
 main() {
-
   if [[ "${MODE}" == "dev" ]]; then
     log info "Running Dashboard Visualiser Superset package in DEV mode"
     superset_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
