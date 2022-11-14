@@ -12,12 +12,19 @@ const clickhouse = new ClickHouse({
   url: CLICKHOUSE_HOST,
   port: CLICKHOUSE_PORT,
   debug: CLICKHOUSE_DEBUG,
+  raw: true,
 });
 
 (async () => {
   for (const query of queries) {
-    const r = await clickhouse.query(query).toPromise();
+    try {
+      const r = await clickhouse.query(query).toPromise();
 
-    console.log(query, r);
+      if (r.includes('Exception')) throw new Error(r);
+      else console.log(query, '\n', r);
+    } catch (err) {
+      console.error(err);
+      process.exit(1);
+    }
   }
 })();
