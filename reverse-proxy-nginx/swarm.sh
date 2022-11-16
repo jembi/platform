@@ -21,12 +21,11 @@ ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/config-utils.sh"
 
 main() {
+  if [[ "${MODE}" == "dev" ]]; then
+    log info "Not including reverse proxy as we are running DEV mode"
+    exit 0
+  fi
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    if [[ "${MODE}" == "dev" ]]; then
-      log info "Not starting reverse proxy as we are running DEV mode"
-      exit 0
-    fi
-
     if [[ "${INSECURE}" == "true" ]]; then
       log info "Running reverse-proxy package in INSECURE mode"
 
