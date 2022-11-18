@@ -67,7 +67,7 @@ if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
 
   await_kafka_reachable
 
-  log info "Deploy the other services dependant of Kafka"
+  log info "Deploy the other services dependent of Kafka"
   try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.kafka-2.yml $kafka_2_dev_compose_param instant" "Failed to deploy Message Bus Kafka"
 
   config::await_service_running "kafka" "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml "${KAFKA_INSTANCES}"
