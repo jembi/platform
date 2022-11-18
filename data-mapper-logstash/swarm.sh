@@ -26,10 +26,10 @@ inject_pipeline_elastic_hosts() {
 
 if [[ "$MODE" == "dev" ]]; then
   log info "Running Data Mapper Logstash package in DEV mode"
-  LogstashDevComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
+  logstash_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
 else
   log info "Running Data Mapper Logstash package in PROD mode"
-  LogstashDevComposeParam=""
+  logstash_dev_compose_param=""
 fi
 
 if [[ "$LOGSTASH_DEV_MOUNT" == "true" ]]; then
@@ -39,9 +39,9 @@ if [[ "$LOGSTASH_DEV_MOUNT" == "true" ]]; then
   fi
 
   log info "Running Data Mapper Logstash package with dev mount"
-  LogstashDevMountComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.dev-mnt.yml"
+  logstash_dev_mount_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev-mnt.yml"
 else
-  LogstashDevMountComposeParam=""
+  logstash_dev_mount_compose_param=""
 fi
 
 if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
@@ -56,10 +56,10 @@ if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
 
   config::set_config_digests "${COMPOSE_FILE_PATH}"/docker-compose.yml
 
-  config::generate_service_configs data-mapper-logstash /usr/share/logstash "${COMPOSE_FILE_PATH}/pipeline" "${COMPOSE_FILE_PATH}"
-  LogstashTempComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.tmp.yml"
+  config::generate_service_configs data-mapper-logstash /usr/share/logstash "${COMPOSE_FILE_PATH}/pipeline" "${COMPOSE_FILE_PATH}" logstash
+  logstash_temp_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.tmp.yml"
 
-  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $LogstashDevComposeParam $LogstashDevMountComposeParam $LogstashTempComposeParam instant" "Failed to deploy Data Mapper Logstash"
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $logstash_dev_compose_param $logstash_dev_mount_compose_param $logstash_temp_compose_param instant" "Failed to deploy Data Mapper Logstash"
 
   docker::await_container_startup data-mapper-logstash
   docker::await_container_status data-mapper-logstash Running
@@ -68,12 +68,15 @@ if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
 
   docker::prune_configs logstash
 
+  docker::deploy_sanity data-mapper-logstash
   log info "Done"
 elif [[ "${ACTION}" == "down" ]]; then
   try "docker service scale instant_data-mapper-logstash=0" "Failed to scale down data-mapper-logstash"
 elif [[ "${ACTION}" == "destroy" ]]; then
   docker::service_destroy data-mapper-logstash
   docker::try_remove_volume logstash-data
+
+  docker::prune_configs logstash
 else
   log error "Valid options are: init, up, down, or destroy"
 fi

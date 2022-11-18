@@ -1,0 +1,7 @@
+version: '3.9'
+
+services:
+  mpi-mediator:
+    deploy:
+      placement:
+        max_replicas_per_node: 1
