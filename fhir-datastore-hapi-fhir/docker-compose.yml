@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   hapi-fhir:
-    image: hapiproject/hapi:v5.7.0
+    image: jembi/hapi:v5.7.0-wget
     environment:
       - spring.datasource.url=jdbc:postgresql://${POSTGRES_REPLICA_SET}/hapi
       - spring.datasource.username=admin
@@ -25,3 +25,9 @@ services:
         reservations:
           cpus: ${HAPI_FHIR_CPU_RESERVE}
           memory: ${HAPI_FHIR_MEMORY_RESERVE}
+    healthcheck:
+      test: /bin/wget --no-verbose --tries=1 --spider http://localhost:8080
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 2m

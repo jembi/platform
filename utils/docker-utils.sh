@@ -131,3 +131,37 @@ docker::prune_configs() {
     # shellcheck disable=SC2046
     docker config rm $(docker config ls -qf label=name="$CONFIG_LABEL") &>/dev/null
 }
+
+# Check for errors when deploying
+#
+# Arguments:
+# - $1 : service names, e.g. "monitoring" "hapi-fhir" ...
+#
+docker::deploy_sanity() {
+    if [[ -z "$*" ]]; then
+        log error "FATAL: deploy_sanity parameter missing"
+        exit 1
+    fi
+
+    log info "Checking for deployment errors..."
+    for i in "$@"; do
+        local start_time
+        start_time=$(date +%s)
+
+        until [[ $(docker service ps instant_"$i" --format "{{.CurrentState}}" 2>/dev/null) == *"Running"* ]]; do
+            config::timeout_check "${start_time}" "$i to start"
+            sleep 1
+
+            # Get unique error messages using sort -u
+            error_message=$(docker service ps instant_"$i" --no-trunc --format '{{ .Error }}' 2>&1 | sort -u)
+            if [[ -n $error_message ]]; then
+                log error "deploy error in service $i: $error_message"
+                if [[ $error_message == *"No such image"* ]]; then
+                    log error "do you have access to pull the image?"
+                fi
+                exit 124
+            fi
+        done
+    done
+    overwrite "No errors found during deployment"
+}

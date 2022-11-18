@@ -249,6 +249,7 @@ config::generate_service_configs() {
     local -r TARGET_BASE=${2:?"FATAL: generate_service_config parameter missing"}
     local -r TARGET_FOLDER_PATH=${3:?"FATAL: generate_service_config parameter missing"}
     local -r COMPOSE_PATH=${4:?"FATAL: generate_service_config parameter missing"}
+    local -r LABEL_NAME=${5:?"FATAL: generate_service_config parameter missing"}
     local -r TARGET_FOLDER_NAME=$(basename "${TARGET_FOLDER_PATH}")
     local count=0
 
@@ -266,7 +267,7 @@ config::generate_service_configs() {
 
         export config_query=".configs.${config_source}"
         export config_file="./${TARGET_FOLDER_NAME}/${file_name}"
-        export config_label_name="${TARGET_FOLDER_NAME}/${file_name}"
+        export config_label_name=$LABEL_NAME
         export config_service_name=$SERVICE_NAME
 
         yq -i '
@@ -341,25 +342,25 @@ config::update_service_configs() {
     local config_rm_string=""
     local config_add_string=""
 
-    file_names=()
     files=$(find "${TARGET_FOLDER_PATH}" -maxdepth 10 -mindepth 1 -type f)
 
     for file in $files; do
         file_name=${file/"${TARGET_FOLDER_PATH%/}"/}
         file_name=${file_name:1}
-        file_hash=$(cksum "${file}" | awk '{print $1}')
-        file_names+=("$file_name")
+        file_hash=$(md5sum "${file}" | awk '{print $1}')
         config_file="${TARGET_FOLDER_PATH}/${file_name}"
         config_target="${TARGET_BASE%/}/${file_name}"
         config_name=$(basename "$file_name")-$file_hash
         old_config_name=$(docker config inspect --format="{{.Spec.Name}}" "$(docker config ls -qf name="$(basename "$file_name")")" 2>/dev/null)
 
-        if [[ -n $old_config_name ]]; then
-            config_rm_string+="--config-rm $old_config_name "
-        fi
-        config_add_string+="--config-add source=$config_name,target=$config_target "
+        if [[ "$config_name" != "$old_config_name" ]]; then
+            if [[ -n $old_config_name ]]; then
+                config_rm_string+="--config-rm $old_config_name "
+            fi
+            config_add_string+="--config-add source=$config_name,target=$config_target "
 
-        try "docker config create --label name=$CONFIG_LABEL_NAME $config_name $config_file" "Failed to create config"
+            try "docker config create --label name=$CONFIG_LABEL_NAME $config_name $config_file" "Failed to create config"
+        fi
     done
 
     REF_config_update_var+="$config_rm_string $config_add_string"
