@@ -1,0 +1,107 @@
+version: '3.9'
+
+services:
+  kafka-01:
+    image: bitnami/kafka:3.3.1
+    command:
+      [
+        "/opt/bitnami/scripts/kafka/run.sh",
+        "sh -c /bitnami/kafka/topics-create.sh"
+      ]
+    environment:
+      BITNAMI_DEBUG: 'true'
+      KAFKA_ENABLE_KRAFT: 'yes'
+      KAFKA_KRAFT_CLUSTER_ID: 'ehB92ChxEe2iYQAAAkKsEg'
+      KAFKA_CFG_NODE_ID: 1
+      KAFKA_CFG_BROKER_ID: 1
+      KAFKA_CFG_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka-01:9092
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-01:9093,2@kafka-02:9093,3@kafka-03:9093
+      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      ALLOW_PLAINTEXT_LISTENER: 'yes'
+    volumes:
+      - kafka-01-data:/bitnami/kafka
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: ${KAFKA_01_MEMORY_LIMIT}
+        reservations:
+          memory: ${KAFKA_01_MEMORY_RESERVE}
+      restart_policy:
+        condition: on-failure
+    configs:
+      - source: topics-create.sh
+        target: /bitnami/kafka/topics-create.sh
+        mode: 777
+
+  kafka-02:
+    image: bitnami/kafka:3.3.1
+    environment:
+      BITNAMI_DEBUG: 'true'
+      KAFKA_ENABLE_KRAFT: 'yes'
+      KAFKA_KRAFT_CLUSTER_ID: 'ehB92ChxEe2iYQAAAkKsEg'
+      KAFKA_CFG_NODE_ID: 2
+      KAFKA_CFG_BROKER_ID: 2
+      KAFKA_CFG_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka-02:9092
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-01:9093,2@kafka-02:9093,3@kafka-03:9093
+      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      ALLOW_PLAINTEXT_LISTENER: 'yes'
+    volumes:
+      - kafka-02-data:/bitnami/kafka
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: ${KAFKA_02_MEMORY_LIMIT}
+        reservations:
+          memory: ${KAFKA_02_MEMORY_RESERVE}
+      restart_policy:
+        condition: on-failure
+
+  kafka-03:
+    image: bitnami/kafka:3.3.1
+    environment:
+      BITNAMI_DEBUG: 'true'
+      KAFKA_ENABLE_KRAFT: 'yes'
+      KAFKA_KRAFT_CLUSTER_ID: 'ehB92ChxEe2iYQAAAkKsEg'
+      KAFKA_CFG_NODE_ID: 3
+      KAFKA_CFG_BROKER_ID: 3
+      KAFKA_CFG_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka-03:9092
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-01:9093,2@kafka-02:9093,3@kafka-03:9093
+      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      ALLOW_PLAINTEXT_LISTENER: 'yes'
+    volumes:
+      - kafka-03-data:/bitnami/kafka
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: ${KAFKA_03_MEMORY_LIMIT}
+        reservations:
+          memory: ${KAFKA_03_MEMORY_RESERVE}
+      restart_policy:
+        condition: on-failure
+
+configs:
+  topics-create.sh:
+    file: ./importer/topics-create.sh
+    name: topics-create-sh-${topics_create_sh_DIGEST:?err}
+    labels:
+      name: jempi-kafka
+
+volumes:
+  kafka-01-data:
+  kafka-02-data:
+  kafka-03-data:
