@@ -43,6 +43,7 @@ const getAccessToken = async () => {
     return res.data.access_token;
   } catch (error) {
     console.error('\nFailed to generate access token', error);
+    process.exit(1);
   }
 };
 
@@ -85,5 +86,6 @@ const getAccessToken = async () => {
   } catch (err) {
     console.error('\n', err);
     console.error('\nFailed ... exit.');
+    process.exit(1);
   }
 })();
