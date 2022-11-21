@@ -18,6 +18,16 @@
     "JEMPI_KAFDROP_MEMORY_LIMIT": "3G",
     "JEMPI_KAFDROP_MEMORY_RESERVE": "500M",
     "JEMPI_KAFKA_TOPICS": "jempi-patient-staging-01,jempi-patient-staging-02,jempi-patient-staging-disi,jempi-patient-controller,jempi-patient-em,jempi-patient-linker,jempi-mu-linker,jempi-journal,jempi-notifications",
-    "JEMPI_KAFKA_DEBUG": false
+    "JEMPI_KAFKA_DEBUG": false,
+    "ZERO_01_MEMORY_LIMIT": "3G",
+    "ZERO_01_MEMORY_RESERVE": "500M",
+    "ALPHA_01_MEMORY_LIMIT": "3G",
+    "ALPHA_01_MEMORY_RESERVE": "500M",
+    "ALPHA_02_MEMORY_LIMIT": "3G",
+    "ALPHA_02_MEMORY_RESERVE": "500M",
+    "ALPHA_03_MEMORY_LIMIT": "3G",
+    "ALPHA_03_MEMORY_RESERVE": "500M",
+    "RATEL_MEMORY_LIMIT": "3G",
+    "RATEL_MEMORY_RESERVE": "500M"
   }
 }
