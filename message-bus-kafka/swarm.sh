@@ -13,15 +13,6 @@ ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/docker-utils.sh"
 . "${ROOT_PATH}/utils/log.sh"
 
-await_kafka_reachable() {
-  local -r start_time=$(date +%s)
-
-  until [[ $(docker service logs --tail all instant_kafka 2>/dev/null | grep -c "Connected") -gt 0 ]]; do
-    config::timeout_check "$start_time" "kafka to be reachable"
-    sleep 1
-  done
-}
-
 if [[ $STATEFUL_NODES == "cluster" ]]; then
   log info "Running Message Bus Kafka package in Cluster node mode"
   kafka_0_cluster_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.cluster.kafka-0.yml"
@@ -65,7 +56,7 @@ if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
   docker::await_container_startup kafka
   docker::await_container_status kafka Running
 
-  await_kafka_reachable
+  config::await_service_reachable "kafka" "Connected"
 
   log info "Deploy the other services dependent of Kafka"
   try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.kafka-2.yml $kafka_2_dev_compose_param instant" "Failed to deploy Message Bus Kafka"
