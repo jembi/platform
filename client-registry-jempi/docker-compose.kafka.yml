@@ -3,11 +3,6 @@ version: '3.9'
 services:
   kafka-01:
     image: bitnami/kafka:3.3.1
-    command:
-      [
-        "/opt/bitnami/scripts/kafka/run.sh",
-        "sh -c /bitnami/kafka/topics-create.sh"
-      ]
     environment:
       BITNAMI_DEBUG: 'true'
       KAFKA_ENABLE_KRAFT: 'yes'
@@ -33,10 +28,6 @@ services:
           memory: ${KAFKA_01_MEMORY_RESERVE}
       restart_policy:
         condition: on-failure
-    configs:
-      - source: topics-create.sh
-        target: /bitnami/kafka/topics-create.sh
-        mode: 777
 
   kafka-02:
     image: bitnami/kafka:3.3.1
@@ -93,13 +84,6 @@ services:
           memory: ${KAFKA_03_MEMORY_RESERVE}
       restart_policy:
         condition: on-failure
-
-configs:
-  topics-create.sh:
-    file: ./importer/topics-create.sh
-    name: topics-create-sh-${topics_create_sh_DIGEST:?err}
-    labels:
-      name: jempi-kafka
 
 volumes:
   kafka-01-data:
