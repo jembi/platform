@@ -75,7 +75,6 @@ main() {
     
     docker::service_destroy jempi-kafka-config-importer
 
-    # Removing Superset volumes
     docker::try_remove_volume kafka-01-data
     docker::try_remove_volume kafka-02-data
     docker::try_remove_volume kafka-03-data

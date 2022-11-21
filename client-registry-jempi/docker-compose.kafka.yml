@@ -4,7 +4,7 @@ services:
   kafka-01:
     image: bitnami/kafka:3.3.1
     environment:
-      BITNAMI_DEBUG: 'true'
+      BITNAMI_DEBUG: ${JEMPI_KAFKA_DEBUG}
       KAFKA_ENABLE_KRAFT: 'yes'
       KAFKA_KRAFT_CLUSTER_ID: 'ehB92ChxEe2iYQAAAkKsEg'
       KAFKA_CFG_NODE_ID: 1
@@ -32,7 +32,7 @@ services:
   kafka-02:
     image: bitnami/kafka:3.3.1
     environment:
-      BITNAMI_DEBUG: 'true'
+      BITNAMI_DEBUG: ${JEMPI_KAFKA_DEBUG}
       KAFKA_ENABLE_KRAFT: 'yes'
       KAFKA_KRAFT_CLUSTER_ID: 'ehB92ChxEe2iYQAAAkKsEg'
       KAFKA_CFG_NODE_ID: 2
@@ -60,7 +60,7 @@ services:
   kafka-03:
     image: bitnami/kafka:3.3.1
     environment:
-      BITNAMI_DEBUG: 'true'
+      BITNAMI_DEBUG: ${JEMPI_KAFKA_DEBUG}
       KAFKA_ENABLE_KRAFT: 'yes'
       KAFKA_KRAFT_CLUSTER_ID: 'ehB92ChxEe2iYQAAAkKsEg'
       KAFKA_CFG_NODE_ID: 3

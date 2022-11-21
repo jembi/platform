@@ -17,6 +17,7 @@
     "JEMPI_KAFDROP_CPU_RESERVE": "0.05",
     "JEMPI_KAFDROP_MEMORY_LIMIT": "3G",
     "JEMPI_KAFDROP_MEMORY_RESERVE": "500M",
-    "JEMPI_KAFKA_TOPICS": "jempi-patient-staging-01,jempi-patient-staging-02,jempi-patient-staging-disi,jempi-patient-controller,jempi-patient-em,jempi-patient-linker,jempi-mu-linker,jempi-journal,jempi-notifications"
+    "JEMPI_KAFKA_TOPICS": "jempi-patient-staging-01,jempi-patient-staging-02,jempi-patient-staging-disi,jempi-patient-controller,jempi-patient-em,jempi-patient-linker,jempi-mu-linker,jempi-journal,jempi-notifications",
+    "JEMPI_KAFKA_DEBUG": false
   }
 }
