@@ -36,8 +36,6 @@ services:
 
   kafdrop:
     image: obsidiandynamics/kafdrop:3.27.0
-    depends_on:
-      - kafka
     environment:
       KAFKA_BROKERCONNECT: 'kafka:9092'
       JVM_OPTS: '-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify'
