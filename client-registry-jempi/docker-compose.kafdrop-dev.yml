@@ -4,5 +4,5 @@ services:
   jempi-kafdrop:
     ports:
       - target: 9013
-        published: 9013
+        published: 9014
         mode: host

@@ -2,13 +2,17 @@ version: '3.9'
 
 services:
   grafana:
-    image: grafana/grafana-oss:9.1.0
+    image: grafana/grafana-oss:9.2.3
     volumes:
       - grafana_data:/var/lib/grafana
     environment:
       - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
       - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
       - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SMTP_ENABLED=${GF_SMTP_ENABLED}
+      - GF_SMTP_HOST=${GF_SMTP_HOST}
+      - GF_SMTP_USER=${GF_SMTP_USER}
+      - GF_SMTP_PASSWORD=${GF_SMTP_PASSWORD}
     configs:
       - target: /etc/grafana/grafana.ini
         source: grafana.ini
@@ -30,6 +34,11 @@ services:
   prometheus:
     image: prom/prometheus:v2.38.0
     user: root
+    deploy:
+      placement:
+        constraints:
+          - "node.labels.name==node-1"
+      replicas: 1
     volumes:
       - prometheus_data:/prometheus
       - /var/run/docker.sock:/var/run/docker.sock:ro
