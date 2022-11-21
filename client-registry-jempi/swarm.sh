@@ -19,7 +19,7 @@ readonly ROOT_PATH
 main() {
   if [[ "${MODE}" == "dev" ]]; then
     log info "Running Client Registry JeMPI package in DEV mode"
-    kafdrop_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
+    kafdrop_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.kafdrop-dev.yml"
   else
     log info "Running Client Registry JeMPI package in PROD mode"
     kafdrop_dev_compose_param=""
