@@ -38,23 +38,13 @@ main() {
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.kafka.yml instant" "Failed to deploy Client Registry - JeMPI"
 
-    docker::await_container_startup kafka-01
-    docker::await_container_startup kafka-02
-    docker::await_container_startup kafka-03
-
-    docker::await_container_status kafka-01 Running
-    docker::await_container_status kafka-02 Running
-    docker::await_container_status kafka-03 Running
-
-    config::await_network_join instant_kafka-01
-    config::await_network_join instant_kafka-02
-    config::await_network_join instant_kafka-03
+    docker::await_service_ready kafka-01
+    docker::await_service_ready kafka-02
+    docker::await_service_ready kafka-03
 
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.kafdrop.yml $kafdrop_dev_compose_param instant" "Failed to deploy jempi-Kafdrop"
 
-    docker::await_container_startup jempi-kafdrop
-    docker::await_container_status jempi-kafdrop Running
-    config::await_network_join instant_jempi-kafdrop
+    docker::await_service_ready jempi-kafdrop
 
     config::set_config_digests "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml
 
@@ -69,25 +59,13 @@ main() {
 
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.dgraph.yml $dgraph_dev_compose_param $dgraph_cluster_compose_param instant" "Failed to deploy Client Registry - JeMPI"
 
-    docker::await_container_startup zero-01
-    docker::await_container_status zero-01 Running
-    config::await_network_join instant_zero-01
+    docker::await_service_ready zero-01
 
-    docker::await_container_startup alpha-01
-    docker::await_container_startup alpha-02
-    docker::await_container_startup alpha-03
+    docker::await_service_ready alpha-01
+    docker::await_service_ready alpha-02
+    docker::await_service_ready alpha-03
 
-    docker::await_container_status alpha-01 Running
-    docker::await_container_status alpha-02 Running
-    docker::await_container_status alpha-03 Running
-
-    config::await_network_join instant_alpha-01
-    config::await_network_join instant_alpha-02
-    config::await_network_join instant_alpha-03
-
-    docker::await_container_startup ratel
-    docker::await_container_status ratel Running
-    config::await_network_join instant_ratel
+    docker::await_service_ready ratel
 
     docker::deploy_sanity "kafka-01" "kafka-02" "kafka-03" "jempi-kafdrop" "zero-01" "alpha-01" "alpha-02" "alpha-03" "ratel"
   elif [[ "${ACTION}" == "down" ]]; then
