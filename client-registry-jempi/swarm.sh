@@ -63,9 +63,9 @@ main() {
     try "docker service scale instant_kafka-02=0" "Failed to scale down kafka-02"
     try "docker service scale instant_kafka-03=0" "Failed to scale down kafka-03"
 
-    try "docker service scale instant_jempi-kafdrop=0" "Failed to scale down jempi-kafka-03"
+    try "docker service scale instant_jempi-kafdrop=0" "Failed to scale down jempi-kafdrop"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    log warn "Volumes are only deleted on the host on which the command is run. Elastic Search volumes on other nodes are not deleted"
+    log warn "Volumes are only deleted on the host on which the command is run. Volumes on other nodes are not deleted"
 
     docker::service_destroy kafka-01
     docker::service_destroy kafka-02
