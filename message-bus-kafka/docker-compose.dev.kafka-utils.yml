@@ -1,0 +1,8 @@
+version: '3.9'
+
+services:
+  kafdrop:
+    ports:
+      - target: 9013
+        published: 9013
+        mode: host

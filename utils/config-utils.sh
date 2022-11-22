@@ -421,3 +421,21 @@ config::env_var_add() {
 
     REF_service_update_var+=" --env-add $ENV_VAR"
 }
+
+#######################################
+# Waits for the provided service to be reachable by checking logs
+#
+# Arguments:
+# $1 : service name (eg. analytics-datastore-elastic-search)
+# $2 : log string to be checked (eg. Starting)
+#######################################
+config::await_service_reachable() {
+    local -r SERVICE_NAME=${1:?"FATAL: await_service_reachable SERVICE_NAME not provided"}
+    local -r LOG_MESSAGE=${2:?"FATAL: await_service_reachable LOG_MESSAGE not provided"}
+    local -r start_time=$(date +%s)
+
+    until [[ $(docker service logs --tail all instant_"${SERVICE_NAME}" 2>/dev/null | grep -c "${LOG_MESSAGE}") -gt 0 ]]; do
+        config::timeout_check "$start_time" "$SERVICE_NAME to be reachable"
+        sleep 1
+    done
+}
