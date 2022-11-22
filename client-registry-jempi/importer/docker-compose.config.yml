@@ -1,0 +1,23 @@
+version: '3.9'
+
+services:
+  jempi-kafka-config-importer:
+    image: jembi/instantohie-config-importer
+    deploy:
+      restart_policy:
+        condition: none
+    environment:
+      KAFDROP_HOST: jempi-kafdrop
+      KAFDROP_PORT: 9013
+      KAFKA_TOPICS: ${JEMPI_KAFKA_TOPICS}
+    command: sh -c "wait-on -t 60000 http-get://jempi-kafdrop:9013/topic && node /kafka.js && echo 'success';"
+    configs:
+      - source: jempi-kafka.js
+        target: /kafka.js
+
+configs:
+  jempi-kafka.js:
+    file: ./kafka.js
+    name: jempi-kafka-config.js-${jempi_kafka_config_DIGEST:?err}
+    labels:
+      name: jempi-kafka
