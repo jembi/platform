@@ -1,0 +1,17 @@
+version: '3.9'
+
+services:
+  jempi-sync-receiver:
+    image: jembi/jempi-sync-receiver
+    ports:
+      - published: 50040
+        target: 50000
+        protocol: tcp
+        mode: host
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: ${SYNC_RECEIVER_MEMORY_LIMIT}
+        reservations:
+          memory: ${SYNC_RECEIVER_MEMORY_RESERVE}

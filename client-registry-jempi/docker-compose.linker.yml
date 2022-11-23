@@ -1,0 +1,17 @@
+version: '3.9'
+
+services:
+  jempi-linker:
+    image: jembi/jempi-linker
+    ports:
+      - published: 50010
+        target: 50000
+        protocol: tcp
+        mode: host
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: ${LINKER_MEMORY_LIMIT}
+        reservations:
+          memory: ${LINKER_MEMORY_RESERVE}

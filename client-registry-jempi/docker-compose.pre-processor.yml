@@ -1,0 +1,12 @@
+version: '3.9'
+
+services:
+  jempi-pre-processor:
+    image: jembi/jempi-pre-processor
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: ${PRE_PROCESSOR_MEMORY_LIMIT}
+        reservations:
+          memory: ${PRE_PROCESSOR_MEMORY_RESERVE}

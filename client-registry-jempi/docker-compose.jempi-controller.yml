@@ -1,0 +1,17 @@
+version: '3.9'
+
+services:
+  jempi-controller:
+    image: jembi/jempi-controller
+    ports:
+      - published: 50020
+        target: 50000
+        protocol: tcp
+        mode: host
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: ${CONTROLLER_MEMORY_LIMIT}
+        reservations:
+          memory: ${CONTROLLER_MEMORY_RESERVE}
