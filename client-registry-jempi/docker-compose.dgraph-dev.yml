@@ -1,7 +1,7 @@
 version: '3.9'
 
 services:
-  zero-01:
+  jempi-zero-01:
     ports:
       - published: 5080
         target: 5080
@@ -12,7 +12,7 @@ services:
         protocol: tcp
         mode: host
 
-  alpha-01:
+  jempi-alpha-01:
     ports:
       - published: 8070
         target: 8080
@@ -23,7 +23,7 @@ services:
         protocol: tcp
         mode: host
 
-  alpha-02:
+  jempi-alpha-02:
     ports:
       - published: 8071
         target: 8081
@@ -34,7 +34,7 @@ services:
         protocol: tcp
         mode: host
 
-  alpha-03:
+  jempi-alpha-03:
     ports:
       - published: 8072
         target: 8082
