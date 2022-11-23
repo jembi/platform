@@ -1,7 +1,7 @@
 version: '3.9'
 
 services:
-  kafka-01:
+  jempi-kafka-01:
     image: bitnami/kafka:3.3.1
     environment:
       BITNAMI_DEBUG: ${JEMPI_KAFKA_DEBUG}
@@ -13,12 +13,12 @@ services:
       KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
       KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
-      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka-01:9092
-      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-01:9093,2@kafka-02:9093,3@kafka-03:9093
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://jempi-kafka-01:9092
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@jempi-kafka-01:9093,2@jempi-kafka-02:9093,3@jempi-kafka-03:9093
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       ALLOW_PLAINTEXT_LISTENER: 'yes'
     volumes:
-      - kafka-01-data:/bitnami/kafka
+      - jempi-kafka-01-data:/bitnami/kafka
     deploy:
       replicas: 1
       resources:
@@ -29,7 +29,7 @@ services:
       restart_policy:
         condition: on-failure
 
-  kafka-02:
+  jempi-kafka-02:
     image: bitnami/kafka:3.3.1
     environment:
       BITNAMI_DEBUG: ${JEMPI_KAFKA_DEBUG}
@@ -41,12 +41,12 @@ services:
       KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
       KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
-      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka-02:9092
-      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-01:9093,2@kafka-02:9093,3@kafka-03:9093
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://jempi-kafka-02:9092
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@jempi-kafka-01:9093,2@jempi-kafka-02:9093,3@jempi-kafka-03:9093
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       ALLOW_PLAINTEXT_LISTENER: 'yes'
     volumes:
-      - kafka-02-data:/bitnami/kafka
+      - jempi-kafka-02-data:/bitnami/kafka
     deploy:
       replicas: 1
       resources:
@@ -57,7 +57,7 @@ services:
       restart_policy:
         condition: on-failure
 
-  kafka-03:
+  jempi-kafka-03:
     image: bitnami/kafka:3.3.1
     environment:
       BITNAMI_DEBUG: ${JEMPI_KAFKA_DEBUG}
@@ -69,12 +69,12 @@ services:
       KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
       KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
-      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka-03:9092
-      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-01:9093,2@kafka-02:9093,3@kafka-03:9093
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://jempi-kafka-03:9092
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@jempi-kafka-01:9093,2@jempi-kafka-02:9093,3@jempi-kafka-03:9093
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       ALLOW_PLAINTEXT_LISTENER: 'yes'
     volumes:
-      - kafka-03-data:/bitnami/kafka
+      - jempi-kafka-03-data:/bitnami/kafka
     deploy:
       replicas: 1
       resources:
@@ -86,6 +86,6 @@ services:
         condition: on-failure
 
 volumes:
-  kafka-01-data:
-  kafka-02-data:
-  kafka-03-data:
+  jempi-kafka-01-data:
+  jempi-kafka-02-data:
+  jempi-kafka-03-data:
