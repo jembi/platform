@@ -145,10 +145,3 @@ main() {
 }
 
 main "$@"
-
-jempi-async-receiver
-jempi-sync-receiver
-jempi-pre-processor
-jempi-controller
-jempi-em-calculator
-jempi-linker
