@@ -1,0 +1,53 @@
+version: '3.9'
+
+services:
+  zero-01:
+    ports:
+      - published: 5080
+        target: 5080
+        protocol: tcp
+        mode: host
+      - published: 6080
+        target: 6080
+        protocol: tcp
+        mode: host
+
+  alpha-01:
+    ports:
+      - published: 8070
+        target: 8080
+        protocol: tcp
+        mode: host
+      - published: 9080
+        target: 9080
+        protocol: tcp
+        mode: host
+
+  alpha-02:
+    ports:
+      - published: 8071
+        target: 8081
+        protocol: tcp
+        mode: host
+      - published: 9081
+        target: 9081
+        protocol: tcp
+        mode: host
+
+  alpha-03:
+    ports:
+      - published: 8072
+        target: 8082
+        protocol: tcp
+        mode: host
+      - published: 9082
+        target: 9082
+        protocol: tcp
+        mode: host
+
+  ratel:
+    ports:
+      - published: 8010
+        target: 8000
+        protocol: tcp
+        mode: host

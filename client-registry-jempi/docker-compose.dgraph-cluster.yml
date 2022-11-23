@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+  zero-01:
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == node-1
+
+  alpha-01:
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == node-1
+
+  alpha-02:
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == node-2
+
+  alpha-03:
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == node-3
+
+  ratel:
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == node-1

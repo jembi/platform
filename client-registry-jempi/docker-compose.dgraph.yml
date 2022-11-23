@@ -1,0 +1,81 @@
+version: '3.9'
+
+services:
+  zero-01:
+    image: dgraph/dgraph:v22.0.0
+    volumes:
+      - zero-01-data:/dgraph
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: ${ZERO_01_MEMORY_LIMIT}
+        reservations:
+          memory: ${ZERO_01_MEMORY_RESERVE}
+      restart_policy:
+        condition: on-failure
+    command: dgraph zero --my=zero-01:5080 --replicas 1
+
+  alpha-01:
+    image: dgraph/dgraph:v22.0.0
+    volumes:
+      - alpha-01-data:/dgraph
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: ${ALPHA_01_MEMORY_LIMIT}
+        reservations:
+          memory: ${ALPHA_01_MEMORY_RESERVE}
+      restart_policy:
+        condition: on-failure
+    command: dgraph alpha --my=alpha-01:7080 --zero=zero-01:5080 --security whitelist=0.0.0.0/0 --telemetry "sentry=false;"
+
+  alpha-02:
+    image: dgraph/dgraph:v22.0.0
+    volumes:
+      - alpha-02-data:/dgraph
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: ${ALPHA_02_MEMORY_LIMIT}
+        reservations:
+          memory: ${ALPHA_02_MEMORY_RESERVE}
+      restart_policy:
+        condition: on-failure
+    command: dgraph alpha --my=alpha-02:7081 --zero=zero-01:5080 --security whitelist=0.0.0.0/0 -o 1 --telemetry "sentry=false;"
+
+  alpha-03:
+    image: dgraph/dgraph:v22.0.0
+    volumes:
+      - alpha-03-data:/dgraph
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: ${ALPHA_03_MEMORY_LIMIT}
+        reservations:
+          memory: ${ALPHA_03_MEMORY_RESERVE}
+      restart_policy:
+        condition: on-failure
+    command: dgraph alpha --my=alpha-03:7082 --zero=zero-01:5080 --security whitelist=0.0.0.0/0 -o 2 --telemetry "sentry=false;"
+
+  ratel:
+    image: dgraph/ratel:v21.03.2
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: ${RATEL_MEMORY_LIMIT}
+        reservations:
+          memory: ${RATEL_MEMORY_RESERVE}
+      restart_policy:
+        condition: on-failure
+    command: dgraph-ratel
+
+volumes:
+  zero-01-data:
+  alpha-01-data:
+  alpha-02-data:
+  alpha-03-data:
