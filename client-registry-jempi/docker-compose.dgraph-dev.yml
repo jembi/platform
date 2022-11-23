@@ -45,7 +45,7 @@ services:
         protocol: tcp
         mode: host
 
-  ratel:
+  jempi-ratel:
     ports:
       - published: 8010
         target: 8000
