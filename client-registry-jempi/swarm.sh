@@ -41,12 +41,14 @@ main() {
     log info "Running Client Registry JeMPI package in DEV mode"
     kafdrop_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.kafdrop-dev.yml"
     dgraph_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dgraph-dev.yml"
+    dgraph_zero_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dgraph-zero-dev.yml"
     combined_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.combined-dev.yml"
     api_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.api-dev.yml"
   else
     log info "Running Client Registry JeMPI package in PROD mode"
     kafdrop_dev_compose_param=""
     dgraph_dev_compose_param=""
+    dgraph_zero_dev_compose_param=""
     combined_dev_compose_param=""
     api_dev_compose_param=""
   fi
@@ -54,9 +56,11 @@ main() {
   if [[ "$STATEFUL_NODES" == "cluster" ]]; then
     log info "Running in clustered mode"
     dgraph_cluster_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dgraph-cluster.yml"
+    dgraph_zero_cluster_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dgraph-zero-cluster.yml"
   else
     log info "Running in single-node mode"
     dgraph_cluster_compose_param=""
+    dgraph_zero_cluster_compose_param=""
   fi
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
@@ -81,9 +85,11 @@ main() {
 
     config::remove_stale_service_configs "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml "jempi-kafka"
 
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.dgraph.yml $dgraph_dev_compose_param $dgraph_cluster_compose_param instant" "Failed to deploy Client Registry - JeMPI (dgraph.yml)"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.dgraph-zero.yml $dgraph_zero_dev_compose_param $dgraph_zero_cluster_compose_param instant" "Failed to deploy Client Registry - JeMPI (dgraph-zero.yml)"
 
     docker::await_service_ready jempi-zero-01
+
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.dgraph.yml $dgraph_dev_compose_param $dgraph_cluster_compose_param instant" "Failed to deploy Client Registry - JeMPI (dgraph.yml)"
 
     docker::await_service_ready jempi-alpha-01
     docker::await_service_ready jempi-alpha-02
