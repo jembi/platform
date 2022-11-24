@@ -16,6 +16,26 @@ readonly ROOT_PATH
 . "${ROOT_PATH}/utils/docker-utils.sh"
 . "${ROOT_PATH}/utils/log.sh"
 
+service_names=(
+  "jempi-kafka-01"
+  "jempi-kafka-02"
+  "jempi-kafka-03"
+  "jempi-kafdrop"
+  "jempi-zero-01"
+  "jempi-alpha-01"
+  "jempi-alpha-02"
+  "jempi-alpha-03"
+  "jempi-ratel"
+  "jempi-async-receiver"
+  "jempi-sync-receiver"
+  "jempi-pre-processor"
+  "jempi-controller"
+  "jempi-em-calculator"
+  "jempi-linker"
+  "jempi-api"
+)
+readonly service_names
+
 main() {
   if [[ "$MODE" == "dev" ]]; then
     log info "Running Client Registry JeMPI package in DEV mode"
@@ -83,60 +103,20 @@ main() {
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.api.yml $api_dev_compose_param instant" "Failed to deploy Client Registry - JeMPI (api.yml)"
 
     docker::await_service_ready jempi-api
-    
-    docker::deploy_sanity "jempi-kafka-01" "jempi-kafka-02" "jempi-kafka-03" "jempi-kafdrop" "jempi-zero-01" "jempi-alpha-01" "jempi-alpha-02" "jempi-alpha-03" "jempi-ratel" "jempi-async-receiver" "jempi-sync-receiver" "jempi-pre-processor" "jempi-controller" "jempi-em-calculator" "jempi-linker" "jempi-api"
+
+    docker::deploy_sanity "${service_names[@]}"
   elif [[ "${ACTION}" == "down" ]]; then
     log info "Scaling down client-registry-jempi"
 
-    try "docker service scale instant_jempi-kafka-01=0" "Failed to scale down jempi-kafka-01"
-    try "docker service scale instant_jempi-kafka-02=0" "Failed to scale down jempi-kafka-02"
-    try "docker service scale instant_jempi-kafka-03=0" "Failed to scale down jempi-kafka-03"
-
-    try "docker service scale instant_jempi-kafdrop=0" "Failed to scale down jempi-kafdrop"
-
-    try "docker service scale instant_jempi-zero-01=0" "Failed to scale down jempi-zero-01"
-
-    try "docker service scale instant_jempi-alpha-01=0" "Failed to scale down jempi-alpha-01"
-    try "docker service scale instant_jempi-alpha-02=0" "Failed to scale down jempi-alpha-02"
-    try "docker service scale instant_jempi-alpha-03=0" "Failed to scale down jempi-alpha-03"
-
-    try "docker service scale instant_jempi-ratel=0" "Failed to scale down jempi-ratel"
-
-    try "docker service scale instant_jempi-async-receiver=0" "Failed to scale down jempi-async-receiver"
-    try "docker service scale instant_jempi-sync-receiver=0" "Failed to scale down jempi-sync-receiver"
-    try "docker service scale instant_jempi-pre-processor=0" "Failed to scale down jempi-pre-processor"
-    try "docker service scale instant_jempi-controller=0" "Failed to scale down jempi-controller"
-    try "docker service scale instant_jempi-em-calculator=0" "Failed to scale down jempi-em-calculator"
-    try "docker service scale instant_jempi-linker=0" "Failed to scale down jempi-linker"
-
-    try "docker service scale instant_jempi-api=0" "Failed to scale down jempi-api"
+    for service_name in "${service_names[@]}"; do
+      try "docker service scale instant_$service_name=0" "Failed to scale down $service_name"
+    done
   elif [[ "${ACTION}" == "destroy" ]]; then
     log warn "Volumes are only deleted on the host on which the command is run. Volumes on other nodes are not deleted"
 
-    docker::service_destroy jempi-kafka-01
-    docker::service_destroy jempi-kafka-02
-    docker::service_destroy jempi-kafka-03
-
-    docker::service_destroy jempi-kafdrop
-
-    docker::service_destroy jempi-kafka-config-importer
-
-    docker::service_destroy jempi-zero-01
-
-    docker::service_destroy jempi-alpha-01
-    docker::service_destroy jempi-alpha-02
-    docker::service_destroy jempi-alpha-03
-
-    docker::service_destroy jempi-ratel
-
-    docker::service_destroy jempi-async-receiver
-    docker::service_destroy jempi-sync-receiver
-    docker::service_destroy jempi-pre-processor
-    docker::service_destroy jempi-controller
-    docker::service_destroy jempi-em-calculator
-    docker::service_destroy jempi-linker
-
-    docker::service_destroy jempi-api
+    for service_name in "${service_names[@]}"; do
+      docker::service_destroy "$service_name"
+    done
 
     docker::try_remove_volume jempi-kafka-01-data
     docker::try_remove_volume jempi-kafka-02-data
