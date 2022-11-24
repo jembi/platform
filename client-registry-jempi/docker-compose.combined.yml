@@ -2,61 +2,61 @@ version: '3.9'
 
 services:
   jempi-async-receiver:
-    image: jembi/jempi-async-receiver:${ASYNC_RECEIVER_IMAGE_TAG}
+    image: jembi/jempi-async-receiver:${JEMPI_AJEMPI_SYNC_RECEIVER_IMAGE_TAG}
     deploy:
       replicas: 1
       resources:
         limits:
-          memory: ${ASYNC_RECEIVER_MEMORY_LIMIT}
+          memory: ${JEMPI_ASYNC_RECEIVER_MEMORY_LIMIT}
         reservations:
-          memory: ${ASYNC_RECEIVER_MEMORY_RESERVE}
+          memory: ${JEMPI_ASYNC_RECEIVER_MEMORY_RESERVE}
 
   jempi-sync-receiver:
-    image: jembi/jempi-sync-receiver:${SYNC_RECEIVER_IMAGE_TAG}
+    image: jembi/jempi-sync-receiver:${JEMPI_SYNC_RECEIVER_IMAGE_TAG}
     deploy:
       replicas: 1
       resources:
         limits:
-          memory: ${SYNC_RECEIVER_MEMORY_LIMIT}
+          memory: ${JEMPI_SYNC_RECEIVER_MEMORY_LIMIT}
         reservations:
-          memory: ${SYNC_RECEIVER_MEMORY_RESERVE}
+          memory: ${JEMPI_SYNC_RECEIVER_MEMORY_RESERVE}
 
   jempi-pre-processor:
-    image: jembi/jempi-pre-processor:${PRE_PROCESSOR_IMAGE_TAG}
+    image: jembi/jempi-pre-processor:${JEMPI_PRE_PROCESSOR_IMAGE_TAG}
     deploy:
       replicas: 1
       resources:
         limits:
-          memory: ${PRE_PROCESSOR_MEMORY_LIMIT}
+          memory: ${JEMPI_PRE_PROCESSOR_MEMORY_LIMIT}
         reservations:
-          memory: ${PRE_PROCESSOR_MEMORY_RESERVE}
+          memory: ${JEMPI_PRE_PROCESSOR_MEMORY_RESERVE}
 
   jempi-controller:
-    image: jembi/jempi-controller:${CONTROLLER_IMAGE_TAG}
+    image: jembi/jempi-controller:${JEMPI_CONTROLLER_IMAGE_TAG}
     deploy:
       replicas: 1
       resources:
         limits:
-          memory: ${CONTROLLER_MEMORY_LIMIT}
+          memory: ${JEMPI_CONTROLLER_MEMORY_LIMIT}
         reservations:
-          memory: ${CONTROLLER_MEMORY_RESERVE}
+          memory: ${JEMPI_CONTROLLER_MEMORY_RESERVE}
 
   jempi-em-calculator:
-    image: jembi/jempi-em-calculator:${EM_CALCULATOR_IMAGE_TAG}
+    image: jembi/jempi-em-calculator:${JEMPI_EM_CALCULATOR_IMAGE_TAG}
     deploy:
       replicas: 1
       resources:
         limits:
-          memory: ${EM_CALCULATOR_MEMORY_LIMIT}
+          memory: ${JEMPI_EM_CALCULATOR_MEMORY_LIMIT}
         reservations:
-          memory: ${EM_CALCULATOR_MEMORY_RESERVE}
+          memory: ${JEMPI_EM_CALCULATOR_MEMORY_RESERVE}
 
   jempi-linker:
-    image: jembi/jempi-linker:${LINKER_IMAGE_TAG}
+    image: jembi/jempi-linker:${JEMPI_LINKER_IMAGE_TAG}
     deploy:
       replicas: 1
       resources:
         limits:
-          memory: ${LINKER_MEMORY_LIMIT}
+          memory: ${JEMPI_LINKER_MEMORY_LIMIT}
         reservations:
-          memory: ${LINKER_MEMORY_RESERVE}
+          memory: ${JEMPI_LINKER_MEMORY_RESERVE}

@@ -9,9 +9,9 @@ services:
       replicas: 1
       resources:
         limits:
-          memory: ${ALPHA_01_MEMORY_LIMIT}
+          memory: ${JEMPI_ALPHA_01_MEMORY_LIMIT}
         reservations:
-          memory: ${ALPHA_01_MEMORY_RESERVE}
+          memory: ${JEMPI_ALPHA_01_MEMORY_RESERVE}
       restart_policy:
         condition: on-failure
     command: dgraph alpha --my=jempi-alpha-01:7080 --zero=jempi-zero-01:5080 --security whitelist=0.0.0.0/0 --telemetry "sentry=false;"
@@ -24,9 +24,9 @@ services:
       replicas: 1
       resources:
         limits:
-          memory: ${ALPHA_02_MEMORY_LIMIT}
+          memory: ${JEMPI_ALPHA_02_MEMORY_LIMIT}
         reservations:
-          memory: ${ALPHA_02_MEMORY_RESERVE}
+          memory: ${JEMPI_ALPHA_02_MEMORY_RESERVE}
       restart_policy:
         condition: on-failure
     command: dgraph alpha --my=jempi-alpha-02:7081 --zero=jempi-zero-01:5080 --security whitelist=0.0.0.0/0 -o 1 --telemetry "sentry=false;"
@@ -39,9 +39,9 @@ services:
       replicas: 1
       resources:
         limits:
-          memory: ${ALPHA_03_MEMORY_LIMIT}
+          memory: ${JEMPI_ALPHA_03_MEMORY_LIMIT}
         reservations:
-          memory: ${ALPHA_03_MEMORY_RESERVE}
+          memory: ${JEMPI_ALPHA_03_MEMORY_RESERVE}
       restart_policy:
         condition: on-failure
     command: dgraph alpha --my=jempi-alpha-03:7082 --zero=jempi-zero-01:5080 --security whitelist=0.0.0.0/0 -o 2 --telemetry "sentry=false;"
@@ -52,9 +52,9 @@ services:
       replicas: 1
       resources:
         limits:
-          memory: ${RATEL_MEMORY_LIMIT}
+          memory: ${JEMPI_RATEL_MEMORY_LIMIT}
         reservations:
-          memory: ${RATEL_MEMORY_RESERVE}
+          memory: ${JEMPI_RATEL_MEMORY_RESERVE}
       restart_policy:
         condition: on-failure
     command: dgraph-ratel
