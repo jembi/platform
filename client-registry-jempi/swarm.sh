@@ -22,11 +22,13 @@ main() {
     kafdrop_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.kafdrop-dev.yml"
     dgraph_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dgraph-dev.yml"
     combined_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.combined-dev.yml"
+    api_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.api-dev.yml"
   else
     log info "Running Client Registry JeMPI package in PROD mode"
     kafdrop_dev_compose_param=""
     dgraph_dev_compose_param=""
     combined_dev_compose_param=""
+    api_dev_compose_param=""
   fi
 
   if [[ "$STATEFUL_NODES" == "cluster" ]]; then
@@ -38,13 +40,13 @@ main() {
   fi
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.kafka.yml instant" "Failed to deploy Client Registry - JeMPI"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.kafka.yml instant" "Failed to deploy Client Registry - JeMPI (kafka.yml)"
 
     docker::await_service_ready jempi-kafka-01
     docker::await_service_ready jempi-kafka-02
     docker::await_service_ready jempi-kafka-03
 
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.kafdrop.yml $kafdrop_dev_compose_param instant" "Failed to deploy jempi-Kafdrop"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.kafdrop.yml $kafdrop_dev_compose_param instant" "Failed to deploy Client Registry - JeMPI (kafdrop.yml)"
 
     docker::await_service_ready jempi-kafdrop
 
@@ -59,7 +61,7 @@ main() {
 
     config::remove_stale_service_configs "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml "jempi-kafka"
 
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.dgraph.yml $dgraph_dev_compose_param $dgraph_cluster_compose_param instant" "Failed to deploy Client Registry - JeMPI"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.dgraph.yml $dgraph_dev_compose_param $dgraph_cluster_compose_param instant" "Failed to deploy Client Registry - JeMPI (dgraph.yml)"
 
     docker::await_service_ready jempi-zero-01
 
@@ -69,7 +71,7 @@ main() {
 
     docker::await_service_ready jempi-ratel
 
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.combined.yml $combined_dev_compose_param instant" "Failed to deploy Client Registry - JeMPI"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.combined.yml $combined_dev_compose_param instant" "Failed to deploy Client Registry - JeMPI (combined.yml)"
 
     docker::await_service_ready jempi-async-receiver
     docker::await_service_ready jempi-sync-receiver
@@ -78,7 +80,11 @@ main() {
     docker::await_service_ready jempi-em-calculator
     docker::await_service_ready jempi-linker
 
-    docker::deploy_sanity "jempi-kafka-01" "jempi-kafka-02" "jempi-kafka-03" "jempi-kafdrop" "jempi-zero-01" "jempi-alpha-01" "jempi-alpha-02" "jempi-alpha-03" "jempi-ratel" "jempi-async-receiver" "jempi-sync-receiver" "jempi-pre-processor" "jempi-controller" "jempi-em-calculator" "jempi-linker"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.api.yml $api_dev_compose_param instant" "Failed to deploy Client Registry - JeMPI (api.yml)"
+
+    docker::await_service_ready jempi-api
+    
+    docker::deploy_sanity "jempi-kafka-01" "jempi-kafka-02" "jempi-kafka-03" "jempi-kafdrop" "jempi-zero-01" "jempi-alpha-01" "jempi-alpha-02" "jempi-alpha-03" "jempi-ratel" "jempi-async-receiver" "jempi-sync-receiver" "jempi-pre-processor" "jempi-controller" "jempi-em-calculator" "jempi-linker" "jempi-api"
   elif [[ "${ACTION}" == "down" ]]; then
     log info "Scaling down client-registry-jempi"
 
@@ -102,6 +108,8 @@ main() {
     try "docker service scale instant_jempi-controller=0" "Failed to scale down jempi-controller"
     try "docker service scale instant_jempi-em-calculator=0" "Failed to scale down jempi-em-calculator"
     try "docker service scale instant_jempi-linker=0" "Failed to scale down jempi-linker"
+
+    try "docker service scale instant_jempi-api=0" "Failed to scale down jempi-api"
   elif [[ "${ACTION}" == "destroy" ]]; then
     log warn "Volumes are only deleted on the host on which the command is run. Volumes on other nodes are not deleted"
 
@@ -127,6 +135,8 @@ main() {
     docker::service_destroy jempi-controller
     docker::service_destroy jempi-em-calculator
     docker::service_destroy jempi-linker
+
+    docker::service_destroy jempi-api
 
     docker::try_remove_volume jempi-kafka-01-data
     docker::try_remove_volume jempi-kafka-02-data

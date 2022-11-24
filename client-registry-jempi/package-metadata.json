@@ -39,6 +39,8 @@
     "PRE_PROCESSOR_MEMORY_RESERVE": "500M",
     "SYNC_RECEIVER_MEMORY_LIMIT": "3G",
     "SYNC_RECEIVER_MEMORY_RESERVE": "500M",
+    "API_MEMORY_LIMIT": "3G",
+    "API_MEMORY_RESERVE": "500M",
     "JEMPI_KAFKA_TOPICS": "JeMPI-async-preprocessor,JeMPI-patient-controller,JeMPI-patient-em,JeMPI-patient-linker,JeMPI-mu-linker,JeMPI-notifications",
     "JEMPI_KAFKA_DEBUG": false,
     "ASYNC_RECEIVER_IMAGE_TAG": "0.1.0",
@@ -46,6 +48,7 @@
     "PRE_PROCESSOR_IMAGE_TAG": "0.1.0",
     "CONTROLLER_IMAGE_TAG": "0.1.0",
     "EM_CALCULATOR_IMAGE_TAG": "0.1.0",
-    "LINKER_IMAGE_TAG": "0.1.0"
+    "LINKER_IMAGE_TAG": "0.1.0",
+    "API_IMAGE_TAG": "0.1.0"
   }
 }
