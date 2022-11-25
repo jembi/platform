@@ -21,6 +21,8 @@ main() {
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml --with-registry-auth instant" "Failed to deploy Kafka Mapper Consumer"
 
     config::remove_stale_service_configs "${COMPOSE_FILE_PATH}"/docker-compose.yml "kafka-mapper-consumer"
+
+    docker::deploy_sanity kafka-mapper-consumer
   elif [[ "${ACTION}" == "down" ]]; then
     try "docker service scale instant_kafka-mapper-consumer=0" "Failed to scale down kafka-mapper-consumer"
   elif [[ "${ACTION}" == "destroy" ]]; then

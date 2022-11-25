@@ -17,15 +17,15 @@ readonly TIMESTAMPED_NGINX="${TIMESTAMP}-nginx.conf"
 # Import libraries
 ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/log.sh"
+. "${ROOT_PATH}/utils/docker-utils.sh"
 . "${ROOT_PATH}/utils/config-utils.sh"
 
 main() {
+  if [[ "${MODE}" == "dev" ]]; then
+    log info "Not including reverse proxy as we are running DEV mode"
+    exit 0
+  fi
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    if [[ "${MODE}" == "dev" ]]; then
-      log info "Not starting reverse proxy as we are running DEV mode"
-      exit 0
-    fi
-
     if [[ "${INSECURE}" == "true" ]]; then
       log info "Running reverse-proxy package in INSECURE mode"
 
@@ -164,6 +164,8 @@ main() {
         instant_reverse-proxy-nginx" "Error updating nginx service"
       log info "Done updating nginx service"
     fi
+
+    docker::deploy_sanity reverse-proxy-nginx
   elif [[ "${ACTION}" == "down" ]]; then
     log info "Scaling down services..."
     try "docker service scale instant_reverse-proxy-nginx=0" "Error scaling down services"
@@ -188,7 +190,7 @@ main() {
 
     try "docker volume rm renew-certbot-conf data-certbot-conf dummy-data-certbot-conf" "Failed to remove certbot volumes"
 
-    docker::prune_configs nginx
+    docker::prune_configs "nginx"
   else
     log error "Valid options are: init, up, down or destroy"
   fi

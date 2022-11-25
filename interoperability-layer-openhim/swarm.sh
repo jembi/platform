@@ -117,6 +117,12 @@ main() {
     log info "Removing stale configs..."
     config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "openhim"
     config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "openhim"
+
+    if [ "$STATEFUL_NODES" == "cluster" ]; then
+      docker::deploy_sanity openhim-core openhim-console mongo-1 mongo-2 mongo-3
+    else
+      docker::deploy_sanity openhim-core openhim-console mongo-1
+    fi
   elif [[ "${ACTION}" == "up" ]]; then
     config::set_config_digests "$COMPOSE_FILE_PATH"/docker-compose.yml
     config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml

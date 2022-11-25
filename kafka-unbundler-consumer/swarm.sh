@@ -18,6 +18,7 @@ main() {
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml --with-registry-auth instant" "Failed to deploy Kafka Unbundler Consumer"
 
+    docker::deploy_sanity kafka-unbundler-consumer
   elif [[ "${ACTION}" == "down" ]]; then
     try "docker service scale instant_kafka-unbundler-consumer=0" "Failed to scale down kafka-unbundler-consumer"
   elif [[ "${ACTION}" == "destroy" ]]; then

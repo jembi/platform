@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+  jempi-zero-01:
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == node-1
+
+  jempi-alpha-01:
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == node-1
+
+  jempi-alpha-02:
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == node-2
+
+  jempi-alpha-03:
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == node-3
+
+  jempi-ratel:
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == node-1

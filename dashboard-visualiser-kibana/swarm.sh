@@ -54,6 +54,8 @@ main() {
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml --with-registry-auth instant" "Failed to start config importer"
 
     import_kibana_dashboards
+
+    docker::deploy_sanity dashboard-visualiser-kibana
   elif [[ "${ACTION}" == "down" ]]; then
     try "docker service scale instant_dashboard-visualiser-kibana=0" "Failed to scale down dashboard-visualiser-kibana"
   elif [[ "${ACTION}" == "destroy" ]]; then

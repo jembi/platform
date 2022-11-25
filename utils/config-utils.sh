@@ -342,25 +342,25 @@ config::update_service_configs() {
     local config_rm_string=""
     local config_add_string=""
 
-    file_names=()
     files=$(find "${TARGET_FOLDER_PATH}" -maxdepth 10 -mindepth 1 -type f)
 
     for file in $files; do
         file_name=${file/"${TARGET_FOLDER_PATH%/}"/}
         file_name=${file_name:1}
-        file_hash=$(cksum "${file}" | awk '{print $1}')
-        file_names+=("$file_name")
+        file_hash=$(md5sum "${file}" | awk '{print $1}')
         config_file="${TARGET_FOLDER_PATH}/${file_name}"
         config_target="${TARGET_BASE%/}/${file_name}"
         config_name=$(basename "$file_name")-$file_hash
         old_config_name=$(docker config inspect --format="{{.Spec.Name}}" "$(docker config ls -qf name="$(basename "$file_name")")" 2>/dev/null)
 
-        if [[ -n $old_config_name ]]; then
-            config_rm_string+="--config-rm $old_config_name "
-        fi
-        config_add_string+="--config-add source=$config_name,target=$config_target "
+        if [[ "$config_name" != "$old_config_name" ]]; then
+            if [[ -n $old_config_name ]]; then
+                config_rm_string+="--config-rm $old_config_name "
+            fi
+            config_add_string+="--config-add source=$config_name,target=$config_target "
 
-        try "docker config create --label name=$CONFIG_LABEL_NAME $config_name $config_file" "Failed to create config"
+            try "docker config create --label name=$CONFIG_LABEL_NAME $config_name $config_file" "Failed to create config"
+        fi
     done
 
     REF_config_update_var+="$config_rm_string $config_add_string"
@@ -420,4 +420,22 @@ config::env_var_add() {
     local -r ENV_VAR=${2:?"FATAL: env_var_add parameter missing"}
 
     REF_service_update_var+=" --env-add $ENV_VAR"
+}
+
+#######################################
+# Waits for the provided service to be reachable by checking logs
+#
+# Arguments:
+# $1 : service name (eg. analytics-datastore-elastic-search)
+# $2 : log string to be checked (eg. Starting)
+#######################################
+config::await_service_reachable() {
+    local -r SERVICE_NAME=${1:?"FATAL: await_service_reachable SERVICE_NAME not provided"}
+    local -r LOG_MESSAGE=${2:?"FATAL: await_service_reachable LOG_MESSAGE not provided"}
+    local -r start_time=$(date +%s)
+
+    until [[ $(docker service logs --tail all instant_"${SERVICE_NAME}" 2>/dev/null | grep -c "${LOG_MESSAGE}") -gt 0 ]]; do
+        config::timeout_check "$start_time" "$SERVICE_NAME to be reachable"
+        sleep 1
+    done
 }

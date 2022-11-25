@@ -34,7 +34,7 @@ import_elastic_index() {
   log info "Importing Elasticsearch index mapping"
   config::set_config_digests "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml
   try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml --with-registry-auth instant" "Failed to start elastic search config importer"
-  config::remove_stale_service_configs "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml "elastic-search"
+  config::remove_stale_service_configs "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml "elasticsearch"
   config::remove_config_importer elastic-search-config-importer
 }
 
@@ -132,6 +132,11 @@ if [[ "$ACTION" == "init" ]]; then
 
   import_elastic_index
 
+  if [[ "$STATEFUL_NODES" == "cluster" ]]; then
+    docker::deploy_sanity analytics-datastore-elastic-search-01 analytics-datastore-elastic-search-02 analytics-datastore-elastic-search-03
+  else
+    docker::deploy_sanity analytics-datastore-elastic-search
+  fi
   log info "Done"
 elif [[ "$ACTION" == "up" ]]; then
   if [[ "$STATEFUL_NODES" == "cluster" ]]; then
@@ -161,7 +166,7 @@ elif [[ "$ACTION" == "destroy" ]]; then
   fi
 
   docker::try_remove_volume es-data
-  docker::prune_configs "elastic-search"
+  docker::prune_configs "elasticsearch"
 else
   log error "Valid options are: init, up, down, or destroy"
 fi
