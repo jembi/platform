@@ -36,19 +36,19 @@ main() {
   fi
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.kafka.yml instant" "Failed to deploy Client Registry - JeMPI"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.kafka.yml --with-registry-auth instant" "Failed to deploy Client Registry - JeMPI"
 
     docker::await_service_ready jempi-kafka-01
     docker::await_service_ready jempi-kafka-02
     docker::await_service_ready jempi-kafka-03
 
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.kafdrop.yml $kafdrop_dev_compose_param instant" "Failed to deploy jempi-Kafdrop"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.kafdrop.yml $kafdrop_dev_compose_param --with-registry-auth instant" "Failed to deploy jempi-Kafdrop"
 
     docker::await_service_ready jempi-kafdrop
 
     config::set_config_digests "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml
 
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to deploy jempi-kafka-config-importer"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml --with-registry-auth instant" "Failed to deploy jempi-kafka-config-importer"
 
     log info "Waiting to give JeMPI Kafka config importer time to run before cleaning up service"
 
@@ -57,7 +57,7 @@ main() {
 
     config::remove_stale_service_configs "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml "jempi-kafka"
 
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.dgraph.yml $dgraph_dev_compose_param $dgraph_cluster_compose_param instant" "Failed to deploy Client Registry - JeMPI"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.dgraph.yml $dgraph_dev_compose_param $dgraph_cluster_compose_param --with-registry-auth instant" "Failed to deploy Client Registry - JeMPI"
 
     docker::await_service_ready jempi-zero-01
 

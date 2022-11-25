@@ -35,11 +35,11 @@ main() {
 
   if [[ "$ACTION" == "init" ]]; then
     log info "Deploying MPI-Mediator..."
-    try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose.yml $mpi_mediator_cluster_compose_param $mpi_mediator_dev_compose_param instant" "Failed to deploy mpi-mediator"
+    try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose.yml $mpi_mediator_cluster_compose_param $mpi_mediator_dev_compose_param --with-registry-auth instant" "Failed to deploy mpi-mediator"
     overwrite "Deploying MPI-Mediator... Done"
   elif [[ "$ACTION" == "up" ]]; then
     log info "Updating MPI-Mediator..."
-    try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose.yml $mpi_mediator_cluster_compose_param $mpi_mediator_dev_compose_param instant" "Failed to stand up mpi-mediator"
+    try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose.yml $mpi_mediator_cluster_compose_param $mpi_mediator_dev_compose_param --with-registry-auth instant" "Failed to stand up mpi-mediator"
     overwrite "Updating MPI-Mediator... Done"
   elif [[ "$ACTION" == "down" ]]; then
     log info "Scaling MPI-Mediator down..."
