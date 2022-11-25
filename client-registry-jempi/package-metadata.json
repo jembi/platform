@@ -4,7 +4,7 @@
   "description": "A patient matching and deduplicater for the platform",
   "type": "infrastructure",
   "version": "0.0.1",
-  "dependencies": [],
+  "dependencies": ["interoperability-layer-openhim"],
   "environmentVariables": {
     "STATEFUL_NODES": "single",
     "JEMPI_KAFKA_01_MEMORY_LIMIT": "3G",
@@ -49,6 +49,7 @@
     "JEMPI_CONTROLLER_IMAGE_TAG": "0.1.0",
     "JEMPI_EM_CALCULATOR_IMAGE_TAG": "0.1.0",
     "JEMPI_LINKER_IMAGE_TAG": "0.1.0",
-    "JEMPI_API_IMAGE_TAG": "0.1.0"
+    "JEMPI_API_IMAGE_TAG": "0.1.0",
+    "JEMPI_OPENHIM_PASSWORD": "instant101"
   }
 }
