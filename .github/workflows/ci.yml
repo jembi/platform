@@ -88,7 +88,6 @@ jobs:
       - run: sed -i 's/OPENHIM_MEDIATOR_API_PORT=8080/OPENHIM_MEDIATOR_API_PORT=443/g' .env.local
       - run: sed -i 's/INSECURE=true/INSECURE=false/g' .env.local
       - run: sed -i 's/domain/${{ github.run_id }}.jembi.cloud/g' .env.local
-      - uses: mxschmitt/action-tmate@v3
       - run: DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud ./platform-linux --env-file=.env.local init
   destroy-e2e-server:
     runs-on: ubuntu-20.04
