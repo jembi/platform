@@ -1,0 +1,8 @@
+version: '3.9'
+
+services:
+  jempi-zero-01:
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == node-1
