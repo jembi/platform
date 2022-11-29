@@ -120,7 +120,7 @@ main() {
       config::remove_config_importer jempi-openhim-config-importer
       config::await_service_removed instant_jempi-openhim-config-importer
     else
-      log warn "Service 'interoperability-layer-openhim' does not appear to running... skipping configuring of async/sync JeMPI channels"
+      log warn "Service 'interoperability-layer-openhim' does not appear to be running... skipping configuring of async/sync JeMPI channels"
     fi
 
     docker::deploy_sanity "${service_names[@]}"
