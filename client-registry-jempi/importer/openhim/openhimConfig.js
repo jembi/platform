@@ -43,7 +43,7 @@ const req = https.request(options, res => {
     throw new Error(`Failed to import OpenHIM config: ${res.statusCode}`)
   }
 
-  console.log('Successfully Imported OpenHIM Config')
+  console.log('Successfully imported OpenHIM config')
 })
 
 req.on('error', error => {
