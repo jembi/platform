@@ -1,17 +1,6 @@
 version: '3.9'
 
 services:
-  jempi-zero-01:
-    ports:
-      - published: 5080
-        target: 5080
-        protocol: tcp
-        mode: host
-      - published: 6080
-        target: 6080
-        protocol: tcp
-        mode: host
-
   jempi-alpha-01:
     ports:
       - published: 8070
@@ -45,7 +34,7 @@ services:
         protocol: tcp
         mode: host
 
-  ratel:
+  jempi-ratel:
     ports:
       - published: 8010
         target: 8000

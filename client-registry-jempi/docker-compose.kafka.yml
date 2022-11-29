@@ -23,9 +23,9 @@ services:
       replicas: 1
       resources:
         limits:
-          memory: ${KAFKA_01_MEMORY_LIMIT}
+          memory: ${JEMPI_KAFKA_01_MEMORY_LIMIT}
         reservations:
-          memory: ${KAFKA_01_MEMORY_RESERVE}
+          memory: ${JEMPI_KAFKA_01_MEMORY_RESERVE}
       restart_policy:
         condition: on-failure
 
@@ -51,9 +51,9 @@ services:
       replicas: 1
       resources:
         limits:
-          memory: ${KAFKA_02_MEMORY_LIMIT}
+          memory: ${JEMPI_KAFKA_02_MEMORY_LIMIT}
         reservations:
-          memory: ${KAFKA_02_MEMORY_RESERVE}
+          memory: ${JEMPI_KAFKA_02_MEMORY_RESERVE}
       restart_policy:
         condition: on-failure
 
@@ -79,9 +79,9 @@ services:
       replicas: 1
       resources:
         limits:
-          memory: ${KAFKA_03_MEMORY_LIMIT}
+          memory: ${JEMPI_KAFKA_03_MEMORY_LIMIT}
         reservations:
-          memory: ${KAFKA_03_MEMORY_RESERVE}
+          memory: ${JEMPI_KAFKA_03_MEMORY_RESERVE}
       restart_policy:
         condition: on-failure
 

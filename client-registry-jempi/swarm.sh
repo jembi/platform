@@ -16,33 +16,61 @@ readonly ROOT_PATH
 . "${ROOT_PATH}/utils/docker-utils.sh"
 . "${ROOT_PATH}/utils/log.sh"
 
+service_names=(
+  "jempi-kafka-01"
+  "jempi-kafka-02"
+  "jempi-kafka-03"
+  "jempi-kafdrop"
+  "jempi-zero-01"
+  "jempi-alpha-01"
+  "jempi-alpha-02"
+  "jempi-alpha-03"
+  "jempi-ratel"
+  "jempi-async-receiver"
+  "jempi-sync-receiver"
+  "jempi-pre-processor"
+  "jempi-controller"
+  "jempi-em-calculator"
+  "jempi-linker"
+  "jempi-api"
+)
+readonly service_names
+
 main() {
   if [[ "$MODE" == "dev" ]]; then
     log info "Running Client Registry JeMPI package in DEV mode"
     kafdrop_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.kafdrop-dev.yml"
     dgraph_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dgraph-dev.yml"
+    dgraph_zero_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dgraph-zero-dev.yml"
+    combined_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.combined-dev.yml"
+    api_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.api-dev.yml"
   else
     log info "Running Client Registry JeMPI package in PROD mode"
     kafdrop_dev_compose_param=""
     dgraph_dev_compose_param=""
+    dgraph_zero_dev_compose_param=""
+    combined_dev_compose_param=""
+    api_dev_compose_param=""
   fi
 
   if [[ "$STATEFUL_NODES" == "cluster" ]]; then
     log info "Running in clustered mode"
     dgraph_cluster_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dgraph-cluster.yml"
+    dgraph_zero_cluster_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dgraph-zero-cluster.yml"
   else
     log info "Running in single-node mode"
     dgraph_cluster_compose_param=""
+    dgraph_zero_cluster_compose_param=""
   fi
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.kafka.yml instant" "Failed to deploy Client Registry - JeMPI"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.kafka.yml instant" "Failed to deploy Client Registry - JeMPI (kafka.yml)"
 
     docker::await_service_ready jempi-kafka-01
     docker::await_service_ready jempi-kafka-02
     docker::await_service_ready jempi-kafka-03
 
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.kafdrop.yml $kafdrop_dev_compose_param instant" "Failed to deploy jempi-Kafdrop"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.kafdrop.yml $kafdrop_dev_compose_param instant" "Failed to deploy Client Registry - JeMPI (kafdrop.yml)"
 
     docker::await_service_ready jempi-kafdrop
 
@@ -57,9 +85,11 @@ main() {
 
     config::remove_stale_service_configs "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml "jempi-kafka"
 
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.dgraph.yml $dgraph_dev_compose_param $dgraph_cluster_compose_param instant" "Failed to deploy Client Registry - JeMPI"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.dgraph-zero.yml $dgraph_zero_dev_compose_param $dgraph_zero_cluster_compose_param instant" "Failed to deploy Client Registry - JeMPI (dgraph-zero.yml)"
 
     docker::await_service_ready jempi-zero-01
+
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.dgraph.yml $dgraph_dev_compose_param $dgraph_cluster_compose_param instant" "Failed to deploy Client Registry - JeMPI (dgraph.yml)"
 
     docker::await_service_ready jempi-alpha-01
     docker::await_service_ready jempi-alpha-02
@@ -67,41 +97,32 @@ main() {
 
     docker::await_service_ready jempi-ratel
 
-    docker::deploy_sanity "jempi-kafka-01" "jempi-kafka-02" "jempi-kafka-03" "jempi-kafdrop" "jempi-zero-01" "jempi-alpha-01" "jempi-alpha-02" "jempi-alpha-03" "jempi-ratel"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.combined.yml $combined_dev_compose_param instant" "Failed to deploy Client Registry - JeMPI (combined.yml)"
+
+    docker::await_service_ready jempi-async-receiver
+    docker::await_service_ready jempi-sync-receiver
+    docker::await_service_ready jempi-pre-processor
+    docker::await_service_ready jempi-controller
+    docker::await_service_ready jempi-em-calculator
+    docker::await_service_ready jempi-linker
+
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.api.yml $api_dev_compose_param instant" "Failed to deploy Client Registry - JeMPI (api.yml)"
+
+    docker::await_service_ready jempi-api
+
+    docker::deploy_sanity "${service_names[@]}"
   elif [[ "${ACTION}" == "down" ]]; then
     log info "Scaling down client-registry-jempi"
 
-    try "docker service scale instant_jempi-kafka-01=0" "Failed to scale down jempi-kafka-01"
-    try "docker service scale instant_jempi-kafka-02=0" "Failed to scale down jempi-kafka-02"
-    try "docker service scale instant_jempi-kafka-03=0" "Failed to scale down jempi-kafka-03"
-
-    try "docker service scale instant_jempi-kafdrop=0" "Failed to scale down jempi-kafdrop"
-
-    try "docker service scale instant_jempi-zero-01=0" "Failed to scale down jempi-zero-01"
-
-    try "docker service scale instant_jempi-alpha-01=0" "Failed to scale down jempi-alpha-01"
-    try "docker service scale instant_jempi-alpha-02=0" "Failed to scale down jempi-alpha-02"
-    try "docker service scale instant_jempi-alpha-03=0" "Failed to scale down jempi-alpha-03"
-
-    try "docker service scale instant_jempi-ratel=0" "Failed to scale down jempi-ratel"
+    for service_name in "${service_names[@]}"; do
+      try "docker service scale instant_$service_name=0" "Failed to scale down $service_name"
+    done
   elif [[ "${ACTION}" == "destroy" ]]; then
     log warn "Volumes are only deleted on the host on which the command is run. Volumes on other nodes are not deleted"
 
-    docker::service_destroy jempi-kafka-01
-    docker::service_destroy jempi-kafka-02
-    docker::service_destroy jempi-kafka-03
-
-    docker::service_destroy jempi-kafdrop
-
-    docker::service_destroy jempi-kafka-config-importer
-
-    docker::service_destroy jempi-zero-01
-
-    docker::service_destroy jempi-alpha-01
-    docker::service_destroy jempi-alpha-02
-    docker::service_destroy jempi-alpha-03
-
-    docker::service_destroy jempi-ratel
+    for service_name in "${service_names[@]}"; do
+      docker::service_destroy "$service_name"
+    done
 
     docker::try_remove_volume jempi-kafka-01-data
     docker::try_remove_volume jempi-kafka-02-data
