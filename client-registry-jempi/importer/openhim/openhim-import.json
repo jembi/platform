@@ -87,7 +87,7 @@
       "responseBody": true,
       "rewriteUrlsConfig": [],
       "name": "JeMPI Async Receiver",
-      "urlPattern": "^/csv/?$",
+      "urlPattern": "^/async/fhir/Patient/?$",
       "priority": 1,
       "matchContentRegex": null,
       "matchContentXpath": null,
