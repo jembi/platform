@@ -43,7 +43,7 @@
     "JEMPI_API_MEMORY_RESERVE": "500M",
     "JEMPI_KAFKA_TOPICS": "JeMPI-async-preprocessor,JeMPI-patient-controller,JeMPI-patient-em,JeMPI-patient-linker,JeMPI-mu-linker,JeMPI-notifications",
     "JEMPI_KAFKA_DEBUG": false,
-    "JEMPI_AJEMPI_SYNC_RECEIVER_IMAGE_TAG": "0.1.0",
+    "JEMPI_ASYNC_RECEIVER_IMAGE_TAG": "0.1.0",
     "JEMPI_SYNC_RECEIVER_IMAGE_TAG": "0.1.0",
     "JEMPI_PRE_PROCESSOR_IMAGE_TAG": "0.1.0",
     "JEMPI_CONTROLLER_IMAGE_TAG": "0.1.0",
