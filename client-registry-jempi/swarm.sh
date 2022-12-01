@@ -110,6 +110,19 @@ main() {
 
     docker::await_service_ready jempi-api
 
+    if docker service ps -q instant_openhim-core &>/dev/null; then
+      config::set_config_digests "${COMPOSE_FILE_PATH}"/importer/openhim/docker-compose.config.yml
+
+      try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/openhim/docker-compose.config.yml instant" "Failed to deploy jempi-openhim-config-importer"
+
+      log info "Waiting to give JeMPI Openhim config importer time to run before cleaning up service"
+
+      config::remove_config_importer jempi-openhim-config-importer
+      config::await_service_removed instant_jempi-openhim-config-importer
+    else
+      log warn "Service 'interoperability-layer-openhim' does not appear to be running... skipping configuring of async/sync JeMPI channels"
+    fi
+
     docker::deploy_sanity "${service_names[@]}"
   elif [[ "${ACTION}" == "down" ]]; then
     log info "Scaling down client-registry-jempi"
@@ -123,6 +136,9 @@ main() {
     for service_name in "${service_names[@]}"; do
       docker::service_destroy "$service_name"
     done
+
+    docker::service_destroy jempi-kafka-config-importer
+    docker::service_destroy jempi-openhim-config-importer
 
     docker::try_remove_volume jempi-kafka-01-data
     docker::try_remove_volume jempi-kafka-02-data
