@@ -1,9 +1,13 @@
 {
   "Channels": [
     {
-      "methods": ["POST"],
+      "methods": [
+        "POST"
+      ],
       "type": "http",
-      "allow": ["instant"],
+      "allow": [
+        "instant"
+      ],
       "whitelist": [],
       "authType": "private",
       "matchContentTypes": [],
@@ -25,7 +29,7 @@
           "secured": false,
           "host": "jempi-sync-receiver",
           "port": 50000,
-          "path": "",
+          "path": "/fhir",
           "pathTransform": "",
           "primary": true,
           "username": "",
@@ -36,7 +40,7 @@
       "responseBody": true,
       "rewriteUrlsConfig": [],
       "name": "JeMPI Sync Receiver",
-      "urlPattern": "^/fhir/Patient.*$",
+      "urlPattern": "^/jempi/fhir.*$",
       "matchContentRegex": null,
       "matchContentXpath": null,
       "matchContentValue": null,
@@ -45,15 +49,19 @@
       "tcpHost": null,
       "tcpPort": null,
       "updatedBy": {
-        "id": "605c8ddd9e66da001494935e",
+        "id": "638a089bed7a51001325406f",
         "name": "Super User"
       },
       "alerts": []
     },
     {
-      "methods": ["POST"],
+      "methods": [
+        "POST"
+      ],
       "type": "http",
-      "allow": ["instant"],
+      "allow": [
+        "instant"
+      ],
       "whitelist": [],
       "authType": "private",
       "matchContentTypes": [],
@@ -75,7 +83,7 @@
           "secured": false,
           "host": "jempi-async-receiver",
           "port": 50000,
-          "path": "",
+          "path": "/fhir",
           "pathTransform": "",
           "primary": true,
           "username": "",
@@ -86,7 +94,7 @@
       "responseBody": true,
       "rewriteUrlsConfig": [],
       "name": "JeMPI Async Receiver",
-      "urlPattern": "^/async/fhir/Patient/?$",
+      "urlPattern": "^/jempi/async/fhir.*$",
       "matchContentRegex": null,
       "matchContentXpath": null,
       "matchContentValue": null,
@@ -95,7 +103,7 @@
       "tcpHost": null,
       "tcpPort": null,
       "updatedBy": {
-        "id": "605c8ddd9e66da001494935e",
+        "id": "638a089bed7a51001325406f",
         "name": "Super User"
       },
       "alerts": []
@@ -157,7 +165,7 @@
       "tcpHost": null,
       "tcpPort": null,
       "updatedBy": {
-        "id": "638875ceb3c36d00139d547c",
+        "id": "638a089bed7a51001325406f",
         "name": "Super User"
       },
       "alerts": []
