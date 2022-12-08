@@ -220,7 +220,7 @@ docker::deploy_sanity() {
 
         error_message=()
         until [[ $(docker service ps instant_"$i" --format "{{.CurrentState}}" 2>/dev/null) == *"Running"* ]]; do
-            config::timeout_check "${start_time}" "$i to start" 60 30
+            config::timeout_check "${start_time}" "$i to start"
             sleep 1
 
             # Get unique error messages using sort -u
