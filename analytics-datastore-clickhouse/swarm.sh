@@ -71,10 +71,10 @@ main() {
     done
 
     if [[ "$NODE_MODE" == "cluster" ]]; then
-      docker::volume_destroy clickhouse-data-01 clickhouse-data-04
+      docker::try_remove_volume clickhouse-data-01 clickhouse-data-04
       log warn "Volumes are only deleted on the host on which the command is run. Cluster volumes on other nodes are not deleted"
     else
-      docker::volume_destroy clickhouse-data
+      docker::try_remove_volume clickhouse-data
     fi
 
     docker::prune_configs "clickhouse"
