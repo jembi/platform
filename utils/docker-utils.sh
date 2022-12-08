@@ -90,11 +90,13 @@ docker::await_service_destroy() {
 docker::service_destroy() {
     local -r SERVICE_NAME=${1:?"FATAL: await_container_destroy SERVICE_NAME not provided"}
 
+    log info "Waiting for service $SERVICE_NAME to be removed ... "
     if [[ -n $(docker service ls -qf name=instant_"${SERVICE_NAME}") ]]; then
         try "docker service scale instant_${SERVICE_NAME}=0" "Failed to scale down ${SERVICE_NAME}"
         try "docker service rm instant_${SERVICE_NAME}" "Failed to remove service ${SERVICE_NAME}"
         docker::await_service_destroy "${SERVICE_NAME}"
     fi
+    overwrite "Waiting for service $SERVICE_NAME to be removed ... Done"
 }
 
 # Tries to remove volumes and retries until it works with a timeout
