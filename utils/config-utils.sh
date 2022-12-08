@@ -36,7 +36,7 @@ config::set_config_digests() {
             fileName="${composeFolderPath}${file//\.\///}" # TODO: Throw an error if the file name is too long to allow for a unique enough digest
             envVarName=$(echo "${name}" | grep -P -o "{.*:?err}" | sed 's/[{}]//g' | sed 's/:?err//g')
 
-            if [ -n "$envVarName" ]; then
+            if [[ -n "$envVarName" ]]; then
                 # generate and truncate the digest to conform to the 64 character restriction on docker config names
                 envDeclarationCharacters=":?err" # '${:?err}' from setting an env variable
                 remainder=$((64 - (${#name} - ${#envVarName} - ${#envDeclarationCharacters})))
