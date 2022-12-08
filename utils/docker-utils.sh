@@ -169,7 +169,7 @@ docker::deploy_service() {
 # Sets the config digests, deploy the config importer, remove it and remove the stale configs
 #
 # Arguments:
-# - $1 : docker compose path, e.g. "/instant/monitoring" ...
+# - $1 : docker compose path, e.g. "/instant/monitoring/importer/docker-compose.config.yml" ...
 # - $2 : services name, e.g. "clickhouse-config-importer" ...
 # - $3 : config label, e.g. "clickhouse" "kibana" ...
 # - $4 : docker compose file name, default "docker-compose.config.yml"
@@ -178,13 +178,17 @@ docker::deploy_config_importer() {
     local -r CONFIG_COMPOSE_PATH="${1:?"FATAL: function 'deploy_config_importer' is missing a parameter"}"
     local -r SERVICE_NAME="${2:?"FATAL: function 'deploy_config_importer' is missing a parameter"}"
     local -r CONFIG_LABEL="${3:?"FATAL: function 'deploy_config_importer' is missing a parameter"}"
-    local -r DOCKER_COMPOSE_FILE="${4:-"docker-compose.config.yml"}"
 
     log info "Waiting for config importer $SERVICE_NAME to start ..."
     (
-        config::set_config_digests "$CONFIG_COMPOSE_PATH/$DOCKER_COMPOSE_FILE"
+        if [ ! -f "$CONFIG_COMPOSE_PATH" ]; then
+            log error "No such file: $CONFIG_COMPOSE_PATH"
+            exit 1
+        fi
 
-        try "docker stack deploy -c ${CONFIG_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE instant"
+        config::set_config_digests "$CONFIG_COMPOSE_PATH"
+
+        try "docker stack deploy -c ${CONFIG_COMPOSE_PATH} instant"
 
         log info "Waiting to give core config importer time to run before cleaning up service"
 
@@ -192,7 +196,7 @@ docker::deploy_config_importer() {
         config::await_service_removed "instant_$SERVICE_NAME"
 
         log info "Removing stale configs..."
-        config::remove_stale_service_configs "$CONFIG_COMPOSE_PATH/$DOCKER_COMPOSE_FILE" "$CONFIG_LABEL"
+        config::remove_stale_service_configs "$CONFIG_COMPOSE_PATH" "$CONFIG_LABEL"
 
         log info "Waiting for config importer $SERVICE_NAME to start ... Done"
     ) || {

@@ -50,7 +50,7 @@ function init() {
     exit 1
   }
 
-  docker::deploy_config_importer "$COMPOSE_FILE_PATH/importer/" "clickhouse-config-importer" "clickhouse"
+  docker::deploy_config_importer "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "clickhouse-config-importer" "clickhouse"
 }
 
 # Dcale down the services
