@@ -27,7 +27,6 @@ config::set_config_digests() {
     local -r composeFolderPath="${DOCKER_COMPOSE_PATH%/*}"
 
     if [[ "${files[*]}" != *"null"* ]] && [[ "${names[*]}" != *"null"* ]]; then
-        log info "I enetered with: files:${files[*]} names:${names[*]} "
         log info "Setting config digests"
 
         for ((i = 0; i < ${#files[@]}; i++)); do
