@@ -216,22 +216,22 @@ docker::deploy_sanity() {
         local start_time
         start_time=$(date +%s)
 
-        error_message=""
+        error_message=()
         until [[ $(docker service ps instant_"$i" --format "{{.CurrentState}}" 2>/dev/null) == *"Running"* ]]; do
             config::timeout_check "${start_time}" "$i to start" 60 30
             sleep 1
 
             # Get unique error messages using sort -u
-            new_error_message=$(docker service ps instant_"$i" --no-trunc --format '{{ .Error }}' 2>&1 | sort -u)
-            if [[ -n $new_error_message ]]; then
+            new_error_message=($(docker service ps instant_"$i" --no-trunc --format '{{ .Error }}' 2>&1 | sort -u))
+            if [[ -n ${new_error_message[*]} ]]; then
                 # To prevent logging the same error
-                if [[ "$error_message" != "$new_error_message" ]]; then
-                    error_message=$new_error_message
-                    log error "deploy error in service $i: $error_message"
+                if [[ "${error_message[*]}" != "${new_error_message[*]}" ]]; then
+                    error_message=(${new_error_message[*]})
+                    log error "Deploy error in service $i: ${error_message[*]}"
                 fi
                 # To exit in case the error is not having the image
-                if [[ "$new_error_message" == *"No such image"* ]]; then
-                    log error "do you have access to pull the image?"
+                if [[ "${new_error_message[*]}" == *"No such image"* ]]; then
+                    log error "Do you have access to pull the image?"
                     exit 124
                 fi
             fi
