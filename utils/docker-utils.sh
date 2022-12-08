@@ -182,7 +182,7 @@ docker::deploy_config_importer() {
     (
         config::set_config_digests "$CONFIG_COMPOSE_PATH/$DOCKER_COMPOSE_FILE"
 
-        try "docker stack deploy -c ${CONFIG_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE instant" "Failed to start config importer"
+        try "docker stack deploy -c ${CONFIG_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE instant"
 
         log info "Waiting to give core config importer time to run before cleaning up service"
 
