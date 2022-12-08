@@ -6,18 +6,21 @@
   "version": "0.0.1",
   "dependencies": ["analytics-datastore-elastic-search"],
   "environmentVariables": {
+    "STATEFUL_NODES": "single",
+    "JS_REPORT_INSTANCES": "1",
+    "JS_REPORT_USERNAME": "admin",
     "JS_REPORT_SECRET": "dev_secret_only",
     "JS_REPORT": "dev_password_only",
     "ES_ELASTIC": "dev_password_only",
-    "ES_HOSTS":"analytics-datastore-elastic-search:9200",
-    "JS_REPORT_SSL": "true",
+    "ES_HOSTS": "analytics-datastore-elastic-search:9200",
+    "JS_REPORT_SSL": "false",
     "JS_REPORT_CONFIG_FILE": "export.jsrexport",
-    "JS_REPORT_CPU_LIMIT": "0.8",
+    "JS_REPORT_CPU_LIMIT": "0",
     "JS_REPORT_MEMORY_LIMIT": "3G",
     "JS_REPORT_CPU_RESERVE": "0.05",
     "JS_REPORT_MEMORY_RESERVE": "500M",
     "JS_REPORT_DEV_MOUNT": "false",
     "JS_REPORT_PACKAGE_PATH": "",
-    "JS_REPORT_INSTANCES": "1"
+    "JS_REPORT_LICENSE_KEY": ""
   }
 }

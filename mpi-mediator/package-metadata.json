@@ -1,0 +1,19 @@
+{
+  "id": "mpi-mediator",
+  "name": "OpenHIM-Sante Mediator",
+  "description": "This package creates a mediator service that is used in facilitating patient creation, updating and reading from SanteMPI and Hapi-Fhir, from FHIR bundles using Kafka",
+  "type": "infrastructure",
+  "version": "0.0.1",
+  "dependencies": [
+    "fhir-datastore-hapi-fhir",
+    "message-bus-kafka",
+    "client-registry-santempi"
+  ],
+  "environmentVariables": {
+    "STATEFUL_NODES": "single",
+    "CLIENT_REGISTRY_URL": "http://santedb-mpi:8080",
+    "OPENHIM_MEDIATOR_URL": "https://openhim-core:8080",
+    "TRUST_SELF_SIGNED": true,
+    "REGISTER_MEDIATOR": true
+  }
+}

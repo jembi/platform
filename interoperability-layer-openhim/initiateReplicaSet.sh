@@ -11,16 +11,6 @@ ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 
 log info 'Initiating the mongo replica set'
 
-await_replica_reachable() {
-    local -r SERVICE_NAME="${1:?"FATAL: await_replica_reachable SERVICE_NAME not provided"}"
-    local -r start_time=$(date +%s)
-
-    until [[ $(docker service logs --tail all "$SERVICE_NAME" | grep "waiting for connections on port" | wc -l) -gt 0 ]]; do
-        config::timeout_check "$start_time" "mongo replica set to be reachable"
-        sleep 1
-    done
-}
-
 MONGO_SET_COUNT=${MONGO_SET_COUNT:-3}
 config='{"_id":"mongo-set","members":['
 priority="1"
@@ -51,7 +41,7 @@ done
 # Ensures that the replica sets are reachable
 reachable_instance_count=1
 until [[ $reachable_instance_count -eq $((MONGO_SET_COUNT + 1)) ]]; do
-    await_replica_reachable instant_mongo-$reachable_instance_count
+    config::await_service_reachable "mongo-$reachable_instance_count" "waiting for connections on port"
     reachable_instance_count=$((reachable_instance_count + 1))
 done
 

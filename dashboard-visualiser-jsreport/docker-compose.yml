@@ -9,11 +9,11 @@ services:
       replicas: ${JS_REPORT_INSTANCES}
       resources:
         limits:
-          cpus: ${JS_REPORT_CPU_LIMIT:-0}
-          memory: ${JS_REPORT_MEMORY_LIMIT:-3G}
+          cpus: ${JS_REPORT_CPU_LIMIT}
+          memory: ${JS_REPORT_MEMORY_LIMIT}
         reservations:
-          cpus: ${JS_REPORT_CPU_RESERVE:-0.05}
-          memory: ${JS_REPORT_MEMORY_RESERVE:-500M}
+          cpus: ${JS_REPORT_CPU_RESERVE}
+          memory: ${JS_REPORT_MEMORY_RESERVE}
     labels:
       co.elastic.metrics/module: 'docker'
       co.elastic.metrics/metricsets: 'cpu,memory,diskio,info,healthcheck,container'
@@ -21,9 +21,9 @@ services:
       allowLocalFilesAccess: 'true'
       extensions_fsStore_dataDirectory: 'jsreport/data'
       extensions_fsStore_externalModificationsSync: 'true'
-      extensions_authentication_cookieSession_secret: ${JS_REPORT_SECRET:-dev_secret_only}
+      extensions_authentication_cookieSession_secret: ${JS_REPORT_SECRET}
       extensions_authentication_admin_username: 'admin'
-      extensions_authentication_admin_password: ${JS_REPORT:-dev_password_only}
-      ES_PASSWORD: ${ES_ELASTIC:-dev_password_only}
+      extensions_authentication_admin_password: ${JS_REPORT}
+      ES_PASSWORD: ${ES_ELASTIC}
       licenseKey: ${JS_REPORT_LICENSE_KEY}
-      ES_HOSTS: ${ES_HOSTS:-analytics-datastore-elastic-search:9200}
+      ES_HOSTS: ${ES_HOSTS}

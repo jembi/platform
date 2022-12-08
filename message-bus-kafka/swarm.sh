@@ -1,6 +1,6 @@
 #!/bin/bash
-
-STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
+readonly ACTION=$1
+readonly MODE=$2
 
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
@@ -13,29 +13,53 @@ ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/docker-utils.sh"
 . "${ROOT_PATH}/utils/log.sh"
 
-readonly KAFKA_INSTANCES=${KAFKA_INSTANCES:-1}
-export KAFKA_INSTANCES
-
 if [[ $STATEFUL_NODES == "cluster" ]]; then
   log info "Running Message Bus Kafka package in Cluster node mode"
-  kafkaClusterComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.cluster.yml"
+  kafka_zoo_cluster_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.cluster.kafka-zoo.yml"
+  kafka_cluster_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.cluster.kafka.yml"
 else
   log info "Running Message Bus Kafka package in Single node mode"
-  kafkaClusterComposeParam=""
+  kafka_zoo_cluster_compose_param=""
+  kafka_cluster_compose_param=""
 fi
 
-if [[ $2 == "dev" ]]; then
+if [[ "${MODE}" == "dev" ]]; then
   log info "Running Message Bus Kafka package in DEV mode"
-  kafkaDevComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
+  kafka_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.kafka.yml"
+  kafka_utils_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.kafka-utils.yml"
 else
   log info "Running Message Bus Kafka package in PROD mode"
-  kafkaDevComposeParam=""
+  kafka_dev_compose_param=""
+  kafka_utils_dev_compose_param=""
 fi
 
-if [[ $1 == "init" ]] || [[ $1 == "up" ]]; then
+if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
   config::set_config_digests "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml
 
-  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $kafkaClusterComposeParam $kafkaDevComposeParam instant" "Failed to deploy Message Bus Kafka"
+  log info "Deploy Zookeeper"
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.kafka-zoo.yml $kafka_zoo_cluster_compose_param instant" "Failed to deploy Message Bus Kafka"
+
+  docker::await_container_startup zookeeper-1
+  docker::await_container_status zookeeper-1 Running
+
+  if [[ $STATEFUL_NODES == "cluster" ]]; then
+    docker::await_container_startup zookeeper-2
+    docker::await_container_status zookeeper-2 Running
+
+    docker::await_container_startup zookeeper-3
+    docker::await_container_status zookeeper-3 Running
+  fi
+
+  log info "Deploy Kafka"
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.kafka.yml $kafka_cluster_compose_param $kafka_dev_compose_param instant" "Failed to deploy Message Bus Kafka"
+
+  docker::await_container_startup kafka
+  docker::await_container_status kafka Running
+
+  config::await_service_reachable "kafka" "Connected"
+
+  log info "Deploy the other services dependent of Kafka"
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.kafka-utils.yml $kafka_utils_dev_compose_param instant" "Failed to deploy Message Bus Kafka"
 
   config::await_service_running "kafka" "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml "${KAFKA_INSTANCES}"
 
@@ -43,7 +67,13 @@ if [[ $1 == "init" ]] || [[ $1 == "up" ]]; then
 
   config::remove_stale_service_configs "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml "ethiopia"
   config::remove_config_importer message-bus-kafka-config-importer
-elif [[ $1 == "down" ]]; then
+
+  if [ "$STATEFUL_NODES" == "cluster" ]; then
+    docker::deploy_sanity kafka kafdrop kafka-minion zookeeper-1 zookeeper-2 zookeeper-3
+  else
+    docker::deploy_sanity kafka kafdrop kafka-minion zookeeper-1
+  fi
+elif [[ "${ACTION}" == "down" ]]; then
   try "docker service scale instant_zookeeper-1=0 instant_kafdrop=0 instant_kafka-minion=0" "Failed to scale down zookeeper, kafdrop and kafka-minion"
 
   try "docker service scale instant_kafka=0" "Failed to scale kafka down"
@@ -51,7 +81,7 @@ elif [[ $1 == "down" ]]; then
     try "docker service scale instant_zookeeper-2=0" "Failed to scale down zookeeper cluster"
     try "docker service scale instant_zookeeper-3=0" "Failed to scale down zookeeper cluster"
   fi
-elif [[ $1 == "destroy" ]]; then
+elif [[ "${ACTION}" == "destroy" ]]; then
   log info "Allow services to shut down before deleting volumes"
 
   docker::service_destroy zookeeper-1

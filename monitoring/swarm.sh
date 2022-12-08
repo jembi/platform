@@ -3,6 +3,7 @@
 # Constants
 readonly ACTION=$1
 readonly MODE=$2
+
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
   pwd -P
@@ -12,12 +13,6 @@ COMPOSE_FILE_PATH=$(
 ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/docker-utils.sh"
 . "${ROOT_PATH}/utils/log.sh"
-
-readonly GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER:-"admin"}
-export GF_SECURITY_ADMIN_USER
-
-readonly GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD:-"dev_password_only"}
-export GF_SECURITY_ADMIN_PASSWORD
 
 if [[ "${MODE}" == "dev" ]]; then
   log info "Running Message Bus Kafka package in DEV mode"
@@ -36,6 +31,8 @@ if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
   log info "Removing stale configs..."
   config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "grafana"
   config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "prometheus"
+
+  docker::deploy_sanity grafana prometheus prometheus-kafka-adapter cadvisor node-exporter
 elif [[ "${ACTION}" == "down" ]]; then
   try "docker service scale instant_grafana=0 instant_prometheus=0 instant_prometheus-kafka-adapter=0" "Failed to down monitoring stack"
   try "docker service rm instant_cadvisor" "Failed to remove global service cadvisor"
@@ -58,6 +55,9 @@ elif [[ "${ACTION}" == "destroy" ]]; then
   if [[ $STATEFUL_NODES == "cluster" ]]; then
     log warn "Volumes are only deleted on the host on which the command is run. Monitoring volumes on other nodes are not deleted"
   fi
+
+  docker::prune_configs grafana
+  docker::prune_configs prometheus
 else
   log error "Valid options are: init, up, down, or destroy"
 fi

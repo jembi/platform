@@ -5,11 +5,11 @@ services:
     image: jembi/api-config-importer:1.1.0
     environment:
       HTTP_METHOD: 'PUT'
-      SERVICE_NAME: '${ES_LEADER_NODE:-analytics-datastore-elastic-search}'
+      SERVICE_NAME: '${ES_LEADER_NODE}'
       SERVICE_API_PORT: 9200
       API_USERNAME: elastic
-      API_PASSWORD: ${ES_ELASTIC:-dev_password_only}
-      SSL: ${ES_SSL:-false}
+      API_PASSWORD: ${ES_ELASTIC}
+      SSL: ${ES_SSL}
       API_PATH: '/fhir-enrich-reports'
       MIME_TYPE: 'application/json'
       CONFIG_FILE: 'fhir-enrich-reports.json'
@@ -26,4 +26,4 @@ configs:
     file: ./fhir-enrich-reports.json
     name: fhir-enrich-reports.json-${fhir_enrich_reports_json_DIGEST:?err}
     labels:
-      name: elastic-search
+      name: elasticsearch

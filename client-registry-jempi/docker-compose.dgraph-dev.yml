@@ -1,0 +1,42 @@
+version: '3.9'
+
+services:
+  jempi-alpha-01:
+    ports:
+      - published: 8070
+        target: 8080
+        protocol: tcp
+        mode: host
+      - published: 9080
+        target: 9080
+        protocol: tcp
+        mode: host
+
+  jempi-alpha-02:
+    ports:
+      - published: 8071
+        target: 8081
+        protocol: tcp
+        mode: host
+      - published: 9081
+        target: 9081
+        protocol: tcp
+        mode: host
+
+  jempi-alpha-03:
+    ports:
+      - published: 8072
+        target: 8082
+        protocol: tcp
+        mode: host
+      - published: 9082
+        target: 9082
+        protocol: tcp
+        mode: host
+
+  jempi-ratel:
+    ports:
+      - published: 8010
+        target: 8000
+        protocol: tcp
+        mode: host

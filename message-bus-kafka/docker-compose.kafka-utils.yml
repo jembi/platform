@@ -1,0 +1,34 @@
+version: '3.9'
+
+services:
+  kafdrop:
+    image: obsidiandynamics/kafdrop:3.27.0
+    environment:
+      KAFKA_BROKERCONNECT: 'kafka:9092'
+      JVM_OPTS: '-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify'
+      CMD_ARGS: '--server.port=9013 --management.server.port=9013'
+    deploy:
+      resources:
+        limits:
+          cpus: ${KAFDROP_CPU_LIMIT}
+          memory: ${KAFDROP_MEMORY_LIMIT}
+        reservations:
+          cpus: ${KAFDROP_CPU_RESERVE}
+          memory: ${KAFDROP_MEMORY_RESERVE}
+
+  kafka-minion:
+    image: quay.io/cloudhut/kminion:master
+    hostname: kafka-minion
+    environment:
+      KAFKA_BROKERS: kafka:9092
+    deploy:
+      resources:
+        limits:
+          cpus: ${KMINION_CPU_LIMIT}
+          memory: ${KMINION_MEMORY_LIMIT}
+        reservations:
+          cpus: ${KMINION_CPU_RESERVE}
+          memory: ${KMINION_MEMORY_RESERVE}
+      labels:
+        - prometheus-job-service=kafka
+        - prometheus-address=kafka-minion:8080

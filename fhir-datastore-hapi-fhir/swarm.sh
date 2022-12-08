@@ -3,9 +3,7 @@
 # Constants
 readonly ACTION=$1
 readonly MODE=$2
-readonly STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
-readonly HAPI_FHIR_INSTANCES=${HAPI_FHIR_INSTANCES:-1}
-export HAPI_FHIR_INSTANCES
+
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
   pwd -P
@@ -35,34 +33,40 @@ await_postgres_start() {
 
 if [ "${STATEFUL_NODES}" == "cluster" ]; then
   log info "Running FHIR Datastore HAPI FHIR package in Cluster node mode"
-  postgresClusterComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose-postgres.cluster.yml"
+  postgres_cluster_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose-postgres.cluster.yml"
 else
   log info "Running FHIR Datastore HAPI FHIR package in Single node mode"
-  postgresClusterComposeParam=""
+  postgres_cluster_compose_param=""
 fi
 
 if [ "${MODE}" == "dev" ]; then
   log info "Running FHIR Datastore HAPI FHIR package in DEV mode"
-  postgresDevComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose-postgres.dev.yml"
-  hapiFhirDevComposeParam="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
+  postgres_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose-postgres.dev.yml"
+  hapi_fhir_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
 else
   log info "Running FHIR Datastore HAPI FHIR package in PROD mode"
-  postgresDevComposeParam=""
-  hapiFhirDevComposeParam=""
+  postgres_dev_compose_param=""
+  hapi_fhir_dev_compose_param=""
 fi
 
 if [ "${ACTION}" == "init" ]; then
-  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose-postgres.yml $postgresClusterComposeParam $postgresDevComposeParam instant" "Failed to deploy FHIR Datastore HAPI FHIR Postgres"
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose-postgres.yml $postgres_cluster_compose_param $postgres_dev_compose_param instant" "Failed to deploy FHIR Datastore HAPI FHIR Postgres"
 
   await_postgres_start
 
-  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $hapiFhirDevComposeParam instant" "Failed to deploy FHIR Datastore HAPI FHIR"
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $hapi_fhir_dev_compose_param instant" "Failed to deploy FHIR Datastore HAPI FHIR"
+
+  if [ "$STATEFUL_NODES" == "cluster" ]; then
+    docker::deploy_sanity hapi-fhir postgres-1 postgres-2 postgres-3
+  else
+    docker::deploy_sanity hapi-fhir postgres-1
+  fi
 elif [ "${ACTION}" == "up" ]; then
-  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose-postgres.yml $postgresClusterComposeParam $postgresDevComposeParam instant" "Failed to stand up hapi-fhir postgres"
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose-postgres.yml $postgres_cluster_compose_param $postgres_dev_compose_param instant" "Failed to stand up hapi-fhir postgres"
 
   await_postgres_start
 
-  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $hapiFhirDevComposeParam instant" "Failed to stand up hapi-fhir"
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $hapi_fhir_dev_compose_param instant" "Failed to stand up hapi-fhir"
 elif [ "${ACTION}" == "down" ]; then
   try "docker service scale instant_hapi-fhir=0 instant_postgres-1=0" "Failed to scale down hapi-fhir"
 
@@ -82,6 +86,8 @@ elif [ "${ACTION}" == "destroy" ]; then
     docker::try_remove_volume hapi-postgres-3-data
     log warn "Volumes are only deleted on the host on which the command is run. Postgres volumes on other nodes are not deleted"
   fi
+
+  docker::prune_configs "hapi-fhir"
 else
   log error "Valid options are: init, up, down, or destroy"
 fi

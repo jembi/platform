@@ -3,14 +3,6 @@
 # Constants
 readonly ACTION=$1
 readonly MODE=$2
-readonly STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
-readonly OPENHIM_CORE_MEDIATOR_HOSTNAME=${OPENHIM_CORE_MEDIATOR_HOSTNAME:-"localhost"}
-readonly OPENHIM_MEDIATOR_API_PORT=${OPENHIM_MEDIATOR_API_PORT:-"8080"}
-readonly OPENHIM_CORE_INSTANCES=${OPENHIM_CORE_INSTANCES:-1}
-readonly OPENHIM_CONSOLE_INSTANCES=${OPENHIM_CONSOLE_INSTANCES:-1}
-export OPENHIM_CORE_INSTANCES
-export OPENHIM_CONSOLE_INSTANCES
-readonly MONGO_SET_COUNT=${MONGO_SET_COUNT:-3}
 
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
@@ -116,7 +108,7 @@ main() {
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to deploy config importer"
 
     log info "Waiting to give core config importer time to run before cleaning up service"
-    
+
     config::remove_config_importer interoperability-layer-openhim-config-importer
 
     # Ensure config importer is removed
@@ -125,6 +117,12 @@ main() {
     log info "Removing stale configs..."
     config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "openhim"
     config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "openhim"
+
+    if [ "$STATEFUL_NODES" == "cluster" ]; then
+      docker::deploy_sanity openhim-core openhim-console mongo-1 mongo-2 mongo-3
+    else
+      docker::deploy_sanity openhim-core openhim-console mongo-1
+    fi
   elif [[ "${ACTION}" == "up" ]]; then
     config::set_config_digests "$COMPOSE_FILE_PATH"/docker-compose.yml
     config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml

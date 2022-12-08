@@ -3,37 +3,33 @@
 # Constants
 readonly ACTION=$1
 readonly MODE=$2
-readonly REVERSE_PROXY_INSTANCES=${REVERSE_PROXY_INSTANCES:-1}
-export REVERSE_PROXY_INSTANCES
+
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
   pwd -P
 )
 readonly COMPOSE_FILE_PATH
-readonly DOMAIN_NAME=${DOMAIN_NAME:-localhost}
-readonly SUBDOMAINS=${SUBDOMAINS:-""}
-readonly RENEWAL_EMAIL=${RENEWAL_EMAIL}
+
 TIMESTAMP="$(date "+%Y%m%d%H%M%S")"
 readonly TIMESTAMP
-readonly STAGING=${STAGING:-false}
 readonly TIMESTAMPED_NGINX="${TIMESTAMP}-nginx.conf"
 
 # Import libraries
 ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/log.sh"
+. "${ROOT_PATH}/utils/docker-utils.sh"
 . "${ROOT_PATH}/utils/config-utils.sh"
 
 main() {
+  if [[ "${MODE}" == "dev" ]]; then
+    log info "Not including reverse proxy as we are running DEV mode"
+    exit 0
+  fi
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    if [[ "${MODE}" == "dev" ]]; then
-      log info "Not starting reverse proxy as we are running DEV mode"
-      exit 0
-    fi
-
     if [[ "${INSECURE}" == "true" ]]; then
       log info "Running reverse-proxy package in INSECURE mode"
 
-      config::generate_service_configs reverse-proxy-nginx /etc/nginx/conf.d "${COMPOSE_FILE_PATH}/package-conf-insecure" "${COMPOSE_FILE_PATH}"
+      config::generate_service_configs reverse-proxy-nginx /etc/nginx/conf.d "${COMPOSE_FILE_PATH}/package-conf-insecure" "${COMPOSE_FILE_PATH}" nginx
       nginx_temp_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.tmp.yml"
       try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $nginx_temp_compose_param instant" "Failed to deploy nginx"
 
@@ -64,7 +60,7 @@ main() {
     else
       log info "Running reverse-proxy package in SECURE mode"
 
-      config::generate_service_configs reverse-proxy-nginx /etc/nginx/conf.d "${COMPOSE_FILE_PATH}/package-conf-secure" "${COMPOSE_FILE_PATH}"
+      config::generate_service_configs reverse-proxy-nginx /etc/nginx/conf.d "${COMPOSE_FILE_PATH}/package-conf-secure" "${COMPOSE_FILE_PATH}" nginx
       nginx_temp_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.tmp.yml"
       try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $nginx_temp_compose_param instant" "Failed to deploy nginx"
 
@@ -168,6 +164,8 @@ main() {
         instant_reverse-proxy-nginx" "Error updating nginx service"
       log info "Done updating nginx service"
     fi
+
+    docker::deploy_sanity reverse-proxy-nginx
   elif [[ "${ACTION}" == "down" ]]; then
     log info "Scaling down services..."
     try "docker service scale instant_reverse-proxy-nginx=0" "Error scaling down services"
@@ -191,6 +189,8 @@ main() {
     fi
 
     try "docker volume rm renew-certbot-conf data-certbot-conf dummy-data-certbot-conf" "Failed to remove certbot volumes"
+
+    docker::prune_configs "nginx"
   else
     log error "Valid options are: init, up, down or destroy"
   fi

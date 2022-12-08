@@ -3,8 +3,6 @@
 readonly ACTION=$1
 readonly MODE=$2
 
-readonly STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
-
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
   pwd -P
@@ -41,7 +39,7 @@ main() {
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to start config importer"
 
     log info "Waiting to give core config importer time to run before cleaning up service"
-    
+
     config::remove_config_importer superset-config-importer
 
     # Ensure config importer is removed
@@ -50,6 +48,8 @@ main() {
     log info "Removing stale configs..."
     config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "superset"
     config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "superset"
+
+    docker::deploy_sanity dashboard-visualiser-superset
   elif [[ "${ACTION}" == "down" ]]; then
     try "docker service scale instant_dashboard-visualiser-superset=0" "Failed to scale down dashboard-visualiser-superset"
   elif [[ "${ACTION}" == "destroy" ]]; then

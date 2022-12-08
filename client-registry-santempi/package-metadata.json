@@ -2,9 +2,27 @@
   "id": "client-registry-santempi",
   "name": "Client Registry Package - SanteMPI",
   "description": "A patient matching and deduplicater for the platform",
+  "type": "infrastructure",
   "version": "0.0.1",
-  "dependencies": ["reverse-proxy-nginx"],
+  "dependencies": [],
   "environmentVariables": {
-    "SANTEMPI_INSTANCES": "1"
+    "STATEFUL_NODES": "single",
+    "SANTEMPI_INSTANCES": "1",
+    "SANTEMPI_POSTGRESQL_PASSWORD": "SanteDB123",
+    "SANTEMPI_POSTGRESQL_USERNAME": "santedb",
+    "SANTEMPI_REPMGR_PRIMARY_HOST": "santempi-psql-1",
+    "SANTEMPI_REPMGR_PARTNER_NODES": "santempi-psql-1",
+    "SANTEMPI_CPU_LIMIT": "0",
+    "SANTEMPI_MEMORY_LIMIT": "3G",
+    "SANTEMPI_CPU_RESERVE": "0.05",
+    "SANTEMPI_MEMORY_RESERVE": "500M",
+    "SANTEMPI_WWW_CPU_LIMIT": "0",
+    "SANTEMPI_WWW_MEMORY_LIMIT": "3G",
+    "SANTEMPI_WWW_CPU_RESERVE": "0.05",
+    "SANTEMPI_WWW_MEMORY_RESERVE": "500M",
+    "SANTEMPI_POSTGRES_CPU_LIMIT": "0",
+    "SANTEMPI_POSTGRES_MEMORY_LIMIT": "3G",
+    "SANTEMPI_POSTGRES_CPU_RESERVE": "0.05",
+    "SANTEMPI_POSTGRES_MEMORY_RESERVE": "500M"
   }
 }

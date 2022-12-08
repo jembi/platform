@@ -2,10 +2,6 @@
 
 readonly ACTION=$1
 readonly MODE=$2
-readonly KIBANA_INSTANCES=${KIBANA_INSTANCES:-1}
-export KIBANA_INSTANCES
-
-readonly STATEFUL_NODES=${STATEFUL_NODES:-"cluster"}
 
 COMPOSE_FILE_PATH=$(
   cd "$(dirname "${BASH_SOURCE[0]}")" || exit
@@ -58,6 +54,8 @@ main() {
     try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to start config importer"
 
     import_kibana_dashboards
+
+    docker::deploy_sanity dashboard-visualiser-kibana
   elif [[ "${ACTION}" == "down" ]]; then
     try "docker service scale instant_dashboard-visualiser-kibana=0" "Failed to scale down dashboard-visualiser-kibana"
   elif [[ "${ACTION}" == "destroy" ]]; then

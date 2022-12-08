@@ -1,0 +1,12 @@
+version: '3.9'
+
+services:
+  jempi-api:
+    image: jembi/jempi-api:${JEMPI_API_IMAGE_TAG}
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: ${JEMPI_API_MEMORY_LIMIT}
+        reservations:
+          memory: ${JEMPI_API_MEMORY_RESERVE}
