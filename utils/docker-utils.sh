@@ -239,7 +239,7 @@ docker::deploy_sanity() {
             fi
         done
     done
-    log info "No errors found during deployment"
+    overwrite "Checking for deployment errors... none found"
 }
 
 # An aggregate function to do multiple service ready checks in one function
