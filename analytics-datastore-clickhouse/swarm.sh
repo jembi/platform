@@ -34,51 +34,63 @@ fi
 readonly nodes_mode
 readonly service_names
 
+# Initialize the package
+#
+function init() {
+  local clickhouse_dev_compose_param=""
+  if [[ "${MODE}" == "dev" ]]; then
+    log info "Running Analytics Datastore Clickhouse package in DEV mode"
+    clickhouse_dev_compose_param="docker-compose$nodes_mode.dev.yml"
+  fi
+
+  (
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose$nodes_mode.yml" "$clickhouse_dev_compose_param" "${service_names}"
+  ) || {
+    log error "Failed to deploy Analytics Datastore Clickhouse package"
+    exit 1
+  }
+
+  docker::deploy_config_importer "$COMPOSE_FILE_PATH/importer/" "clickhouse-config-importer" "clickhouse"
+}
+
+# Dcale down the services
+#
+function down() {
+  for service_name in "${service_names[@]}"; do
+    try "docker service scale instant_$service_name=0" "Failed to scale down $service_name"
+  done
+}
+
+# Remove the services, volumes and configs
+#
+function destroy() {
+  docker::service_destroy clickhouse-config-importer
+
+  for service_name in "${service_names[@]}"; do
+    docker::service_destroy "$service_name"
+  done
+
+  if [[ "$NODE_MODE" == "cluster" ]]; then
+    docker::try_remove_volume clickhouse-data-01 clickhouse-data-04
+    log warn "Volumes are only deleted on the host on which the command is run. Cluster volumes on other nodes are not deleted"
+  else
+    docker::try_remove_volume clickhouse-data
+  fi
+
+  docker::prune_configs "clickhouse"
+}
+
 main() {
-  ################################ INIT / UP ################################
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
     log info "Running Analytics Datastore Clickhouse package in ${NODE_MODE} node mode"
-
-    local clickhouse_dev_compose_param=""
-    if [[ "${MODE}" == "dev" ]]; then
-      log info "Running Analytics Datastore Clickhouse package in DEV mode"
-      clickhouse_dev_compose_param="docker-compose$nodes_mode.dev.yml"
-    fi
-
-    (
-      docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose$nodes_mode.yml" "$clickhouse_dev_compose_param" "${service_names}"
-    ) || {
-      log error "Failed to deploy Analytics Datastore Clickhouse package"
-      exit 1
-    }
-
-    docker::deploy_config_importer "$COMPOSE_FILE_PATH/importer" "clickhouse-config-importer" "clickhouse"
-
-  ################################ DOWN ################################
+    init
   elif [[ "${ACTION}" == "down" ]]; then
     log info "Scaling down Analytics Datastore Clickhouse"
-
-    for service_name in "${service_names[@]}"; do
-      try "docker service scale instant_$service_name=0" "Failed to scale down $service_name"
-    done
-
-  ################################ DESTROY ################################
-  elif [[ "${ACTION}" == "destroy" ]]; then
-    docker::service_destroy clickhouse-config-importer
-
-    for service_name in "${service_names[@]}"; do
-      docker::service_destroy "$service_name"
-    done
-
-    if [[ "$NODE_MODE" == "cluster" ]]; then
-      docker::try_remove_volume clickhouse-data-01 clickhouse-data-04
-      log warn "Volumes are only deleted on the host on which the command is run. Cluster volumes on other nodes are not deleted"
-    else
-      docker::try_remove_volume clickhouse-data
-    fi
-
-    docker::prune_configs "clickhouse"
-  ################################ - ################################
+    down
+  elif
+    [[ "${ACTION}" == "destroy" ]]
+  then
+    destroy
   else
     log error "Valid options are: init, up, down, or destroy"
   fi
