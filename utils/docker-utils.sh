@@ -97,27 +97,34 @@ docker::service_destroy() {
     fi
 }
 
-# Tries to remove a volume and retries until it works with a timeout
+# Tries to remove volumes and retries until it works with a timeout
 #
 # Arguments:
-# - $1 : volume name (eg. es-data)
+# - $1 : volumes names, e.g. "es-data" "psql-1" ..
 #
 docker::try_remove_volume() {
-    local -r VOLUME_NAME=${1:?"FATAL: remove_volume_retry VOLUME_NAME not provided"}
-
-    if ! docker volume ls | grep -q "\sinstant_${VOLUME_NAME}$"; then
-        log info "Tried to remove volume ${VOLUME_NAME} but it doesn't exist on this node"
-        return 1
+    if [[ -z "$*" ]]; then
+        log error "FATAL: try_remove_volume parameter missing"
+        exit 1
     fi
 
-    log info "Waiting for volume ${VOLUME_NAME} to be removed..."
-    local start_time
-    start_time=$(date +%s)
-    until [[ -n "$(docker volume rm instant_"${VOLUME_NAME}" 2>/dev/null)" ]]; do
-        config::timeout_check "${start_time}" "${VOLUME_NAME} to be removed" "60" "10"
-        sleep 1
+    for i in "$@"; do
+        local -r volume_name=${i}
+
+        if ! docker volume ls | grep -q "\sinstant_${volume_name}$"; then
+            log info "Tried to remove volume ${volume_name} but it doesn't exist on this node"
+            return 1
+        fi
+
+        log info "Waiting for volume ${volume_name} to be removed..."
+        local start_time
+        start_time=$(date +%s)
+        until [[ -n "$(docker volume rm instant_"${volume_name}" 2>/dev/null)" ]]; do
+            config::timeout_check "${start_time}" "${volume_name} to be removed" "60" "10"
+            sleep 1
+        done
+        overwrite "Waiting for volume ${volume_name} to be removed... Done"
     done
-    overwrite "Waiting for volume ${VOLUME_NAME} to be removed... Done"
 }
 
 # Prunes configs based on a label
@@ -130,6 +137,66 @@ docker::prune_configs() {
 
     # shellcheck disable=SC2046
     docker config rm $(docker config ls -qf label=name="$CONFIG_LABEL") &>/dev/null
+}
+
+# Deploy a service, it will set config digests (in case a config is defined in the compose file)
+#
+# Arguments:
+# - $1 : docker compose path, e.g. "/instant/monitoring" ...
+# - $2 : docker compose file, e.g. "docker-compose.yml" "docker-compose.cluster.yml" ...
+# - $3 : docker compose dev file, e.g. "docker-compose.dev.yml"
+# - $4 : services names, e.g. "monitoring" "hapi-fhir" ...
+#
+docker::deploy_service() {
+    local -r DOCKER_COMPOSE_PATH="${1:?"FATAL: function 'deploy_service' is missing a parameter"}"
+    local -r DOCKER_COMPOSE_FILE="${2:?"FATAL: function 'deploy_service' is missing a parameter"}"
+    local -r DOCKER_COMPOSE_DEV_FILE="${3:?"FATAL: function 'deploy_service' is missing a parameter"}"
+    local -r SERVICE_NAMES="${4:?"FATAL: function 'deploy_service' is missing a parameter"}"
+
+    # Check for need to set config digests
+    local -r files=($(yq '.configs."*.*".file' "${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE"))
+    if [ "${files[*]}" != "null" ]; then
+        config::set_config_digests "${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE"
+    fi
+
+    try "docker stack deploy -c ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE -c ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_DEV_FILE instant"
+    docker::deploy_sanity "${SERVICE_NAMES[@]}"
+}
+
+# Deploy a config importer:
+# Sets the config digests, deploy the config importer, remove it and remove the stale configs
+#
+# Arguments:
+# - $1 : docker compose path, e.g. "/instant/monitoring" ...
+# - $2 : services name, e.g. "clickhouse-config-importer" ...
+# - $3 : config label, e.g. "clickhouse" "kibana" ...
+# - $4 : docker compose file name, default "docker-compose.config.yml"
+#
+docker::deploy_config_importer() {
+    local -r CONFIG_COMPOSE_PATH="${1:?"FATAL: function 'deploy_config_importer' is missing a parameter"}"
+    local -r SERVICE_NAME="${2:?"FATAL: function 'deploy_config_importer' is missing a parameter"}"
+    local -r CONFIG_LABEL="${3:?"FATAL: function 'deploy_config_importer' is missing a parameter"}"
+    local -r DOCKER_COMPOSE_FILE="${4:-"docker-compose.config.yml"}"
+
+    log info "Waiting for config importer $SERVICE_NAME to start ..."
+    (
+        config::set_config_digests "$CONFIG_COMPOSE_PATH/$DOCKER_COMPOSE_FILE"
+
+        try "docker stack deploy -c ${CONFIG_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE instant" "Failed to start config importer"
+
+        log info "Waiting to give core config importer time to run before cleaning up service"
+
+        config::remove_config_importer "$SERVICE_NAME"
+        config::await_service_removed "instant_$SERVICE_NAME"
+
+        log info "Removing stale configs..."
+        config::remove_stale_service_configs "$CONFIG_COMPOSE_PATH/$DOCKER_COMPOSE_FILE" "$CONFIG_LABEL"
+
+        log info "Waiting for config importer $SERVICE_NAME to start ... Done"
+    ) || {
+        log error "Failed to deploy the config importer: $SERVICE_NAME"
+        exit 1
+    }
 }
 
 # Check for errors when deploying
@@ -145,25 +212,32 @@ docker::deploy_sanity() {
 
     log info "Checking for deployment errors..."
     for i in "$@"; do
+        log info "Waiting for $i to start ..."
         local start_time
         start_time=$(date +%s)
 
+        error_message=""
         until [[ $(docker service ps instant_"$i" --format "{{.CurrentState}}" 2>/dev/null) == *"Running"* ]]; do
-            config::timeout_check "${start_time}" "$i to start"
+            config::timeout_check "${start_time}" "$i to start" 60 30
             sleep 1
 
             # Get unique error messages using sort -u
-            error_message=$(docker service ps instant_"$i" --no-trunc --format '{{ .Error }}' 2>&1 | sort -u)
-            if [[ -n $error_message ]]; then
-                log error "deploy error in service $i: $error_message"
-                if [[ $error_message == *"No such image"* ]]; then
-                    log error "do you have access to pull the image?"
+            new_error_message=$(docker service ps instant_"$i" --no-trunc --format '{{ .Error }}' 2>&1 | sort -u)
+            if [[ -n $new_error_message ]]; then
+                # To prevent logging the same error
+                if [[ "$error_message" != "$new_error_message" ]]; then
+                    error_message=$new_error_message
+                    log error "deploy error in service $i: $error_message"
                 fi
-                exit 124
+                # To exit in case the error is not having the image
+                if [[ "$new_error_message" == *"No such image"* ]]; then
+                    log error "do you have access to pull the image?"
+                    exit 124
+                fi
             fi
         done
     done
-    overwrite "No errors found during deployment"
+    log info "No errors found during deployment"
 }
 
 # An aggregate function to do multiple service ready checks in one function

@@ -1,7 +1,7 @@
-const STATEFUL_NODES = process.env.STATEFUL_NODES || 'cluster';
+const NODE_MODE = process.env.NODE_MODE || 'cluster';
 
 const queries =
-  STATEFUL_NODES === 'single'
+  NODE_MODE === 'single'
     ? [
         `CREATE TABLE default_table(
 			createdAt Date,

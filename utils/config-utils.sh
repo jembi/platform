@@ -26,18 +26,31 @@ config::set_config_digests() {
     local -r names=($(yq '.configs."*.*".name' "${DOCKER_COMPOSE_PATH}"))
     local -r composeFolderPath="${DOCKER_COMPOSE_PATH%/*}"
 
-    for ((i = 0; i < ${#files[@]}; i++)); do
-        file=${files[$i]}
-        name=${names[$i]}
+    if [[ "${files[*]}" != *"null"* ]] && [[ "${names[*]}" != *"null"* ]]; then
+        log info "I enetered with: files:${files[*]} names:${names[*]} "
+        log info "Setting config digests"
 
-        fileName="${composeFolderPath}${file//\.\///}" # TODO: Throw an error if the file name is too long to allow for a unique enough digest
-        envVarName=$(echo "${name}" | grep -P -o "{.*:?err}" | sed 's/[{}]//g' | sed 's/:?err//g')
+        for ((i = 0; i < ${#files[@]}; i++)); do
+            file=${files[$i]}
+            name=${names[$i]}
 
-        # generate and truncate the digest to conform to the 64 character restriction on docker config names
-        envDeclarationCharacters=":?err" # '${:?err}' from setting an env variable
-        remainder=$((64 - (${#name} - ${#envVarName} - ${#envDeclarationCharacters})))
-        export "${envVarName}"="$(cksum "${fileName}" | awk '{print $1}' | cut -c -${remainder})"
-    done
+            fileName="${composeFolderPath}${file//\.\///}" # TODO: Throw an error if the file name is too long to allow for a unique enough digest
+            envVarName=$(echo "${name}" | grep -P -o "{.*:?err}" | sed 's/[{}]//g' | sed 's/:?err//g')
+
+            if [ -n "$envVarName" ]; then
+                # generate and truncate the digest to conform to the 64 character restriction on docker config names
+                envDeclarationCharacters=":?err" # '${:?err}' from setting an env variable
+                remainder=$((64 - (${#name} - ${#envVarName} - ${#envDeclarationCharacters})))
+                export "${envVarName}"="$(cksum "${fileName}" | awk '{print $1}' | cut -c -${remainder})"
+            fi
+        done
+    elif [[ "${files[*]}" == *"null"* ]]; then
+        log error "No files found to set the digest in:\n $DOCKER_COMPOSE_PATH"
+        exit 1
+    else
+        log error "You should specify names for the files in:\n $DOCKER_COMPOSE_PATH"
+        exit 1
+    fi
 }
 
 # Removes stale docker configs based on the provided docker-compose file
@@ -56,31 +69,35 @@ config::remove_stale_service_configs() {
     local -r composeNames=($(yq '.configs."*.*".name' "${DOCKER_COMPOSE_PATH}"))
     local configsToRemove=()
 
-    for composeName in "${composeNames[@]}"; do
-        composeNameWithoutEnv=$(echo "${composeName}" | sed 's/-\${.*//g')
+    if [ "${composeNames[*]}" != "null" ]; then
+        for composeName in "${composeNames[@]}"; do
+            composeNameWithoutEnv=$(echo "${composeName}" | sed 's/-\${.*//g')
 
-        composeNameOccurences=$(for word in "${composeNames[@]}"; do echo "${word}"; done | grep -c "${composeNameWithoutEnv}")
-        if [[ $composeNameOccurences -gt "1" ]]; then
-            log warn "Warning: Duplicate config name (${composeNameWithoutEnv}) was found in ${DOCKER_COMPOSE_PATH}"
-        fi
+            composeNameOccurences=$(for word in "${composeNames[@]}"; do echo "${word}"; done | grep -c "${composeNameWithoutEnv}")
+            if [[ $composeNameOccurences -gt "1" ]]; then
+                log warn "Warning: Duplicate config name (${composeNameWithoutEnv}) was found in ${DOCKER_COMPOSE_PATH}"
+            fi
 
-        raftIds=($(docker config ls -f "label=name=${CONFIG_LABEL}" -f "name=${composeNameWithoutEnv}" --format "{{.ID}}"))
-        # Only keep the most recent of all configs with the same name
-        if [[ ${#raftIds[@]} -gt 1 ]]; then
-            mostRecentRaftId="${raftIds[0]}"
-            for ((i = 1; i < ${#raftIds[@]}; i++)); do
-                raftId=${raftIds[$i]}
-                mostRecentRaftCreatedDate=$(docker config inspect -f "{{.CreatedAt}}" "${mostRecentRaftId}")
-                raftCreatedDate=$(docker config inspect -f "{{.CreatedAt}}" "${raftId}")
-                if [[ $raftCreatedDate > $mostRecentRaftCreatedDate ]]; then
-                    configsToRemove+=("${mostRecentRaftId}")
-                    mostRecentRaftId="${raftId}"
-                else
-                    configsToRemove+=("${raftId}")
-                fi
-            done
-        fi
-    done
+            raftIds=($(docker config ls -f "label=name=${CONFIG_LABEL}" -f "name=${composeNameWithoutEnv}" --format "{{.ID}}"))
+            # Only keep the most recent of all configs with the same name
+            if [[ ${#raftIds[@]} -gt 1 ]]; then
+                mostRecentRaftId="${raftIds[0]}"
+                for ((i = 1; i < ${#raftIds[@]}; i++)); do
+                    raftId=${raftIds[$i]}
+                    mostRecentRaftCreatedDate=$(docker config inspect -f "{{.CreatedAt}}" "${mostRecentRaftId}")
+                    raftCreatedDate=$(docker config inspect -f "{{.CreatedAt}}" "${raftId}")
+                    if [[ $raftCreatedDate > $mostRecentRaftCreatedDate ]]; then
+                        configsToRemove+=("${mostRecentRaftId}")
+                        mostRecentRaftId="${raftId}"
+                    else
+                        configsToRemove+=("${raftId}")
+                    fi
+                done
+            fi
+        done
+    else
+        log warn "No name files found in the compose config to be removed"
+    fi
 
     if [[ "${#configsToRemove[@]}" -gt 0 ]]; then
         try "docker config rm ${configsToRemove[*]}" "Failed to remove configs: ${configsToRemove[*]}"
@@ -187,7 +204,7 @@ config::remove_config_importer() {
         fi
     done
 
-    try "docker service rm instant_$config_importer_service_name" "Failed to remove config importer "
+    try "docker service rm instant_$config_importer_service_name" "Failed to remove config importer"
 }
 
 # Waits for the provided service to be removed

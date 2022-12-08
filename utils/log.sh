@@ -178,20 +178,32 @@ overwrite() {
 # - $2 : error message (eg. "Failed to remove elastic-search service")
 try() {
     local -r COMMAND=${1:?"FATAL: function 'try' is missing a parameter"}
-    local -r ERROR_MESSAGE=${2:?"FATAL: function 'try' is missing a parameter"}
+    local -r ERROR_MESSAGE=${2:-""}
 
     if [ "${BASHLOG_FILE}" -eq 1 ]; then
         if ! eval "$COMMAND" >>"$LOG_FILE_PATH" 2>&1; then
-            log error "$ERROR_MESSAGE"
+            if [ -n "$ERROR_MESSAGE" ]; then
+                log error "$ERROR_MESSAGE"
+            else
+                exit 1
+            fi
         fi
     else
         if [ "${DEBUG}" -eq 1 ]; then
             if ! eval "$COMMAND"; then
-                log error "$ERROR_MESSAGE"
+                if [ -n "$ERROR_MESSAGE" ]; then
+                    log error "$ERROR_MESSAGE"
+                else
+                    exit 1
+                fi
             fi
         else
             if ! eval "$COMMAND" 1>/dev/null; then
-                log error "$ERROR_MESSAGE"
+                if [ -n "$ERROR_MESSAGE" ]; then
+                    log error "$ERROR_MESSAGE"
+                else
+                    exit 1
+                fi
             fi
         fi
     fi

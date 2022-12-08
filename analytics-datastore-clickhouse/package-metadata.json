@@ -6,7 +6,7 @@
   "version": "0.0.1",
   "dependencies": [],
   "environmentVariables": {
-    "STATEFUL_NODES": "single",
+    "NODE_MODE": "single",
     "CLICKHOUSE_HOST": "analytics-datastore-clickhouse",
     "CLICKHOUSE_PORT": "8123"
   }
