@@ -35,11 +35,21 @@ docker::await_container_status() {
     local -r SERVICE_STATUS=${2:?"FATAL: await_container_startup parameter not provided"}
 
     log info "Waiting for ${SERVICE_NAME} to be ${SERVICE_STATUS}..."
-    local start_time
-    start_time=$(date +%s)
+    local -r start_time=$(date +%s)
+    error_message=()
     until [[ $(docker service ps instant_"${SERVICE_NAME}" --format "{{.CurrentState}}" 2>/dev/null) == *"${SERVICE_STATUS}"* ]]; do
         config::timeout_check "${start_time}" "${SERVICE_NAME} to start"
         sleep 1
+
+        # Get unique error messages using sort -u
+        new_error_message=($(docker service ps instant_"$SERVICE_NAME" --no-trunc --format '{{ .Error }}' 2>&1 | sort -u))
+        if [[ -n ${new_error_message[*]} ]]; then
+            # To prevent logging the same error
+            if [[ "${error_message[*]}" != "${new_error_message[*]}" ]]; then
+                error_message=(${new_error_message[*]})
+                log error "Deploy error in service $SERVICE_NAME: ${error_message[*]}"
+            fi
+        fi
     done
     overwrite "Waiting for ${SERVICE_NAME} to be ${SERVICE_STATUS}... Done"
 }
@@ -239,7 +249,7 @@ docker::deploy_sanity() {
 
         error_message=()
         until [[ $(docker service ps instant_"$i" --format "{{.CurrentState}}" 2>/dev/null) == *"Running"* ]]; do
-            config::timeout_check "${start_time}" "$i to start"
+            config::timeout_check "${start_time}" "$i to run"
             sleep 1
 
             # Get unique error messages using sort -u

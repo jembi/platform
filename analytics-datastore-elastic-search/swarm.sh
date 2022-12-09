@@ -45,7 +45,7 @@ function import_sources() {
 
 function install_expect() {
   log info "Installing Expect..."
-  try "apt-get install -y expect" throw "Fatal: Failed to install Expect library. Cannot update Elastic Search passwords"
+  try "apt-get install -y expect &>/dev/null" throw "Fatal: Failed to install Expect library. Cannot update Elasticsearch passwords"
   overwrite "Installing Expect... Done"
 }
 
@@ -62,7 +62,7 @@ function set_elasticsearch_passwords() {
 }
 
 function create_certs() {
-  log info "Creating certificates"
+  log info "Creating certificates..."
   try \
     "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose.certs.yml instant" \
     throw \
@@ -71,7 +71,8 @@ function create_certs() {
   docker::await_container_startup create_certs
   docker::await_container_status create_certs Complete
 
-  log info "Creating cert helper"
+  overwrite "Creating certificates... Done"
+  log info "Creating cert helper..."
 
   try \
     "docker run --rm --network host --name es-cert-helper -w /temp \
@@ -85,12 +86,12 @@ function create_certs() {
   docker::await_container_destroy create_certs
   docker::await_container_destroy es-cert-helper
   docker::try_remove_volume certgen
+  overwrite "Creating cert helper... Done"
 }
 
 function add_docker_configs() {
-  TIMESTAMP="$(date "+%Y%m%d%H%M%S")"
-  readonly TIMESTAMP
-  log info "Creating configs"
+  local -r TIMESTAMP="$(date "+%Y%m%d%H%M%S")"
+  log info "Creating configs..."
 
   try "docker config create --label name=elasticsearch ${TIMESTAMP}-ca.crt ./certs/ca/ca.crt" catch "Error creating config ca.crt"
 
@@ -103,16 +104,17 @@ function add_docker_configs() {
     try "docker config create --label name=elasticsearch ${TIMESTAMP}-es$n.crt ./certs/es$n/es$n.crt" catch "Error creating config es$n.crt"
     try "docker config create --label name=elasticsearch ${TIMESTAMP}-es$n.crt ./certs/es$n/es$n.key" catch "Error creating config es$n.key"
 
-    log info "Updating es-$n with certs"
+    log info "Updating analytics-datastore-elastic-search-$n with certs..."
     try \
       "docker service update \
-    --config-add source=${TIMESTAMP}-ca.crt,target=/usr/share/elasticsearch/config/certs/ca/ca.crt \
-    --config-add source=${TIMESTAMP}-es$n.crt,target=/usr/share/elasticsearch/config/certs/es$n/es$n.crt \
-    --config-add source=${TIMESTAMP}-es$n.key,target=/usr/share/elasticsearch/config/certs/es$n/es$n.key \
-    --replicas 1 \
-    instant_analytics-datastore-elastic-search-$n" \
-      catch \
-      "Error updating es-$n"
+      --config-add source=${TIMESTAMP}-ca.crt,target=/usr/share/elasticsearch/config/certs/ca/ca.crt \
+      --config-add source=${TIMESTAMP}-es$n.crt,target=/usr/share/elasticsearch/config/certs/es$n/es$n.crt \
+      --config-add source=${TIMESTAMP}-es$n.key,target=/usr/share/elasticsearch/config/certs/es$n/es$n.key \
+      --replicas 1 \
+      instant_analytics-datastore-elastic-search-$n" \
+      throw \
+      "Error updating analytics-datastore-elastic-search-$n"
+    overwrite "Updating analytics-datastore-elastic-search-$n with certs... Done"
   done
 }
 
@@ -121,30 +123,28 @@ function initialize_package() {
 
   if [[ "$MODE" == "dev" ]]; then
     log info "Running Analytics Datastore Elastic Search package in DEV mode"
-    elastic_search_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
+    elastic_search_dev_compose_param="docker-compose.dev.yml"
   else
     log info "Running Analytics Datastore Elastic Search package in PROD mode"
   fi
 
   (
-    if [[ "$STATEFUL_NODES" == "cluster" ]]; then
+    if [[ "$NODE_MODE" == "cluster" ]]; then
       create_certs
       docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.cluster.yml"
       add_docker_configs
-
     else
       docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$elastic_search_dev_compose_param"
     fi
 
-    docker::deploy_sanity "${service_names[@]}"
+    install_expect
+    docker::await_container_status "$ES_LEADER_NODE" Starting
+    set_elasticsearch_passwords "$ES_LEADER_NODE"
+
   ) || {
     log error "Failed to deploy Analytics Datastore Elastic Search package"
     exit 1
   }
-
-  install_expect
-
-  set_elasticsearch_passwords "$ES_LEADER_NODE"
 
   config::await_network_join "instant_$ES_LEADER_NODE"
 
