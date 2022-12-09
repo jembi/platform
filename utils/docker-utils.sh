@@ -92,8 +92,8 @@ docker::service_destroy() {
 
     log info "Waiting for service $SERVICE_NAME to be removed ... "
     if [[ -n $(docker service ls -qf name=instant_"${SERVICE_NAME}") ]]; then
-        try "docker service scale instant_${SERVICE_NAME}=0" "Failed to scale down ${SERVICE_NAME}"
-        try "docker service rm instant_${SERVICE_NAME}" "Failed to remove service ${SERVICE_NAME}"
+        try "docker service scale instant_${SERVICE_NAME}=0" catch "Failed to scale down ${SERVICE_NAME}"
+        try "docker service rm instant_${SERVICE_NAME}" catch "Failed to remove service ${SERVICE_NAME}"
         docker::await_service_destroy "${SERVICE_NAME}"
     fi
     overwrite "Waiting for service $SERVICE_NAME to be removed ... Done"
@@ -153,7 +153,6 @@ docker::deploy_service() {
     local -r DOCKER_COMPOSE_PATH="${1:?"FATAL: function 'deploy_service' is missing a parameter"}"
     local -r DOCKER_COMPOSE_FILE="${2:?"FATAL: function 'deploy_service' is missing a parameter"}"
     local -r DOCKER_COMPOSE_DEV_FILE="${3:?"FATAL: function 'deploy_service' is missing a parameter"}"
-    local -r SERVICE_NAMES="${4:?"FATAL: function 'deploy_service' is missing a parameter"}"
 
     # Check for need to set config digests
     local -r files=($(yq '.configs."*.*".file' "${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE"))
@@ -161,8 +160,12 @@ docker::deploy_service() {
         config::set_config_digests "${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE"
     fi
 
-    try "docker stack deploy -c ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE -c ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_DEV_FILE instant"
-    docker::deploy_sanity "${SERVICE_NAMES[@]}"
+    try "docker stack deploy \
+        -c ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE \
+        -c ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_DEV_FILE \
+         instant" \
+        throw \
+        "Wrong configuration in compose file"
 }
 
 # Deploy a config importer:
@@ -188,7 +191,10 @@ docker::deploy_config_importer() {
 
         config::set_config_digests "$CONFIG_COMPOSE_PATH"
 
-        try "docker stack deploy -c ${CONFIG_COMPOSE_PATH} instant"
+        try \
+            "docker stack deploy -c ${CONFIG_COMPOSE_PATH} instant" \
+            throw \
+            "Wrong configuration in compose file"
 
         log info "Waiting to give core config importer time to run before cleaning up service"
 
@@ -198,7 +204,6 @@ docker::deploy_config_importer() {
         log info "Removing stale configs..."
         config::remove_stale_service_configs "$CONFIG_COMPOSE_PATH" "$CONFIG_LABEL"
 
-        log info "Waiting for config importer $SERVICE_NAME to start ... Done"
     ) || {
         log error "Failed to deploy the config importer: $SERVICE_NAME"
         exit 1
@@ -242,8 +247,8 @@ docker::deploy_sanity() {
                 fi
             fi
         done
+        overwrite "Waiting for $i to start ... Done"
     done
-    overwrite "Checking for deployment errors... none found"
 }
 
 # An aggregate function to do multiple service ready checks in one function

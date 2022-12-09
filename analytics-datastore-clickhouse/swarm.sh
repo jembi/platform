@@ -1,42 +1,52 @@
 #!/bin/bash
 
-readonly ACTION=$1
-readonly MODE=$2
+declare ACTION=""
+declare MODE=""
+declare COMPOSE_FILE_PATH=""
+declare ROOT_PATH=""
+declare nodes_mode=""
+declare service_names=()
 
-COMPOSE_FILE_PATH=$(
-  cd "$(dirname "${BASH_SOURCE[0]}")" || exit
-  pwd -P
-)
-readonly COMPOSE_FILE_PATH
+function init_vars() {
+  ACTION=$1
+  MODE=$2
 
-ROOT_PATH="${COMPOSE_FILE_PATH}/.."
-readonly ROOT_PATH
-
-. "${ROOT_PATH}/utils/config-utils.sh"
-. "${ROOT_PATH}/utils/docker-utils.sh"
-. "${ROOT_PATH}/utils/log.sh"
-
-nodes_mode=""
-service_names=()
-if [[ "${NODE_MODE}" == "cluster" ]]; then
-  nodes_mode=".${NODE_MODE}"
-  service_names=(
-    "analytics-datastore-clickhouse-01"
-    "analytics-datastore-clickhouse-02"
-    "analytics-datastore-clickhouse-03"
-    "analytics-datastore-clickhouse-04"
+  COMPOSE_FILE_PATH=$(
+    cd "$(dirname "${BASH_SOURCE[0]}")" || exit
+    pwd -P
   )
-else
-  service_names=(
-    "analytics-datastore-clickhouse"
-  )
-fi
-readonly nodes_mode
-readonly service_names
 
-# Initialize the package
-#
-function init() {
+  ROOT_PATH="${COMPOSE_FILE_PATH}/.."
+
+  if [[ "${NODE_MODE}" == "cluster" ]]; then
+    nodes_mode=".${NODE_MODE}"
+    service_names=(
+      "analytics-datastore-clickhouse-01"
+      "analytics-datastore-clickhouse-02"
+      "analytics-datastore-clickhouse-03"
+      "analytics-datastore-clickhouse-04"
+    )
+  else
+    service_names=(
+      "analytics-datastore-clickhouse"
+    )
+  fi
+
+  readonly ACTION
+  readonly MODE
+  readonly COMPOSE_FILE_PATH
+  readonly ROOT_PATH
+  readonly nodes_mode
+  readonly service_names
+}
+
+# shellcheck disable=SC1091
+function import_sources() {
+  source "${ROOT_PATH}/utils/docker-utils.sh"
+  source "${ROOT_PATH}/utils/log.sh"
+}
+
+function initialize_package() {
   local clickhouse_dev_compose_param=""
   if [[ "${MODE}" == "dev" ]]; then
     log info "Running Analytics Datastore Clickhouse package in DEV mode"
@@ -44,7 +54,8 @@ function init() {
   fi
 
   (
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose$nodes_mode.yml" "$clickhouse_dev_compose_param" "${service_names}"
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose$nodes_mode.yml" "$clickhouse_dev_compose_param"
+    docker::deploy_sanity "${service_names[@]}"
   ) || {
     log error "Failed to deploy Analytics Datastore Clickhouse package"
     exit 1
@@ -53,17 +64,16 @@ function init() {
   docker::deploy_config_importer "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "clickhouse-config-importer" "clickhouse"
 }
 
-# Dcale down the services
-#
-function down() {
+function scale_services_down() {
   for service_name in "${service_names[@]}"; do
-    try "docker service scale instant_$service_name=0" "Failed to scale down $service_name"
+    try \
+      "docker service scale instant_$service_name=0" \
+      catch \
+      "Failed to scale down $service_name"
   done
 }
 
-# Remove the services, volumes and configs
-#
-function destroy() {
+function destroy_package() {
   docker::service_destroy clickhouse-config-importer
 
   for service_name in "${service_names[@]}"; do
@@ -81,16 +91,21 @@ function destroy() {
 }
 
 main() {
+  init_vars "$@"
+  import_sources
+
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
     log info "Running Analytics Datastore Clickhouse package in ${NODE_MODE} node mode"
-    init
+
+    initialize_package
   elif [[ "${ACTION}" == "down" ]]; then
     log info "Scaling down Analytics Datastore Clickhouse"
-    down
-  elif
-    [[ "${ACTION}" == "destroy" ]]
-  then
-    destroy
+
+    scale_services_down
+  elif [[ "${ACTION}" == "destroy" ]]; then
+    log info "Destroying Analytics Datastore Clickhouse"
+
+    destroy_package
   else
     log error "Valid options are: init, up, down, or destroy"
   fi

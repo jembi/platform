@@ -99,7 +99,10 @@ config::remove_stale_service_configs() {
     fi
 
     if [[ "${#configsToRemove[@]}" -gt 0 ]]; then
-        try "docker config rm ${configsToRemove[*]}" "Failed to remove configs: ${configsToRemove[*]}"
+        try \
+            "docker config rm ${configsToRemove[*]}" \
+            catch \
+            "Failed to remove configs: ${configsToRemove[*]}"
     fi
 }
 
@@ -149,7 +152,7 @@ config::await_service_running() {
 
     docker service rm instant_await-helper &>/dev/null
 
-    try "docker stack deploy -c $await_helper_file_path instant" "Failed to deploy await helper"
+    try "docker stack deploy -c $await_helper_file_path instant" catch "Failed to deploy await helper"
     until [[ $(docker service ls -f name=instant_"$service_name" --format "{{.Replicas}}") == *"$service_instances/$service_instances"* ]]; do
         config::timeout_check "$start_time" "$service_name to start" "$exit_time" "$warning_time"
         sleep 1
@@ -168,7 +171,7 @@ config::await_service_running() {
         fi
     done
 
-    try "docker service rm instant_await-helper" "Failed to remove await-helper"
+    try "docker service rm instant_await-helper" catch "Failed to remove await-helper"
 }
 
 # A function which removes a config importing service on successful completion, and exits with an error otherwise
@@ -203,7 +206,7 @@ config::remove_config_importer() {
         fi
     done
 
-    try "docker service rm instant_$config_importer_service_name" "Failed to remove config importer"
+    try "docker service rm instant_$config_importer_service_name" catch "Failed to remove config importer"
 }
 
 # Waits for the provided service to be removed
@@ -269,7 +272,10 @@ config::generate_service_configs() {
     local -r TARGET_FOLDER_NAME=$(basename "${TARGET_FOLDER_PATH}")
     local count=0
 
-    try "touch ${COMPOSE_PATH}/docker-compose.tmp.yml" "Failed to create temp service config compose file"
+    try \
+        "touch ${COMPOSE_PATH}/docker-compose.tmp.yml" \
+        catch \
+        "Failed to create temp service config compose file"
 
     find "${TARGET_FOLDER_PATH}" -maxdepth 10 -mindepth 1 -type f | while read -r file; do
         file_name=${file/"${TARGET_FOLDER_PATH%/}"/}
@@ -315,8 +321,8 @@ config::remove_service_nginx_config() {
         fi
     done
 
-    try "docker service update $config_rm_command instant_reverse-proxy-nginx" "Error updating nginx service"
-    try "docker config rm $config_rm_list" "Failed to remove configs"
+    try "docker service update $config_rm_command instant_reverse-proxy-nginx" catch "Error updating nginx service"
+    try "docker config rm $config_rm_list" catch "Failed to remove configs"
 }
 
 #######################################
@@ -375,7 +381,10 @@ config::update_service_configs() {
             fi
             config_add_string+="--config-add source=$config_name,target=$config_target "
 
-            try "docker config create --label name=$CONFIG_LABEL_NAME $config_name $config_file" "Failed to create config"
+            try \
+                "docker config create --label name=$CONFIG_LABEL_NAME $config_name $config_file" \
+                catch \
+                "Failed to create config"
         fi
     done
 

@@ -152,8 +152,8 @@ function log() {
 # This is an option if you want to log every single command executed,
 # but it will significantly impact script performance and unit tests will fail
 if [[ $DEBUG -eq 1 ]]; then
-    declare prev_cmd="null"
-    declare this_cmd="null"
+    declare -g prev_cmd="null"
+    declare -g this_cmd="null"
 
     trap 'prev_cmd=$this_cmd; this_cmd=$BASH_COMMAND; log debug $this_cmd' DEBUG
 fi
@@ -175,33 +175,32 @@ overwrite() {
 #
 # Arguments:
 # - $1 : command (eg. "docker service rm elastic-search")
-# - $2 : error message (eg. "Failed to remove elastic-search service")
+# - $2 : throw or catch (eg. "throw", "catch")
+# - $3 : error message (eg. "Failed to remove elastic-search service")
 try() {
     local -r COMMAND=${1:?"FATAL: function 'try' is missing a parameter"}
-    local -r ERROR_MESSAGE=${2:-""}
+    local -r THROW=${2:-"throw"}
+    local -r ERROR_MESSAGE=${3:?"FATAL: function 'try' is missing a parameter"}
 
     if [ "${BASHLOG_FILE}" -eq 1 ]; then
         if ! eval "$COMMAND" >>"$LOG_FILE_PATH" 2>&1; then
-            if [ -n "$ERROR_MESSAGE" ]; then
-                log error "$ERROR_MESSAGE"
-            else
+            log error "$ERROR_MESSAGE"
+            if [[ "$THROW" == "throw" ]]; then
                 exit 1
             fi
         fi
     else
         if [ "${DEBUG}" -eq 1 ]; then
             if ! eval "$COMMAND"; then
-                if [ -n "$ERROR_MESSAGE" ]; then
-                    log error "$ERROR_MESSAGE"
-                else
+                log error "$ERROR_MESSAGE"
+                if [[ "$THROW" == "throw" ]]; then
                     exit 1
                 fi
             fi
         else
             if ! eval "$COMMAND" 1>/dev/null; then
-                if [ -n "$ERROR_MESSAGE" ]; then
-                    log error "$ERROR_MESSAGE"
-                else
+                log error "$ERROR_MESSAGE"
+                if [[ "$THROW" == "throw" ]]; then
                     exit 1
                 fi
             fi
