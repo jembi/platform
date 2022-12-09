@@ -203,7 +203,7 @@ docker::deploy_config_importer() {
 
         log info "Removing stale configs..."
         config::remove_stale_service_configs "$CONFIG_COMPOSE_PATH" "$CONFIG_LABEL"
-
+        overwrite "Removing stale configs... Done"
     ) || {
         log error "Failed to deploy the config importer: $SERVICE_NAME"
         exit 1
@@ -221,7 +221,6 @@ docker::deploy_sanity() {
         exit 1
     fi
 
-    log info "Checking for deployment errors..."
     for i in "$@"; do
         log info "Waiting for $i to start ..."
         local start_time
