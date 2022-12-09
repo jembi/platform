@@ -137,12 +137,14 @@ docker::try_remove_volume() {
 docker::prune_configs() {
     local -r CONFIG_LABEL=${1:?"FATAL: remove_configs_by_label CONFIG_LABEL not provided"}
 
-    log info "Waiting for configs to be removed..."
     # shellcheck disable=SC2046
     if [[ -n $(docker config ls -qf label=name="$CONFIG_LABEL") ]]; then
+        log info "Waiting for configs to be removed..."
+
         docker config rm $(docker config ls -qf label=name="$CONFIG_LABEL") &>/dev/null
+
+        overwrite "Waiting for configs to be removed... Done"
     fi
-    overwrite "Waiting for configs to be removed... Done"
 }
 
 # Deploy a service, it will set config digests (in case a config is defined in the compose file)
