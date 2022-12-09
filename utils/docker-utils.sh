@@ -163,7 +163,7 @@ docker::deploy_service() {
 
     # Check for need to set config digests
     local -r files=($(yq '.configs."*.*".file' "${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE"))
-    if [ "${files[*]}" != "null" ]; then
+    if [[ "${files[*]}" != "null" ]]; then
         config::set_config_digests "${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE"
     fi
 
