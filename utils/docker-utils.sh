@@ -176,7 +176,7 @@ docker::deploy_service() {
         $docker_compose_dev \
          instant" \
         throw \
-        "Wrong configuration in compose file"
+        "Wrong configuration in ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE"
 }
 
 # Deploy a config importer:
