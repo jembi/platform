@@ -195,7 +195,7 @@ docker::deploy_config_importer() {
 
     log info "Waiting for config importer $SERVICE_NAME to start ..."
     (
-        if [ ! -f "$CONFIG_COMPOSE_PATH" ]; then
+        if [[ ! -f "$CONFIG_COMPOSE_PATH" ]]; then
             log error "No such file: $CONFIG_COMPOSE_PATH"
             exit 1
         fi
