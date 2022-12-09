@@ -51,6 +51,8 @@ function initialize_package() {
   if [[ "${MODE}" == "dev" ]]; then
     log info "Running Analytics Datastore Clickhouse package in DEV mode"
     clickhouse_dev_compose_param="docker-compose$nodes_mode.dev.yml"
+  else
+    log info "Running Analytics Datastore Clickhouse package in PROD mode"
   fi
 
   (

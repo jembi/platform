@@ -158,7 +158,8 @@ docker::prune_configs() {
 docker::deploy_service() {
     local -r DOCKER_COMPOSE_PATH="${1:?"FATAL: function 'deploy_service' is missing a parameter"}"
     local -r DOCKER_COMPOSE_FILE="${2:?"FATAL: function 'deploy_service' is missing a parameter"}"
-    local -r DOCKER_COMPOSE_DEV_FILE="${3:?"FATAL: function 'deploy_service' is missing a parameter"}"
+    local -r DOCKER_COMPOSE_DEV_FILE="${3:-""}"
+    local docker_compose_dev=""
 
     # Check for need to set config digests
     local -r files=($(yq '.configs."*.*".file' "${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE"))
@@ -166,9 +167,13 @@ docker::deploy_service() {
         config::set_config_digests "${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE"
     fi
 
+    if [ -n "${DOCKER_COMPOSE_DEV_FILE}" ]; then
+        docker_compose_dev="-c ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_DEV_FILE"
+    fi
+
     try "docker stack deploy \
         -c ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE \
-        -c ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_DEV_FILE \
+        $docker_compose_dev \
          instant" \
         throw \
         "Wrong configuration in compose file"
