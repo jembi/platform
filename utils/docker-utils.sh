@@ -205,7 +205,7 @@ docker::deploy_config_importer() {
         try \
             "docker stack deploy -c ${CONFIG_COMPOSE_PATH} instant" \
             throw \
-            "Wrong configuration in compose file"
+            "Wrong configuration in $CONFIG_COMPOSE_PATH"
 
         log info "Waiting to give core config importer time to run before cleaning up service"
 
