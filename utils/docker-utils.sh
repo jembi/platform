@@ -167,7 +167,7 @@ docker::deploy_service() {
         config::set_config_digests "${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE"
     fi
 
-    if [ -n "${DOCKER_COMPOSE_DEV_FILE}" ]; then
+    if [[ -n "${DOCKER_COMPOSE_DEV_FILE}" ]]; then
         docker_compose_dev="-c ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_DEV_FILE"
     fi
 
