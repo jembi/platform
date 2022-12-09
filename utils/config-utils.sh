@@ -24,7 +24,7 @@ config::set_config_digests() {
     # Get configs files and names from yml file
     local -r files=($(yq '.configs."*.*".file' "${DOCKER_COMPOSE_PATH}"))
     local -r names=($(yq '.configs."*.*".name' "${DOCKER_COMPOSE_PATH}"))
-    local -r composeFolderPath="${DOCKER_COMPOSE_PATH%/*}"
+    local -r compose_folder_path="${DOCKER_COMPOSE_PATH%/*}"
 
     if [[ "${files[*]}" != *"null"* ]] && [[ "${names[*]}" != *"null"* ]]; then
         log info "Setting config digests"
@@ -33,14 +33,14 @@ config::set_config_digests() {
             file=${files[$i]}
             name=${names[$i]}
 
-            fileName="${composeFolderPath}${file//\.\///}" # TODO: Throw an error if the file name is too long to allow for a unique enough digest
-            envVarName=$(echo "${name}" | grep -P -o "{.*:?err}" | sed 's/[{}]//g' | sed 's/:?err//g')
+            file_name="${compose_folder_path}${file//\.\///}" # TODO: Throw an error if the file name is too long to allow for a unique enough digest
+            env_var_name=$(echo "${name}" | grep -P -o "{.*:?err}" | sed 's/[{}]//g' | sed 's/:?err//g')
 
-            if [[ -n "$envVarName" ]]; then
+            if [[ -n "$env_var_name" ]]; then
                 # generate and truncate the digest to conform to the 64 character restriction on docker config names
-                envDeclarationCharacters=":?err" # '${:?err}' from setting an env variable
-                remainder=$((64 - (${#name} - ${#envVarName} - ${#envDeclarationCharacters})))
-                export "${envVarName}"="$(cksum "${fileName}" | awk '{print $1}' | cut -c -${remainder})"
+                env_declaration_characters=":?err" # '${:?err}' from setting an env variable
+                remainder=$((64 - (${#name} - ${#env_var_name} - ${#env_declaration_characters})))
+                export "${env_var_name}"="$(cksum "${file_name}" | awk '{print $1}' | cut -c -${remainder})"
             fi
         done
     elif [[ "${files[*]}" == *"null"* ]]; then
@@ -65,31 +65,31 @@ config::remove_stale_service_configs() {
     local -r DOCKER_COMPOSE_PATH="${1:?"FATAL: function 'remove_stale_service_configs' is missing a parameter"}"
     local -r CONFIG_LABEL="${2:?"FATAL: function 'remove_stale_service_configs' is missing a parameter"}"
 
-    local -r composeNames=($(yq '.configs."*.*".name' "${DOCKER_COMPOSE_PATH}"))
-    local configsToRemove=()
+    local -r compose_names=($(yq '.configs."*.*".name' "${DOCKER_COMPOSE_PATH}"))
+    local configs_to_remove=()
 
-    if [[ "${composeNames[*]}" != "null" ]]; then
-        for composeName in "${composeNames[@]}"; do
-            composeNameWithoutEnv=$(echo "${composeName}" | sed 's/-\${.*//g')
+    if [[ "${compose_names[*]}" != "null" ]]; then
+        for compose_name in "${compose_names[@]}"; do
+            compose_name_without_env=$(echo "${compose_name}" | sed 's/-\${.*//g')
 
-            composeNameOccurences=$(for word in "${composeNames[@]}"; do echo "${word}"; done | grep -c "${composeNameWithoutEnv}")
-            if [[ $composeNameOccurences -gt "1" ]]; then
-                log warn "Warning: Duplicate config name (${composeNameWithoutEnv}) was found in ${DOCKER_COMPOSE_PATH}"
+            compose_name_occurences=$(for word in "${compose_names[@]}"; do echo "${word}"; done | grep -c "${compose_name_without_env}")
+            if [[ $compose_name_occurences -gt "1" ]]; then
+                log warn "Warning: Duplicate config name (${compose_name_without_env}) was found in ${DOCKER_COMPOSE_PATH}"
             fi
 
-            raftIds=($(docker config ls -f "label=name=${CONFIG_LABEL}" -f "name=${composeNameWithoutEnv}" --format "{{.ID}}"))
+            raft_ids=($(docker config ls -f "label=name=${CONFIG_LABEL}" -f "name=${compose_name_without_env}" --format "{{.ID}}"))
             # Only keep the most recent of all configs with the same name
-            if [[ ${#raftIds[@]} -gt 1 ]]; then
-                mostRecentRaftId="${raftIds[0]}"
-                for ((i = 1; i < ${#raftIds[@]}; i++)); do
-                    raftId=${raftIds[$i]}
-                    mostRecentRaftCreatedDate=$(docker config inspect -f "{{.CreatedAt}}" "${mostRecentRaftId}")
-                    raftCreatedDate=$(docker config inspect -f "{{.CreatedAt}}" "${raftId}")
-                    if [[ $raftCreatedDate > $mostRecentRaftCreatedDate ]]; then
-                        configsToRemove+=("${mostRecentRaftId}")
-                        mostRecentRaftId="${raftId}"
+            if [[ ${#raft_ids[@]} -gt 1 ]]; then
+                most_recent_raft_id="${raft_ids[0]}"
+                for ((i = 1; i < ${#raft_ids[@]}; i++)); do
+                    raft_id=${raft_ids[$i]}
+                    most_recent_raft_created_date=$(docker config inspect -f "{{.CreatedAt}}" "${most_recent_raft_id}")
+                    raft_created_date=$(docker config inspect -f "{{.CreatedAt}}" "${raft_id}")
+                    if [[ $raft_created_date > $most_recent_raft_created_date ]]; then
+                        configs_to_remove+=("${most_recent_raft_id}")
+                        most_recent_raft_id="${raft_id}"
                     else
-                        configsToRemove+=("${raftId}")
+                        configs_to_remove+=("${raft_id}")
                     fi
                 done
             fi
@@ -98,11 +98,11 @@ config::remove_stale_service_configs() {
         log warn "No name files found in the compose config to be removed"
     fi
 
-    if [[ "${#configsToRemove[@]}" -gt 0 ]]; then
+    if [[ "${#configs_to_remove[@]}" -gt 0 ]]; then
         try \
-            "docker config rm ${configsToRemove[*]}" \
+            "docker config rm ${configs_to_remove[*]}" \
             catch \
-            "Failed to remove configs: ${configsToRemove[*]}"
+            "Failed to remove configs: ${configs_to_remove[*]}"
     fi
 }
 
@@ -115,16 +115,16 @@ config::remove_stale_service_configs() {
 # - $3 : timeout time in seconds, default is 300 seconds
 # - $4 : elapsed time to issue running-for-longer-than-expected warning (in seconds), default is 60 seconds
 config::timeout_check() {
-    local startTime=$(($1))
+    local start_time=$(($1))
     local message=$2
-    local exitTime="${3:-300}"
-    local warningTime="${4:-60}"
+    local exit_time="${3:-300}"
+    local warning_time="${4:-60}"
 
-    local timeDiff=$(($(date +%s) - $startTime))
-    if [[ $timeDiff -ge $warningTime ]] && [[ $timeDiff -lt $(($warningTime + 1)) ]]; then
-        log warn "Warning: Waited $warningTime seconds for $message. This is taking longer than it should..."
-    elif [[ $timeDiff -ge $exitTime ]]; then
-        log error "Fatal: Waited $exitTime seconds for $message. Exiting..."
+    local timeDiff=$(($(date +%s) - $start_time))
+    if [[ $timeDiff -ge $warning_time ]] && [[ $timeDiff -lt $(($warning_time + 1)) ]]; then
+        log warn "Warning: Waited $warning_time seconds for $message. This is taking longer than it should..."
+    elif [[ $timeDiff -ge $exit_time ]]; then
+        log error "Fatal: Waited $exit_time seconds for $message. Exiting..."
         exit 124
     fi
 }
