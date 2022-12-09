@@ -122,12 +122,14 @@ function initialize_package() {
   if [[ "$MODE" == "dev" ]]; then
     log info "Running Analytics Datastore Elastic Search package in DEV mode"
     elastic_search_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
+  else
+    log info "Running Analytics Datastore Elastic Search package in PROD mode"
   fi
 
   (
     if [[ "$STATEFUL_NODES" == "cluster" ]]; then
       create_certs
-      docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.cluster.yml" ""
+      docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.cluster.yml"
       add_docker_configs
 
     else
