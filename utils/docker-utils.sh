@@ -163,11 +163,11 @@ docker::deploy_service() {
 
     # Check for need to set config digests
     local -r files=($(yq '.configs."*.*".file' "${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE"))
-    if [ "${files[*]}" != "null" ]; then
+    if [[ "${files[*]}" != "null" ]]; then
         config::set_config_digests "${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE"
     fi
 
-    if [ -n "${DOCKER_COMPOSE_DEV_FILE}" ]; then
+    if [[ -n "${DOCKER_COMPOSE_DEV_FILE}" ]]; then
         docker_compose_dev="-c ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_DEV_FILE"
     fi
 
@@ -176,7 +176,7 @@ docker::deploy_service() {
         $docker_compose_dev \
          instant" \
         throw \
-        "Wrong configuration in compose file"
+        "Wrong configuration in ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE"
 }
 
 # Deploy a config importer:
@@ -195,7 +195,7 @@ docker::deploy_config_importer() {
 
     log info "Waiting for config importer $SERVICE_NAME to start ..."
     (
-        if [ ! -f "$CONFIG_COMPOSE_PATH" ]; then
+        if [[ ! -f "$CONFIG_COMPOSE_PATH" ]]; then
             log error "No such file: $CONFIG_COMPOSE_PATH"
             exit 1
         fi
@@ -205,7 +205,7 @@ docker::deploy_config_importer() {
         try \
             "docker stack deploy -c ${CONFIG_COMPOSE_PATH} instant" \
             throw \
-            "Wrong configuration in compose file"
+            "Wrong configuration in $CONFIG_COMPOSE_PATH"
 
         log info "Waiting to give core config importer time to run before cleaning up service"
 
