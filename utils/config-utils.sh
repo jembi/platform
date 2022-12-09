@@ -68,7 +68,7 @@ config::remove_stale_service_configs() {
     local -r composeNames=($(yq '.configs."*.*".name' "${DOCKER_COMPOSE_PATH}"))
     local configsToRemove=()
 
-    if [ "${composeNames[*]}" != "null" ]; then
+    if [[ "${composeNames[*]}" != "null" ]]; then
         for composeName in "${composeNames[@]}"; do
             composeNameWithoutEnv=$(echo "${composeName}" | sed 's/-\${.*//g')
 
