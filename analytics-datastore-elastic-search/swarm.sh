@@ -180,7 +180,7 @@ function destroy_package() {
   done
 
   if [[ "$NODE_MODE" == "cluster" ]]; then
-    docker::try_remove_volume es01-data
+    docker::try_remove_volume es01-data certs
     log warn "Volumes are only deleted on the host on which the command is run. Cluster volumes on other nodes are not deleted"
   else
     docker::try_remove_volume es-data
