@@ -15,7 +15,7 @@
     "TRUST_SELF_SIGNED": "true",
     "OPENHIM_USERNAME": "root@openhim.org",
     "OPENHIM_PASSWORD": "instant101",
-    "REGISTER_MEDIATOR": "false",
+    "REGISTER_MEDIATOR": "true",
     "MPI_CLIENT_ID": "fiddler",
     "MPI_CLIENT_SECRET": "fiddler",
     "MPI_PROTOCOL": "http",
