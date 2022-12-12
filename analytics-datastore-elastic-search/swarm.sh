@@ -4,6 +4,7 @@ declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare ROOT_PATH=""
+declare container_status=""
 declare service_names=()
 
 function init_vars() {
@@ -18,12 +19,14 @@ function init_vars() {
   ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 
   if [[ "${NODE_MODE}" == "cluster" ]]; then
+    container_status="Running"
     service_names=(
       "analytics-datastore-elastic-search-01"
       "analytics-datastore-elastic-search-02"
       "analytics-datastore-elastic-search-03"
     )
   else
+    container_status="Starting"
     service_names=(
       "analytics-datastore-elastic-search"
     )
@@ -33,6 +36,7 @@ function init_vars() {
   readonly MODE
   readonly COMPOSE_FILE_PATH
   readonly ROOT_PATH
+  readonly container_status
   readonly service_names
 }
 
@@ -71,9 +75,7 @@ function create_certs() {
   docker::await_container_startup create_certs
   docker::await_container_status create_certs Complete
 
-  overwrite "Creating certificates... Done"
   log info "Creating cert helper..."
-
   try \
     "docker run --rm --network host --name es-cert-helper -w /temp \
     -v instant_certgen:/temp-certificates \
@@ -86,7 +88,6 @@ function create_certs() {
   docker::await_container_destroy create_certs
   docker::await_container_destroy es-cert-helper
   docker::try_remove_volume certgen
-  overwrite "Creating cert helper... Done"
 }
 
 function add_docker_configs() {
@@ -102,7 +103,7 @@ function add_docker_configs() {
   )
   for n in "${number_configs[@]}"; do
     try "docker config create --label name=elasticsearch ${TIMESTAMP}-es$n.crt ./certs/es$n/es$n.crt" catch "Error creating config es$n.crt"
-    try "docker config create --label name=elasticsearch ${TIMESTAMP}-es$n.crt ./certs/es$n/es$n.key" catch "Error creating config es$n.key"
+    try "docker config create --label name=elasticsearch ${TIMESTAMP}-es$n.key ./certs/es$n/es$n.key" catch "Error creating config es$n.key"
 
     log info "Updating analytics-datastore-elastic-search-$n with certs..."
     try \
@@ -137,9 +138,12 @@ function initialize_package() {
       docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$elastic_search_dev_compose_param"
     fi
 
+    log info "Waiting for elasticsearch to start before automatically setting built-in passwords"
+
+    docker::await_container_status "$ES_LEADER_NODE" "$container_status"
     install_expect
-    docker::await_container_status "$ES_LEADER_NODE" Starting
     set_elasticsearch_passwords "$ES_LEADER_NODE"
+
     docker::deploy_sanity "${service_names[@]}"
 
   ) || {
