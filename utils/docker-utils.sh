@@ -121,7 +121,7 @@ docker::try_remove_volume() {
     fi
 
     for i in "$@"; do
-        local -r volume_name=${i}
+        local volume_name=${i}
 
         if ! docker volume ls | grep -q "\sinstant_${volume_name}$"; then
             log info "Tried to remove volume ${volume_name} but it doesn't exist on this node"
