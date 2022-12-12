@@ -4,6 +4,7 @@ declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare ROOT_PATH=""
+declare container_status=""
 declare service_names=()
 
 function init_vars() {
@@ -18,12 +19,14 @@ function init_vars() {
   ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 
   if [[ "${NODE_MODE}" == "cluster" ]]; then
+    container_status="Running"
     service_names=(
       "analytics-datastore-elastic-search-01"
       "analytics-datastore-elastic-search-02"
       "analytics-datastore-elastic-search-03"
     )
   else
+    container_status="Starting"
     service_names=(
       "analytics-datastore-elastic-search"
     )
@@ -33,6 +36,7 @@ function init_vars() {
   readonly MODE
   readonly COMPOSE_FILE_PATH
   readonly ROOT_PATH
+  readonly container_status
   readonly service_names
 }
 
@@ -109,7 +113,7 @@ function add_docker_configs() {
       --config-add source=${TIMESTAMP}-es$n.key,target=/usr/share/elasticsearch/config/certs/es$n/es$n.key \
       --replicas 1 \
       instant_analytics-datastore-elastic-search-$n" \
-      throw \
+      catch \
       "Error updating analytics-datastore-elastic-search-$n"
     overwrite "Updating analytics-datastore-elastic-search-$n with certs... Done"
   done
@@ -129,15 +133,14 @@ function initialize_package() {
     if [[ "$NODE_MODE" == "cluster" ]]; then
       create_certs
       docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.cluster.yml"
-      docker::await_container_status "$ES_LEADER_NODE" Running
       add_docker_configs
     else
       docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$elastic_search_dev_compose_param"
-      docker::await_container_status "$ES_LEADER_NODE" Starting
     fi
 
     log info "Waiting for elasticsearch to start before automatically setting built-in passwords"
 
+    docker::await_container_status "$ES_LEADER_NODE" "$container_status"
     install_expect
     set_elasticsearch_passwords "$ES_LEADER_NODE"
 
