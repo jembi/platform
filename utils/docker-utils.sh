@@ -243,7 +243,7 @@ docker::deploy_sanity() {
     fi
 
     for i in "$@"; do
-        log info "Waiting for $i to start ..."
+        log info "Waiting for $i to run ..."
         local start_time
         start_time=$(date +%s)
 
@@ -267,7 +267,7 @@ docker::deploy_sanity() {
                 fi
             fi
         done
-        overwrite "Waiting for $i to start ... Done"
+        overwrite "Waiting for $i to run ... Done"
     done
 }
 

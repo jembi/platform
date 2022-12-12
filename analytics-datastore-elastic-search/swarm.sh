@@ -140,6 +140,7 @@ function initialize_package() {
     install_expect
     docker::await_container_status "$ES_LEADER_NODE" Starting
     set_elasticsearch_passwords "$ES_LEADER_NODE"
+    docker::deploy_sanity "${service_names[@]}"
 
   ) || {
     log error "Failed to deploy Analytics Datastore Elastic Search package"
