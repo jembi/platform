@@ -193,7 +193,7 @@ main() {
   init_vars "$@"
   import_sources
 
-  if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
+  if [[ "${ACTION}" == "init" ]]; then
     log info "Running Analytics Datastore Elastic Search package in ${NODE_MODE} node mode"
 
     initialize_package
