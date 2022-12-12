@@ -158,7 +158,7 @@ function initialize_package() {
 
 function scale_services() {
   local -r REPLICA_NUMBER=${1:?"FATAL: scale_services REPLICA_NUMBER not provided"}
-  local -r scale_action="up"
+  local scale_action="up"
 
   if [[ $REPLICA_NUMBER == 0 ]]; then
     scale_action="down"
