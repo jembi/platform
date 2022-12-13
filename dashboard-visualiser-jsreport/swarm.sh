@@ -4,7 +4,7 @@ declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare ROOT_PATH=""
-declare name_service=""
+declare service_name=""
 
 function init_vars() {
   ACTION=$1
@@ -17,19 +17,18 @@ function init_vars() {
 
   ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 
-  name_service="dashboard-visualiser-jsreport"
+  service_name="dashboard-visualiser-jsreport"
 
   readonly ACTION
   readonly MODE
   readonly COMPOSE_FILE_PATH
   readonly ROOT_PATH
-  readonly name_service
+  readonly service_name
 }
 
 # shellcheck disable=SC1091
 function import_sources() {
   source "${ROOT_PATH}/utils/docker-utils.sh"
-  source "${ROOT_PATH}/utils/config-utils.sh"
   source "${ROOT_PATH}/utils/log.sh"
 }
 
@@ -44,7 +43,7 @@ dev_mount_jsreport() {
   if [[ "${JS_REPORT_DEV_MOUNT}" == "true" ]] && [[ "${ACTION}" == "init" ]]; then
     if [[ -z "${JS_REPORT_PACKAGE_PATH}" ]]; then
       log error "ERROR: JS_REPORT_PACKAGE_PATH environment variable not specified. Please specify JS_REPORT_PACKAGE_PATH as stated in the README."
-      # exit 1
+      exit 1
     fi
     log warn "MAKE SURE YOU HAVE RUN 'set-permissions.sh' SCRIPT BEFORE AND AFTER RUNNING JSREPORT"
 
@@ -69,31 +68,29 @@ function initialize_package() {
     unbound_ES_HOSTS_check
 
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$js_report_dev_compose_param" "$js_report_dev_mount_compose_param"
-    docker::deploy_sanity "${name_service}"
+    docker::deploy_sanity "${service_name}"
   ) || {
     log error "Failed to deploy Dashboard Visualiser Jsreport package"
     exit 1
   }
 
   if [[ "${JS_REPORT_DEV_MOUNT}" != "true" ]]; then
-    config::await_service_running "$name_service" "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml "${JS_REPORT_INSTANCES}"
-
     docker::deploy_config_importer "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "jsreport-config-importer" "jsreport"
   fi
 }
 
 function scale_services_down() {
   try \
-    "docker service scale instant_$name_service=0" \
+    "docker service scale instant_$service_name=0" \
     catch \
-    "Failed to scale down $name_service"
+    "Failed to scale down $service_name"
 }
 
 function destroy_package() {
   docker::service_destroy jsreport-config-importer
   docker::service_destroy await-helper
 
-  docker::service_destroy "$name_service"
+  docker::service_destroy "$service_name"
 
   docker::prune_configs "jsreport"
 }

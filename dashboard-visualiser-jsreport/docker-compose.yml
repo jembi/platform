@@ -3,6 +3,12 @@ version: '3.9'
 services:
   dashboard-visualiser-jsreport:
     image: jsreport/jsreport:3.2.0
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider -q http://localhost:5488/ || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     deploy:
       placement:
         max_replicas_per_node: 1
