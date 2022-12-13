@@ -5,6 +5,7 @@ declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare ROOT_PATH=""
 declare service_names=()
+declare scaled_services=()
 
 function init_vars() {
   ACTION=$1
@@ -17,10 +18,19 @@ function init_vars() {
 
   ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 
-  service_names=(
+  scaled_services=(
     "grafana"
     "prometheus"
     "prometheus-kafka-adapter"
+  )
+  if [[ "${NODE_MODE}" == "cluster" ]]; then
+    scaled_services=(
+      "${scaled_services[@]}"
+      "prometheus_backup"
+    )
+  fi
+  service_names=(
+    "${scaled_services[@]}"
     "cadvisor"
     "node-exporter"
   )
@@ -30,6 +40,7 @@ function init_vars() {
   readonly COMPOSE_FILE_PATH
   readonly ROOT_PATH
   readonly service_names
+  readonly scaled_services
 }
 
 # shellcheck disable=SC1091
@@ -39,8 +50,20 @@ function import_sources() {
   source "${ROOT_PATH}/utils/log.sh"
 }
 
+function remove_service() {
+  local -r SERVICE_NAME=${1:?"FATAL: await_container_startup parameter not provided"}
+
+  try "docker service rm instant_$SERVICE_NAME" catch "Failed to remove service $SERVICE_NAME"
+  docker::await_service_destroy "$SERVICE_NAME"
+}
+
 function initialize_package() {
   local monitoring_dev_compose_param=""
+  local monitoring_cluster_compose_param=""
+
+  if [[ "${NODE_MODE}" == "cluster" ]]; then
+    monitoring_cluster_compose_param="docker-compose.cluster.yml"
+  fi
 
   if [[ "${MODE}" == "dev" ]]; then
     log info "Running Monitoring package in DEV mode"
@@ -50,7 +73,7 @@ function initialize_package() {
   fi
 
   (
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$monitoring_dev_compose_param"
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$monitoring_dev_compose_param" "$monitoring_cluster_compose_param"
     docker::deploy_sanity "${service_names[@]}"
   ) || {
     log error "Failed to deploy Monitoring package"
@@ -59,21 +82,24 @@ function initialize_package() {
 }
 
 function scale_services_down() {
-  for service_name in "${service_names[@]}"; do
+  for service_name in "${scaled_services[@]}"; do
     try \
       "docker service scale instant_$service_name=0" \
       catch \
       "Failed to scale down $service_name"
   done
 
-  docker::await_service_destroy cadvisor
-  docker::await_service_destroy node-exporter
+  remove_service cadvisor
+  remove_service node-exporter
 }
 
 function destroy_package() {
-  for service_name in "${service_names[@]}"; do
+  for service_name in "${scaled_services[@]}"; do
     docker::service_destroy "$service_name"
   done
+
+  remove_service cadvisor
+  remove_service node-exporter
 
   docker::try_remove_volume prometheus_data grafana_data
 

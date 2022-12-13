@@ -46,7 +46,8 @@ dev_mount_logstash() {
       exit 1
     fi
 
-    logstash_dev_mount_compose_param="/docker-compose.dev-mnt.yml"
+    log info "Attaching dev mount..."
+    logstash_dev_mount_compose_param="docker-compose.dev-mnt.yml"
   fi
 }
 
@@ -63,13 +64,15 @@ function initialize_package() {
 
   if [[ "$MODE" == "dev" ]]; then
     log info "Running Data Mapper Logstash package in DEV mode"
-    logstash_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
+    logstash_dev_compose_param="docker-compose.dev.yml"
   else
     log info "Running Data Mapper Logstash package in PROD mode"
   fi
 
+  inject_pipeline_elastic_hosts
+
   config::generate_service_configs data-mapper-logstash /usr/share/logstash "${COMPOSE_FILE_PATH}/pipeline" "${COMPOSE_FILE_PATH}" "logstash"
-  logstash_temp_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.tmp.yml"
+  logstash_temp_compose_param="docker-compose.tmp.yml"
 
   (
     dev_mount_logstash
@@ -80,10 +83,6 @@ function initialize_package() {
     log error "Failed to deploy Data Mapper Logstash package"
     exit 1
   }
-
-  inject_pipeline_elastic_hosts
-
-  config::remove_stale_service_configs "${COMPOSE_FILE_PATH}/docker-compose.yml" "logstash"
 }
 
 function scale_services_down() {
