@@ -159,6 +159,7 @@ docker::deploy_service() {
     local -r DOCKER_COMPOSE_PATH="${1:?"FATAL: function 'deploy_service' is missing a parameter"}"
     local -r DOCKER_COMPOSE_FILE="${2:?"FATAL: function 'deploy_service' is missing a parameter"}"
     local -r DOCKER_COMPOSE_DEV_FILE="${3:-""}"
+    local -r DOCKER_COMPOSE_DEV_MOUNT="${4:-""}"
     local docker_compose_dev=""
 
     # Check for need to set config digests
@@ -169,6 +170,10 @@ docker::deploy_service() {
 
     if [[ -n "${DOCKER_COMPOSE_DEV_FILE}" ]]; then
         docker_compose_dev="-c ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_DEV_FILE"
+    fi
+
+    if [[ -n "${DOCKER_COMPOSE_DEV_MOUNT}" ]]; then
+        docker_compose_dev="$docker_compose_dev -c ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_DEV_MOUNT"
     fi
 
     try "docker stack deploy \

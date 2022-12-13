@@ -33,9 +33,22 @@ function import_sources() {
 }
 
 unbound_ES_HOSTS_check() {
-  if [[ ${STATEFUL_NODES} == "cluster" ]] && [[ -z ${ES_HOSTS:-""} ]]; then
+  if [[ ${NODE_MODE} == "cluster" ]] && [[ -z ${ES_HOSTS:-""} ]]; then
     log error "ES_HOSTS environment variable not set... Exiting"
     exit 1
+  fi
+}
+
+dev_mount_jsreport() {
+  if [[ "${JS_REPORT_DEV_MOUNT}" == "true" ]] && [[ "${ACTION}" == "init" ]]; then
+    if [[ -z "${JS_REPORT_PACKAGE_PATH}" ]]; then
+      log error "ERROR: JS_REPORT_PACKAGE_PATH environment variable not specified. Please specify JS_REPORT_PACKAGE_PATH as stated in the README."
+      # exit 1
+    fi
+    log warn "MAKE SURE YOU HAVE RUN 'set-permissions.sh' SCRIPT BEFORE AND AFTER RUNNING JS REPORT"
+
+    log info "Attaching dev mount..."
+    js_report_dev_mount_compose_param="docker-compose.dev-mnt.yml"
   fi
 }
 
@@ -50,19 +63,11 @@ function initialize_package() {
     log info "Running Jsreport package in in PROD mode"
   fi
 
-  if [[ "${JS_REPORT_DEV_MOUNT}" == "true" ]] && [[ "${ACTION}" == "init" ]]; then
-    if [[ -z "${JS_REPORT_PACKAGE_PATH}" ]]; then
-      log error "ERROR: JS_REPORT_PACKAGE_PATH environment variable not specified. Please specify JS_REPORT_PACKAGE_PATH as stated in the README."
-      exit 1
-    fi
-    log warn "MAKE SURE YOU HAVE RUN 'set-permissions.sh' SCRIPT BEFORE AND AFTER RUNNING JS REPORT"
-
-    log info "Attaching dev mount..."
-    js_report_dev_mount_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev-mnt.yml"
-  fi
-
   (
+    dev_mount_jsreport
+
     unbound_ES_HOSTS_check
+
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$js_report_dev_compose_param" "$js_report_dev_mount_compose_param"
     docker::deploy_sanity "${service_name}"
   ) || {
