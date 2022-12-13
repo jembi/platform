@@ -7,6 +7,8 @@
 
 . "$(pwd)/utils/log.sh"
 
+#######################################
+#
 # Sets the digest variables for the conf raft files in the provided docker compose file
 #
 # Requirements:
@@ -18,6 +20,8 @@
 #
 # Exports:
 # As many digest environment variables as are declared in the provided docker compose file
+#
+#######################################
 config::set_config_digests() {
     local -r DOCKER_COMPOSE_PATH="${1:?"FATAL: function 'set_config_digests' is missing a parameter"}"
 
@@ -52,6 +56,8 @@ config::set_config_digests() {
     fi
 }
 
+#######################################
+#
 # Removes stale docker configs based on the provided docker-compose file
 #
 # Requirements:
@@ -61,6 +67,8 @@ config::set_config_digests() {
 # Arguments:
 # - $1 : docker compose directory path (eg. /home/user/project/docker-compose.yml)
 # - $2 : config label (eg. logstash)
+#
+#######################################
 config::remove_stale_service_configs() {
     local -r DOCKER_COMPOSE_PATH="${1:?"FATAL: function 'remove_stale_service_configs' is missing a parameter"}"
     local -r CONFIG_LABEL="${2:?"FATAL: function 'remove_stale_service_configs' is missing a parameter"}"
@@ -106,6 +114,8 @@ config::remove_stale_service_configs() {
     fi
 }
 
+#######################################
+#
 # A function that exists in a loop to see how long that loop has run for, providing a warning
 # at the time specified in argument $3, and exits with code 124 after the time specified in argument $4.
 #
@@ -114,6 +124,8 @@ config::remove_stale_service_configs() {
 # - $2 : a message containing reference to the loop that timed out
 # - $3 : timeout time in seconds, default is 300 seconds
 # - $4 : elapsed time to issue running-for-longer-than-expected warning (in seconds), default is 60 seconds
+#
+#######################################
 config::timeout_check() {
     local start_time=$(($1))
     local message=$2
@@ -129,6 +141,8 @@ config::timeout_check() {
     fi
 }
 
+#######################################
+#
 # A generic function confirming whether or not a containerized api is reachable
 #
 # Requirements:
@@ -142,6 +156,8 @@ config::timeout_check() {
 # - $3 : desired number of instances of the awaited-service
 # - $4 : (optional) the max time allowed to wait for a service's response, defaults to 300 seconds
 # - $5 : (optional) elapsed time to throw a warning, defaults to 60 seconds
+#
+#######################################
 config::await_service_running() {
     local -r service_name="${1:?"FATAL: await_service_running function args not correctly set"}"
     local -r await_helper_file_path="${2:?"FATAL: await_service_running function args not correctly set"}"
@@ -174,12 +190,16 @@ config::await_service_running() {
     try "docker service rm instant_await-helper" catch "Failed to remove await-helper"
 }
 
+#######################################
+#
 # A function which removes a config importing service on successful completion, and exits with an error otherwise
 #
 # Arguments:
 # - $1 : the name of the config importer
 # - $2 : (optional) the timeout time for the config importer to run, defaults to 300 seconds
 # - $3 : (optional) elapsed time to throw a warning, defaults to 60 seconds
+#
+#######################################
 config::remove_config_importer() {
     local -r config_importer_service_name="${1:?"FATAL: remove_config_importer function args not correctly set"}"
     local -r exit_time="${2:-}"
@@ -209,10 +229,14 @@ config::remove_config_importer() {
     try "docker service rm instant_$config_importer_service_name" catch "Failed to remove config importer"
 }
 
+#######################################
+#
 # Waits for the provided service to be removed
 #
 # Arguments:
 # - $1 : service name (eg. instant_analytics-datastore-elastic-search)
+#
+#######################################
 config::await_service_removed() {
     local -r SERVICE_NAME="${1:?"FATAL: await_service_removed SERVICE_NAME not provided"}"
     local start_time=$(date +%s)
@@ -224,10 +248,14 @@ config::await_service_removed() {
     log info "Service $SERVICE_NAME successfully removed"
 }
 
+#######################################
+#
 # Waits for the provided service to join the network
 #
 # Arguments:
 # $1 : service name (eg. instant_analytics-datastore-elastic-search)
+#
+#######################################
 config::await_network_join() {
     local -r SERVICE_NAME="${1:?"FATAL: await_service_removed SERVICE_NAME not provided"}"
     local start_time=$(date +%s)
@@ -246,6 +274,8 @@ config::await_network_join() {
     done
 }
 
+#######################################
+#
 # Generates configs for a service from a folder and adds them to a temp docker-compose file
 #
 # Arguments:
@@ -263,6 +293,8 @@ config::await_network_join() {
 # - config_file
 # - config_label_name
 # - config_service_name
+#
+#######################################
 config::generate_service_configs() {
     local -r SERVICE_NAME=${1:?"FATAL: generate_service_config parameter missing"}
     local -r TARGET_BASE=${2:?"FATAL: generate_service_config parameter missing"}
@@ -306,10 +338,14 @@ config::generate_service_configs() {
     done
 }
 
+#######################################
+#
 # Removes nginx configs for destroyed services
 #
 # Arguments:
 # - $@ : a list of configs to remove
+#
+#######################################
 config::remove_service_nginx_config() {
     local configs=("$@")
     local config_rm_command=""
@@ -326,9 +362,11 @@ config::remove_service_nginx_config() {
 }
 
 #######################################
+#
 # Replaces all environment variables in a file with the environment variable value
 # Arguments:
 # - $1 : the path to the file that you wish to substitute env vars into (eg. "${COMPOSE_FILE_PATH}"/config.ini)
+#
 #######################################
 config::substitute_env_vars() {
     local -r FILE_PATH="${1:?"substitute_env_vars is missing a parameter"}"
