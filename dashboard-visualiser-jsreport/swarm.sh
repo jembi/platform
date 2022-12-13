@@ -4,7 +4,7 @@ declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare ROOT_PATH=""
-declare service_name=""
+declare name_service=""
 
 function init_vars() {
   ACTION=$1
@@ -17,18 +17,19 @@ function init_vars() {
 
   ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 
-  service_name="dashboard-visualiser-jsreport"
+  name_service="dashboard-visualiser-jsreport"
 
   readonly ACTION
   readonly MODE
   readonly COMPOSE_FILE_PATH
   readonly ROOT_PATH
-  readonly service_name
+  readonly name_service
 }
 
 # shellcheck disable=SC1091
 function import_sources() {
   source "${ROOT_PATH}/utils/docker-utils.sh"
+  source "${ROOT_PATH}/utils/config-utils.sh"
   source "${ROOT_PATH}/utils/log.sh"
 }
 
@@ -45,9 +46,8 @@ dev_mount_jsreport() {
       log error "ERROR: JS_REPORT_PACKAGE_PATH environment variable not specified. Please specify JS_REPORT_PACKAGE_PATH as stated in the README."
       # exit 1
     fi
-    log warn "MAKE SURE YOU HAVE RUN 'set-permissions.sh' SCRIPT BEFORE AND AFTER RUNNING JS REPORT"
+    log warn "MAKE SURE YOU HAVE RUN 'set-permissions.sh' SCRIPT BEFORE AND AFTER RUNNING JSREPORT"
 
-    log info "Attaching dev mount..."
     js_report_dev_mount_compose_param="docker-compose.dev-mnt.yml"
   fi
 }
@@ -57,10 +57,10 @@ function initialize_package() {
   local js_report_dev_mount_compose_param=""
 
   if [[ "${MODE}" == "dev" ]]; then
-    log info "Running Jsreport package in DEV mode"
+    log info "Running Dashboard Visualiser Jsreport package in DEV mode"
     js_report_dev_compose_param="docker-compose.dev.yml"
   else
-    log info "Running Jsreport package in in PROD mode"
+    log info "Running Dashboard Visualiser Jsreport package in in PROD mode"
   fi
 
   (
@@ -69,15 +69,14 @@ function initialize_package() {
     unbound_ES_HOSTS_check
 
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$js_report_dev_compose_param" "$js_report_dev_mount_compose_param"
-    docker::deploy_sanity "${service_name}"
+    docker::deploy_sanity "${name_service}"
   ) || {
-    log error "Failed to deploy Jsreport package"
+    log error "Failed to deploy Dashboard Visualiser Jsreport package"
     exit 1
   }
 
   if [[ "${JS_REPORT_DEV_MOUNT}" != "true" ]]; then
-    log info "Verifying JS Report service status"
-    config::await_service_running "dashboard-visualiser-jsreport" "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml "${JS_REPORT_INSTANCES}"
+    config::await_service_running "$name_service" "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml "${JS_REPORT_INSTANCES}"
 
     docker::deploy_config_importer "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "jsreport-config-importer" "jsreport"
   fi
@@ -85,16 +84,16 @@ function initialize_package() {
 
 function scale_services_down() {
   try \
-    "docker service scale instant_$service_name=0" \
+    "docker service scale instant_$name_service=0" \
     catch \
-    "Failed to scale down $service_name"
+    "Failed to scale down $name_service"
 }
 
 function destroy_package() {
   docker::service_destroy jsreport-config-importer
   docker::service_destroy await-helper
 
-  docker::service_destroy "$service_name"
+  docker::service_destroy "$name_service"
 
   docker::prune_configs "jsreport"
 }
@@ -104,15 +103,15 @@ main() {
   import_sources
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    log info "Running Analytics Datastore Clickhouse package in ${NODE_MODE} node mode"
+    log info "Running Dashboard Visualiser Jsreport package in ${NODE_MODE} node mode"
 
     initialize_package
   elif [[ "${ACTION}" == "down" ]]; then
-    log info "Scaling down Analytics Datastore Clickhouse"
+    log info "Scaling down Dashboard Visualiser Jsreport"
 
     scale_services_down
   elif [[ "${ACTION}" == "destroy" ]]; then
-    log info "Destroying Analytics Datastore Clickhouse"
+    log info "Destroying Dashboard Visualiser Jsreport"
 
     destroy_package
   else
