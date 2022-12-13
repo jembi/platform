@@ -1,17 +1,36 @@
 #!/bin/bash
 
-readonly ACTION=$1
-readonly MODE=$2
+declare ACTION=""
+declare MODE=""
+declare COMPOSE_FILE_PATH=""
+declare ROOT_PATH=""
+declare service_name=""
 
-COMPOSE_FILE_PATH=$(
-  cd "$(dirname "${BASH_SOURCE[0]}")" || exit
-  pwd -P
-)
+function init_vars() {
+  ACTION=$1
+  MODE=$2
 
-ROOT_PATH="${COMPOSE_FILE_PATH}/.."
-. "${ROOT_PATH}/utils/config-utils.sh"
-. "${ROOT_PATH}/utils/docker-utils.sh"
-. "${ROOT_PATH}/utils/log.sh"
+  COMPOSE_FILE_PATH=$(
+    cd "$(dirname "${BASH_SOURCE[0]}")" || exit
+    pwd -P
+  )
+
+  ROOT_PATH="${COMPOSE_FILE_PATH}/.."
+
+  service_name="dashboard-visualiser-jsreport"
+
+  readonly ACTION
+  readonly MODE
+  readonly COMPOSE_FILE_PATH
+  readonly ROOT_PATH
+  readonly service_name
+}
+
+# shellcheck disable=SC1091
+function import_sources() {
+  source "${ROOT_PATH}/utils/docker-utils.sh"
+  source "${ROOT_PATH}/utils/log.sh"
+}
 
 unbound_ES_HOSTS_check() {
   if [[ ${STATEFUL_NODES} == "cluster" ]] && [[ -z ${ES_HOSTS:-""} ]]; then
@@ -20,16 +39,17 @@ unbound_ES_HOSTS_check() {
   fi
 }
 
-main() {
-  if [[ "$MODE" == "dev" ]]; then
-    log info "Running JS Report package in DEV mode"
-    js_report_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
+function initialize_package() {
+  local js_report_dev_compose_param=""
+  local js_report_dev_mount_compose_param=""
+
+  if [[ "${MODE}" == "dev" ]]; then
+    log info "Running Jsreport package in DEV mode"
+    js_report_dev_compose_param="docker-compose.dev.yml"
   else
-    log info "Running JS Report package in PROD mode"
-    js_report_dev_compose_param=""
+    log info "Running Jsreport package in in PROD mode"
   fi
 
-  local js_report_dev_mount_compose_param=""
   if [[ "${JS_REPORT_DEV_MOUNT}" == "true" ]] && [[ "${ACTION}" == "init" ]]; then
     if [[ -z "${JS_REPORT_PACKAGE_PATH}" ]]; then
       log error "ERROR: JS_REPORT_PACKAGE_PATH environment variable not specified. Please specify JS_REPORT_PACKAGE_PATH as stated in the README."
@@ -41,31 +61,55 @@ main() {
     js_report_dev_mount_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev-mnt.yml"
   fi
 
-  if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
+  (
     unbound_ES_HOSTS_check
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$js_report_dev_compose_param" "$js_report_dev_mount_compose_param"
+    docker::deploy_sanity "${service_name}"
+  ) || {
+    log error "Failed to deploy Jsreport package"
+    exit 1
+  }
 
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $js_report_dev_compose_param $js_report_dev_mount_compose_param instant" "Failed to deploy JS Report"
+  if [[ "${JS_REPORT_DEV_MOUNT}" != "true" ]]; then
+    log info "Verifying JS Report service status"
+    config::await_service_running "dashboard-visualiser-jsreport" "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml "${JS_REPORT_INSTANCES}"
 
-    if [[ "${JS_REPORT_DEV_MOUNT}" != "true" ]]; then
-      log info "Verifying JS Report service status"
-      config::await_service_running "dashboard-visualiser-jsreport" "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml "${JS_REPORT_INSTANCES}"
+    docker::deploy_config_importer "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "jsreport-config-importer" "jsreport"
+  fi
+}
 
-      config::set_config_digests "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml
-      try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to start config importer"
+function scale_services_down() {
+  try \
+    "docker service scale instant_$service_name=0" \
+    catch \
+    "Failed to scale down $service_name"
+}
 
-      config::remove_config_importer "jsreport-config-importer"
-      config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "jsreport"
-    fi
+function destroy_package() {
+  docker::service_destroy jsreport-config-importer
+  docker::service_destroy await-helper
 
-    docker::deploy_sanity dashboard-visualiser-jsreport
+  docker::service_destroy "$service_name"
+
+  docker::prune_configs "jsreport"
+}
+
+main() {
+  init_vars "$@"
+  import_sources
+
+  if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
+    log info "Running Analytics Datastore Clickhouse package in ${NODE_MODE} node mode"
+
+    initialize_package
   elif [[ "${ACTION}" == "down" ]]; then
-    try "docker service scale instant_dashboard-visualiser-jsreport=0" "Failed to scale down dashboard-visualiser-jsreport"
-  elif [[ "${ACTION}" == "destroy" ]]; then
-    docker::service_destroy dashboard-visualiser-jsreport
-    docker::service_destroy jsreport-config-importer
-    docker::service_destroy await-helper
+    log info "Scaling down Analytics Datastore Clickhouse"
 
-    docker::prune_configs "jsreport"
+    scale_services_down
+  elif [[ "${ACTION}" == "destroy" ]]; then
+    log info "Destroying Analytics Datastore Clickhouse"
+
+    destroy_package
   else
     log error "Valid options are: init, up, down, or destroy"
   fi
