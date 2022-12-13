@@ -111,7 +111,7 @@ docker::try_remove_volume() {
     fi
 
     for i in "$@"; do
-        local -r volume_name=${i}
+        local volume_name=${i}
 
         if ! docker volume ls | grep -q "\sinstant_${volume_name}$"; then
             log info "Tried to remove volume ${volume_name} but it doesn't exist on this node"
@@ -233,13 +233,13 @@ docker::deploy_sanity() {
     fi
 
     for i in "$@"; do
-        log info "Waiting for $i to start ..."
+        log info "Waiting for $i to run ..."
         local start_time
         start_time=$(date +%s)
 
         error_message=()
         until [[ $(docker service ps instant_"$i" --format "{{.CurrentState}}" 2>/dev/null) == *"Running"* ]]; do
-            config::timeout_check "${start_time}" "$i to start"
+            config::timeout_check "${start_time}" "$i to run"
             sleep 1
 
             # Get unique error messages using sort -u
@@ -257,7 +257,7 @@ docker::deploy_sanity() {
                 fi
             fi
         done
-        overwrite "Waiting for $i to start ... Done"
+        overwrite "Waiting for $i to run ... Done"
     done
 }
 
