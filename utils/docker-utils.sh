@@ -182,6 +182,14 @@ docker::deploy_service() {
          instant" \
         throw \
         "Wrong configuration in ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE or in $docker_compose_dev"
+
+    # Remove stale configs according to the labels in the compose file
+    local -r label_names=($(yq '.configs."*.*".labels.name' "${DOCKER_COMPOSE_PATH}/${DOCKER_COMPOSE_FILE}" | sort -u))
+    if [[ "${label_names[*]}" != "null" ]]; then
+        for label_name in "${label_names[@]}"; do
+            config::remove_stale_service_configs "$COMPOSE_FILE_PATH/$DOCKER_COMPOSE_FILE" "${label_name}"
+        done
+    fi
 }
 
 # Deploy a config importer:
