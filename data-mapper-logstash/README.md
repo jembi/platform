@@ -15,3 +15,4 @@ eg. `ES_HOSTS="analytics-datastore-elastic-search-1:9200","analytics-datastore-e
 
 - With `LOGSTASH_DEV_MOUNT=true`, you have to set the `LOGSTASH_PACKAGE_PATH` variable with the absolute path to package containing your Logstash config files, i.e., `LOGSTASH_PACKAGE_PATH=/home/user/Documents/Projects/platform/data-mapper-logstash`.
 - WARNING: do not edit the pipeline files from within the logstash container, or the group ID and user ID will change, and subsequently will result in file permission errors on your local file system.
+- With `LOGSTASH_DEV_MOUNT=true`, you need to update the `ES_HOSTS` variable manually inside the pipeline folder.

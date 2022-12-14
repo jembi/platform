@@ -46,7 +46,7 @@ dev_mount_logstash() {
       exit 1
     fi
 
-    log info "Attaching dev mount..."
+    log info "Attaching dev mount file"
     logstash_dev_mount_compose_param="docker-compose.dev-mnt.yml"
   fi
 }
@@ -61,6 +61,7 @@ inject_pipeline_elastic_hosts() {
 function initialize_package() {
   local logstash_dev_compose_param=""
   local logstash_dev_mount_compose_param=""
+  local logstash_temp_compose_param=""
 
   if [[ "$MODE" == "dev" ]]; then
     log info "Running Data Mapper Logstash package in DEV mode"
@@ -69,10 +70,14 @@ function initialize_package() {
     log info "Running Data Mapper Logstash package in PROD mode"
   fi
 
-  inject_pipeline_elastic_hosts
+  if [[ "$LOGSTASH_DEV_MOUNT" == "true" ]]; then
+    log warn "LOGSTASH_DEV_MOUNT is enabled: Please make sure TO REPLACE ES_HOSTS MANUALLY IN ALL THE FILES inside pipeline folder!"
+  else
+    inject_pipeline_elastic_hosts
 
-  config::generate_service_configs data-mapper-logstash /usr/share/logstash "${COMPOSE_FILE_PATH}/pipeline" "${COMPOSE_FILE_PATH}" "logstash"
-  logstash_temp_compose_param="docker-compose.tmp.yml"
+    config::generate_service_configs data-mapper-logstash /usr/share/logstash "${COMPOSE_FILE_PATH}/pipeline" "${COMPOSE_FILE_PATH}" "logstash"
+    logstash_temp_compose_param="docker-compose.tmp.yml"
+  fi
 
   (
     dev_mount_logstash
