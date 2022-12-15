@@ -7,6 +7,10 @@
   "dependencies": ["interoperability-layer-openhim"],
   "environmentVariables": {
     "STATEFUL_NODES": "single",
-    "OPENHIM_MONGO_URL": "mongodb://mongo-1:27017/openhim"
+    "OPENHIM_URL": "https://openhim-core:8080",
+    "OPENHIM_USERNAME": "root@openhim.org",
+    "OPENHIM_MONGO_URL": "mongodb://mongo-1:27017/openhim",
+    "OPENHIM_REGISTER": "true",
+    "OPENHIM_PASSWORD": "instant101"
   }
 }
