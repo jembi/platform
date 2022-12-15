@@ -92,6 +92,7 @@ function create_certs() {
 
 function add_docker_configs() {
   local -r TIMESTAMP="$(date "+%Y%m%d%H%M%S")"
+  local -r path_config_certs="/usr/share/elasticsearch/config/certs/"
   log info "Creating configs..."
 
   try "docker config create --label name=elasticsearch ${TIMESTAMP}-ca.crt ./certs/ca/ca.crt" catch "Error creating config ca.crt"
@@ -108,9 +109,9 @@ function add_docker_configs() {
     log info "Updating analytics-datastore-elastic-search-$n with certs..."
     try \
       "docker service update \
-      --config-add source=${TIMESTAMP}-ca.crt,target=/usr/share/elasticsearch/config/certs/ca/ca.crt \
-      --config-add source=${TIMESTAMP}-es$n.crt,target=/usr/share/elasticsearch/config/certs/es$n/es$n.crt \
-      --config-add source=${TIMESTAMP}-es$n.key,target=/usr/share/elasticsearch/config/certs/es$n/es$n.key \
+      --config-add source=${TIMESTAMP}-ca.crt,target=$path_config_certs/ca/ca.crt \
+      --config-add source=${TIMESTAMP}-es$n.crt,target=$path_config_certs/es$n/es$n.crt \
+      --config-add source=${TIMESTAMP}-es$n.key,target=$path_config_certs/es$n/es$n.key \
       --replicas 1 \
       instant_analytics-datastore-elastic-search-$n" \
       catch \
