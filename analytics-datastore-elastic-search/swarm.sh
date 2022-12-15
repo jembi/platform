@@ -120,11 +120,11 @@ function add_docker_configs() {
 }
 
 function initialize_package() {
-  local elastic_search_dev_compose_param=""
+  local elastic_search_dev_compose_filename=""
 
   if [[ "$MODE" == "dev" ]]; then
     log info "Running Analytics Datastore Elastic Search package in DEV mode"
-    elastic_search_dev_compose_param="docker-compose.dev.yml"
+    elastic_search_dev_compose_filename="docker-compose.dev.yml"
   else
     log info "Running Analytics Datastore Elastic Search package in PROD mode"
   fi
@@ -135,7 +135,7 @@ function initialize_package() {
       docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.cluster.yml"
       add_docker_configs
     else
-      docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$elastic_search_dev_compose_param"
+      docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$elastic_search_dev_compose_filename"
     fi
 
     log info "Waiting for elasticsearch to start before automatically setting built-in passwords"
