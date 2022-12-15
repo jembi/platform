@@ -33,10 +33,10 @@ docker::await_container_startup() {
 docker::await_container_status() {
     local -r SERVICE_NAME=${1:?"FATAL: await_container_startup parameter not provided"}
     local -r SERVICE_STATUS=${2:?"FATAL: await_container_startup parameter not provided"}
+    local -r start_time=$(date +%s)
+    local error_message=()
 
     log info "Waiting for ${SERVICE_NAME} to be ${SERVICE_STATUS}..."
-    local -r start_time=$(date +%s)
-    error_message=()
     until [[ $(docker service ps instant_"${SERVICE_NAME}" --format "{{.CurrentState}}" 2>/dev/null) == *"${SERVICE_STATUS}"* ]]; do
         config::timeout_check "${start_time}" "${SERVICE_NAME} to start"
         sleep 1
@@ -186,7 +186,7 @@ docker::deploy_service() {
         $docker_compose_dev \
          instant" \
         throw \
-        "Wrong configuration in ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE or in $docker_compose_dev"
+        "Wrong configuration in ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE"
 }
 
 # Deploy a config importer:
