@@ -1,8 +1,6 @@
 [leader]
-13.244.111.91 name=node-1
+jempi-nigeria.gicsandbox.org name=node-1
 
 [managers]
-13.244.239.144 name=node-2
-13.246.13.60 name=node-3
 
 [workers]
