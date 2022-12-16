@@ -3,7 +3,7 @@
 declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
-declare ROOT_PATH=""
+declare UTILS_PATH=""
 declare service_name=""
 
 function init_vars() {
@@ -15,36 +15,36 @@ function init_vars() {
     pwd -P
   )
 
-  ROOT_PATH="${COMPOSE_FILE_PATH}/.."
+  UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
   service_name="dashboard-visualiser-superset"
 
   readonly ACTION
   readonly MODE
   readonly COMPOSE_FILE_PATH
-  readonly ROOT_PATH
+  readonly UTILS_PATH
   readonly service_name
 }
 
 # shellcheck disable=SC1091
 function import_sources() {
-  source "${ROOT_PATH}/utils/docker-utils.sh"
-  source "${ROOT_PATH}/utils/config-utils.sh"
-  source "${ROOT_PATH}/utils/log.sh"
+  source "${UTILS_PATH}/docker-utils.sh"
+  source "${UTILS_PATH}/config-utils.sh"
+  source "${UTILS_PATH}/log.sh"
 }
 
 function initialize_package() {
-  local superset_dev_compose_param=""
+  local superset_dev_compose_filename=""
 
   if [[ "${MODE}" == "dev" ]]; then
     log info "Running Dashboard Visualiser Superset package in DEV mode"
-    superset_dev_compose_param="docker-compose.dev.yml"
+    superset_dev_compose_filename="docker-compose.dev.yml"
   else
     log info "Running Dashboard Visualiser Superset package in PROD mode"
   fi
 
   (
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$superset_dev_compose_param"
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$superset_dev_compose_filename"
     docker::deploy_sanity "${service_name}"
   ) || {
     log error "Failed to deploy Dashboard Visualiser Superset package"

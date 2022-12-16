@@ -3,7 +3,7 @@
 declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
-declare ROOT_PATH=""
+declare UTILS_PATH=""
 declare service_name=""
 
 function init_vars() {
@@ -15,21 +15,21 @@ function init_vars() {
     pwd -P
   )
 
-  ROOT_PATH="${COMPOSE_FILE_PATH}/.."
+  UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
   service_name="dashboard-visualiser-jsreport"
 
   readonly ACTION
   readonly MODE
   readonly COMPOSE_FILE_PATH
-  readonly ROOT_PATH
+  readonly UTILS_PATH
   readonly service_name
 }
 
 # shellcheck disable=SC1091
 function import_sources() {
-  source "${ROOT_PATH}/utils/docker-utils.sh"
-  source "${ROOT_PATH}/utils/log.sh"
+  source "${UTILS_PATH}/docker-utils.sh"
+  source "${UTILS_PATH}/log.sh"
 }
 
 unbound_ES_HOSTS_check() {
@@ -47,17 +47,17 @@ dev_mount_jsreport() {
     fi
     log warn "MAKE SURE YOU HAVE RUN 'set-permissions.sh' SCRIPT BEFORE AND AFTER RUNNING JSREPORT"
 
-    js_report_dev_mount_compose_param="docker-compose.dev-mnt.yml"
+    js_report_dev_mount_compose_filename="docker-compose.dev-mnt.yml"
   fi
 }
 
 function initialize_package() {
-  local js_report_dev_compose_param=""
-  local js_report_dev_mount_compose_param=""
+  local js_report_dev_compose_filename=""
+  local js_report_dev_mount_compose_filename=""
 
   if [[ "${MODE}" == "dev" ]]; then
     log info "Running Dashboard Visualiser Jsreport package in DEV mode"
-    js_report_dev_compose_param="docker-compose.dev.yml"
+    js_report_dev_compose_filename="docker-compose.dev.yml"
   else
     log info "Running Dashboard Visualiser Jsreport package in in PROD mode"
   fi
@@ -67,7 +67,7 @@ function initialize_package() {
 
     unbound_ES_HOSTS_check
 
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$js_report_dev_compose_param" "$js_report_dev_mount_compose_param"
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$js_report_dev_compose_filename" "$js_report_dev_mount_compose_filename"
     docker::deploy_sanity "${service_name}"
   ) || {
     log error "Failed to deploy Dashboard Visualiser Jsreport package"
