@@ -35,11 +35,21 @@ docker::await_container_status() {
     local -r SERVICE_STATUS=${2:?"FATAL: await_container_startup parameter not provided"}
 
     log info "Waiting for ${SERVICE_NAME} to be ${SERVICE_STATUS}..."
-    local start_time
-    start_time=$(date +%s)
+    local -r start_time=$(date +%s)
+    error_message=()
     until [[ $(docker service ps instant_"${SERVICE_NAME}" --format "{{.CurrentState}}" 2>/dev/null) == *"${SERVICE_STATUS}"* ]]; do
         config::timeout_check "${start_time}" "${SERVICE_NAME} to start"
         sleep 1
+
+        # Get unique error messages using sort -u
+        new_error_message=($(docker service ps instant_"$SERVICE_NAME" --no-trunc --format '{{ .Error }}' 2>&1 | sort -u))
+        if [[ -n ${new_error_message[*]} ]]; then
+            # To prevent logging the same error
+            if [[ "${error_message[*]}" != "${new_error_message[*]}" ]]; then
+                error_message=(${new_error_message[*]})
+                log error "Deploy error in service $SERVICE_NAME: ${error_message[*]}"
+            fi
+        fi
     done
     overwrite "Waiting for ${SERVICE_NAME} to be ${SERVICE_STATUS}... Done"
 }
@@ -184,6 +194,14 @@ docker::deploy_service() {
          instant" \
         throw \
         "Wrong configuration in ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE or in the other supplied compose files"
+
+    # Remove stale configs according to the labels in the compose file
+    local -r label_names=($(yq '.configs."*.*".labels.name' "${DOCKER_COMPOSE_PATH}/${DOCKER_COMPOSE_FILE}" | sort -u))
+    if [[ "${label_names[*]}" != "null" ]]; then
+        for label_name in "${label_names[@]}"; do
+            config::remove_stale_service_configs "$COMPOSE_FILE_PATH/$DOCKER_COMPOSE_FILE" "${label_name}"
+        done
+    fi
 }
 
 # Deploy a config importer:

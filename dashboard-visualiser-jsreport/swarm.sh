@@ -47,6 +47,7 @@ dev_mount_jsreport() {
     fi
     log warn "MAKE SURE YOU HAVE RUN 'set-permissions.sh' SCRIPT BEFORE AND AFTER RUNNING JSREPORT"
 
+    log info "Attaching dev mount file"
     js_report_dev_mount_compose_filename="docker-compose.dev-mnt.yml"
   fi
 }
