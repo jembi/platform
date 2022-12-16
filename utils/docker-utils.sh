@@ -11,7 +11,7 @@
 # Arguments:
 # - $1 : service name (eg. analytics-datastore-elastic-search)
 #
-function get_current_service_status() {
+docker::get_current_service_status() {
     local -r SERVICE_NAME=${1:?"FATAL: await_container_startup parameter not provided"}
 
     docker service ps instant_"${SERVICE_NAME}" --format "{{.CurrentState}}" 2>/dev/null
@@ -22,7 +22,7 @@ function get_current_service_status() {
 # Arguments:
 # - $1 : service name (eg. analytics-datastore-elastic-search)
 #
-function get_service_unique_errors() {
+docker::get_service_unique_errors() {
     local -r SERVICE_NAME=${1:?"FATAL: await_container_startup parameter not provided"}
 
     # Get unique error messages using sort -u
@@ -59,12 +59,12 @@ docker::await_container_status() {
     local error_message=()
 
     log info "Waiting for ${SERVICE_NAME} to be ${SERVICE_STATUS}..."
-    until [[ $(get_current_service_status "${SERVICE_NAME}") == *"${SERVICE_STATUS}"* ]]; do
+    until [[ $(docker::get_current_service_status "${SERVICE_NAME}") == *"${SERVICE_STATUS}"* ]]; do
         config::timeout_check "${start_time}" "${SERVICE_NAME} to start"
         sleep 1
 
         # Get unique error messages using sort -u
-        new_error_message=($(get_service_unique_errors "$SERVICE_NAME"))
+        new_error_message=($(docker::get_service_unique_errors "$SERVICE_NAME"))
         if [[ -n ${new_error_message[*]} ]]; then
             # To prevent logging the same error
             if [[ "${error_message[*]}" != "${new_error_message[*]}" ]]; then
@@ -278,11 +278,11 @@ docker::deploy_sanity() {
         start_time=$(date +%s)
 
         error_message=()
-        until [[ $(get_current_service_status "${i}") == *"Running"* ]]; do
+        until [[ $(docker::get_current_service_status "${i}") == *"Running"* ]]; do
             config::timeout_check "${start_time}" "$i to run"
             sleep 1
 
-            new_error_message=($(get_service_unique_errors "$i"))
+            new_error_message=($(docker::get_service_unique_errors "$i"))
             if [[ -n ${new_error_message[*]} ]]; then
                 # To prevent logging the same error
                 if [[ "${error_message[*]}" != "${new_error_message[*]}" ]]; then
