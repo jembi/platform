@@ -12,7 +12,7 @@
 # - $1 : service name (eg. analytics-datastore-elastic-search)
 #
 docker::get_current_service_status() {
-    local -r SERVICE_NAME=${1:?"FATAL: await_container_startup parameter not provided"}
+    local -r SERVICE_NAME=${1:?"FATAL: get_current_service_status parameter not provided"}
 
     docker service ps instant_"${SERVICE_NAME}" --format "{{.CurrentState}}" 2>/dev/null
 }
@@ -23,11 +23,35 @@ docker::get_current_service_status() {
 # - $1 : service name (eg. analytics-datastore-elastic-search)
 #
 docker::get_service_unique_errors() {
-    local -r SERVICE_NAME=${1:?"FATAL: await_container_startup parameter not provided"}
+    local -r SERVICE_NAME=${1:?"FATAL: get_service_unique_errors parameter not provided"}
 
     # Get unique error messages using sort -u
     docker service ps instant_"${SERVICE_NAME}" --no-trunc --format '{{ .Error }}' 2>&1 | sort -u
 }
+
+# Warn when the status is Preparing for 3 minutes
+#
+# Arguments:
+# - $1 : service name (eg. analytics-datastore-elastic-search)
+#
+docker::warn_preparing_status() {
+    declare -n WARNING_IS_LOGGED="${1:?"FATAL: warn_preparing_status is missing a parameter"}"
+    local -r SERVICE_NAME=${2:?"FATAL: warn_preparing_status parameter not provided"}
+    local status=""
+    local time_passed=""
+
+    status="$(docker::get_current_service_status "$SERVICE_NAME" | cut -d" " -f1)"
+    time_passed="$(docker::get_current_service_status "$SERVICE_NAME" | cut -d" " -f2,3)"
+
+    if [[ $WARNING_IS_LOGGED == "false" && $status == "Preparing" && $time_passed == *"3 minutes"* ]]; then
+        log warn "Warning: The service $SERVICE_NAME is in Preparing status for 3 minutes\n\
+    Are you sure you have the image installed with the latest changes?\n\
+    Consider pulling again\n"
+
+        WARNING_IS_LOGGED="true"
+    fi
+}
+
 # Waits for a container to be up
 #
 # Arguments:
@@ -58,11 +82,13 @@ docker::await_container_status() {
     local -r start_time=$(date +%s)
     local error_message=()
 
+    warning_is_logged="false"
     log info "Waiting for ${SERVICE_NAME} to be ${SERVICE_STATUS}..."
     until [[ $(docker::get_current_service_status "${SERVICE_NAME}") == *"${SERVICE_STATUS}"* ]]; do
         config::timeout_check "${start_time}" "${SERVICE_NAME} to start"
         sleep 1
 
+        docker::warn_preparing_status warning_is_logged "$SERVICE_NAME"
         # Get unique error messages using sort -u
         new_error_message=($(docker::get_service_unique_errors "$SERVICE_NAME"))
         if [[ -n ${new_error_message[*]} ]]; then
@@ -70,6 +96,12 @@ docker::await_container_status() {
             if [[ "${error_message[*]}" != "${new_error_message[*]}" ]]; then
                 error_message=(${new_error_message[*]})
                 log error "Deploy error in service $SERVICE_NAME: ${error_message[*]}"
+            fi
+
+            # To exit in case the error is not having the image
+            if [[ "${new_error_message[*]}" == *"No such image"* ]]; then
+                log error "Do you have access to pull the image?"
+                exit 124
             fi
         fi
     done
@@ -179,6 +211,24 @@ docker::prune_configs() {
     fi
 }
 
+docker::check_images_existence() {
+    if [[ -z "$*" ]]; then
+        log error "FATAL: check_images_existence parameter missing"
+        exit 1
+    fi
+
+    for i in "$@"; do
+        if [[ -z $(docker image inspect "$i" --format "{{.Id}}" 2>/dev/null) ]]; then
+            log info "The image $i is not found, Pulling from docker..."
+            try \
+                "docker pull $i" \
+                throw \
+                "An error occured while pulling the image $i"
+            overwrite "The image $i is not found, Pulling from docker... Done"
+        fi
+    done
+}
+
 # Deploy a service, it will set config digests (in case a config is defined in the compose file)
 #
 # Arguments:
@@ -192,6 +242,12 @@ docker::deploy_service() {
     local -r DOCKER_COMPOSE_FILE="${2:?"FATAL: function 'deploy_service' is missing a parameter"}"
     local -r DOCKER_COMPOSE_DEV_FILE="${3:-""}"
     local docker_compose_dev=""
+
+    # Check for the existance of the images
+    local -r images=($(yq '.services."*".image' "${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE"))
+    if [[ "${images[*]}" != "null" ]]; then
+        docker::check_images_existence "${images[@]}"
+    fi
 
     # Check for need to set config digests
     local -r files=($(yq '.configs."*.*".file' "${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE"))
@@ -273,30 +329,7 @@ docker::deploy_sanity() {
     fi
 
     for i in "$@"; do
-        log info "Waiting for $i to run ..."
-        local start_time
-        start_time=$(date +%s)
-
-        error_message=()
-        until [[ $(docker::get_current_service_status "${i}") == *"Running"* ]]; do
-            config::timeout_check "${start_time}" "$i to run"
-            sleep 1
-
-            new_error_message=($(docker::get_service_unique_errors "$i"))
-            if [[ -n ${new_error_message[*]} ]]; then
-                # To prevent logging the same error
-                if [[ "${error_message[*]}" != "${new_error_message[*]}" ]]; then
-                    error_message=(${new_error_message[*]})
-                    log error "Deploy error in service $i: ${error_message[*]}"
-                fi
-                # To exit in case the error is not having the image
-                if [[ "${new_error_message[*]}" == *"No such image"* ]]; then
-                    log error "Do you have access to pull the image?"
-                    exit 124
-                fi
-            fi
-        done
-        overwrite "Waiting for $i to run ... Done"
+        docker::await_container_status "$i" "Running"
     done
 }
 
