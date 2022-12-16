@@ -25,6 +25,7 @@ function get_current_service_status() {
 function get_service_unique_errors() {
     local -r SERVICE_NAME=${1:?"FATAL: await_container_startup parameter not provided"}
 
+    # Get unique error messages using sort -u
     docker service ps instant_"${SERVICE_NAME}" --no-trunc --format '{{ .Error }}' 2>&1 | sort -u
 }
 # Waits for a container to be up
@@ -281,7 +282,6 @@ docker::deploy_sanity() {
             config::timeout_check "${start_time}" "$i to run"
             sleep 1
 
-            # Get unique error messages using sort -u
             new_error_message=($(get_service_unique_errors "$i"))
             if [[ -n ${new_error_message[*]} ]]; then
                 # To prevent logging the same error
