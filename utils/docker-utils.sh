@@ -35,20 +35,19 @@ docker::get_service_unique_errors() {
 # - $1 : service name (eg. analytics-datastore-elastic-search)
 #
 docker::warn_preparing_status() {
-    declare -n WARNING_IS_LOGGED="${1:?"FATAL: warn_preparing_status is missing a parameter"}"
-    local -r SERVICE_NAME=${2:?"FATAL: warn_preparing_status parameter not provided"}
+    local -r SERVICE_NAME=${1:?"FATAL: warn_preparing_status parameter not provided"}
     local status=""
     local time_passed=""
 
     status="$(docker::get_current_service_status "$SERVICE_NAME" | cut -d" " -f1)"
     time_passed="$(docker::get_current_service_status "$SERVICE_NAME" | cut -d" " -f2,3)"
 
-    if [[ $WARNING_IS_LOGGED == "false" && $status == "Preparing" && $time_passed == *"3 minutes"* ]]; then
+    if [[ $PREPARING_WARNING_IS_LOGGED == "false" && $status == "Preparing" && $time_passed == *"3 minutes"* ]]; then
         log warn "Warning: The service $SERVICE_NAME is in Preparing status for 3 minutes\n\
     Are you sure you have the image installed with the latest changes?\n\
     Consider pulling again\n"
 
-        WARNING_IS_LOGGED="true"
+        export PREPARING_WARNING_IS_LOGGED="true"
     fi
 }
 
@@ -82,13 +81,14 @@ docker::await_container_status() {
     local -r start_time=$(date +%s)
     local error_message=()
 
-    warning_is_logged="false"
+    export PREPARING_WARNING_IS_LOGGED="false"
+
     log info "Waiting for ${SERVICE_NAME} to be ${SERVICE_STATUS}..."
     until [[ $(docker::get_current_service_status "${SERVICE_NAME}") == *"${SERVICE_STATUS}"* ]]; do
         config::timeout_check "${start_time}" "${SERVICE_NAME} to start"
         sleep 1
 
-        docker::warn_preparing_status warning_is_logged "$SERVICE_NAME"
+        docker::warn_preparing_status "$SERVICE_NAME"
         # Get unique error messages using sort -u
         new_error_message=($(docker::get_service_unique_errors "$SERVICE_NAME"))
         if [[ -n ${new_error_message[*]} ]]; then
