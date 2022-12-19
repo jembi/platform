@@ -8,7 +8,6 @@
   "environmentVariables": {
     "NODE_MODE": "single",
     "KAFKA_INSTANCES": "1",
-    "KAFKA_CFG_ZOOKEEPER_CONNECT": "zookeeper-1:2181",
     "KAFKA_CPU_LIMIT": "0",
     "KAFKA_CPU_RESERVE": "0.05",
     "KAFKA_MEMORY_LIMIT": "3G",
