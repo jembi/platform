@@ -1,108 +1,151 @@
 #!/bin/bash
-readonly ACTION=$1
-readonly MODE=$2
 
-COMPOSE_FILE_PATH=$(
-  cd "$(dirname "${BASH_SOURCE[0]}")" || exit
-  pwd -P
-)
+declare ACTION=""
+declare MODE=""
+declare COMPOSE_FILE_PATH=""
+declare UTILS_PATH=""
+declare zookeeper_services=()
+declare utils_services=()
+declare service_names=()
 
-# Import libraries
-ROOT_PATH="${COMPOSE_FILE_PATH}/.."
-. "${ROOT_PATH}/utils/config-utils.sh"
-. "${ROOT_PATH}/utils/docker-utils.sh"
-. "${ROOT_PATH}/utils/log.sh"
+function init_vars() {
+  ACTION=$1
+  MODE=$2
 
-if [[ $STATEFUL_NODES == "cluster" ]]; then
-  log info "Running Message Bus Kafka package in Cluster node mode"
-  kafka_zoo_cluster_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.cluster.kafka-zoo.yml"
-  kafka_cluster_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.cluster.kafka.yml"
-else
-  log info "Running Message Bus Kafka package in Single node mode"
-  kafka_zoo_cluster_compose_param=""
-  kafka_cluster_compose_param=""
-fi
+  COMPOSE_FILE_PATH=$(
+    cd "$(dirname "${BASH_SOURCE[0]}")" || exit
+    pwd -P
+  )
 
-if [[ "${MODE}" == "dev" ]]; then
-  log info "Running Message Bus Kafka package in DEV mode"
-  kafka_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.kafka.yml"
-  kafka_utils_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.kafka-utils.yml"
-else
-  log info "Running Message Bus Kafka package in PROD mode"
-  kafka_dev_compose_param=""
-  kafka_utils_dev_compose_param=""
-fi
+  UTILS_PATH="${COMPOSE_FILE_PATH}/../utils/"
 
-if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-  config::set_config_digests "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml
+  zookeeper_services=(
+    "zookeeper-1"
+  )
 
-  log info "Deploy Zookeeper"
-  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.kafka-zoo.yml $kafka_zoo_cluster_compose_param instant" "Failed to deploy Message Bus Kafka"
+  utils_services=(
+    "kafdrop"
+    "kafka-minion"
+  )
 
-  docker::await_container_startup zookeeper-1
-  docker::await_container_status zookeeper-1 Running
-
-  if [[ $STATEFUL_NODES == "cluster" ]]; then
-    docker::await_container_startup zookeeper-2
-    docker::await_container_status zookeeper-2 Running
-
-    docker::await_container_startup zookeeper-3
-    docker::await_container_status zookeeper-3 Running
+  if [[ "${NODE_MODE}" == "cluster" ]]; then
+    zookeeper_services=(
+      "${zookeeper_services[@]}"
+      "zookeeper-2"
+      "zookeeper-3"
+    )
   fi
 
-  log info "Deploy Kafka"
-  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.kafka.yml $kafka_cluster_compose_param $kafka_dev_compose_param instant" "Failed to deploy Message Bus Kafka"
+  service_names=(
+    "${zookeeper_services[@]}"
+    "${utils_services[@]}"
+    "kafka"
+  )
 
-  docker::await_container_startup kafka
-  docker::await_container_status kafka Running
+  readonly ACTION
+  readonly MODE
+  readonly COMPOSE_FILE_PATH
+  readonly UTILS_PATH
+  readonly zookeeper_services
+  readonly service_names
+}
 
-  config::await_service_reachable "kafka" "Connected"
+# shellcheck disable=SC1091
+function import_sources() {
+  source "${UTILS_PATH}/docker-utils.sh"
+  source "${UTILS_PATH}/config-utils.sh"
+  source "${UTILS_PATH}/log.sh"
+}
 
-  log info "Deploy the other services dependent of Kafka"
-  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.kafka-utils.yml $kafka_utils_dev_compose_param instant" "Failed to deploy Message Bus Kafka"
+function initialize_package() {
+  local kafka_dev_compose_filename=""
+  local kafka_cluster_compose_filename=""
+  local kafka_utils_dev_compose_filename=""
+  local kafka_zoo_cluster_compose_filename=""
+
+  if [[ "${MODE}" == "dev" ]]; then
+    log info "Running Message Bus Kafka package in DEV mode"
+    kafka_dev_compose_filename="docker-compose.dev.kafka.yml"
+    kafka_utils_dev_compose_filename="docker-compose.dev.kafka-utils.yml"
+  else
+    log info "Running Message Bus Kafka package in PROD mode"
+  fi
+
+  if [[ $NODE_MODE == "cluster" ]]; then
+    kafka_zoo_cluster_compose_filename="docker-compose.cluster.kafka-zoo.yml"
+    kafka_cluster_compose_filename="docker-compose.cluster.kafka.yml"
+  fi
+
+  (
+    log info "Deploy Zookeeper"
+
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.kafka-zoo.yml" "$kafka_zoo_cluster_compose_filename"
+    docker::deploy_sanity "${zookeeper_services[@]}"
+
+    log info "Deploy Kafka"
+
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.kafka.yml" "$kafka_cluster_compose_filename" "$kafka_dev_compose_filename"
+    docker::deploy_sanity "kafka"
+    config::await_service_reachable "kafka" "Connected"
+
+    log info "Deploy the other services dependent of Kafka"
+
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.kafka-utils.yml" "$kafka_utils_dev_compose_filename"
+    docker::deploy_sanity "${utils_services[@]}"
+  ) || {
+    log error "Failed to deploy Message Bus Kafka package"
+    exit 1
+  }
 
   config::await_service_running "kafka" "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml "${KAFKA_INSTANCES}"
 
-  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to deploy Message Bus Kafka"
+  docker::deploy_config_importer "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "message-bus-kafka-config-importer" "kafka"
+}
 
-  config::remove_stale_service_configs "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml "ethiopia"
-  config::remove_config_importer message-bus-kafka-config-importer
+function scale_services_down() {
+  for service_name in "${service_names[@]}"; do
+    try \
+      "docker service scale instant_$service_name=0" \
+      catch \
+      "Failed to scale down $service_name"
+  done
+}
 
-  if [ "$STATEFUL_NODES" == "cluster" ]; then
-    docker::deploy_sanity kafka kafdrop kafka-minion zookeeper-1 zookeeper-2 zookeeper-3
-  else
-    docker::deploy_sanity kafka kafdrop kafka-minion zookeeper-1
-  fi
-elif [[ "${ACTION}" == "down" ]]; then
-  try "docker service scale instant_zookeeper-1=0 instant_kafdrop=0 instant_kafka-minion=0" "Failed to scale down zookeeper, kafdrop and kafka-minion"
-
-  try "docker service scale instant_kafka=0" "Failed to scale kafka down"
-  if [[ $STATEFUL_NODES == "cluster" ]]; then
-    try "docker service scale instant_zookeeper-2=0" "Failed to scale down zookeeper cluster"
-    try "docker service scale instant_zookeeper-3=0" "Failed to scale down zookeeper cluster"
-  fi
-elif [[ "${ACTION}" == "destroy" ]]; then
-  log info "Allow services to shut down before deleting volumes"
-
-  docker::service_destroy zookeeper-1
-  docker::service_destroy kafka
-  docker::service_destroy kafdrop
+function destroy_package() {
   docker::service_destroy message-bus-kafka-config-importer
-  docker::service_destroy kafka-minion
 
-  docker::try_remove_volume zookeeper-1-volume
-  docker::try_remove_volume kafka-volume
+  for service_name in "${service_names[@]}"; do
+    docker::service_destroy "$service_name"
+  done
 
-  if [[ $STATEFUL_NODES == "cluster" ]]; then
-    docker::service_destroy zookeeper-2
-    docker::service_destroy zookeeper-3
+  docker::try_remove_volume zookeeper-1-volume kafka-volume
 
-    docker::try_remove_volume zookeeper-2-volume
-    docker::try_remove_volume zookeeper-3-volume
-    log warn "Volumes are only deleted on the host on which the command is run. Kafka volumes on other nodes are not deleted"
+  if [[ "$NODE_MODE" == "cluster" ]]; then
+    log warn "Volumes are only deleted on the host on which the command is run. Cluster volumes on other nodes are not deleted"
   fi
 
   docker::prune_configs "kafka"
-else
-  log error "Valid options are: init, up, down, or destroy"
-fi
+}
+
+main() {
+  init_vars "$@"
+  import_sources
+
+  if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
+    log info "Running Message Bus Kafka package in ${NODE_MODE} node mode"
+
+    initialize_package
+  elif [[ "${ACTION}" == "down" ]]; then
+    log info "Scaling down Message Bus Kafka"
+
+    scale_services_down
+  elif [[ "${ACTION}" == "destroy" ]]; then
+    log info "Destroying Message Bus Kafka"
+
+    destroy_package
+  else
+    log error "Valid options are: init, up, down, or destroy"
+  fi
+}
+
+main "$@"

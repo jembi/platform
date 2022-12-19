@@ -148,7 +148,8 @@ config::await_service_running() {
     local -r service_instances="${3:?"FATAL: await_service_running function args not correctly set"}"
     local -r exit_time="${4:-}"
     local -r warning_time="${5:-}"
-    local -r start_time=$(date +%s)
+    local start_time
+    start_time=$(date +%s)
 
     docker service rm instant_await-helper &>/dev/null
 
@@ -158,10 +159,12 @@ config::await_service_running() {
         sleep 1
     done
 
+    start_time=$(date +%s) # Reintialize for the second loop
     local await_helper_state
     await_helper_state=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
     until [[ $await_helper_state == *"Complete"* ]]; do
         config::timeout_check "$start_time" "$service_name status check" "$exit_time" "$warning_time"
+        sleep 1
 
         await_helper_state=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
         if [[ $await_helper_state == *"Failed"* ]] || [[ $await_helper_state == *"Rejected"* ]]; then
