@@ -31,8 +31,6 @@ services:
 
 volumes:
   hapi-postgres-1-data:
-
-
 networks:
   default:
     name: instant_default
