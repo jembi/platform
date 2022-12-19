@@ -6,6 +6,28 @@
 . "$(pwd)/utils/config-utils.sh"
 . "$(pwd)/utils/log.sh"
 
+# Get current status of the provided service
+#
+# Arguments:
+# - $1 : service name (eg. analytics-datastore-elastic-search)
+#
+docker::get_current_service_status() {
+    local -r SERVICE_NAME=${1:?"FATAL: await_container_startup parameter not provided"}
+
+    docker service ps instant_"${SERVICE_NAME}" --format "{{.CurrentState}}" 2>/dev/null
+}
+
+# Get unique errors from the provided service
+#
+# Arguments:
+# - $1 : service name (eg. analytics-datastore-elastic-search)
+#
+docker::get_service_unique_errors() {
+    local -r SERVICE_NAME=${1:?"FATAL: await_container_startup parameter not provided"}
+
+    # Get unique error messages using sort -u
+    docker service ps instant_"${SERVICE_NAME}" --no-trunc --format '{{ .Error }}' 2>&1 | sort -u
+}
 # Waits for a container to be up
 #
 # Arguments:
@@ -33,16 +55,16 @@ docker::await_container_startup() {
 docker::await_container_status() {
     local -r SERVICE_NAME=${1:?"FATAL: await_container_startup parameter not provided"}
     local -r SERVICE_STATUS=${2:?"FATAL: await_container_startup parameter not provided"}
+    local -r start_time=$(date +%s)
+    local error_message=()
 
     log info "Waiting for ${SERVICE_NAME} to be ${SERVICE_STATUS}..."
-    local -r start_time=$(date +%s)
-    error_message=()
-    until [[ $(docker service ps instant_"${SERVICE_NAME}" --format "{{.CurrentState}}" 2>/dev/null) == *"${SERVICE_STATUS}"* ]]; do
+    until [[ $(docker::get_current_service_status "${SERVICE_NAME}") == *"${SERVICE_STATUS}"* ]]; do
         config::timeout_check "${start_time}" "${SERVICE_NAME} to start"
         sleep 1
 
         # Get unique error messages using sort -u
-        new_error_message=($(docker service ps instant_"$SERVICE_NAME" --no-trunc --format '{{ .Error }}' 2>&1 | sort -u))
+        new_error_message=($(docker::get_service_unique_errors "$SERVICE_NAME"))
         if [[ -n ${new_error_message[*]} ]]; then
             # To prevent logging the same error
             if [[ "${error_message[*]}" != "${new_error_message[*]}" ]]; then
@@ -266,12 +288,11 @@ docker::deploy_sanity() {
         start_time=$(date +%s)
 
         error_message=()
-        until [[ $(docker service ps instant_"$i" --format "{{.CurrentState}}" 2>/dev/null) == *"Running"* ]]; do
+        until [[ $(docker::get_current_service_status "${i}") == *"Running"* ]]; do
             config::timeout_check "${start_time}" "$i to run"
             sleep 1
 
-            # Get unique error messages using sort -u
-            new_error_message=($(docker service ps instant_"$i" --no-trunc --format '{{ .Error }}' 2>&1 | sort -u))
+            new_error_message=($(docker::get_service_unique_errors "$i"))
             if [[ -n ${new_error_message[*]} ]]; then
                 # To prevent logging the same error
                 if [[ "${error_message[*]}" != "${new_error_message[*]}" ]]; then
