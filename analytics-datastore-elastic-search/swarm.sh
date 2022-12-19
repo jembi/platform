@@ -3,7 +3,7 @@
 declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
-declare ROOT_PATH=""
+declare UTILS_PATH=""
 declare container_status=""
 declare service_names=()
 
@@ -16,7 +16,7 @@ function init_vars() {
     pwd -P
   )
 
-  ROOT_PATH="${COMPOSE_FILE_PATH}/.."
+  UTILS_PATH="${COMPOSE_FILE_PATH}/../utils/"
 
   if [[ "${NODE_MODE}" == "cluster" ]]; then
     container_status="Running"
@@ -35,16 +35,16 @@ function init_vars() {
   readonly ACTION
   readonly MODE
   readonly COMPOSE_FILE_PATH
-  readonly ROOT_PATH
+  readonly UTILS_PATH
   readonly container_status
   readonly service_names
 }
 
 # shellcheck disable=SC1091
 function import_sources() {
-  source "${ROOT_PATH}/utils/docker-utils.sh"
-  source "${ROOT_PATH}/utils/config-utils.sh"
-  source "${ROOT_PATH}/utils/log.sh"
+  source "${UTILS_PATH}/docker-utils.sh"
+  source "${UTILS_PATH}/config-utils.sh"
+  source "${UTILS_PATH}/log.sh"
 }
 
 function install_expect() {
@@ -92,6 +92,7 @@ function create_certs() {
 
 function add_docker_configs() {
   local -r TIMESTAMP="$(date "+%Y%m%d%H%M%S")"
+  local -r path_config_certs="/usr/share/elasticsearch/config/certs/"
   log info "Creating configs..."
 
   try "docker config create --label name=elasticsearch ${TIMESTAMP}-ca.crt ./certs/ca/ca.crt" catch "Error creating config ca.crt"
@@ -108,9 +109,9 @@ function add_docker_configs() {
     log info "Updating analytics-datastore-elastic-search-$n with certs..."
     try \
       "docker service update \
-      --config-add source=${TIMESTAMP}-ca.crt,target=/usr/share/elasticsearch/config/certs/ca/ca.crt \
-      --config-add source=${TIMESTAMP}-es$n.crt,target=/usr/share/elasticsearch/config/certs/es$n/es$n.crt \
-      --config-add source=${TIMESTAMP}-es$n.key,target=/usr/share/elasticsearch/config/certs/es$n/es$n.key \
+      --config-add source=${TIMESTAMP}-ca.crt,target=$path_config_certs/ca/ca.crt \
+      --config-add source=${TIMESTAMP}-es$n.crt,target=$path_config_certs/es$n/es$n.crt \
+      --config-add source=${TIMESTAMP}-es$n.key,target=$path_config_certs/es$n/es$n.key \
       --replicas 1 \
       instant_analytics-datastore-elastic-search-$n" \
       catch \
@@ -120,11 +121,11 @@ function add_docker_configs() {
 }
 
 function initialize_package() {
-  local elastic_search_dev_compose_param=""
+  local elastic_search_dev_compose_filename=""
 
   if [[ "$MODE" == "dev" ]]; then
     log info "Running Analytics Datastore Elastic Search package in DEV mode"
-    elastic_search_dev_compose_param="docker-compose.dev.yml"
+    elastic_search_dev_compose_filename="docker-compose.dev.yml"
   else
     log info "Running Analytics Datastore Elastic Search package in PROD mode"
   fi
@@ -135,7 +136,7 @@ function initialize_package() {
       docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.cluster.yml"
       add_docker_configs
     else
-      docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$elastic_search_dev_compose_param"
+      docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$elastic_search_dev_compose_filename"
     fi
 
     log info "Waiting for elasticsearch to start before automatically setting built-in passwords"

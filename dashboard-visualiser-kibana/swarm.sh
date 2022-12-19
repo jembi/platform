@@ -3,7 +3,7 @@
 declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
-declare ROOT_PATH=""
+declare UTILS_PATH=""
 declare nodes_mode=""
 declare service_name=""
 
@@ -16,7 +16,7 @@ function init_vars() {
     pwd -P
   )
 
-  ROOT_PATH="${COMPOSE_FILE_PATH}/.."
+  UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
   service_name="dashboard-visualiser-kibana"
 
@@ -27,20 +27,20 @@ function init_vars() {
   readonly ACTION
   readonly MODE
   readonly COMPOSE_FILE_PATH
-  readonly ROOT_PATH
+  readonly UTILS_PATH
   readonly nodes_mode
   readonly service_name
 }
 
 # shellcheck disable=SC1091
 function import_sources() {
-  source "${ROOT_PATH}/utils/docker-utils.sh"
-  source "${ROOT_PATH}/utils/config-utils.sh"
-  source "${ROOT_PATH}/utils/log.sh"
+  source "${UTILS_PATH}/docker-utils.sh"
+  source "${UTILS_PATH}/config-utils.sh"
+  source "${UTILS_PATH}/log.sh"
 }
 
 function check_elastic() {
-  if [[ ! $(docker service ps instant_"$ES_LEADER_NODE" --format "{{.CurrentState}}" 2>/dev/null) == *"Running"* ]]; then
+  if [[ ! $(docker::get_current_service_status "$ES_LEADER_NODE") == *"Running"* ]]; then
     log error "FATAL: Elasticsearch is not running, Kibana is dependant on it\n \
       Failed to deploy Dashboard Visualiser Kibana"
     exit 1
@@ -50,10 +50,10 @@ function check_elastic() {
 function initialize_package() {
   check_elastic
 
-  local kibana_dev_compose_param=""
+  local kibana_dev_compose_filename=""
   if [[ "${MODE}" == "dev" ]]; then
     log info "Running Dashboard Visualiser Kibana package in DEV mode"
-    kibana_dev_compose_param="docker-compose.dev.yml"
+    kibana_dev_compose_filename="docker-compose.dev.yml"
   else
     log info "Running Dashboard Visualiser Kibana package in PROD mode"
   fi
@@ -61,7 +61,7 @@ function initialize_package() {
   (
     export KIBANA_YML_CONFIG="kibana-kibana$nodes_mode.yml"
 
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$kibana_dev_compose_param"
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$kibana_dev_compose_filename"
     docker::deploy_sanity "$service_name"
   ) || {
     log error "Failed to deploy Dashboard Visualiser Kibana"
