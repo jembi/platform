@@ -3,7 +3,7 @@
 declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
-declare ROOT_PATH=""
+declare UTILS_PATH=""
 declare service_names=()
 declare scaled_services=()
 
@@ -16,7 +16,7 @@ function init_vars() {
     pwd -P
   )
 
-  ROOT_PATH="${COMPOSE_FILE_PATH}/.."
+  UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
   scaled_services=(
     "grafana"
@@ -38,16 +38,16 @@ function init_vars() {
   readonly ACTION
   readonly MODE
   readonly COMPOSE_FILE_PATH
-  readonly ROOT_PATH
+  readonly UTILS_PATH
   readonly service_names
   readonly scaled_services
 }
 
 # shellcheck disable=SC1091
 function import_sources() {
-  source "${ROOT_PATH}/utils/docker-utils.sh"
-  source "${ROOT_PATH}/utils/config-utils.sh"
-  source "${ROOT_PATH}/utils/log.sh"
+  source "${UTILS_PATH}/docker-utils.sh"
+  source "${UTILS_PATH}/config-utils.sh"
+  source "${UTILS_PATH}/log.sh"
 }
 
 function remove_service() {
@@ -58,22 +58,22 @@ function remove_service() {
 }
 
 function initialize_package() {
-  local monitoring_dev_compose_param=""
-  local monitoring_cluster_compose_param=""
+  local monitoring_dev_compose_filename=""
+  local monitoring_cluster_compose_filename=""
 
   if [[ "${NODE_MODE}" == "cluster" ]]; then
-    monitoring_cluster_compose_param="docker-compose.cluster.yml"
+    monitoring_cluster_compose_filename="docker-compose.cluster.yml"
   fi
 
   if [[ "${MODE}" == "dev" ]]; then
     log info "Running Monitoring package in DEV mode"
-    monitoring_dev_compose_param="docker-compose.dev.yml"
+    monitoring_dev_compose_filename="docker-compose.dev.yml"
   else
     log info "Running Monitoring package in PROD mode"
   fi
 
   (
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$monitoring_dev_compose_param" "$monitoring_cluster_compose_param"
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$monitoring_dev_compose_filename" "$monitoring_cluster_compose_filename"
     docker::deploy_sanity "${service_names[@]}"
   ) || {
     log error "Failed to deploy Monitoring package"
