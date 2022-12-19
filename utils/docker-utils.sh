@@ -211,12 +211,8 @@ docker::deploy_service() {
         docker_compose_param="$docker_compose_param -c ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_DEV_MOUNT"
     fi
 
-    if [[ -n "${DOCKER_COMPOSE_DEV_MOUNT}" ]]; then
-        docker_compose_dev="$docker_compose_dev -c ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_DEV_MOUNT"
-    fi
-
     if [[ -n "${DOCKER_COMPOSE_TEMP}" ]]; then
-        docker_compose_dev="$docker_compose_dev -c ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_TEMP"
+        docker_compose_param="$docker_compose_param -c ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_TEMP"
     fi
 
     try "docker stack deploy \
