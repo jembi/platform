@@ -6,7 +6,7 @@
   "version": "0.0.1",
   "dependencies": ["analytics-datastore-clickhouse"],
   "environmentVariables": {
-    "STATEFUL_NODES": "single",
+    "NODE_MODE": "single",
     "SUPERSET_USERNAME": "admin",
     "SUPERSET_FIRSTNAME": "SUPERSET",
     "SUPERSET_LASTNAME": "ADMIN",
