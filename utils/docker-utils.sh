@@ -29,28 +29,6 @@ docker::get_service_unique_errors() {
     docker service ps instant_"${SERVICE_NAME}" --no-trunc --format '{{ .Error }}' 2>&1 | sort -u
 }
 
-# Warn when the status is Preparing for 3 minutes
-#
-# Arguments:
-# - $1 : service name (eg. analytics-datastore-elastic-search)
-#
-docker::warn_preparing_status() {
-    local -r SERVICE_NAME=${1:?"FATAL: warn_preparing_status parameter not provided"}
-    local status=""
-    local time_passed=""
-
-    status="$(docker::get_current_service_status "$SERVICE_NAME" | cut -d" " -f1)"
-    time_passed="$(docker::get_current_service_status "$SERVICE_NAME" | cut -d" " -f2,3)"
-
-    if [[ $PREPARING_WARNING_IS_LOGGED == "false" && $status == "Preparing" && $time_passed == *"3 minutes"* ]]; then
-        log warn "Warning: The service $SERVICE_NAME is in Preparing status for 3 minutes\n\
-    Are you sure you have the image installed with the latest changes?\n\
-    Consider pulling again\n"
-
-        export PREPARING_WARNING_IS_LOGGED="true"
-    fi
-}
-
 # Waits for a container to be up
 #
 # Arguments:
@@ -81,14 +59,11 @@ docker::await_container_status() {
     local -r start_time=$(date +%s)
     local error_message=()
 
-    export PREPARING_WARNING_IS_LOGGED="false"
-
     log info "Waiting for ${SERVICE_NAME} to be ${SERVICE_STATUS}..."
     until [[ $(docker::get_current_service_status "${SERVICE_NAME}") == *"${SERVICE_STATUS}"* ]]; do
         config::timeout_check "${start_time}" "${SERVICE_NAME} to start"
         sleep 1
 
-        docker::warn_preparing_status "$SERVICE_NAME"
         # Get unique error messages using sort -u
         new_error_message=($(docker::get_service_unique_errors "$SERVICE_NAME"))
         if [[ -n ${new_error_message[*]} ]]; then
