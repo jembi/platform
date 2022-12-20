@@ -12,6 +12,7 @@ services:
       REPMGR_NODE_NAME: santempi-psql-1
       REPMGR_PRIMARY_HOST: ${SANTEMPI_REPMGR_PRIMARY_HOST}
       REPMGR_PARTNER_NODES: ${SANTEMPI_REPMGR_PARTNER_NODES}
+      POSTGRESQL_POSTGRES_PASSWORD: ${SANTE_POSTGRES_PASSWORD}
     volumes:
       - 'santempi-psql-1-data:/bitnami/postgresql'
     deploy:
