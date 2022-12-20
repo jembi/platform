@@ -7,7 +7,7 @@
   "dependencies": [],
   "environmentVariables": {
     "STATEFUL_NODES": "single",
-    "POSTGRESQL_POSTGRES_PASSWORD": "postgres",
+    "SANTE_POSTGRES_PASSWORD": "postgres",
     "SANTEMPI_INSTANCES": "1",
     "SANTEMPI_POSTGRESQL_PASSWORD": "SanteDB123",
     "SANTEMPI_POSTGRESQL_USERNAME": "santedb",
