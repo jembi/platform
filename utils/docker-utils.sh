@@ -196,7 +196,7 @@ docker::check_images_existence() {
         if [[ -z $(docker image inspect "$image_name" --format "{{.Id}}" 2>/dev/null) ]]; then
             log info "The image $image_name is not found, Pulling from docker..."
             try \
-                "docker pull $image_name" \
+                "docker pull $image_name &>/dev/null" \
                 throw \
                 "An error occured while pulling the image $image_name"
 
