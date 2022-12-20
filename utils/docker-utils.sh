@@ -192,14 +192,15 @@ docker::check_images_existence() {
         exit 1
     fi
 
-    for i in "$@"; do
-        if [[ -z $(docker image inspect "$i" --format "{{.Id}}" 2>/dev/null) ]]; then
-            log info "The image $i is not found, Pulling from docker..."
+    for image_name in "$@"; do
+        if [[ -z $(docker image inspect "$image_name" --format "{{.Id}}" 2>/dev/null) ]]; then
+            log info "The image $image_name is not found, Pulling from docker..."
             try \
-                "docker pull $i" \
+                "docker pull $image_name" \
                 throw \
-                "An error occured while pulling the image $i"
-            overwrite "The image $i is not found, Pulling from docker... Done"
+                "An error occured while pulling the image $image_name"
+
+            overwrite "The image $image_name is not found, Pulling from docker... Done"
         fi
     done
 }
@@ -303,8 +304,8 @@ docker::deploy_sanity() {
         exit 1
     fi
 
-    for i in "$@"; do
-        docker::await_container_status "$i" "Running"
+    for service_name in "$@"; do
+        docker::await_container_status "$service_name" "Running"
     done
 }
 
