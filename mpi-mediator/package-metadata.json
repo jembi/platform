@@ -5,6 +5,7 @@
   "type": "infrastructure",
   "version": "0.0.1",
   "dependencies": [
+    "interoperability-layer-openhim",
     "fhir-datastore-hapi-fhir",
     "message-bus-kafka",
     "client-registry-santempi"
