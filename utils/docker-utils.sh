@@ -149,22 +149,19 @@ docker::try_remove_volume() {
         exit 1
     fi
 
-    for i in "$@"; do
-        local volume_name=${i}
-
+    for volume_name in "$@"; do
         if ! docker volume ls | grep -q "\sinstant_${volume_name}$"; then
-            log info "Tried to remove volume ${volume_name} but it doesn't exist on this node"
-            return 1
+            log warn "Tried to remove volume ${volume_name} but it doesn't exist on this node"
+        else
+            log info "Waiting for volume ${volume_name} to be removed..."
+            local start_time
+            start_time=$(date +%s)
+            until [[ -n "$(docker volume rm instant_"${volume_name}" 2>/dev/null)" ]]; do
+                config::timeout_check "${start_time}" "${volume_name} to be removed" "60" "10"
+                sleep 1
+            done
+            overwrite "Waiting for volume ${volume_name} to be removed... Done"
         fi
-
-        log info "Waiting for volume ${volume_name} to be removed..."
-        local start_time
-        start_time=$(date +%s)
-        until [[ -n "$(docker volume rm instant_"${volume_name}" 2>/dev/null)" ]]; do
-            config::timeout_check "${start_time}" "${volume_name} to be removed" "60" "10"
-            sleep 1
-        done
-        overwrite "Waiting for volume ${volume_name} to be removed... Done"
     done
 }
 
