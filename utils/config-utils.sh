@@ -152,7 +152,7 @@ config::await_service_running() {
 
     docker service rm instant_await-helper &>/dev/null
 
-    try "docker stack deploy -c $await_helper_file_path instant" catch "Failed to deploy await helper"
+    try "docker stack deploy -c $await_helper_file_path instant" throw "Failed to deploy await helper"
     until [[ $(docker service ls -f name=instant_"$service_name" --format "{{.Replicas}}") == *"$service_instances/$service_instances"* ]]; do
         config::timeout_check "$start_time" "$service_name to start" "$exit_time" "$warning_time"
         sleep 1
@@ -276,7 +276,7 @@ config::generate_service_configs() {
 
     try \
         "touch ${COMPOSE_PATH}/docker-compose.tmp.yml" \
-        catch \
+        throw \
         "Failed to create temp service config compose file"
 
     find "${TARGET_FOLDER_PATH}" -maxdepth 10 -mindepth 1 -type f | while read -r file; do
