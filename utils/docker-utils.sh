@@ -110,9 +110,7 @@ docker::try_remove_volume() {
         exit 1
     fi
 
-    for i in "$@"; do
-        local volume_name=${i}
-
+    for volume_name in "$@"; do
         if ! docker volume ls | grep -q "\sinstant_${volume_name}$"; then
             log warn "Tried to remove volume ${volume_name} but it doesn't exist on this node"
         else
@@ -239,23 +237,23 @@ docker::deploy_sanity() {
         exit 1
     fi
 
-    for i in "$@"; do
-        log info "Waiting for $i to run ..."
+    for service_name in "$@"; do
+        log info "Waiting for $service_name to run ..."
         local start_time
         start_time=$(date +%s)
 
         error_message=()
-        until [[ $(docker service ps instant_"$i" --format "{{.CurrentState}}" 2>/dev/null) == *"Running"* ]]; do
-            config::timeout_check "${start_time}" "$i to run"
+        until [[ $(docker service ps instant_"$service_name" --format "{{.CurrentState}}" 2>/dev/null) == *"Running"* ]]; do
+            config::timeout_check "${start_time}" "$service_name to run"
             sleep 1
 
             # Get unique error messages using sort -u
-            new_error_message=($(docker service ps instant_"$i" --no-trunc --format '{{ .Error }}' 2>&1 | sort -u))
+            new_error_message=($(docker service ps instant_"$service_name" --no-trunc --format '{{ .Error }}' 2>&1 | sort -u))
             if [[ -n ${new_error_message[*]} ]]; then
                 # To prevent logging the same error
                 if [[ "${error_message[*]}" != "${new_error_message[*]}" ]]; then
                     error_message=(${new_error_message[*]})
-                    log error "Deploy error in service $i: ${error_message[*]}"
+                    log error "Deploy error in service $service_name: ${error_message[*]}"
                 fi
                 # To exit in case the error is not having the image
                 if [[ "${new_error_message[*]}" == *"No such image"* ]]; then
@@ -264,7 +262,7 @@ docker::deploy_sanity() {
                 fi
             fi
         done
-        overwrite "Waiting for $i to run ... Done"
+        overwrite "Waiting for $service_name to run ... Done"
     done
 }
 
