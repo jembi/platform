@@ -3,7 +3,7 @@
 declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
-declare ROOT_PATH=""
+declare UTILS_PATH=""
 declare nodes_mode=""
 declare service_names=()
 
@@ -16,16 +16,16 @@ function init_vars() {
     pwd -P
   )
 
-  ROOT_PATH="${COMPOSE_FILE_PATH}/.."
+  UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
   if [[ "${NODE_MODE}" == "cluster" ]]; then
     nodes_mode=".${NODE_MODE}"
-    service_names=(
-      "analytics-datastore-clickhouse-01"
-      "analytics-datastore-clickhouse-02"
-      "analytics-datastore-clickhouse-03"
-      "analytics-datastore-clickhouse-04"
-    )
+    for i in {1..4}; do
+      service_names=(
+        "${service_names[@]}"
+        "analytics-datastore-clickhouse-0$i"
+      )
+    done
   else
     service_names=(
       "analytics-datastore-clickhouse"
@@ -35,28 +35,28 @@ function init_vars() {
   readonly ACTION
   readonly MODE
   readonly COMPOSE_FILE_PATH
-  readonly ROOT_PATH
+  readonly UTILS_PATH
   readonly nodes_mode
   readonly service_names
 }
 
 # shellcheck disable=SC1091
 function import_sources() {
-  source "${ROOT_PATH}/utils/docker-utils.sh"
-  source "${ROOT_PATH}/utils/log.sh"
+  source "${UTILS_PATH}/docker-utils.sh"
+  source "${UTILS_PATH}/log.sh"
 }
 
 function initialize_package() {
-  local clickhouse_dev_compose_param=""
+  local clickhouse_dev_compose_filename=""
   if [[ "${MODE}" == "dev" ]]; then
     log info "Running Analytics Datastore Clickhouse package in DEV mode"
-    clickhouse_dev_compose_param="docker-compose$nodes_mode.dev.yml"
+    clickhouse_dev_compose_filename="docker-compose$nodes_mode.dev.yml"
   else
     log info "Running Analytics Datastore Clickhouse package in PROD mode"
   fi
 
   (
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose$nodes_mode.yml" "$clickhouse_dev_compose_param"
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose$nodes_mode.yml" "$clickhouse_dev_compose_filename"
     docker::deploy_sanity "${service_names[@]}"
   ) || {
     log error "Failed to deploy Analytics Datastore Clickhouse package"
