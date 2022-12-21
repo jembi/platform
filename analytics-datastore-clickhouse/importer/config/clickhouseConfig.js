@@ -16,11 +16,16 @@ const clickhouse = new ClickHouse({
 });
 
 (async () => {
+  const R_ERROR = new RegExp(
+    '(Code|Error): ([0-9]{2})[,.] .*Exception: (.+?)$',
+    'm'
+  );
+
   for (const query of queries) {
     try {
       const r = await clickhouse.query(query).toPromise();
 
-      if (typeof r === 'string' && r.includes('Exception')) throw new Error(r);
+      if (typeof r === 'string' && r.match(R_ERROR)) throw new Error(r);
       else console.log(query, '\n', r);
     } catch (err) {
       console.error(err);
