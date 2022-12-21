@@ -192,11 +192,13 @@ docker::check_images_existence() {
         exit 1
     fi
 
+    local timeout_pull_image
+    timeout_pull_image=300
     for image_name in "$@"; do
         if [[ -z $(docker image inspect "$image_name" --format "{{.Id}}" 2>/dev/null) ]]; then
             log info "The image $image_name is not found, Pulling from docker..."
             try \
-                "docker pull $image_name &>/dev/null" \
+                "timeout $timeout_pull_image docker pull $image_name 1>/dev/null" \
                 throw \
                 "An error occured while pulling the image $image_name"
 
