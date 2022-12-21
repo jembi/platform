@@ -310,8 +310,8 @@ docker::deploy_sanity() {
         exit 1
     fi
 
-    for service_name in "$@"; do
-        docker::await_container_status "$service_name" "Running"
+    for service__name in "$@"; do
+        docker::await_container_status "$service__name" "Running"
     done
 }
 
