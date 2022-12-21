@@ -12,7 +12,7 @@
 # - $1 : service name (eg. analytics-datastore-elastic-search)
 #
 docker::get_current_service_status() {
-    local -r SERVICE_NAME=${1:?"FATAL: await_container_startup parameter not provided"}
+    local -r SERVICE_NAME=${1:?"FATAL: get_current_service_status parameter not provided"}
 
     docker service ps instant_"${SERVICE_NAME}" --format "{{.CurrentState}}" 2>/dev/null
 }
@@ -23,11 +23,12 @@ docker::get_current_service_status() {
 # - $1 : service name (eg. analytics-datastore-elastic-search)
 #
 docker::get_service_unique_errors() {
-    local -r SERVICE_NAME=${1:?"FATAL: await_container_startup parameter not provided"}
+    local -r SERVICE_NAME=${1:?"FATAL: get_service_unique_errors parameter not provided"}
 
     # Get unique error messages using sort -u
     docker service ps instant_"${SERVICE_NAME}" --no-trunc --format '{{ .Error }}' 2>&1 | sort -u
 }
+
 # Waits for a container to be up
 #
 # Arguments:
@@ -70,6 +71,12 @@ docker::await_container_status() {
             if [[ "${error_message[*]}" != "${new_error_message[*]}" ]]; then
                 error_message=(${new_error_message[*]})
                 log error "Deploy error in service $SERVICE_NAME: ${error_message[*]}"
+            fi
+
+            # To exit in case the error is not having the image
+            if [[ "${new_error_message[*]}" == *"No such image"* ]]; then
+                log error "Do you have access to pull the image?"
+                exit 124
             fi
         fi
     done
@@ -179,6 +186,27 @@ docker::prune_configs() {
     fi
 }
 
+docker::check_images_existence() {
+    if [[ -z "$*" ]]; then
+        log error "FATAL: check_images_existence parameter missing"
+        exit 1
+    fi
+
+    local timeout_pull_image
+    timeout_pull_image=300
+    for image_name in "$@"; do
+        if [[ -z $(docker image inspect "$image_name" --format "{{.Id}}" 2>/dev/null) ]]; then
+            log info "The image $image_name is not found, Pulling from docker..."
+            try \
+                "timeout $timeout_pull_image docker pull $image_name 1>/dev/null" \
+                throw \
+                "An error occured while pulling the image $image_name"
+
+            overwrite "The image $image_name is not found, Pulling from docker... Done"
+        fi
+    done
+}
+
 # Deploy a service, it will set config digests (in case a config is defined in the compose file)
 #
 # Arguments:
@@ -192,6 +220,12 @@ docker::deploy_service() {
     local -r DOCKER_COMPOSE_FILE="${2:?"FATAL: function 'deploy_service' is missing a parameter"}"
     local -r DOCKER_COMPOSE_DEV_FILE="${3:-""}"
     local docker_compose_dev=""
+
+    # Check for the existance of the images
+    local -r images=($(yq '.services."*".image' "${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE"))
+    if [[ "${images[*]}" != "null" ]]; then
+        docker::check_images_existence "${images[@]}"
+    fi
 
     # Check for need to set config digests
     local -r files=($(yq '.configs."*.*".file' "${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE"))
@@ -272,31 +306,8 @@ docker::deploy_sanity() {
         exit 1
     fi
 
-    for i in "$@"; do
-        log info "Waiting for $i to run ..."
-        local start_time
-        start_time=$(date +%s)
-
-        error_message=()
-        until [[ $(docker::get_current_service_status "${i}") == *"Running"* ]]; do
-            config::timeout_check "${start_time}" "$i to run"
-            sleep 1
-
-            new_error_message=($(docker::get_service_unique_errors "$i"))
-            if [[ -n ${new_error_message[*]} ]]; then
-                # To prevent logging the same error
-                if [[ "${error_message[*]}" != "${new_error_message[*]}" ]]; then
-                    error_message=(${new_error_message[*]})
-                    log error "Deploy error in service $i: ${error_message[*]}"
-                fi
-                # To exit in case the error is not having the image
-                if [[ "${new_error_message[*]}" == *"No such image"* ]]; then
-                    log error "Do you have access to pull the image?"
-                    exit 124
-                fi
-            fi
-        done
-        overwrite "Waiting for $i to run ... Done"
+    for service_name in "$@"; do
+        docker::await_container_status "$service_name" "Running"
     done
 }
 
