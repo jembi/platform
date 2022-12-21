@@ -33,8 +33,8 @@ main() {
 
     config::await_network_join "instant_identity-access-manager-keycloak"
 
-    log info "Setting config digests"
-    config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
+    # log info "Setting config digests"
+    # config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
     #try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to start config importer"
 
     #log info "Waiting to give config importer time to run before cleaning up service"
