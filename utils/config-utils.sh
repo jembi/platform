@@ -244,6 +244,8 @@ config::await_network_join() {
         config::timeout_check "$start_time" "${SERVICE_NAME} to join the network" $exit_time $warning_time
         sleep 1
     done
+
+    overwrite "Waiting for ${SERVICE_NAME} to join network... Done"
 }
 
 # Generates configs for a service from a folder and adds them to a temp docker-compose file

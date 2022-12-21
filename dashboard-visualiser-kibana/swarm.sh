@@ -1,69 +1,109 @@
 #!/bin/bash
 
-readonly ACTION=$1
-readonly MODE=$2
+declare ACTION=""
+declare MODE=""
+declare COMPOSE_FILE_PATH=""
+declare UTILS_PATH=""
+declare nodes_mode=""
+declare service_name=""
 
-COMPOSE_FILE_PATH=$(
-  cd "$(dirname "${BASH_SOURCE[0]}")" || exit
-  pwd -P
-)
-readonly COMPOSE_FILE_PATH
+function init_vars() {
+  ACTION=$1
+  MODE=$2
 
-ROOT_PATH="${COMPOSE_FILE_PATH}/.."
-readonly ROOT_PATH
+  COMPOSE_FILE_PATH=$(
+    cd "$(dirname "${BASH_SOURCE[0]}")" || exit
+    pwd -P
+  )
 
-. "${ROOT_PATH}/utils/config-utils.sh"
-. "${ROOT_PATH}/utils/docker-utils.sh"
-. "${ROOT_PATH}/utils/log.sh"
+  UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-import_kibana_dashboards() {
-  log info "Importing Kibana dashboard"
-  config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
-  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to start config importer"
-  config::remove_config_importer "kibana-config-importer"
-  config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "kibana"
+  service_name="dashboard-visualiser-kibana"
+
+  if [[ "${NODE_MODE}" == "cluster" ]]; then
+    nodes_mode="-${NODE_MODE}"
+  fi
+
+  readonly ACTION
+  readonly MODE
+  readonly COMPOSE_FILE_PATH
+  readonly UTILS_PATH
+  readonly nodes_mode
+  readonly service_name
+}
+
+# shellcheck disable=SC1091
+function import_sources() {
+  source "${UTILS_PATH}/docker-utils.sh"
+  source "${UTILS_PATH}/config-utils.sh"
+  source "${UTILS_PATH}/log.sh"
+}
+
+function check_elastic() {
+  if [[ ! $(docker::get_current_service_status "$ES_LEADER_NODE") == *"Running"* ]]; then
+    log error "FATAL: Elasticsearch is not running, Kibana is dependant on it\n \
+      Failed to deploy Dashboard Visualiser Kibana"
+    exit 1
+  fi
+}
+
+function initialize_package() {
+  check_elastic
+
+  local kibana_dev_compose_filename=""
+  if [[ "${MODE}" == "dev" ]]; then
+    log info "Running Dashboard Visualiser Kibana package in DEV mode"
+    kibana_dev_compose_filename="docker-compose.dev.yml"
+  else
+    log info "Running Dashboard Visualiser Kibana package in PROD mode"
+  fi
+
+  (
+    export KIBANA_YML_CONFIG="kibana-kibana$nodes_mode.yml"
+
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$kibana_dev_compose_filename"
+    docker::deploy_sanity "$service_name"
+  ) || {
+    log error "Failed to deploy Dashboard Visualiser Kibana"
+    exit 1
+  }
+
+  config::await_network_join "instant_dashboard-visualiser-kibana"
+
+  docker::deploy_config_importer "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "kibana-config-importer" "kibana"
+}
+
+function scale_services_down() {
+  try \
+    "docker service scale instant_$service_name=0" \
+    catch \
+    "Failed to scale down $service_name"
+}
+
+function destroy_package() {
+  docker::service_destroy kibana-config-importer
+  docker::service_destroy await-helper
+  docker::service_destroy "$service_name"
+
+  docker::prune_configs "kibana"
 }
 
 main() {
-  if [[ "${MODE}" == "dev" ]]; then
-    log info "Running Dashboard Visualiser Kibana package in DEV mode"
-    kibana_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
-  else
-    log info "Running Dashboard Visualiser Kibana package in PROD mode"
-    kibana_dev_compose_param=""
-  fi
+  init_vars "$@"
+  import_sources
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
+    log info "Running Dashboard Visualiser Kibana package in ${NODE_MODE} node mode"
 
-    if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
-      export KIBANA_YML_CONFIG="kibana-kibana-cluster.yml"
-    else
-      export KIBANA_YML_CONFIG="kibana-kibana.yml"
-    fi
-
-    config::set_config_digests "${COMPOSE_FILE_PATH}"/docker-compose.yml
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $kibana_dev_compose_param instant" "Failed to deploy Dashboard Visualiser Kibana"
-
-    docker::await_container_startup dashboard-visualiser-kibana
-    docker::await_container_status dashboard-visualiser-kibana Running
-
-    config::await_network_join "instant_dashboard-visualiser-kibana"
-
-    log info "Setting config digests"
-    config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to start config importer"
-
-    import_kibana_dashboards
-
-    docker::deploy_sanity dashboard-visualiser-kibana
+    initialize_package
   elif [[ "${ACTION}" == "down" ]]; then
-    try "docker service scale instant_dashboard-visualiser-kibana=0" "Failed to scale down dashboard-visualiser-kibana"
-  elif [[ "${ACTION}" == "destroy" ]]; then
-    docker::service_destroy dashboard-visualiser-kibana
-    docker::service_destroy await-helper
-    docker::service_destroy kibana-config-importer
+    log info "Scaling down Dashboard Visualiser Kibana"
 
-    docker::prune_configs "kibana"
+    scale_services_down
+  elif [[ "${ACTION}" == "destroy" ]]; then
+    log info "Destroying Dashboard Visualiser Kibana"
+
+    destroy_package
   else
     log error "Valid options are: init, up, down, or destroy"
   fi
