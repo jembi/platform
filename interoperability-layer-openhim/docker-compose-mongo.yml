@@ -4,7 +4,7 @@ services:
   mongo-1:
     image: mongo:4.2
     volumes:
-      - "openhim-mongo1:/data/db"
+      - "openhim-mongo-1:/data/db"
     deploy:
       replicas: 1
       resources:
@@ -19,7 +19,8 @@ services:
       mongo_backup_net: {}
 
 volumes:
-  openhim-mongo1:
+  openhim-mongo-1:
+
 
 networks:
   default:

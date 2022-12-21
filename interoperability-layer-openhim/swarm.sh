@@ -163,7 +163,7 @@ function destroy_package() {
     docker::service_destroy "$service_name"
   done
 
-  docker::try_remove_volume openhim-mongo1
+  docker::try_remove_volume openhim-mongo-1
 
   if [[ "${NODE_MODE}" == "cluster" ]]; then
     log warn "Volumes are only deleted on the host on which the command is run. Mongo volumes on other nodes are not deleted"
