@@ -216,7 +216,8 @@ docker::deploy_service() {
     local -r DOCKER_COMPOSE_PATH="${1:?"FATAL: function 'deploy_service' is missing a parameter"}"
     local -r DOCKER_COMPOSE_FILE="${2:?"FATAL: function 'deploy_service' is missing a parameter"}"
     local -r DOCKER_COMPOSE_DEV_FILE="${3:-""}"
-    local docker_compose_dev=""
+    local -r DOCKER_COMPOSE_DEV_MOUNT="${4:-""}"
+    local docker_compose_param=""
 
     # Check for the existance of the images
     local -r images=($(yq '.services."*".image' "${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE"))
@@ -230,16 +231,22 @@ docker::deploy_service() {
         config::set_config_digests "${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE"
     fi
 
+    # Adding Dev compose file to the params
     if [[ -n "${DOCKER_COMPOSE_DEV_FILE}" ]]; then
-        docker_compose_dev="-c ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_DEV_FILE"
+        docker_compose_param="-c ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_DEV_FILE"
+    fi
+
+    # Adding Dev mount compose file to the params
+    if [[ -n "${DOCKER_COMPOSE_DEV_MOUNT}" ]]; then
+        docker_compose_param="$docker_compose_param -c ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_DEV_MOUNT"
     fi
 
     try "docker stack deploy \
         -c ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE \
-        $docker_compose_dev \
+        $docker_compose_param \
          instant" \
         throw \
-        "Wrong configuration in ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE or in $docker_compose_dev"
+        "Wrong configuration in ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE or in the other supplied compose files"
 
     # Remove stale configs according to the labels in the compose file
     local -r label_names=($(yq '.configs."*.*".labels.name' "${DOCKER_COMPOSE_PATH}/${DOCKER_COMPOSE_FILE}" | sort -u))
