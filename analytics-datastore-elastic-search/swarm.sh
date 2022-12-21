@@ -20,11 +20,14 @@ function init_vars() {
 
   if [[ "${NODE_MODE}" == "cluster" ]]; then
     container_status="Running"
-    service_names=(
-      "analytics-datastore-elastic-search-01"
-      "analytics-datastore-elastic-search-02"
-      "analytics-datastore-elastic-search-03"
-    )
+
+    for i in {1..3}; do
+      service_names=(
+        "${service_names[@]}"
+        "analytics-datastore-elastic-search-0$i"
+      )
+    done
+
   else
     container_status="Starting"
     service_names=(
