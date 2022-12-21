@@ -32,7 +32,7 @@ function import_sources() {
   source "${UTILS_PATH}/log.sh"
 }
 
-function unbound_ES_HOSTS_check() {
+function check_es_hosts_env_var() {
   if [[ ${NODE_MODE} == "cluster" ]] && [[ -z ${ES_HOSTS:-""} ]]; then
     log error "ES_HOSTS environment variable not set... Exiting"
     exit 1
@@ -66,7 +66,7 @@ function initialize_package() {
   (
     dev_mount_jsreport
 
-    unbound_ES_HOSTS_check
+    check_es_hosts_env_var
 
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$js_report_dev_compose_filename" "$js_report_dev_mount_compose_filename"
     docker::deploy_sanity "${service_name}"
