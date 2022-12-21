@@ -1,36 +1,76 @@
 #!/bin/bash
 
-readonly ACTION=$1
-readonly MODE=$2
+declare ACTION=""
+declare COMPOSE_FILE_PATH=""
+declare UTILS_PATH=""
+declare service_name=""
 
-COMPOSE_FILE_PATH=$(
-  cd "$(dirname "${BASH_SOURCE[0]}")" || exit
-  pwd -P
-)
+function init_vars() {
+  ACTION=$1
 
-# Import libraries
-ROOT_PATH="${COMPOSE_FILE_PATH}/.."
-. "${ROOT_PATH}/utils/docker-utils.sh"
-. "${ROOT_PATH}/utils/log.sh"
+  COMPOSE_FILE_PATH=$(
+    cd "$(dirname "${BASH_SOURCE[0]}")" || exit
+    pwd -P
+  )
 
-if [ "${ACTION}" == "init" ]; then
-  if [ "${MODE}" == "dev" ]; then
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml instant" "Failed to deploy hapi-proxy"
+  UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
+
+  service_name="hapi-proxy"
+
+  readonly ACTION
+  readonly COMPOSE_FILE_PATH
+  readonly UTILS_PATH
+  readonly service_name
+}
+
+# shellcheck disable=SC1091
+function import_sources() {
+  source "${UTILS_PATH}/docker-utils.sh"
+  source "${UTILS_PATH}/log.sh"
+}
+
+function initialize_package() {
+  (
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml"
+    docker::deploy_sanity "${service_name}"
+  ) || {
+    log error "Failed to deploy Message Bus Helper Hapi Proxy package"
+    exit 1
+  }
+}
+
+function scale_services_down() {
+  try \
+    "docker service scale instant_$service_name=0" \
+    catch \
+    "Failed to scale down $service_name"
+}
+
+function destroy_package() {
+  docker::service_destroy "$service_name"
+
+  docker::prune_configs "kafka-mapper-consumer"
+}
+
+main() {
+  init_vars "$@"
+  import_sources
+
+  if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
+    log info "Running Message Bus Helper Hapi Proxy package"
+
+    initialize_package
+  elif [[ "${ACTION}" == "down" ]]; then
+    log info "Scaling down Message Bus Helper Hapi Proxy"
+
+    scale_services_down
+  elif [[ "${ACTION}" == "destroy" ]]; then
+    log info "Destroying Message Bus Helper Hapi Proxy"
+
+    destroy_package
   else
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml -c ${COMPOSE_FILE_PATH}/docker-compose.prod.yml instant" "Failed to deploy hapi-proxy"
+    log error "Valid options are: init, up, down, or destroy"
   fi
+}
 
-  docker::deploy_sanity hapi-proxy
-elif [ "${ACTION}" == "up" ]; then
-  if [ "${MODE}" == "dev" ]; then
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml instant" "Failed to deploy hapi-proxy"
-  else
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml -c ${COMPOSE_FILE_PATH}/docker-compose.prod.yml instant" "Failed to deploy hapi-proxy"
-  fi
-elif [ "${ACTION}" == "down" ]; then
-  try "docker service scale instant_hapi-proxy=0" "Failed to scale down hapi-proxy"
-elif [ "${ACTION}" == "destroy" ]; then
-  try "docker service rm instant_hapi-proxy" "Failed to destroy hapi-proxy"
-else
-  log error "Valid options are: init, up, down, or destroy"
-fi
+main "$@"
