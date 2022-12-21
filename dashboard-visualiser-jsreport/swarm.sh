@@ -32,14 +32,14 @@ function import_sources() {
   source "${UTILS_PATH}/log.sh"
 }
 
-unbound_ES_HOSTS_check() {
+function unbound_ES_HOSTS_check() {
   if [[ ${NODE_MODE} == "cluster" ]] && [[ -z ${ES_HOSTS:-""} ]]; then
     log error "ES_HOSTS environment variable not set... Exiting"
     exit 1
   fi
 }
 
-dev_mount_jsreport() {
+function dev_mount_jsreport() {
   if [[ "${JS_REPORT_DEV_MOUNT}" == "true" ]] && [[ "${ACTION}" == "init" ]]; then
     if [[ -z "${JS_REPORT_PACKAGE_PATH}" ]]; then
       log error "ERROR: JS_REPORT_PACKAGE_PATH environment variable not specified. Please specify JS_REPORT_PACKAGE_PATH as stated in the README."
