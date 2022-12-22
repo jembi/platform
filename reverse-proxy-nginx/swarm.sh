@@ -125,12 +125,12 @@ function destroy_package() {
 
   mapfile -t nginx_secrets < <(docker secret ls -qf label=name=nginx)
   if [[ "${#nginx_secrets[@]}" -ne 0 ]]; then
-    try "docker secret rm ${nginx_secrets[*]}" "Failed to remove nginx secrets"
+    try "docker secret rm ${nginx_secrets[*]}" catch "Failed to remove nginx secrets"
   fi
 
   mapfile -t nginx_network < <(docker network ls -qf name=cert-renewal-network)
   if [[ "${#nginx_network}" -ne 0 ]]; then
-    try "docker network rm ${nginx_network[*]}" "Failed to remove nginx networks"
+    try "docker network rm ${nginx_network[*]}" catch "Failed to remove nginx networks"
   fi
 
   docker::try_remove_volume renew-certbot-conf data-certbot-conf dummy-data-certbot-conf

@@ -56,7 +56,7 @@ function generate_dummy_certificates() {
         --staging \
         ${domain_args[*]} \
         --standalone --agree-tos" \
-        catch \
+        throw \
         "Failed to create certificate network"
 
     docker run --rm --network host --name certbot-helper -w /temp \
@@ -132,7 +132,9 @@ function update_nginx_real_certificates() {
           --secret-rm ${curr_priv_key_name} \
           --secret-add source=${new_timestamp}-fullchain.pem,target=/run/secrets/fullchain.pem \
           --secret-add source=${new_timestamp}-privkey.pem,target=/run/secrets/privkey.pem \
-          instant_$service_name" "Error updating nginx service"
+          instant_$service_name" \
+        throw \
+        "Error updating $service_name service"
     overwrite "Updating $service_name service: adding secrets for generated certificates... Done"
 }
 
@@ -141,7 +143,10 @@ function set_nginx_network() {
     nginx_network_exists=$(docker network ls --filter name=cert-renewal-network --format '{{.Name}}')
     #Do not create docker network if it exists
     if [[ -z "${nginx_network_exists}" ]]; then
-        try "docker network create -d overlay --attachable cert-renewal-network" "Failed to create cert-renewal-network network"
+        try \
+            "docker network create -d overlay --attachable cert-renewal-network" \
+            throw \
+            "Failed to create cert-renewal-network network"
     fi
 }
 
