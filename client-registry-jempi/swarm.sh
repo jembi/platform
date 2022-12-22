@@ -19,7 +19,7 @@ function init_vars() {
     pwd -P
   )
 
-  UTILS_PATH="${COMPOSE_FILE_PATH}/../utils/"
+  UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
   dgraph_services=("jempi-ratel")
   volume_names=("jempi-zero-01-data")

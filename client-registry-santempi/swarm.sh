@@ -16,7 +16,7 @@ function init_vars() {
     pwd -P
   )
 
-  UTILS_PATH="${COMPOSE_FILE_PATH}/../utils/"
+  UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
   postgres_services=(
     "santempi-psql-1"
@@ -57,14 +57,14 @@ function initialize_package() {
 
   if [ "$MODE" == "dev" ]; then
     log info "Running Client Registry SanteMPI package in DEV mode"
-    local postgres_dev_compose_filename="docker-compose-postgres.dev.yml"
-    local sante_mpi_dev_compose_filename="docker-compose.dev.yml"
+    postgres_dev_compose_filename="docker-compose-postgres.dev.yml"
+    sante_mpi_dev_compose_filename="docker-compose.dev.yml"
   else
     log info "Running Client Registry SanteMPI package in PROD mode"
   fi
 
   if [ "${NODE_MODE}" == "cluster" ]; then
-    local postgres_cluster_compose_filename="docker-compose-postgres.cluster.yml"
+    postgres_cluster_compose_filename="docker-compose-postgres.cluster.yml"
   fi
 
   (
