@@ -192,6 +192,7 @@ docker::check_images_existence() {
     local timeout_pull_image
     timeout_pull_image=300
     for image_name in "$@"; do
+        image_name=$(eval echo "$image_name")
         if [[ -z $(docker image inspect "$image_name" --format "{{.Id}}" 2>/dev/null) ]]; then
             log info "The image $image_name is not found, Pulling from docker..."
             try \
@@ -315,8 +316,8 @@ docker::deploy_sanity() {
         exit 1
     fi
 
-    for service_name in "$@"; do
-        docker::await_container_status "$service_name" "Running"
+    for service__name in "$@"; do
+        docker::await_container_status "$service__name" "Running"
     done
 }
 
