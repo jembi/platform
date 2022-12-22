@@ -37,7 +37,7 @@ function initialize_package() {
 
   if [[ "${MODE}" == "dev" ]]; then
     log info "Running OpenHIM-MPI Mediator package in DEV mode"
-    local mpi_mediator_dev_compose_filename="docker-compose.dev.yml"
+    mpi_mediator_dev_compose_filename="docker-compose.dev.yml"
   else
     log info "Running OpenHIM-MPI Mediator package in PROD mode"
   fi

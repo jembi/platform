@@ -17,7 +17,7 @@ function init_vars() {
     pwd -P
   )
 
-  UTILS_PATH="${COMPOSE_FILE_PATH}/../utils/"
+  UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
   zookeeper_services=(
     "zookeeper-1"

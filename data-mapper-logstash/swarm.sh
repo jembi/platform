@@ -39,7 +39,7 @@ function import_sources() {
   source "${UTILS_PATH}/log.sh"
 }
 
-dev_mount_logstash() {
+function dev_mount_logstash() {
   if [[ "$LOGSTASH_DEV_MOUNT" == "true" ]]; then
     if [[ -z $LOGSTASH_PACKAGE_PATH ]]; then
       log error "LOGSTASH_PACKAGE_PATH environment variable not specified. Please specify LOGSTASH_PACKAGE_PATH as stated in the README."
@@ -51,7 +51,7 @@ dev_mount_logstash() {
   fi
 }
 
-inject_pipeline_elastic_hosts() {
+function inject_pipeline_elastic_hosts() {
   ES_HOSTS=${ES_HOSTS:-"\"analytics-datastore-elastic-search:9200\""}
   for file in "${COMPOSE_FILE_PATH}"/pipeline/*.conf; do
     sed -i "s/\$ES_HOSTS/${ES_HOSTS}/g" "${file}"
