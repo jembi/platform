@@ -12,7 +12,7 @@
 # - $1 : service name (eg. analytics-datastore-elastic-search)
 #
 docker::get_current_service_status() {
-    local -r SERVICE_NAME=${1:?"FATAL: await_container_startup parameter not provided"}
+    local -r SERVICE_NAME=${1:?"FATAL: get_current_service_status parameter not provided"}
 
     docker service ps instant_"${SERVICE_NAME}" --format "{{.CurrentState}}" 2>/dev/null
 }
@@ -23,11 +23,12 @@ docker::get_current_service_status() {
 # - $1 : service name (eg. analytics-datastore-elastic-search)
 #
 docker::get_service_unique_errors() {
-    local -r SERVICE_NAME=${1:?"FATAL: await_container_startup parameter not provided"}
+    local -r SERVICE_NAME=${1:?"FATAL: get_service_unique_errors parameter not provided"}
 
     # Get unique error messages using sort -u
     docker service ps instant_"${SERVICE_NAME}" --no-trunc --format '{{ .Error }}' 2>&1 | sort -u
 }
+
 # Waits for a container to be up
 #
 # Arguments:
@@ -70,6 +71,12 @@ docker::await_container_status() {
             if [[ "${error_message[*]}" != "${new_error_message[*]}" ]]; then
                 error_message=(${new_error_message[*]})
                 log error "Deploy error in service $SERVICE_NAME: ${error_message[*]}"
+            fi
+
+            # To exit in case the error is not having the image
+            if [[ "${new_error_message[*]}" == *"No such image"* ]]; then
+                log error "Do you have access to pull the image?"
+                exit 124
             fi
         fi
     done
@@ -142,22 +149,19 @@ docker::try_remove_volume() {
         exit 1
     fi
 
-    for i in "$@"; do
-        local volume_name=${i}
-
+    for volume_name in "$@"; do
         if ! docker volume ls | grep -q "\sinstant_${volume_name}$"; then
-            log info "Tried to remove volume ${volume_name} but it doesn't exist on this node"
-            return 1
+            log warn "Tried to remove volume ${volume_name} but it doesn't exist on this node"
+        else
+            log info "Waiting for volume ${volume_name} to be removed..."
+            local start_time
+            start_time=$(date +%s)
+            until [[ -n "$(docker volume rm instant_"${volume_name}" 2>/dev/null)" ]]; do
+                config::timeout_check "${start_time}" "${volume_name} to be removed" "60" "10"
+                sleep 1
+            done
+            overwrite "Waiting for volume ${volume_name} to be removed... Done"
         fi
-
-        log info "Waiting for volume ${volume_name} to be removed..."
-        local start_time
-        start_time=$(date +%s)
-        until [[ -n "$(docker volume rm instant_"${volume_name}" 2>/dev/null)" ]]; do
-            config::timeout_check "${start_time}" "${volume_name} to be removed" "60" "10"
-            sleep 1
-        done
-        overwrite "Waiting for volume ${volume_name} to be removed... Done"
     done
 }
 
@@ -179,6 +183,28 @@ docker::prune_configs() {
     fi
 }
 
+docker::check_images_existence() {
+    if [[ -z "$*" ]]; then
+        log error "FATAL: check_images_existence parameter missing"
+        exit 1
+    fi
+
+    local timeout_pull_image
+    timeout_pull_image=300
+    for image_name in "$@"; do
+        image_name=$(eval echo "$image_name")
+        if [[ -z $(docker image inspect "$image_name" --format "{{.Id}}" 2>/dev/null) ]]; then
+            log info "The image $image_name is not found, Pulling from docker..."
+            try \
+                "timeout $timeout_pull_image docker pull $image_name 1>/dev/null" \
+                throw \
+                "An error occured while pulling the image $image_name"
+
+            overwrite "The image $image_name is not found, Pulling from docker... Done"
+        fi
+    done
+}
+
 # Deploy a service, it will set config digests (in case a config is defined in the compose file)
 #
 # Arguments:
@@ -194,6 +220,12 @@ docker::deploy_service() {
     local -r DOCKER_COMPOSE_DEV_MOUNT="${4:-""}"
     local -r DOCKER_COMPOSE_TEMP="${5:-""}"
     local docker_compose_param=""
+
+    # Check for the existance of the images
+    local -r images=($(yq '.services."*".image' "${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE"))
+    if [[ "${images[*]}" != "null" ]]; then
+        docker::check_images_existence "${images[@]}"
+    fi
 
     # Check for need to set config digests
     local -r files=($(yq '.configs."*.*".file' "${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE"))
@@ -284,31 +316,8 @@ docker::deploy_sanity() {
         exit 1
     fi
 
-    for i in "$@"; do
-        log info "Waiting for $i to run ..."
-        local start_time
-        start_time=$(date +%s)
-
-        error_message=()
-        until [[ $(docker::get_current_service_status "${i}") == *"Running"* ]]; do
-            config::timeout_check "${start_time}" "$i to run"
-            sleep 1
-
-            new_error_message=($(docker::get_service_unique_errors "$i"))
-            if [[ -n ${new_error_message[*]} ]]; then
-                # To prevent logging the same error
-                if [[ "${error_message[*]}" != "${new_error_message[*]}" ]]; then
-                    error_message=(${new_error_message[*]})
-                    log error "Deploy error in service $i: ${error_message[*]}"
-                fi
-                # To exit in case the error is not having the image
-                if [[ "${new_error_message[*]}" == *"No such image"* ]]; then
-                    log error "Do you have access to pull the image?"
-                    exit 124
-                fi
-            fi
-        done
-        overwrite "Waiting for $i to run ... Done"
+    for service__name in "$@"; do
+        docker::await_container_status "$service__name" "Running"
     done
 }
 
