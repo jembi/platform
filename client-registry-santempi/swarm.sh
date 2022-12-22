@@ -1,94 +1,122 @@
 #!/bin/bash
 
-# Constants
-readonly ACTION=$1
-readonly MODE=$2
+declare ACTION=""
+declare MODE=""
+declare COMPOSE_FILE_PATH=""
+declare UTILS_PATH=""
+declare postgres_services=()
+declare service_names=()
 
-COMPOSE_FILE_PATH=$(
-  cd "$(dirname "${BASH_SOURCE[0]}")" || exit
-  pwd -P
-)
-readonly COMPOSE_FILE_PATH
+function init_vars() {
+  ACTION=$1
+  MODE=$2
 
-# Import libraries
-ROOT_PATH="${COMPOSE_FILE_PATH}/.."
-. "${ROOT_PATH}/utils/config-utils.sh"
-. "${ROOT_PATH}/utils/docker-utils.sh"
-. "${ROOT_PATH}/utils/log.sh"
+  COMPOSE_FILE_PATH=$(
+    cd "$(dirname "${BASH_SOURCE[0]}")" || exit
+    pwd -P
+  )
 
-await_postgres_start() {
-  log info "Waiting for Postgres to start up before SanteMPI"
+  UTILS_PATH="${COMPOSE_FILE_PATH}/../utils/"
 
-  docker::await_container_startup santempi-psql-1
-  docker::await_container_status santempi-psql-1 Running
+  postgres_services=(
+    "santempi-psql-1"
+  )
+  if [[ "${NODE_MODE}" == "cluster" ]]; then
+    postgres_services=(
+      "${postgres_services[@]}"
+      "santempi-psql-2"
+      "santempi-psql-3"
+    )
+  fi
 
-  if [[ "$STATEFUL_NODES" == "cluster" ]]; then
-    docker::await_container_startup santempi-psql-2
-    docker::await_container_status santempi-psql-2 Running
+  service_names=(
+    "${postgres_services[@]}"
+    "santedb-www"
+    "santedb-mpi"
+  )
 
-    docker::await_container_startup santempi-psql-3
-    docker::await_container_status santempi-psql-3 Running
+  readonly ACTION
+  readonly MODE
+  readonly COMPOSE_FILE_PATH
+  readonly UTILS_PATH
+  readonly postgres_services
+  readonly service_names
+}
+
+# shellcheck disable=SC1091
+function import_sources() {
+  source "${UTILS_PATH}/docker-utils.sh"
+  source "${UTILS_PATH}/config-utils.sh"
+  source "${UTILS_PATH}/log.sh"
+}
+
+function initialize_package() {
+  local postgres_cluster_compose_filename=""
+  local postgres_dev_compose_filename=""
+  local sante_mpi_dev_compose_filename=""
+
+  if [ "$MODE" == "dev" ]; then
+    log info "Running Client Registry SanteMPI package in DEV mode"
+    local postgres_dev_compose_filename="docker-compose-postgres.dev.yml"
+    local sante_mpi_dev_compose_filename="docker-compose.dev.yml"
+  else
+    log info "Running Client Registry SanteMPI package in PROD mode"
+  fi
+
+  if [ "${NODE_MODE}" == "cluster" ]; then
+    local postgres_cluster_compose_filename="docker-compose-postgres.cluster.yml"
+  fi
+
+  (
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose-postgres.yml" "$postgres_cluster_compose_filename" "$postgres_dev_compose_filename"
+    docker::deploy_sanity "${postgres_services[@]}"
+
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$sante_mpi_dev_compose_filename"
+    docker::deploy_sanity "santedb-mpi" "santedb-www"
+  ) ||
+    {
+      log error "Failed to deploy Client Registry SanteMPI package"
+      exit 1
+    }
+}
+
+function scale_services_down() {
+  for service_name in "${service_names[@]}"; do
+    try \
+      "docker service scale instant_$service_name=0" \
+      catch \
+      "Failed to scale down $service_name"
+  done
+}
+
+function destroy_package() {
+  for service_name in "${service_names[@]}"; do
+    docker::service_destroy "$service_name"
+  done
+
+  docker::try_remove_volume santedb-data santempi-psql-1-data
+
+  if [[ "${NODE_MODE}" == "cluster" ]]; then
+    log warn "Volumes are only deleted on the host on which the command is run. Postgres volumes on other nodes are not deleted"
   fi
 }
 
 main() {
-  if [ "${STATEFUL_NODES}" == "cluster" ]; then
-    log info "Running Client Registry SanteMPI package in Cluster node mode"
-    local postgres_cluster_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose-postgres.cluster.yml"
-  else
-    log info "Running Client Registry SanteMPI package in Single node mode"
-    local postgres_cluster_compose_param=""
-  fi
+  init_vars "$@"
+  import_sources
 
-  if [ "$MODE" == "dev" ]; then
-    log info "Running Client Registry SanteMPI package in DEV mode"
-    local postgres_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose-postgres.dev.yml"
-    local sante_mpi_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
-  else
-    log info "Running Client Registry SanteMPI package in PROD mode"
-    local postgres_dev_compose_param=""
-    local sante_mpi_dev_compose_param=""
-  fi
+  if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
+    log info "Running Client Registry SanteMPI package in ${NODE_MODE} node mode"
 
-  if [ "$ACTION" == "init" ]; then
-    try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose-postgres.yml $postgres_cluster_compose_param $postgres_dev_compose_param instant" "Failed to deploy SanteMPI Postgres"
+    initialize_package
+  elif [[ "${ACTION}" == "down" ]]; then
+    log info "Scaling down Client Registry SanteMPI"
 
-    await_postgres_start
+    scale_services_down
+  elif [[ "${ACTION}" == "destroy" ]]; then
+    log info "Destroying Client Registry SanteMPI"
 
-    try "docker stack deploy -c ""$COMPOSE_FILE_PATH""/docker-compose.yml $sante_mpi_dev_compose_param instant" "Failed to deploy SanteMPI"
-  elif [ "$ACTION" == "up" ]; then
-    try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose-postgres.yml $postgres_cluster_compose_param $postgres_dev_compose_param instant" "Failed to stand up SanteMPI Postgres"
-
-    await_postgres_start
-
-    try "docker stack deploy -c ""$COMPOSE_FILE_PATH""/docker-compose.yml $sante_mpi_dev_compose_param instant" "Failed to stand up SanteMPI"
-
-    if [[ "$STATEFUL_NODES" == "cluster" ]]; then
-      docker::deploy_sanity santedb-www santedb-mpi santempi-psql-1 santempi-psql-2 santempi-psql-3
-    else
-      docker::deploy_sanity santedb-www santedb-mpi santempi-psql-1
-    fi
-  elif [ "$ACTION" == "down" ]; then
-    try "docker service scale instant_santedb-mpi=0 instant_santedb-www=0 instant_santempi-psql-1=0" "Failed to scale down santeMPI"
-
-    if [ "$STATEFUL_NODES" == "cluster" ]; then
-      try "docker service scale instant_santempi-psql-2=0 instant_santempi-psql-3=0" "Failed to scale down santeMPI postgres replicas"
-    fi
-
-  elif [ "$ACTION" == "destroy" ]; then
-    docker::service_destroy santedb-www
-    docker::service_destroy santedb-mpi
-    docker::service_destroy santempi-psql-1
-    docker::try_remove_volume santedb-data
-    docker::try_remove_volume santempi-psql-1-data
-
-    if [ "${STATEFUL_NODES}" == "cluster" ]; then
-      docker::service_destroy santempi-psql-2
-      docker::service_destroy santempi-psql-3
-      docker::try_remove_volume santempi-psql-2-data
-      docker::try_remove_volume santempi-psql-3-data
-      log warn "Volumes are only deleted on the host on which the command is run. Postgres volumes on other nodes are not deleted"
-    fi
+    destroy_package
   else
     log error "Valid options are: init, up, down, or destroy"
   fi
