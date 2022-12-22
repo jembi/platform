@@ -16,17 +16,18 @@ function init_vars() {
     pwd -P
   )
 
-  UTILS_PATH="${COMPOSE_FILE_PATH}/../utils/"
+  UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
   mongo_services=(
     "mongo-1"
   )
   if [[ "${NODE_MODE}" == "cluster" ]]; then
-    mongo_services=(
-      "${mongo_services[@]}"
-      "mongo-2"
-      "mongo-3"
-    )
+    for i in {1..3}; do
+      mongo_services=(
+        "${mongo_services[@]}"
+        "mongo-$i"
+      )
+    done
   fi
 
   service_names=(
@@ -163,7 +164,7 @@ function destroy_package() {
     docker::service_destroy "$service_name"
   done
 
-  docker::try_remove_volume openhim-mongo-1
+  docker::try_remove_volume openhim-mongo-01
 
   if [[ "${NODE_MODE}" == "cluster" ]]; then
     log warn "Volumes are only deleted on the host on which the command is run. Mongo volumes on other nodes are not deleted"
