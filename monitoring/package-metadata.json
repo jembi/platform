@@ -12,6 +12,12 @@
     "GF_SMTP_ENABLED": "false",
     "GF_SMTP_HOST": "localhost:25",
     "GF_SMTP_USER": "",
-    "GF_SMTP_PASSWORD": ""
+    "GF_SMTP_PASSWORD": "",
+    "KC_SSO_ENABLED": "true",
+    "KC_REALM_NAME": "platform-realm",
+    "KC_FRONTEND_URL": "http://localhost:9080",
+    "KC_API_URL": "http://identity-access-manager-keycloak:8080",
+    "KC_GRAFANA_CLIENT_ID": "grafana-oauth",
+    "KC_GRAFANA_CLIENT_SECRET": "CV14QfwnpYFj1IH5dK5lScPNCYAIYP1c"
   }
 }

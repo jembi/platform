@@ -8,6 +8,21 @@
   "environmentVariables": {
     "STATEFUL_NODES": "single",
     "KEYCLOAK_ADMIN": "admin",
-    "KEYCLOAK_ADMIN_PASSWORD": "admin"
+    "KEYCLOAK_ADMIN_PASSWORD": "dev_password_only",
+    "KC_REALM_NAME": "platform-realm",
+    "KC_REPMGR_PRIMARY_HOST": "keycloak-postgres-1",
+    "KC_REPMGR_PARTNER_NODES": "keycloak-postgres-1",
+    "KC_REPMGR_PASSWORD": "instant101",
+    "KC_POSTGRES_REPLICA_SET": "keycloak-postgres-1:5432",
+    "KC_POSTGRES_CPU_LIMIT": "0",
+    "KC_POSTGRES_CPU_RESERVE": "0.05",
+    "KC_POSTGRES_MEMORY_LIMIT": "3G",
+    "KC_POSTGRES_MEMORY_RESERVE": "500M",
+    "KC_POSTGRESQL_PASSWORD": "instant101",
+    "KC_POSTGRESQL_USERNAME": "admin",
+    "KC_POSTGRESQL_DATABASE": "keycloak",
+    "KC_GRAFANA_CLIENT_ID": "grafana-oauth",
+    "KC_GRAFANA_CLIENT_SECRET": "CV14QfwnpYFj1IH5dK5lScPNCYAIYP1c",
+    "KC_GRAFANA_ROOT_URL": "http://localhost:3000"
   }
 }

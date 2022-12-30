@@ -1,0 +1,80 @@
+{
+  "id": "${KC_REALM_NAME}",
+  "realm": "${KC_REALM_NAME}",
+  "displayNameHtml": "<div class=\"kc-logo-text\"><span>Keycloak</span></div>",
+  "enabled": true,
+  "clients": [
+    {
+      "clientId": "${KC_GRAFANA_CLIENT_ID}",
+      "name": "grafana",
+      "description": "",
+      "rootUrl": "${KC_GRAFANA_ROOT_URL}",
+      "adminUrl": "${KC_GRAFANA_ROOT_URL}",
+      "baseUrl": "${KC_GRAFANA_ROOT_URL}",
+      "surrogateAuthRequired": false,
+      "enabled": true,
+      "alwaysDisplayInConsole": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "${KC_GRAFANA_CLIENT_SECRET}",
+      "redirectUris": ["${KC_GRAFANA_ROOT_URL}/*"],
+      "webOrigins": ["${KC_GRAFANA_ROOT_URL}"],
+      "notBefore": 0,
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "publicClient": false,
+      "frontchannelLogout": true,
+      "protocol": "openid-connect",
+      "attributes": {
+        "oidc.ciba.grant.enabled": "false",
+        "client.secret.creation.time": "1672390081",
+        "backchannel.logout.session.required": "true",
+        "oauth2.device.authorization.grant.enabled": "false",
+        "display.on.consent.screen": "false",
+        "backchannel.logout.revoke.offline.tokens": "false"
+      },
+      "authenticationFlowBindingOverrides": {},
+      "fullScopeAllowed": true,
+      "nodeReRegistrationTimeout": -1,
+      "defaultClientScopes": [
+        "web-origins",
+        "acr",
+        "roles",
+        "profile",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "offline_access",
+        "microprofile-jwt"
+      ],
+      "access": {
+        "view": true,
+        "configure": true,
+        "manage": true
+      }
+    }
+  ],
+  "users": [
+    {
+      "email": "test@jembi.org",
+      "username": "test",
+      "enabled": true,
+      "credentials": [
+        {
+          "temporary": false,
+          "type": "password",
+          "value": "dev_password_only"
+        }
+      ],
+      "realmRoles": ["default-roles-${KC_REALM_NAME}"],
+      "clientRoles": {
+        "grafana-oauth": ["admin", "editor", "viewer"]
+      }
+    }
+  ]
+}
