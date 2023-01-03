@@ -71,7 +71,7 @@ function initialize_package() {
     package::log info "Running package in PROD mode"
   fi
 
-  if [[ $CLUSTERED_MODE == "cluster" ]]; then
+  if [[ $CLUSTERED_MODE == "true" ]]; then
     kafka_zoo_cluster_compose_filename="docker-compose.cluster.kafka-zoo.yml"
     kafka_cluster_compose_filename="docker-compose.cluster.kafka.yml"
   fi

@@ -99,7 +99,7 @@ function destroy_package() {
 
   docker::try_remove_volume prometheus_data grafana_data
 
-  if [[ $CLUSTERED_MODE == "cluster" ]]; then
+  if [[ $CLUSTERED_MODE == "true" ]]; then
     log warn "Volumes are only deleted on the host on which the command is run. Monitoring volumes on other nodes are not deleted"
   fi
 
