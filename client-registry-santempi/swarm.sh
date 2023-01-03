@@ -2,14 +2,17 @@
 
 declare ACTION=""
 declare MODE=""
+declare PACKAGE_NAME=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare postgres_services=()
-declare service_names=()
+declare POSTGRES_SERVICES=()
+declare SERVICE_NAMES=()
 
 function init_vars() {
   ACTION=$1
   MODE=$2
+
+  PACKAGE_NAME=$(basename "$PWD" | sed -e 's/-/ /g' -e 's/\b\(.\)/\u\1/g')
 
   COMPOSE_FILE_PATH=$(
     cd "$(dirname "${BASH_SOURCE[0]}")" || exit
@@ -18,29 +21,30 @@ function init_vars() {
 
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-  postgres_services=(
+  POSTGRES_SERVICES=(
     "santempi-psql-1"
   )
-  if [[ "${NODE_MODE}" == "cluster" ]]; then
-    postgres_services=(
-      "${postgres_services[@]}"
+  if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+    POSTGRES_SERVICES=(
+      "${POSTGRES_SERVICES[@]}"
       "santempi-psql-2"
       "santempi-psql-3"
     )
   fi
 
-  service_names=(
-    "${postgres_services[@]}"
+  SERVICE_NAMES=(
+    "${POSTGRES_SERVICES[@]}"
     "santedb-www"
     "santedb-mpi"
   )
 
   readonly ACTION
   readonly MODE
+  readonly PACKAGE_NAME
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
-  readonly postgres_services
-  readonly service_names
+  readonly POSTGRES_SERVICES
+  readonly SERVICE_NAMES
 }
 
 # shellcheck disable=SC1091
@@ -55,48 +59,39 @@ function initialize_package() {
   local postgres_dev_compose_filename=""
   local sante_mpi_dev_compose_filename=""
 
-  if [ "$MODE" == "dev" ]; then
-    log info "Running Client Registry SanteMPI package in DEV mode"
+  if [[ "$MODE" == "dev" ]]; then
+    log info "Running $PACKAGE_NAME package in DEV mode"
     postgres_dev_compose_filename="docker-compose-postgres.dev.yml"
     sante_mpi_dev_compose_filename="docker-compose.dev.yml"
   else
-    log info "Running Client Registry SanteMPI package in PROD mode"
+    log info "Running $PACKAGE_NAME package in PROD mode"
   fi
 
-  if [ "${NODE_MODE}" == "cluster" ]; then
+  if [[ "${CLUSTERED_MODE}" == "true" ]]; then
     postgres_cluster_compose_filename="docker-compose-postgres.cluster.yml"
   fi
 
   (
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose-postgres.yml" "$postgres_cluster_compose_filename" "$postgres_dev_compose_filename"
-    docker::deploy_sanity "${postgres_services[@]}"
+    docker::deploy_sanity "${POSTGRES_SERVICES[@]}"
 
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$sante_mpi_dev_compose_filename"
     docker::deploy_sanity "santedb-mpi" "santedb-www"
   ) ||
     {
-      log error "Failed to deploy Client Registry SanteMPI package"
+      log error "Failed to deploy $PACKAGE_NAME package"
       exit 1
     }
 }
 
-function scale_services_down() {
-  for service_name in "${service_names[@]}"; do
-    try \
-      "docker service scale instant_$service_name=0" \
-      catch \
-      "Failed to scale down $service_name"
-  done
-}
-
 function destroy_package() {
-  for service_name in "${service_names[@]}"; do
+  for service_name in "${SERVICE_NAMES[@]}"; do
     docker::service_destroy "$service_name"
   done
 
   docker::try_remove_volume santedb-data santempi-psql-1-data
 
-  if [[ "${NODE_MODE}" == "cluster" ]]; then
+  if [[ "${CLUSTERED_MODE}" == "true" ]]; then
     log warn "Volumes are only deleted on the host on which the command is run. Postgres volumes on other nodes are not deleted"
   fi
 }
@@ -106,15 +101,19 @@ main() {
   import_sources
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    log info "Running Client Registry SanteMPI package in ${NODE_MODE} node mode"
+    if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+      log info "Running $PACKAGE_NAME package in Cluster node mode"
+    else
+      log info "Running $PACKAGE_NAME package in Single node mode"
+    fi
 
     initialize_package
   elif [[ "${ACTION}" == "down" ]]; then
-    log info "Scaling down Client Registry SanteMPI"
+    log info "Scaling down $PACKAGE_NAME"
 
-    scale_services_down
+    docker::scale_services_down "${SERVICE_NAMES[@]}"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    log info "Destroying Client Registry SanteMPI"
+    log info "Destroying $PACKAGE_NAME"
 
     destroy_package
   else

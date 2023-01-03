@@ -2,14 +2,17 @@
 
 declare ACTION=""
 declare MODE=""
+declare PACKAGE_NAME=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare mongo_services=()
-declare service_names=()
+declare MONGO_SERVICES=()
+declare SERVICE_NAMES=()
 
 function init_vars() {
   ACTION=$1
   MODE=$2
+
+  PACKAGE_NAME=$(basename "$PWD" | sed -e 's/-/ /g' -e 's/\b\(.\)/\u\1/g')
 
   COMPOSE_FILE_PATH=$(
     cd "$(dirname "${BASH_SOURCE[0]}")" || exit
@@ -18,20 +21,20 @@ function init_vars() {
 
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-  mongo_services=(
+  MONGO_SERVICES=(
     "mongo-1"
   )
-  if [[ "${NODE_MODE}" == "cluster" ]]; then
+  if [[ "${CLUSTERED_MODE}" == "true" ]]; then
     for i in {1..3}; do
-      mongo_services=(
-        "${mongo_services[@]}"
+      MONGO_SERVICES=(
+        "${MONGO_SERVICES[@]}"
         "mongo-$i"
       )
     done
   fi
 
-  service_names=(
-    "${mongo_services[@]}"
+  SERVICE_NAMES=(
+    "${MONGO_SERVICES[@]}"
     "openhim-core"
     "openhim-console"
   )
@@ -40,8 +43,8 @@ function init_vars() {
   readonly MODE
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
-  readonly mongo_services
-  readonly service_names
+  readonly MONGO_SERVICES
+  readonly SERVICE_NAMES
 }
 
 # shellcheck disable=SC1091
@@ -80,9 +83,9 @@ function prepare_console_config() {
 function init_package() {
   (
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose-mongo.yml" "$mongo_cluster_compose_filename" "$mongo_dev_compose_filename"
-    docker::deploy_sanity "${mongo_services[@]}"
+    docker::deploy_sanity "${MONGO_SERVICES[@]}"
 
-    if [[ "${NODE_MODE}" == "cluster" ]]; then
+    if [[ "${CLUSTERED_MODE}" == "true" ]]; then
       try "${COMPOSE_FILE_PATH}/initiate-replica-set.sh" throw "Fatal: Initiate Mongo replica set failed"
     fi
 
@@ -98,7 +101,7 @@ function init_package() {
     docker::deploy_sanity "openhim-console"
   ) ||
     {
-      log error "Failed to deploy Interoperability Layer OpenHIM package"
+      log error "Failed to deploy $PACKAGE_NAME package"
       exit 1
     }
 
@@ -108,7 +111,7 @@ function init_package() {
 function scale_services_up() {
   (
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose-mongo.yml" "$mongo_cluster_compose_filename" "$mongo_dev_compose_filename"
-    docker::deploy_sanity "${mongo_services[@]}"
+    docker::deploy_sanity "${MONGO_SERVICES[@]}"
 
     verify_mongos
     prepare_console_config
@@ -116,7 +119,7 @@ function scale_services_up() {
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "docker-compose.stack-1.yml" "$openhim_dev_compose_filename"
     docker::deploy_sanity "openhim-core" "openhim-console"
   ) || {
-    log error "Failed to scale up Interoperability Layer OpenHIM package"
+    log error "Failed to scale up $PACKAGE_NAME package"
     exit 1
   }
 }
@@ -127,14 +130,14 @@ function start_package() {
   local openhim_dev_compose_filename=""
 
   if [[ "${MODE}" == "dev" ]]; then
-    log info "Running Interoperability Layer OpenHIM package in DEV mode"
+    log info "Running $PACKAGE_NAME package in DEV mode"
     local mongo_dev_compose_filename="docker-compose-mongo.dev.yml"
     local openhim_dev_compose_filename="docker-compose.dev.yml"
   else
-    log info "Running Interoperability Layer OpenHIM package in PROD mode"
+    log info "Running $PACKAGE_NAME package in PROD mode"
   fi
 
-  if [[ "${NODE_MODE}" == "cluster" ]]; then
+  if [[ "${CLUSTERED_MODE}" == "true" ]]; then
     mongo_cluster_compose_filename="docker-compose-mongo.cluster.yml"
   fi
 
@@ -147,26 +150,12 @@ function start_package() {
   fi
 }
 
-function scale_services_down() {
-  for service_name in "${service_names[@]}"; do
-    try \
-      "docker service scale instant_$service_name=0" \
-      catch \
-      "Failed to scale down $service_name"
-  done
-}
-
 function destroy_package() {
-  docker::service_destroy interoperability-layer-openhim-config-importer
-  docker::service_destroy await-helper
-
-  for service_name in "${service_names[@]}"; do
-    docker::service_destroy "$service_name"
-  done
+  docker::service_destroy "${SERVICE_NAMES[@]}" "interoperability-layer-openhim-config-importer" "await-helper"
 
   docker::try_remove_volume openhim-mongo-01
 
-  if [[ "${NODE_MODE}" == "cluster" ]]; then
+  if [[ "${CLUSTERED_MODE}" == "true" ]]; then
     log warn "Volumes are only deleted on the host on which the command is run. Mongo volumes on other nodes are not deleted"
   fi
 
@@ -178,15 +167,19 @@ main() {
   import_sources
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    log info "Running Interoperability Layer OpenHIM package in ${NODE_MODE} node mode"
+    if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+      log info "Running $PACKAGE_NAME package in Cluster node mode"
+    else
+      log info "Running $PACKAGE_NAME package in Single node mode"
+    fi
 
     start_package
   elif [[ "${ACTION}" == "down" ]]; then
-    log info "Scaling down Interoperability Layer OpenHIM"
+    log info "Scaling down $PACKAGE_NAME"
 
-    scale_services_down
+    docker::scale_services_down "${SERVICE_NAMES[@]}"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    log info "Destroying Interoperability Layer OpenHIM"
+    log info "Destroying $PACKAGE_NAME"
 
     destroy_package
   else

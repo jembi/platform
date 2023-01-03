@@ -4,12 +4,15 @@ declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare nodes_mode=""
-declare service_names=()
+declare PACKAGE_NAME=""
+declare NODE_MODE_PREFIX=""
+declare SERVICE_NAMES=()
 
 function init_vars() {
   ACTION=$1
   MODE=$2
+
+  PACKAGE_NAME=$(basename "$PWD" | sed -e 's/-/ /g' -e 's/\b\(.\)/\u\1/g')
 
   COMPOSE_FILE_PATH=$(
     cd "$(dirname "${BASH_SOURCE[0]}")" || exit
@@ -18,26 +21,27 @@ function init_vars() {
 
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-  if [[ "${NODE_MODE}" == "cluster" ]]; then
-    nodes_mode=".${NODE_MODE}"
+  if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+    NODE_MODE_PREFIX=".cluster"
     for i in {1..4}; do
-      service_names=(
-        "${service_names[@]}"
+      SERVICE_NAMES=(
+        "${SERVICE_NAMES[@]}"
         "analytics-datastore-clickhouse-0$i"
       )
     done
   else
-    service_names=(
+    SERVICE_NAMES=(
       "analytics-datastore-clickhouse"
     )
   fi
 
   readonly ACTION
   readonly MODE
+  readonly PACKAGE_NAME
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
-  readonly nodes_mode
-  readonly service_names
+  readonly NODE_MODE_PREFIX
+  readonly SERVICE_NAMES
 }
 
 # shellcheck disable=SC1091
@@ -49,40 +53,27 @@ function import_sources() {
 function initialize_package() {
   local clickhouse_dev_compose_filename=""
   if [[ "${MODE}" == "dev" ]]; then
-    log info "Running Analytics Datastore Clickhouse package in DEV mode"
-    clickhouse_dev_compose_filename="docker-compose$nodes_mode.dev.yml"
+    log info "Running $PACKAGE_NAME package in DEV mode"
+    clickhouse_dev_compose_filename="docker-compose$NODE_MODE_PREFIX.dev.yml"
   else
-    log info "Running Analytics Datastore Clickhouse package in PROD mode"
+    log info "Running $PACKAGE_NAME package in PROD mode"
   fi
 
   (
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose$nodes_mode.yml" "$clickhouse_dev_compose_filename"
-    docker::deploy_sanity "${service_names[@]}"
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose$NODE_MODE_PREFIX.yml" "$clickhouse_dev_compose_filename"
+    docker::deploy_sanity "${SERVICE_NAMES[@]}"
   ) || {
-    log error "Failed to deploy Analytics Datastore Clickhouse package"
+    log error "Failed to deploy $PACKAGE_NAME package"
     exit 1
   }
 
   docker::deploy_config_importer "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "clickhouse-config-importer" "clickhouse"
 }
 
-function scale_services_down() {
-  for service_name in "${service_names[@]}"; do
-    try \
-      "docker service scale instant_$service_name=0" \
-      catch \
-      "Failed to scale down $service_name"
-  done
-}
-
 function destroy_package() {
-  docker::service_destroy clickhouse-config-importer
+  docker::service_destroy "${SERVICE_NAMES[@]}" "clickhouse-config-importer"
 
-  for service_name in "${service_names[@]}"; do
-    docker::service_destroy "$service_name"
-  done
-
-  if [[ "$NODE_MODE" == "cluster" ]]; then
+  if [[ "$CLUSTERED_MODE" == "true" ]]; then
     docker::try_remove_volume clickhouse-data-01 clickhouse-data-04
     log warn "Volumes are only deleted on the host on which the command is run. Cluster volumes on other nodes are not deleted"
   else
@@ -97,15 +88,19 @@ main() {
   import_sources
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    log info "Running Analytics Datastore Clickhouse package in ${NODE_MODE} node mode"
+    if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+      log info "Running $PACKAGE_NAME package in Cluster node mode"
+    else
+      log info "Running $PACKAGE_NAME package in Single node mode"
+    fi
 
     initialize_package
   elif [[ "${ACTION}" == "down" ]]; then
-    log info "Scaling down Analytics Datastore Clickhouse"
+    log info "Scaling down $PACKAGE_NAME"
 
-    scale_services_down
+    docker::scale_services_down "${SERVICE_NAMES[@]}"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    log info "Destroying Analytics Datastore Clickhouse"
+    log info "Destroying $PACKAGE_NAME"
 
     destroy_package
   else

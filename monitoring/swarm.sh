@@ -3,13 +3,16 @@
 declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
+declare PACKAGE_NAME=""
 declare UTILS_PATH=""
-declare service_names=()
-declare scaled_services=()
+declare SERVICE_NAMES=()
+declare SCALED_SERVICES=()
 
 function init_vars() {
   ACTION=$1
   MODE=$2
+
+  PACKAGE_NAME=$(basename "$PWD" | sed -e 's/-/ /g' -e 's/\b\(.\)/\u\1/g')
 
   COMPOSE_FILE_PATH=$(
     cd "$(dirname "${BASH_SOURCE[0]}")" || exit
@@ -18,19 +21,19 @@ function init_vars() {
 
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-  scaled_services=(
+  SCALED_SERVICES=(
     "grafana"
     "prometheus"
     "prometheus-kafka-adapter"
   )
-  if [[ "${NODE_MODE}" == "cluster" ]]; then
-    scaled_services=(
-      "${scaled_services[@]}"
+  if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+    SCALED_SERVICES=(
+      "${SCALED_SERVICES[@]}"
       "prometheus_backup"
     )
   fi
-  service_names=(
-    "${scaled_services[@]}"
+  SERVICE_NAMES=(
+    "${SCALED_SERVICES[@]}"
     "cadvisor"
     "node-exporter"
   )
@@ -38,9 +41,10 @@ function init_vars() {
   readonly ACTION
   readonly MODE
   readonly COMPOSE_FILE_PATH
+  readonly PACKAGE_NAME
   readonly UTILS_PATH
-  readonly service_names
-  readonly scaled_services
+  readonly SERVICE_NAMES
+  readonly SCALED_SERVICES
 }
 
 # shellcheck disable=SC1091
@@ -51,64 +55,59 @@ function import_sources() {
 }
 
 function remove_service() {
-  local -r SERVICE_NAME=${1:?"FATAL: await_container_startup parameter not provided"}
+  if [[ -z "$*" ]]; then
+    log error "$(missing_param "remove_service")"
+    exit 1
+  fi
 
-  try "docker service rm instant_$SERVICE_NAME" catch "Failed to remove service $SERVICE_NAME"
-  docker::await_service_destroy "$SERVICE_NAME"
+  for service_name in "$@"; do
+    try "docker service rm instant_$service_name" catch "Failed to remove service $service_name"
+    docker::await_service_destroy "$service_name"
+  done
 }
 
 function initialize_package() {
   local monitoring_dev_compose_filename=""
   local monitoring_cluster_compose_filename=""
 
-  if [[ "${NODE_MODE}" == "cluster" ]]; then
+  if [[ "${CLUSTERED_MODE}" == "true" ]]; then
     monitoring_cluster_compose_filename="docker-compose.cluster.yml"
   fi
 
   if [[ "${MODE}" == "dev" ]]; then
-    log info "Running Monitoring package in DEV mode"
+    log info "Running $PACKAGE_NAME package in DEV mode"
     monitoring_dev_compose_filename="docker-compose.dev.yml"
   else
-    log info "Running Monitoring package in PROD mode"
+    log info "Running $PACKAGE_NAME package in PROD mode"
   fi
 
   (
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$monitoring_dev_compose_filename" "$monitoring_cluster_compose_filename"
-    docker::deploy_sanity "${service_names[@]}"
+    docker::deploy_sanity "${SERVICE_NAMES[@]}"
   ) || {
-    log error "Failed to deploy Monitoring package"
+    log error "Failed to deploy $PACKAGE_NAME package"
     exit 1
   }
 }
 
 function scale_services_down() {
-  for service_name in "${scaled_services[@]}"; do
-    try \
-      "docker service scale instant_$service_name=0" \
-      catch \
-      "Failed to scale down $service_name"
-  done
+  docker::scale_services_down "${SCALED_SERVICES[@]}"
 
-  remove_service cadvisor
-  remove_service node-exporter
+  remove_service cadvisor node-exporter
 }
 
 function destroy_package() {
-  for service_name in "${scaled_services[@]}"; do
-    docker::service_destroy "$service_name"
-  done
+  docker::service_destroy "${SCALED_SERVICES[@]}"
 
-  remove_service cadvisor
-  remove_service node-exporter
+  remove_service "cadvisor" "node-exporter"
 
   docker::try_remove_volume prometheus_data grafana_data
 
-  if [[ $NODE_MODE == "cluster" ]]; then
+  if [[ $CLUSTERED_MODE == "cluster" ]]; then
     log warn "Volumes are only deleted on the host on which the command is run. Monitoring volumes on other nodes are not deleted"
   fi
 
-  docker::prune_configs "grafana"
-  docker::prune_configs "prometheus"
+  docker::prune_configs "grafana" "prometheus"
 }
 
 main() {
@@ -116,15 +115,19 @@ main() {
   import_sources
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    log info "Running Monitoring package in ${NODE_MODE} node mode"
+    if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+      log info "Running $PACKAGE_NAME package in Cluster node mode"
+    else
+      log info "Running $PACKAGE_NAME package in Single node mode"
+    fi
 
     initialize_package
   elif [[ "${ACTION}" == "down" ]]; then
-    log info "Scaling down Monitoring"
+    log info "Scaling down $PACKAGE_NAME"
 
     scale_services_down
   elif [[ "${ACTION}" == "destroy" ]]; then
-    log info "Destroying Monitoring"
+    log info "Destroying $PACKAGE_NAME"
 
     destroy_package
   else

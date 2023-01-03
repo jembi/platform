@@ -3,10 +3,13 @@
 declare ACTION=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare service_name=""
+declare PACKAGE_NAME=""
+declare SERVICE_NAMES=""
 
 function init_vars() {
   ACTION=$1
+
+  PACKAGE_NAME=$(basename "$PWD" | sed -e 's/-/ /g' -e 's/\b\(.\)/\u\1/g')
 
   COMPOSE_FILE_PATH=$(
     cd "$(dirname "${BASH_SOURCE[0]}")" || exit
@@ -15,12 +18,13 @@ function init_vars() {
 
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-  service_name="hapi-proxy"
+  SERVICE_NAMES="hapi-proxy"
 
   readonly ACTION
+  readonly PACKAGE_NAME
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
-  readonly service_name
+  readonly SERVICE_NAMES
 }
 
 # shellcheck disable=SC1091
@@ -32,22 +36,15 @@ function import_sources() {
 function initialize_package() {
   (
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml"
-    docker::deploy_sanity "${service_name}"
+    docker::deploy_sanity "${SERVICE_NAMES}"
   ) || {
-    log error "Failed to deploy Message Bus Helper Hapi Proxy package"
+    log error "Failed to deploy $PACKAGE_NAME package"
     exit 1
   }
 }
 
-function scale_services_down() {
-  try \
-    "docker service scale instant_$service_name=0" \
-    catch \
-    "Failed to scale down $service_name"
-}
-
 function destroy_package() {
-  docker::service_destroy "$service_name"
+  docker::service_destroy "$SERVICE_NAMES"
 
   docker::prune_configs "kafka-mapper-consumer"
 }
@@ -57,15 +54,15 @@ main() {
   import_sources
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    log info "Running Message Bus Helper Hapi Proxy package"
+    log info "Running $PACKAGE_NAME package"
 
     initialize_package
   elif [[ "${ACTION}" == "down" ]]; then
-    log info "Scaling down Message Bus Helper Hapi Proxy"
+    log info "Scaling down $PACKAGE_NAME"
 
-    scale_services_down
+    docker::scale_services_down "${SERVICE_NAMES}"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    log info "Destroying Message Bus Helper Hapi Proxy"
+    log info "Destroying $PACKAGE_NAME"
 
     destroy_package
   else

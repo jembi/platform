@@ -3,10 +3,13 @@
 declare ACTION=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare service_name=""
+declare PACKAGE_NAME=""
+declare SERVICE_NAMES=""
 
 function init_vars() {
   ACTION=$1
+
+  PACKAGE_NAME=$(basename "$PWD" | sed -e 's/-/ /g' -e 's/\b\(.\)/\u\1/g')
 
   COMPOSE_FILE_PATH=$(
     cd "$(dirname "${BASH_SOURCE[0]}")" || exit
@@ -15,12 +18,13 @@ function init_vars() {
 
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-  service_name="job-scheduler-ofelia"
+  SERVICE_NAMES="job-scheduler-ofelia"
 
   readonly ACTION
+  readonly PACKAGE_NAME
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
-  readonly service_name
+  readonly SERVICE_NAMES
 }
 
 # shellcheck disable=SC1091
@@ -40,22 +44,15 @@ function initialize_package() {
     config::substitute_env_vars "${COMPOSE_FILE_PATH}"/config.ini
 
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml"
-    docker::deploy_sanity "${service_name}"
+    docker::deploy_sanity "${SERVICE_NAMES}"
   ) || {
-    log error "Failed to deploy Message Job Scheduler Ofelia package, does your .env file include all environment variables in your config.ini file?"
+    log error "Failed to deploy Message $PACKAGE_NAME package, does your .env file include all environment variables in your config.ini file?"
     exit 1
   }
 }
 
-function scale_services_down() {
-  try \
-    "docker service scale instant_$service_name=0" \
-    catch \
-    "Failed to scale down $service_name"
-}
-
 function destroy_package() {
-  docker::service_destroy "$service_name"
+  docker::service_destroy "$SERVICE_NAMES"
 
   docker::prune_configs "ofelia"
 }
@@ -65,15 +62,19 @@ main() {
   import_sources
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    log info "Running Message Job Scheduler Ofelia package"
+    if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+      log info "Running $PACKAGE_NAME package in Cluster node mode"
+    else
+      log info "Running $PACKAGE_NAME package in Single node mode"
+    fi
 
     initialize_package
   elif [[ "${ACTION}" == "down" ]]; then
-    log info "Scaling down Message Job Scheduler Ofelia"
+    log info "Scaling down Message $PACKAGE_NAME"
 
-    scale_services_down
+    docker::scale_services_down "$SERVICE_NAMES"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    log info "Destroying Message Job Scheduler Ofelia"
+    log info "Destroying Message $PACKAGE_NAME"
 
     destroy_package
   else

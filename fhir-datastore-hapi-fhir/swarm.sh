@@ -3,13 +3,16 @@
 declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
+declare PACKAGE_NAME=""
 declare UTILS_PATH=""
-declare postgres_services=()
-declare service_names=()
+declare POSTGRES_SERVICES=()
+declare SERVICE_NAMES=()
 
 function init_vars() {
   ACTION=$1
   MODE=$2
+
+  PACKAGE_NAME=$(basename "$PWD" | sed -e 's/-/ /g' -e 's/\b\(.\)/\u\1/g')
 
   COMPOSE_FILE_PATH=$(
     cd "$(dirname "${BASH_SOURCE[0]}")" || exit
@@ -18,28 +21,29 @@ function init_vars() {
 
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-  postgres_services=(
+  POSTGRES_SERVICES=(
     "postgres-1"
   )
-  if [[ "${NODE_MODE}" == "cluster" ]]; then
-    postgres_services=(
-      "${postgres_services[@]}"
+  if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+    POSTGRES_SERVICES=(
+      "${POSTGRES_SERVICES[@]}"
       "postgres-2"
       "postgres-3"
     )
   fi
 
-  service_names=(
-    "${postgres_services[@]}"
+  SERVICE_NAMES=(
+    "${POSTGRES_SERVICES[@]}"
     "hapi-fhir"
   )
 
   readonly ACTION
   readonly MODE
+  readonly PACKAGE_NAME
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
-  readonly postgres_services
-  readonly service_names
+  readonly POSTGRES_SERVICES
+  readonly SERVICE_NAMES
 }
 
 # shellcheck disable=SC1091
@@ -55,47 +59,36 @@ function initialize_package() {
   local hapi_fhir_dev_compose_filename=""
 
   if [ "${MODE}" == "dev" ]; then
-    log info "Running FHIR Datastore HAPI FHIR package in DEV mode"
+    log info "Running $PACKAGE_NAME package in DEV mode"
     postgres_dev_compose_filename="docker-compose-postgres.dev.yml"
     hapi_fhir_dev_compose_filename="docker-compose.dev.yml"
   else
-    log info "Running FHIR Datastore HAPI FHIR package in PROD mode"
+    log info "Running $PACKAGE_NAME package in PROD mode"
   fi
 
-  if [ "${NODE_MODE}" == "cluster" ]; then
+  if [ "${CLUSTERED_MODE}" == "true" ]; then
     postgres_cluster_compose_filename="docker-compose-postgres.cluster.yml"
   fi
 
   (
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose-postgres.yml" "$postgres_cluster_compose_filename" "$postgres_dev_compose_filename"
-    docker::deploy_sanity "${postgres_services[@]}"
+    docker::deploy_sanity "${POSTGRES_SERVICES[@]}"
 
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$hapi_fhir_dev_compose_filename"
     docker::deploy_sanity "hapi-fhir"
   ) ||
     {
-      log error "Failed to deploy FHIR Datastore HAPI FHIR package"
+      log error "Failed to deploy $PACKAGE_NAME package"
       exit 1
     }
 }
 
-function scale_services_down() {
-  for service_name in "${service_names[@]}"; do
-    try \
-      "docker service scale instant_$service_name=0" \
-      catch \
-      "Failed to scale down $service_name"
-  done
-}
-
 function destroy_package() {
-  for service_name in "${service_names[@]}"; do
-    docker::service_destroy "$service_name"
-  done
+  docker::service_destroy "${SERVICE_NAMES[@]}"
 
   docker::try_remove_volume hapi-postgres-1-data
 
-  if [[ "${NODE_MODE}" == "cluster" ]]; then
+  if [[ "${CLUSTERED_MODE}" == "true" ]]; then
     log warn "Volumes are only deleted on the host on which the command is run. Postgres volumes on other nodes are not deleted"
   fi
 
@@ -107,15 +100,19 @@ main() {
   import_sources
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    log info "Running FHIR Datastore HAPI FHIR package in ${NODE_MODE} node mode"
+    if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+      log info "Running $PACKAGE_NAME package in Cluster node mode"
+    else
+      log info "Running $PACKAGE_NAME package in Single node mode"
+    fi
 
     initialize_package
   elif [[ "${ACTION}" == "down" ]]; then
-    log info "Scaling down FHIR Datastore HAPI FHIR"
+    log info "Scaling down $PACKAGE_NAME"
 
-    scale_services_down
+    docker::scale_services_down "${SERVICE_NAMES[@]}"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    log info "Destroying FHIR Datastore HAPI FHIR"
+    log info "Destroying $PACKAGE_NAME"
 
     destroy_package
   else

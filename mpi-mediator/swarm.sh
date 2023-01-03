@@ -2,9 +2,12 @@
 
 declare ACTION=""
 declare MODE=""
+declare PACKAGE_NAME=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare service_name=""
+declare SERVICE_NAMES=""
+
+PACKAGE_NAME=$(basename "$PWD" | sed -e 's/-/ /g' -e 's/\b\(.\)/\u\1/g')
 
 function init_vars() {
   ACTION=$1
@@ -17,13 +20,14 @@ function init_vars() {
 
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-  service_name="mpi-mediator"
+  SERVICE_NAMES="mpi-mediator"
 
   readonly ACTION
+  readonly PACKAGE_NAME
   readonly MODE
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
-  readonly service_name
+  readonly SERVICE_NAMES
 }
 
 # shellcheck disable=SC1091
@@ -36,30 +40,23 @@ function initialize_package() {
   local mpi_mediator_dev_compose_filename=""
 
   if [[ "${MODE}" == "dev" ]]; then
-    log info "Running OpenHIM-MPI Mediator package in DEV mode"
+    log info "Running $PACKAGE_NAME package in DEV mode"
     mpi_mediator_dev_compose_filename="docker-compose.dev.yml"
   else
-    log info "Running OpenHIM-MPI Mediator package in PROD mode"
+    log info "Running $PACKAGE_NAME package in PROD mode"
   fi
 
   (
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$mpi_mediator_dev_compose_filename"
-    docker::deploy_sanity "${service_name}"
+    docker::deploy_sanity "${SERVICE_NAMES}"
   ) || {
-    log error "Failed to deploy OpenHIM-MPI Mediator package"
+    log error "Failed to deploy $PACKAGE_NAME package"
     exit 1
   }
 }
 
-function scale_services_down() {
-  try \
-    "docker service scale instant_$service_name=0" \
-    catch \
-    "Failed to scale down $service_name"
-}
-
 function destroy_package() {
-  docker::service_destroy "$service_name"
+  docker::service_destroy "${SERVICE_NAMES}"
 }
 
 main() {
@@ -67,15 +64,19 @@ main() {
   import_sources
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    log info "Running OpenHIM-MPI Mediator package in ${NODE_MODE} node mode"
+    if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+      log info "Running $PACKAGE_NAME package in Cluster node mode"
+    else
+      log info "Running $PACKAGE_NAME package in Single node mode"
+    fi
 
     initialize_package
   elif [[ "${ACTION}" == "down" ]]; then
-    log info "Scaling down OpenHIM-MPI Mediator"
+    log info "Scaling down $PACKAGE_NAME"
 
-    scale_services_down
+    docker::scale_services_down "${SERVICE_NAMES}"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    log info "Destroying OpenHIM-MPI Mediator"
+    log info "Destroying $PACKAGE_NAME"
 
     destroy_package
   else
