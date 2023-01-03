@@ -31,19 +31,15 @@ function import_sources() {
 }
 
 function initialize_package() {
-  if [[ ! -f "${COMPOSE_FILE_PATH}/config.ini" ]]; then
-    log warn "WARNING: config.ini file does not exist, Aborting..."
-  else
-    (
-      config::substitute_env_vars "${COMPOSE_FILE_PATH}"/config.ini
+  (
+    config::substitute_env_vars "${COMPOSE_FILE_PATH}"/config.ini
 
-      docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml"
-      docker::deploy_sanity "${SERVICE_NAMES}"
-    ) || {
-      package::log error "Failed to deploy package, does your .env file include all environment variables in your config.ini file?"
-      exit 1
-    }
-  fi
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml"
+    docker::deploy_sanity "${SERVICE_NAMES}"
+  ) || {
+    package::log error "Failed to deploy package, does your .env file include all environment variables in your config.ini file?"
+    exit 1
+  }
 }
 
 function destroy_package() {
@@ -56,21 +52,27 @@ main() {
   init_vars "$@"
   import_sources
 
-  if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    package::log info "Running package"
-
-    initialize_package
-  elif [[ "${ACTION}" == "down" ]]; then
-    package::log info "Scaling down package"
-
-    docker::scale_services_down "$SERVICE_NAMES"
-  elif [[ "${ACTION}" == "destroy" ]]; then
-    package::log info "Destroying package"
-
-    destroy_package
+  if [[ ! -f "${COMPOSE_FILE_PATH}/config.ini" ]]; then
+    log warn "WARNING: config.ini file does not exist, Aborting..."
   else
-    log error "Valid options are: init, up, down, or destroy"
+    if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
+      package::log info "Running package"
+
+      initialize_package
+    elif [[ "${ACTION}" == "down" ]]; then
+      package::log info "Scaling down package"
+
+      docker::scale_services_down "$SERVICE_NAMES"
+    elif [[ "${ACTION}" == "destroy" ]]; then
+      package::log info "Destroying package"
+
+      destroy_package
+
+    else
+      log error "Valid options are: init, up, down, or destroy"
+    fi
   fi
+
 }
 
 main "$@"

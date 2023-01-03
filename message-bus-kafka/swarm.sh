@@ -97,6 +97,7 @@ function initialize_package() {
     exit 1
   }
 
+  log info "Await Kafka to be running and responding"
   config::await_service_running "kafka" "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml "${KAFKA_INSTANCES}"
 
   docker::deploy_config_importer "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "message-bus-kafka-config-importer" "kafka"
