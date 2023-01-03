@@ -3,10 +3,14 @@ version: '3.9'
 services:
   identity-access-manager-keycloak:
     image: keycloak/keycloak
-    command: ["start-dev", "--import-realm"]
+    command: ["start", "--import-realm"]
     hostname: identity-access-manager-keycloak
     healthcheck:
-      test: ["CMD", "curl", "--fail", "http://localhost:8080/health/ready"]
+      test: curl --fail http://localhost:8080/health/ready || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     configs:
       - target: /opt/keycloak/data/import/realm.json
         source: realm.json
