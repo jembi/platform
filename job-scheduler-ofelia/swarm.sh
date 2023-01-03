@@ -32,19 +32,18 @@ function import_sources() {
 
 function initialize_package() {
   if [[ ! -f "${COMPOSE_FILE_PATH}/config.ini" ]]; then
-    log error "FATAL: config.ini file does not exist, Aborting..."
-    exit 1
+    log warn "WARNING: config.ini file does not exist, Aborting..."
+  else
+    (
+      config::substitute_env_vars "${COMPOSE_FILE_PATH}"/config.ini
+
+      docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml"
+      docker::deploy_sanity "${SERVICE_NAMES}"
+    ) || {
+      package::log error "Failed to deploy package, does your .env file include all environment variables in your config.ini file?"
+      exit 1
+    }
   fi
-
-  (
-    config::substitute_env_vars "${COMPOSE_FILE_PATH}"/config.ini
-
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml"
-    docker::deploy_sanity "${SERVICE_NAMES}"
-  ) || {
-    package::log error "Failed to deploy package, does your .env file include all environment variables in your config.ini file?"
-    exit 1
-  }
 }
 
 function destroy_package() {
@@ -58,11 +57,7 @@ main() {
   import_sources
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    if [[ "${CLUSTERED_MODE}" == "true" ]]; then
-      package::log info "Running package in Cluster node mode"
-    else
-      package::log info "Running package in Single node mode"
-    fi
+    package::log info "Running package"
 
     initialize_package
   elif [[ "${ACTION}" == "down" ]]; then
