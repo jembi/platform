@@ -158,12 +158,24 @@ if [[ $DEBUG -eq 1 ]]; then
     trap 'prev_cmd=$this_cmd; this_cmd=$BASH_COMMAND; log debug $this_cmd' DEBUG
 fi
 
+# A function that will return a message called when of parameter not provided
+#
+# Arguments:
+# - $1 : optional - function name missing the parameter
+# - $2 : optional - name of the parameter missing
+missing_param() {
+    local FUNC_NAME=${1:-""}
+    local ARG_NAME=${2:-""}
+
+    echo "FATAL: ${FUNC_NAME} parameter ${ARG_NAME} not provided"
+}
+
 # Overwrites the last echo'd command with what is provided
 #
 # Arguments:
 # - $1 : message (eg. "Setting passwords... Done")
 overwrite() {
-    local -r MESSAGE=${1:?"FATAL: function 'overwrite' is missing a parameter"}
+    local -r MESSAGE=${1:?$(missing_param "overwrite")}
     if [ "${DEBUG}" -eq 1 ]; then
         log info "${MESSAGE}"
     else
@@ -178,9 +190,9 @@ overwrite() {
 # - $2 : throw or catch (eg. "throw", "catch")
 # - $3 : error message (eg. "Failed to remove elastic-search service")
 try() {
-    local -r COMMAND=${1:?"FATAL: function 'try' is missing a parameter"}
+    local -r COMMAND=${1:?$(missing_param "try" "COMMAND")}
     local -r SHOULD_THROW=${2:-"throw"}
-    local -r ERROR_MESSAGE=${3:?"FATAL: function 'try' is missing a parameter"}
+    local -r ERROR_MESSAGE=${3:?$(missing_param "try" "ERROR_MESSAGE")}
 
     if [ "${BASHLOG_FILE}" -eq 1 ]; then
         if ! eval "$COMMAND" >>"$LOG_FILE_PATH" 2>&1; then

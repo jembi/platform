@@ -19,7 +19,7 @@
 # Exports:
 # As many digest environment variables as are declared in the provided docker compose file
 config::set_config_digests() {
-    local -r DOCKER_COMPOSE_PATH="${1:?"FATAL: function 'set_config_digests' is missing a parameter"}"
+    local -r DOCKER_COMPOSE_PATH="${1:?$(missing_param "set_config_digests")}"
 
     # Get configs files and names from yml file
     local -r files=($(yq '.configs."*.*".file' "${DOCKER_COMPOSE_PATH}"))
@@ -62,8 +62,8 @@ config::set_config_digests() {
 # - $1 : docker compose directory path (eg. /home/user/project/docker-compose.yml)
 # - $2 : config label (eg. logstash)
 config::remove_stale_service_configs() {
-    local -r DOCKER_COMPOSE_PATH="${1:?"FATAL: function 'remove_stale_service_configs' is missing a parameter"}"
-    local -r CONFIG_LABEL="${2:?"FATAL: function 'remove_stale_service_configs' is missing a parameter"}"
+    local -r DOCKER_COMPOSE_PATH="${1:?$(missing_param "remove_stale_service_configs" "DOCKER_COMPOSE_PATH")}"
+    local -r CONFIG_LABEL="${2:?$(missing_param "remove_stale_service_configs" "CONFIG_LABEL")}"
 
     local -r compose_names=($(yq '.configs."*.*".name' "${DOCKER_COMPOSE_PATH}"))
     local configs_to_remove=()
@@ -143,9 +143,9 @@ config::timeout_check() {
 # - $4 : (optional) the max time allowed to wait for a service's response, defaults to 300 seconds
 # - $5 : (optional) elapsed time to throw a warning, defaults to 60 seconds
 config::await_service_running() {
-    local -r service_name="${1:?"FATAL: await_service_running function args not correctly set"}"
-    local -r await_helper_file_path="${2:?"FATAL: await_service_running function args not correctly set"}"
-    local -r service_instances="${3:?"FATAL: await_service_running function args not correctly set"}"
+    local -r SERVICE_NAME="${1:?$(missing_param "await_service_running" "SERVICE_NAME")}"
+    local -r AWAIT_HELPER_FILE_PATH="${2:?$(missing_param "await_service_running" "AWAIT_HELPER_FILE_PATH")}"
+    local -r SERVICE_INSTANCES="${3:?$(missing_param "await_service_running" "SERVICE_INSTANCES")}"
     local -r exit_time="${4:-}"
     local -r warning_time="${5:-}"
     local start_time
@@ -153,9 +153,9 @@ config::await_service_running() {
 
     docker service rm instant_await-helper &>/dev/null
 
-    try "docker stack deploy -c $await_helper_file_path instant" throw "Failed to deploy await helper"
-    until [[ $(docker service ls -f name=instant_"$service_name" --format "{{.Replicas}}") == *"$service_instances/$service_instances"* ]]; do
-        config::timeout_check "$start_time" "$service_name to start" "$exit_time" "$warning_time"
+    try "docker stack deploy -c $AWAIT_HELPER_FILE_PATH instant" throw "Failed to deploy await helper"
+    until [[ $(docker service ls -f name=instant_"$SERVICE_NAME" --format "{{.Replicas}}") == *"$SERVICE_INSTANCES/$SERVICE_INSTANCES"* ]]; do
+        config::timeout_check "$start_time" "$SERVICE_NAME to start" "$exit_time" "$warning_time"
         sleep 1
     done
 
@@ -163,12 +163,12 @@ config::await_service_running() {
     local await_helper_state
     await_helper_state=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
     until [[ $await_helper_state == *"Complete"* ]]; do
-        config::timeout_check "$start_time" "$service_name status check" "$exit_time" "$warning_time"
+        config::timeout_check "$start_time" "$SERVICE_NAME status check" "$exit_time" "$warning_time"
         sleep 1
 
         await_helper_state=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
         if [[ $await_helper_state == *"Failed"* ]] || [[ $await_helper_state == *"Rejected"* ]]; then
-            log error "Fatal: Received error when trying to verify state of $service_name. Error:
+            log error "Fatal: Received error when trying to verify state of $SERVICE_NAME. Error:
        $(docker service ps instant_await-helper --no-trunc --format '{{.Error}}')"
             exit 1
         fi
@@ -184,32 +184,32 @@ config::await_service_running() {
 # - $2 : (optional) the timeout time for the config importer to run, defaults to 300 seconds
 # - $3 : (optional) elapsed time to throw a warning, defaults to 60 seconds
 config::remove_config_importer() {
-    local -r config_importer_service_name="${1:?"FATAL: remove_config_importer function args not correctly set"}"
+    local -r CONFIG_IMPORTER_SERVICE_NAME="${1:?$(missing_param "remove_config_importer")}"
     local -r exit_time="${2:-}"
     local -r warning_time="${3:-}"
     local -r start_time=$(date +%s)
 
     local config_importer_state
 
-    if [[ -z $(docker service ps instant_"$config_importer_service_name") ]]; then
-        log info "instant_$config_importer_service_name service cannot be removed as it does not exist!"
+    if [[ -z $(docker service ps instant_"$CONFIG_IMPORTER_SERVICE_NAME") ]]; then
+        log info "instant_$CONFIG_IMPORTER_SERVICE_NAME service cannot be removed as it does not exist!"
         exit 0
     fi
 
-    config_importer_state=$(docker service ps instant_"$config_importer_service_name" --format "{{.CurrentState}}")
+    config_importer_state=$(docker service ps instant_"$CONFIG_IMPORTER_SERVICE_NAME" --format "{{.CurrentState}}")
     until [[ $config_importer_state == *"Complete"* ]]; do
-        config::timeout_check "$start_time" "$config_importer_service_name to run" "$exit_time" "$warning_time"
+        config::timeout_check "$start_time" "$CONFIG_IMPORTER_SERVICE_NAME to run" "$exit_time" "$warning_time"
         sleep 1
 
-        config_importer_state=$(docker service ps instant_"$config_importer_service_name" --format "{{.CurrentState}}")
+        config_importer_state=$(docker service ps instant_"$CONFIG_IMPORTER_SERVICE_NAME" --format "{{.CurrentState}}")
         if [[ $config_importer_state == *"Failed"* ]] || [[ $config_importer_state == *"Rejected"* ]]; then
-            log error "Fatal: $config_importer_service_name failed with error:
+            log error "Fatal: $CONFIG_IMPORTER_SERVICE_NAME failed with error:
        $(docker service ps instant_"$config_importer_service_name" --no-trunc --format '{{.Error}}')"
             exit 1
         fi
     done
 
-    try "docker service rm instant_$config_importer_service_name" catch "Failed to remove config importer"
+    try "docker service rm instant_$CONFIG_IMPORTER_SERVICE_NAME" catch "Failed to remove config importer"
 }
 
 # Waits for the provided service to be removed
@@ -217,7 +217,7 @@ config::remove_config_importer() {
 # Arguments:
 # - $1 : service name (eg. instant_analytics-datastore-elastic-search)
 config::await_service_removed() {
-    local -r SERVICE_NAME="${1:?"FATAL: await_service_removed SERVICE_NAME not provided"}"
+    local -r SERVICE_NAME="${1:?$(missing_param "await_service_removed")}"
     local start_time=$(date +%s)
 
     until [[ -z $(docker stack ps instant -qf name="${SERVICE_NAME}" 2>/dev/null) ]]; do
@@ -232,7 +232,7 @@ config::await_service_removed() {
 # Arguments:
 # $1 : service name (eg. instant_analytics-datastore-elastic-search)
 config::await_network_join() {
-    local -r SERVICE_NAME="${1:?"FATAL: await_service_removed SERVICE_NAME not provided"}"
+    local -r SERVICE_NAME="${1:?$(missing_param "await_network_join")}"
     local start_time=$(date +%s)
     local exit_time=30
     local warning_time=10
@@ -269,11 +269,11 @@ config::await_network_join() {
 # - config_label_name
 # - config_service_name
 config::generate_service_configs() {
-    local -r SERVICE_NAME=${1:?"FATAL: generate_service_config parameter missing"}
-    local -r TARGET_BASE=${2:?"FATAL: generate_service_config parameter missing"}
-    local -r TARGET_FOLDER_PATH=${3:?"FATAL: generate_service_config parameter missing"}
-    local -r COMPOSE_PATH=${4:?"FATAL: generate_service_config parameter missing"}
-    local -r LABEL_NAME=${5:?"FATAL: generate_service_config parameter missing"}
+    local -r SERVICE_NAME=${1:?$(missing_param "generate_service_configs" "SERVICE_NAME")}
+    local -r TARGET_BASE=${2:?$(missing_param "generate_service_configs" "TARGET_BASE")}
+    local -r TARGET_FOLDER_PATH=${3:?$(missing_param "generate_service_configs" "TARGET_FOLDER_PATH")}
+    local -r COMPOSE_PATH=${4:?$(missing_param "generate_service_configs" "COMPOSE_PATH")}
+    local -r LABEL_NAME=${5:?$(missing_param "generate_service_configs" "LABEL_NAME")}
     local -r TARGET_FOLDER_NAME=$(basename "${TARGET_FOLDER_PATH}")
     local count=0
 
@@ -336,7 +336,7 @@ config::remove_service_nginx_config() {
 # - $1 : the path to the file that you wish to substitute env vars into (eg. "${COMPOSE_FILE_PATH}"/config.ini)
 #######################################
 config::substitute_env_vars() {
-    local -r FILE_PATH="${1:?"substitute_env_vars is missing a parameter"}"
+    local -r FILE_PATH="${1:?$(missing_param "substitute_env_vars")}"
     config_with_env=$(envsubst <"${FILE_PATH}")
     echo "" >"${FILE_PATH}"
     echo "$config_with_env" >>"${FILE_PATH}"
@@ -362,10 +362,10 @@ config::substitute_env_vars() {
 #
 #######################################
 config::update_service_configs() {
-    declare -n REF_config_update_var="${1:?"FATAL: update_service_configs is missing a parameter"}"
-    local -r TARGET_BASE=${2:?"FATAL: update_service_configs parameter missing"}
-    local -r TARGET_FOLDER_PATH=${3:?"FATAL: update_service_configs parameter missing"}
-    local -r CONFIG_LABEL_NAME="${4:?"FATAL: update_service_configs is missing a parameter"}"
+    declare -n REF_config_update_var="${1:?$(missing_param "update_service_configs" "REF_config_update_var")}"
+    local -r TARGET_BASE=${2:?$(missing_param "update_service_configs" "TARGET_BASE")}
+    local -r TARGET_FOLDER_PATH=${3:?$(missing_param "update_service_configs" "TARGET_FOLDER_PATH")}
+    local -r CONFIG_LABEL_NAME="${4:?$(missing_param "update_service_configs" "CONFIG_LABEL_NAME")}"
     local config_rm_string=""
     local config_add_string=""
 
@@ -414,8 +414,8 @@ config::update_service_configs() {
 #
 #######################################
 config::env_var_add_from_file() {
-    declare -n REF_service_update_var="${1:?"FATAL: env_var_add_from_file is missing a parameter"}"
-    local -r ENV_FILE=${2:?"FATAL: env_var_add_from_file parameter missing"}
+    declare -n REF_service_update_var="${1:?$(missing_param "env_var_add_from_file" "REF_service_update_var")}"
+    local -r ENV_FILE=${2:?$(missing_param "env_var_add_from_file" "ENV_FILE")}
 
     if [[ ! -f $ENV_FILE ]]; then
         log error "$ENV_FILE: No such file or directory. Exiting..."
@@ -446,8 +446,8 @@ config::env_var_add_from_file() {
 #
 #######################################
 config::env_var_add() {
-    declare -n REF_service_update_var="${1:?"FATAL: env_var_add is missing a parameter"}"
-    local -r ENV_VAR=${2:?"FATAL: env_var_add parameter missing"}
+    declare -n REF_service_update_var="${1:?$(missing_param "env_var_add" "REF_service_update_var")}"
+    local -r ENV_VAR=${2:?$(missing_param "env_var_add" "ENV_VAR")}
 
     REF_service_update_var+=" --env-add $ENV_VAR"
 }
@@ -460,8 +460,8 @@ config::env_var_add() {
 # $2 : log string to be checked (eg. Starting)
 #######################################
 config::await_service_reachable() {
-    local -r SERVICE_NAME=${1:?"FATAL: await_service_reachable SERVICE_NAME not provided"}
-    local -r LOG_MESSAGE=${2:?"FATAL: await_service_reachable LOG_MESSAGE not provided"}
+    local -r SERVICE_NAME=${1:?$(missing_param "await_service_reachable" "SERVICE_NAME")}
+    local -r LOG_MESSAGE=${2:?$(missing_param "await_service_reachable" "LOG_MESSAGE")}
     local -r start_time=$(date +%s)
 
     until [[ $(docker service logs --tail all instant_"${SERVICE_NAME}" 2>/dev/null | grep -c "${LOG_MESSAGE}") -gt 0 ]]; do
