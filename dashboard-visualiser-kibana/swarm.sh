@@ -4,7 +4,7 @@ declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare NODES_MODE=""
+declare NODE_MODE_PREFIX=""
 declare SERVICE_NAMES=""
 
 function init_vars() {
@@ -21,14 +21,14 @@ function init_vars() {
   SERVICE_NAMES="dashboard-visualiser-kibana"
 
   if [[ "${CLUSTERED_MODE}" == "true" ]]; then
-    NODES_MODE="-${CLUSTERED_MODE}"
+    NODE_MODE_PREFIX="-cluster"
   fi
 
   readonly ACTION
   readonly MODE
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
-  readonly NODES_MODE
+  readonly NODE_MODE_PREFIX
   readonly SERVICE_NAMES
 }
 
@@ -58,7 +58,7 @@ function initialize_package() {
   (
     check_elastic
 
-    export KIBANA_YML_CONFIG="kibana-kibana$NODES_MODE.yml"
+    export KIBANA_YML_CONFIG="kibana-kibana$NODE_MODE_PREFIX.yml"
 
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$kibana_dev_compose_filename"
     docker::deploy_sanity "$SERVICE_NAMES"
