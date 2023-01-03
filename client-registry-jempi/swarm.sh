@@ -3,7 +3,6 @@
 declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
-declare PACKAGE_NAME=""
 declare UTILS_PATH=""
 declare KAFKA_SERVICES=()
 declare DGRAPH_SERVICES=()
@@ -14,8 +13,6 @@ declare VOLUME_NAMES=()
 function init_vars() {
   ACTION=$1
   MODE=$2
-
-  PACKAGE_NAME=$(basename "$PWD" | sed -e 's/-/ /g' -e 's/\b\(.\)/\u\1/g')
 
   COMPOSE_FILE_PATH=$(
     cd "$(dirname "${BASH_SOURCE[0]}")" || exit
@@ -89,14 +86,14 @@ function initialize_package() {
   local dgraph_zero_cluster_compose_param=""
 
   if [[ "$MODE" == "dev" ]]; then
-    log info "Running $PACKAGE_NAME package in DEV mode"
+    package::log info "Running package in DEV mode"
     kafdrop_dev_compose_param="docker-compose.kafdrop-dev.yml"
     dgraph_dev_compose_param="docker-compose.dgraph-dev.yml"
     dgraph_zero_dev_compose_param="docker-compose.dgraph-zero-dev.yml"
     combined_dev_compose_param="docker-compose.combined-dev.yml"
     api_dev_compose_param="docker-compose.api-dev.yml"
   else
-    log info "Running $PACKAGE_NAME package in PROD mode"
+    package::log info "Running package in PROD mode"
   fi
 
   if [[ "$CLUSTERED_MODE" == "true" ]]; then
@@ -139,7 +136,7 @@ function initialize_package() {
 
   ) ||
     {
-      log error "Failed to deploy $PACKAGE_NAME package"
+      package::log error "Failed to deploy package"
       exit 1
     }
 }
@@ -162,18 +159,18 @@ main() {
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
     if [[ "${CLUSTERED_MODE}" == "true" ]]; then
-      log info "Running $PACKAGE_NAME package in Cluster node mode"
+      package::log info "Running package in Cluster node mode"
     else
-      log info "Running $PACKAGE_NAME package in Single node mode"
+      package::log info "Running package in Single node mode"
     fi
 
     initialize_package
   elif [[ "${ACTION}" == "down" ]]; then
-    log info "Scaling down $PACKAGE_NAME"
+    package::log info "Scaling down package"
 
     docker::scale_services_down "${SERVICE_NAMES[@]}"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    log info "Destroying $PACKAGE_NAME"
+    package::log info "Destroying package"
 
     destroy_package
   else

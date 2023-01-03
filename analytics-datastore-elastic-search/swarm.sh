@@ -4,15 +4,12 @@ declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare PACKAGE_NAME=""
 declare CONTAINER_STATUS=""
 declare SERVICE_NAMES=()
 
 function init_vars() {
   ACTION=$1
   MODE=$2
-
-  PACKAGE_NAME=$(basename "$PWD" | sed -e 's/-/ /g' -e 's/\b\(.\)/\u\1/g')
 
   COMPOSE_FILE_PATH=$(
     cd "$(dirname "${BASH_SOURCE[0]}")" || exit
@@ -39,7 +36,6 @@ function init_vars() {
 
   readonly ACTION
   readonly MODE
-  readonly PACKAGE_NAME
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
   readonly CONTAINER_STATUS
@@ -130,10 +126,10 @@ function initialize_package() {
   local elastic_search_dev_compose_filename=""
 
   if [[ "$MODE" == "dev" ]]; then
-    log info "Running $PACKAGE_NAME package in DEV mode"
+    package::log info "Running package in DEV mode"
     elastic_search_dev_compose_filename="docker-compose.dev.yml"
   else
-    log info "Running $PACKAGE_NAME package in PROD mode"
+    package::log info "Running package in PROD mode"
   fi
 
   (
@@ -154,7 +150,7 @@ function initialize_package() {
     docker::deploy_sanity "${SERVICE_NAMES[@]}"
 
   ) || {
-    log error "Failed to deploy $PACKAGE_NAME package"
+    package::log error "Failed to deploy package"
     exit 1
   }
 
@@ -191,22 +187,22 @@ main() {
 
   if [[ "${ACTION}" == "init" ]]; then
     if [[ "${CLUSTERED_MODE}" == "true" ]]; then
-      log info "Running $PACKAGE_NAME package in $CLUSTERED_MODE node mode"
+      package::log info "Running package in Cluster mode"
     else
-      log info "Running $PACKAGE_NAME package in Single node mode"
+      package::log info "Running package in Single mode"
     fi
 
     initialize_package
   elif [[ "$ACTION" == "up" ]]; then
-    log info "Scaling up $PACKAGE_NAME"
+    package::log info "Scaling up package"
 
     scale_services_up
   elif [[ "${ACTION}" == "down" ]]; then
-    log info "Scaling down $PACKAGE_NAME"
+    package::log info "Scaling down package"
 
     docker::scale_services_down "${SERVICE_NAMES[@]}"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    log info "Destroying $PACKAGE_NAME"
+    package::log info "Destroying package"
 
     destroy_package
   else

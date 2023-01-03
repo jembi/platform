@@ -3,13 +3,10 @@
 declare ACTION=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare PACKAGE_NAME=""
 declare SERVICE_NAMES=""
 
 function init_vars() {
   ACTION=$1
-
-  PACKAGE_NAME=$(basename "$PWD" | sed -e 's/-/ /g' -e 's/\b\(.\)/\u\1/g')
 
   COMPOSE_FILE_PATH=$(
     cd "$(dirname "${BASH_SOURCE[0]}")" || exit
@@ -21,7 +18,6 @@ function init_vars() {
   SERVICE_NAMES="job-scheduler-ofelia"
 
   readonly ACTION
-  readonly PACKAGE_NAME
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
   readonly SERVICE_NAMES
@@ -46,7 +42,7 @@ function initialize_package() {
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml"
     docker::deploy_sanity "${SERVICE_NAMES}"
   ) || {
-    log error "Failed to deploy Message $PACKAGE_NAME package, does your .env file include all environment variables in your config.ini file?"
+    package::log error "Failed to deploy package, does your .env file include all environment variables in your config.ini file?"
     exit 1
   }
 }
@@ -63,18 +59,18 @@ main() {
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
     if [[ "${CLUSTERED_MODE}" == "true" ]]; then
-      log info "Running $PACKAGE_NAME package in Cluster node mode"
+      package::log info "Running package in Cluster node mode"
     else
-      log info "Running $PACKAGE_NAME package in Single node mode"
+      package::log info "Running package in Single node mode"
     fi
 
     initialize_package
   elif [[ "${ACTION}" == "down" ]]; then
-    log info "Scaling down Message $PACKAGE_NAME"
+    package::log info "Scaling down package"
 
     docker::scale_services_down "$SERVICE_NAMES"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    log info "Destroying Message $PACKAGE_NAME"
+    package::log info "Destroying package"
 
     destroy_package
   else

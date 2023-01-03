@@ -2,12 +2,9 @@
 
 declare ACTION=""
 declare MODE=""
-declare PACKAGE_NAME=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
 declare SERVICE_NAMES=""
-
-PACKAGE_NAME=$(basename "$PWD" | sed -e 's/-/ /g' -e 's/\b\(.\)/\u\1/g')
 
 function init_vars() {
   ACTION=$1
@@ -23,7 +20,6 @@ function init_vars() {
   SERVICE_NAMES="mpi-mediator"
 
   readonly ACTION
-  readonly PACKAGE_NAME
   readonly MODE
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
@@ -40,17 +36,17 @@ function initialize_package() {
   local mpi_mediator_dev_compose_filename=""
 
   if [[ "${MODE}" == "dev" ]]; then
-    log info "Running $PACKAGE_NAME package in DEV mode"
+    package::log info "Running package in DEV mode"
     mpi_mediator_dev_compose_filename="docker-compose.dev.yml"
   else
-    log info "Running $PACKAGE_NAME package in PROD mode"
+    package::log info "Running package in PROD mode"
   fi
 
   (
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$mpi_mediator_dev_compose_filename"
     docker::deploy_sanity "${SERVICE_NAMES}"
   ) || {
-    log error "Failed to deploy $PACKAGE_NAME package"
+    package::log error "Failed to deploy package"
     exit 1
   }
 }
@@ -65,19 +61,18 @@ main() {
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
     if [[ "${CLUSTERED_MODE}" == "true" ]]; then
-      log info "Running $PACKAGE_NAME package in Cluster node mode"
+      package::log info "Running package in Cluster node mode"
     else
-      log info "Running $PACKAGE_NAME package in Single node mode"
+      package::log info "Running package in Single node mode"
     fi
 
     initialize_package
   elif [[ "${ACTION}" == "down" ]]; then
-    log info "Scaling down $PACKAGE_NAME"
+    package::log info "Scaling down package"
 
     docker::scale_services_down "${SERVICE_NAMES}"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    log info "Destroying $PACKAGE_NAME"
-
+    package::log info "Destroying package"
     destroy_package
   else
     log error "Valid options are: init, up, down, or destroy"

@@ -2,7 +2,6 @@
 
 declare ACTION=""
 declare MODE=""
-declare PACKAGE_NAME=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
 declare TIMESTAMP
@@ -12,8 +11,6 @@ declare SERVICE_NAMES=""
 function init_vars() {
   ACTION=$1
   MODE=$2
-
-  PACKAGE_NAME=$(basename "$PWD" | sed -e 's/-/ /g' -e 's/\b\(.\)/\u\1/g')
 
   COMPOSE_FILE_PATH=$(
     cd "$(dirname "${BASH_SOURCE[0]}")" || exit
@@ -29,7 +26,6 @@ function init_vars() {
 
   readonly ACTION
   readonly MODE
-  readonly PACKAGE_NAME
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
   readonly TIMESTAMP
@@ -90,7 +86,7 @@ function deploy_nginx() {
 
 function initialize_package() {
   if [[ "${INSECURE}" == "true" ]]; then
-    log info "Running $PACKAGE_NAME package in INSECURE mode"
+    package::log info "Running package in INSECURE mode"
     (
       deploy_nginx "insecure"
 
@@ -100,18 +96,18 @@ function initialize_package() {
       add_insecure_configs
     ) ||
       {
-        log error "Failed to deploy Message $PACKAGE_NAME package in INSECURE MODE"
+        package::log error "Failed to deploy package in INSECURE MODE"
         exit 1
       }
   else
-    log info "Running $PACKAGE_NAME package in SECURE mode"
+    package::log info "Running package in SECURE mode"
     (
       deploy_nginx "secure"
 
       try "${COMPOSE_FILE_PATH}/set-secure-mode.sh" throw "Fatal: Setting SECURE Mode has failed"
     ) ||
       {
-        log error "Failed to deploy Message $PACKAGE_NAME package in SECURE MODE"
+        package::log error "Failed to deploy package in SECURE MODE"
         exit 1
       }
   fi
@@ -145,16 +141,15 @@ main() {
   fi
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    log info "Running $PACKAGE_NAME package"
+    package::log info "Running package"
 
     initialize_package
   elif [[ "${ACTION}" == "down" ]]; then
-    log info "Scaling down $PACKAGE_NAME"
+    package::log info "Scaling down package"
 
     docker::scale_services_down "${SERVICE_NAMES}"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    log info "Destroying $PACKAGE_NAME"
-
+    package::log info "Destroying package"
     destroy_package
   else
     log error "Valid options are: init, up, down, or destroy"

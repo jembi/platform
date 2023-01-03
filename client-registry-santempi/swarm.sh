@@ -2,7 +2,6 @@
 
 declare ACTION=""
 declare MODE=""
-declare PACKAGE_NAME=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
 declare POSTGRES_SERVICES=()
@@ -11,8 +10,6 @@ declare SERVICE_NAMES=()
 function init_vars() {
   ACTION=$1
   MODE=$2
-
-  PACKAGE_NAME=$(basename "$PWD" | sed -e 's/-/ /g' -e 's/\b\(.\)/\u\1/g')
 
   COMPOSE_FILE_PATH=$(
     cd "$(dirname "${BASH_SOURCE[0]}")" || exit
@@ -40,7 +37,6 @@ function init_vars() {
 
   readonly ACTION
   readonly MODE
-  readonly PACKAGE_NAME
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
   readonly POSTGRES_SERVICES
@@ -60,11 +56,11 @@ function initialize_package() {
   local sante_mpi_dev_compose_filename=""
 
   if [[ "$MODE" == "dev" ]]; then
-    log info "Running $PACKAGE_NAME package in DEV mode"
+    package::log info "Running package in DEV mode"
     postgres_dev_compose_filename="docker-compose-postgres.dev.yml"
     sante_mpi_dev_compose_filename="docker-compose.dev.yml"
   else
-    log info "Running $PACKAGE_NAME package in PROD mode"
+    package::log info "Running package in PROD mode"
   fi
 
   if [[ "${CLUSTERED_MODE}" == "true" ]]; then
@@ -79,7 +75,7 @@ function initialize_package() {
     docker::deploy_sanity "santedb-mpi" "santedb-www"
   ) ||
     {
-      log error "Failed to deploy $PACKAGE_NAME package"
+      package::log error "Failed to deploy package"
       exit 1
     }
 }
@@ -102,19 +98,18 @@ main() {
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
     if [[ "${CLUSTERED_MODE}" == "true" ]]; then
-      log info "Running $PACKAGE_NAME package in Cluster node mode"
+      package::log info "Running package in Cluster node mode"
     else
-      log info "Running $PACKAGE_NAME package in Single node mode"
+      package::log info "Running package in Single node mode"
     fi
 
     initialize_package
   elif [[ "${ACTION}" == "down" ]]; then
-    log info "Scaling down $PACKAGE_NAME"
+    package::log info "Scaling down package"
 
     docker::scale_services_down "${SERVICE_NAMES[@]}"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    log info "Destroying $PACKAGE_NAME"
-
+    package::log info "Destroying package"
     destroy_package
   else
     log error "Valid options are: init, up, down, or destroy"

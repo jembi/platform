@@ -2,7 +2,6 @@
 
 declare ACTION=""
 declare MODE=""
-declare PACKAGE_NAME=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
 declare NODES_MODE=""
@@ -11,8 +10,6 @@ declare SERVICE_NAMES=""
 function init_vars() {
   ACTION=$1
   MODE=$2
-
-  PACKAGE_NAME=$(basename "$PWD" | sed -e 's/-/ /g' -e 's/\b\(.\)/\u\1/g')
 
   COMPOSE_FILE_PATH=$(
     cd "$(dirname "${BASH_SOURCE[0]}")" || exit
@@ -32,7 +29,6 @@ function init_vars() {
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
   readonly NODES_MODE
-  readonly PACKAGE_NAME
   readonly SERVICE_NAMES
 }
 
@@ -45,30 +41,29 @@ function import_sources() {
 
 function check_elastic() {
   if [[ ! $(docker::get_current_service_status "$ES_LEADER_NODE") == *"Running"* ]]; then
-    log error "FATAL: Elasticsearch is not running, Kibana is dependant on it\n \
-      Failed to deploy $PACKAGE_NAME"
+    log error "FATAL: Elasticsearch is not running, Kibana is dependant on it\n"
     exit 1
   fi
 }
 
 function initialize_package() {
-  check_elastic
-
   local kibana_dev_compose_filename=""
   if [[ "${MODE}" == "dev" ]]; then
-    log info "Running $PACKAGE_NAME package in DEV mode"
+    package::log info "Running package in DEV mode"
     kibana_dev_compose_filename="docker-compose.dev.yml"
   else
-    log info "Running $PACKAGE_NAME package in PROD mode"
+    package::log info "Running package in PROD mode"
   fi
 
   (
+    check_elastic
+
     export KIBANA_YML_CONFIG="kibana-kibana$NODES_MODE.yml"
 
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$kibana_dev_compose_filename"
     docker::deploy_sanity "$SERVICE_NAMES"
   ) || {
-    log error "Failed to deploy $PACKAGE_NAME"
+    package::log error "Failed to deploy package"
     exit 1
   }
 
@@ -89,19 +84,18 @@ main() {
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
     if [[ "${CLUSTERED_MODE}" == "true" ]]; then
-      log info "Running $PACKAGE_NAME package in Cluster node mode"
+      package::log info "Running package in Cluster node mode"
     else
-      log info "Running $PACKAGE_NAME package in Single node mode"
+      package::log info "Running package in Single node mode"
     fi
 
     initialize_package
   elif [[ "${ACTION}" == "down" ]]; then
-    log info "Scaling down $PACKAGE_NAME"
+    package::log info "Scaling down package"
 
     docker::scale_services_down "${SERVICE_NAMES}"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    log info "Destroying $PACKAGE_NAME"
-
+    package::log info "Destroying package"
     destroy_package
   else
     log error "Valid options are: init, up, down, or destroy"
