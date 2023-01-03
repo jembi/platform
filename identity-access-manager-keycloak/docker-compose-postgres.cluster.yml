@@ -70,7 +70,6 @@ services:
       default:
       pg_backup_net: {}
 
-
 volumes:
   keycloak-postgres-2-data:
   keycloak-postgres-3-data:
