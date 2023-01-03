@@ -27,7 +27,7 @@ services:
           memory: ${KC_POSTGRES_MEMORY_RESERVE}
     networks:
       default:
-      pg_backup_net: {}
+      keycloak_backup_net: {}
 
 volumes:
   keycloak-postgres-1-data:
@@ -35,7 +35,7 @@ volumes:
 networks:
   default:
     name: instant_default
-  pg_backup_net:
-    name: pg_backup
+  keycloak_backup_net:
+    name: keycloak_backup
     driver: overlay
     attachable: true

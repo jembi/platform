@@ -37,7 +37,7 @@ services:
           memory: ${KC_POSTGRES_MEMORY_RESERVE}
     networks:
       default:
-      pg_backup_net: {}
+      keycloak_backup_net: {}
 
 
   keycloak-postgres-3:
@@ -68,7 +68,7 @@ services:
           memory: ${KC_POSTGRES_MEMORY_RESERVE}
     networks:
       default:
-      pg_backup_net: {}
+      keycloak_backup_net: {}
 
 volumes:
   keycloak-postgres-2-data:
