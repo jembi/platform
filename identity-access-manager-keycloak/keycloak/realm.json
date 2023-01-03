@@ -16,7 +16,7 @@
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "secret": "${KC_GRAFANA_CLIENT_SECRET}",
-      "redirectUris": ["${KC_GRAFANA_ROOT_URL}/*"],
+      "redirectUris": ["${KC_GRAFANA_ROOT_URL}/login/generic_oauth"],
       "webOrigins": ["${KC_GRAFANA_ROOT_URL}"],
       "notBefore": 0,
       "bearerOnly": false,
