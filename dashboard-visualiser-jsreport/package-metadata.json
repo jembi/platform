@@ -6,7 +6,7 @@
   "version": "0.0.1",
   "dependencies": ["analytics-datastore-elastic-search"],
   "environmentVariables": {
-    "NODE_MODE": "single",
+    "CLUSTERED_MODE": "false",
     "JS_REPORT_INSTANCES": "1",
     "JS_REPORT_USERNAME": "admin",
     "JS_REPORT_SECRET": "dev_secret_only",

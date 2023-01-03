@@ -6,7 +6,7 @@
   "version": "0.0.1",
   "dependencies": ["analytics-datastore-elastic-search"],
   "environmentVariables": {
-    "NODE_MODE": "single",
+    "CLUSTERED_MODE": "false",
     "LOGSTASH_INSTANCES": "1",
     "LS_JAVA_OPTS": "-Xmx2g -Xms2g",
     "LOGSTASH_YML_CONFIG": "logstash-logstash.yml",
