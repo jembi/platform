@@ -129,7 +129,7 @@ function destroy_package() {
   fi
 
   mapfile -t nginx_network < <(docker network ls -qf name=cert-renewal-network)
-  if [[ "${#nginx_network}" -ne 0 ]]; then
+  if [[ "${#nginx_network[@]}" -ne 0 ]]; then
     try "docker network rm ${nginx_network[*]}" catch "Failed to remove nginx networks"
   fi
 
