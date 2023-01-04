@@ -10,7 +10,7 @@
     "client-registry-santempi"
   ],
   "environmentVariables": {
-    "STATEFUL_NODES": "single",
+    "NODE_MODE": "single",
     "MPI_MEDIATOR_INSTANCES": 1,
     "CLIENT_REGISTRY_URL": "http://santedb-mpi:8080",
     "OPENHIM_MEDIATOR_URL": "https://openhim-core:8080",
