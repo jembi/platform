@@ -22,7 +22,7 @@ function init_vars() {
     "mongo-1"
   )
   if [[ "${NODE_MODE}" == "cluster" ]]; then
-    for i in {1..3}; do
+    for i in {2..3}; do
       mongo_services=(
         "${mongo_services[@]}"
         "mongo-$i"
