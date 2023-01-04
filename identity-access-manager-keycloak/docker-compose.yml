@@ -33,7 +33,7 @@ services:
 
 configs:
   realm.json:
-    file: ./keycloak/realm.json
+    file: ./config/realm.json
     name: realm.json-${realm_json_DIGEST:?err}
     labels:
       name: keycloak
