@@ -6,6 +6,9 @@ declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
 declare mongo_services=()
 declare service_names=()
+declare MONGO_CLUSTER_COMPOSE_FILENAME=""
+declare MONGO_DEV_COMPOSE_FILENAME=""
+declare OPENHIM_DEV_COMPOSE_FILENAME=""
 
 function init_vars() {
   ACTION=$1
@@ -79,7 +82,7 @@ function prepare_console_config() {
 
 function init_package() {
   (
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose-mongo.yml" "$mongo_cluster_compose_filename" "$mongo_dev_compose_filename"
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose-mongo.yml" "$MONGO_CLUSTER_COMPOSE_FILENAME" "$MONGO_DEV_COMPOSE_FILENAME"
     docker::deploy_sanity "${mongo_services[@]}"
 
     if [[ "${NODE_MODE}" == "cluster" ]]; then
@@ -88,13 +91,13 @@ function init_package() {
 
     prepare_console_config
 
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "docker-compose.stack-0.yml" "$openhim_dev_compose_filename"
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "docker-compose.stack-0.yml" "$OPENHIM_DEV_COMPOSE_FILENAME"
 
     log info "Waiting to give OpenHIM Core time to start up before OpenHIM Console run..."
     docker::deploy_sanity "openhim-core"
     config::await_service_running "openhim-core" "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml "${OPENHIM_CORE_INSTANCES}"
 
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "docker-compose.stack-1.yml" "$openhim_dev_compose_filename"
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "docker-compose.stack-1.yml" "$OPENHIM_DEV_COMPOSE_FILENAME"
     docker::deploy_sanity "openhim-console"
   ) ||
     {
@@ -107,13 +110,13 @@ function init_package() {
 
 function scale_services_up() {
   (
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose-mongo.yml" "$mongo_cluster_compose_filename" "$mongo_dev_compose_filename"
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose-mongo.yml" "$MONGO_CLUSTER_COMPOSE_FILENAME" "$MONGO_DEV_COMPOSE_FILENAME"
     docker::deploy_sanity "${mongo_services[@]}"
 
     verify_mongos
     prepare_console_config
 
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "docker-compose.stack-1.yml" "$openhim_dev_compose_filename"
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "docker-compose.stack-1.yml" "$OPENHIM_DEV_COMPOSE_FILENAME"
     docker::deploy_sanity "openhim-core" "openhim-console"
   ) || {
     log error "Failed to scale up Interoperability Layer OpenHIM package"
@@ -122,20 +125,16 @@ function scale_services_up() {
 }
 
 function start_package() {
-  local mongo_cluster_compose_filename=""
-  local mongo_dev_compose_filename=""
-  local openhim_dev_compose_filename=""
-
   if [[ "${MODE}" == "dev" ]]; then
     log info "Running Interoperability Layer OpenHIM package in DEV mode"
-    local mongo_dev_compose_filename="docker-compose-mongo.dev.yml"
-    local openhim_dev_compose_filename="docker-compose.dev.yml"
+    MONGO_DEV_COMPOSE_FILENAME="docker-compose-mongo.dev.yml"
+    OPENHIM_DEV_COMPOSE_FILENAME="docker-compose.dev.yml"
   else
     log info "Running Interoperability Layer OpenHIM package in PROD mode"
   fi
 
   if [[ "${NODE_MODE}" == "cluster" ]]; then
-    mongo_cluster_compose_filename="docker-compose-mongo.cluster.yml"
+    MONGO_CLUSTER_COMPOSE_FILENAME="docker-compose-mongo.cluster.yml"
   fi
 
   if [[ "${ACTION}" == "init" ]]; then
