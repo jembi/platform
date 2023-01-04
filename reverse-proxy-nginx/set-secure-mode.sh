@@ -178,7 +178,7 @@ set_secure_mode() {
     update_nginx_dummy_certificates
 
     local staging_args=""
-    if [ "${STAGING}" == "true" ]; then
+    if [[ "${STAGING}" == "true" ]]; then
         staging_args="--staging"
     fi
 
