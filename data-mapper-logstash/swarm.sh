@@ -71,7 +71,7 @@ function initialize_package() {
   fi
 
   if [[ "$LOGSTASH_DEV_MOUNT" == "true" ]]; then
-    log warn "LOGSTASH_DEV_MOUNT is enabled: Please make sure TO REPLACE ES_HOSTS MANUALLY IN ALL THE FILES inside pipeline folder!"
+    log warn "LOGSTASH_DEV_MOUNT is enabled: Please make sure TO REPLACE ES_HOSTS MANUALLY IN ALL THE FILES inside data-mapper-logstash/pipeline folder!"
   else
     inject_pipeline_elastic_hosts
 
