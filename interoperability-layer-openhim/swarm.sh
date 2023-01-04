@@ -6,9 +6,7 @@ declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
 declare mongo_services=()
 declare service_names=()
-declare MONGO_CLUSTER_COMPOSE_FILENAME=""
-declare MONGO_DEV_COMPOSE_FILENAME=""
-declare OPENHIM_DEV_COMPOSE_FILENAME=""
+declare OPENHIM_SERVICES=()
 
 function init_vars() {
   ACTION=$1
@@ -20,6 +18,11 @@ function init_vars() {
   )
 
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
+
+  OPENHIM_SERVICES=(
+    "openhim-core"
+    "openhim-console"
+  )
 
   mongo_services=(
     "mongo-1"
@@ -35,8 +38,7 @@ function init_vars() {
 
   service_names=(
     "${mongo_services[@]}"
-    "openhim-core"
-    "openhim-console"
+    "${OPENHIM_SERVICES[@]}"
   )
 
   readonly ACTION
@@ -54,35 +56,30 @@ function import_sources() {
   source "${UTILS_PATH}/log.sh"
 }
 
-function verify_mongos() {
-  log info 'Waiting to ensure all the mongo instances for the replica set are up and running...'
-
-  local -i running_instance_count
-  running_instance_count=0
-  local start_time
-  start_time=$(date +%s)
-
-  until [[ "${running_instance_count}" -eq "${MONGO_SET_COUNT}" ]]; do
-    config::timeout_check "${start_time}" "mongo set to start"
-    sleep 1
-
-    running_instance_count=0
-    for i in $(docker service ls -f name=instant_mongo --format "{{.Replicas}}"); do
-      if [[ "${i}" == "1/1" ]]; then
-        running_instance_count=$((running_instance_count + 1))
-      fi
-    done
-  done
-}
-
 function prepare_console_config() {
   # Set host in OpenHIM console config
   sed -i "s/localhost/${OPENHIM_CORE_MEDIATOR_HOSTNAME}/g; s/8080/${OPENHIM_MEDIATOR_API_PORT}/g" /instant/interoperability-layer-openhim/importer/volume/default.json
 }
 
-function init_package() {
+function initialize_package() {
+  local mongo_cluster_compose_filename=""
+  local mongo_dev_compose_filename=""
+  local openhim_dev_compose_filename=""
+
+  if [[ "${MODE}" == "dev" ]]; then
+    package::log info "Running package in DEV mode"
+    mongo_dev_compose_filename="docker-compose-mongo.dev.yml"
+    openhim_dev_compose_filename="docker-compose.dev.yml"
+  else
+    package::log info "Running package in PROD mode"
+  fi
+
+  if [[ "${NODE_MODE}" == "cluster" ]]; then
+    mongo_cluster_compose_filename="docker-compose-mongo.cluster.yml"
+  fi
+
   (
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose-mongo.yml" "$MONGO_CLUSTER_COMPOSE_FILENAME" "$MONGO_DEV_COMPOSE_FILENAME"
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose-mongo.yml" "$mongo_cluster_compose_filename" "$mongo_dev_compose_filename"
     docker::deploy_sanity "${mongo_services[@]}"
 
     if [[ "${NODE_MODE}" == "cluster" ]]; then
@@ -91,58 +88,19 @@ function init_package() {
 
     prepare_console_config
 
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "docker-compose.stack-0.yml" "$OPENHIM_DEV_COMPOSE_FILENAME"
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$openhim_dev_compose_filename"
+    docker::deploy_sanity "${OPENHIM_SERVICES[@]}"
 
-    log info "Waiting to give OpenHIM Core time to start up before OpenHIM Console run..."
-    docker::deploy_sanity "openhim-core"
+    log info "Waiting OpenHIM Core to be running and responding"
     config::await_service_running "openhim-core" "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml "${OPENHIM_CORE_INSTANCES}"
-
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "docker-compose.stack-1.yml" "$OPENHIM_DEV_COMPOSE_FILENAME"
-    docker::deploy_sanity "openhim-console"
   ) ||
     {
       log error "Failed to deploy Interoperability Layer OpenHIM package"
       exit 1
     }
 
-  docker::deploy_config_importer "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "interoperability-layer-openhim-config-importer" "openhim"
-}
-
-function scale_services_up() {
-  (
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose-mongo.yml" "$MONGO_CLUSTER_COMPOSE_FILENAME" "$MONGO_DEV_COMPOSE_FILENAME"
-    docker::deploy_sanity "${mongo_services[@]}"
-
-    verify_mongos
-    prepare_console_config
-
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "docker-compose.stack-1.yml" "$OPENHIM_DEV_COMPOSE_FILENAME"
-    docker::deploy_sanity "openhim-core" "openhim-console"
-  ) || {
-    log error "Failed to scale up Interoperability Layer OpenHIM package"
-    exit 1
-  }
-}
-
-function start_package() {
-  if [[ "${MODE}" == "dev" ]]; then
-    log info "Running Interoperability Layer OpenHIM package in DEV mode"
-    MONGO_DEV_COMPOSE_FILENAME="docker-compose-mongo.dev.yml"
-    OPENHIM_DEV_COMPOSE_FILENAME="docker-compose.dev.yml"
-  else
-    log info "Running Interoperability Layer OpenHIM package in PROD mode"
-  fi
-
-  if [[ "${NODE_MODE}" == "cluster" ]]; then
-    MONGO_CLUSTER_COMPOSE_FILENAME="docker-compose-mongo.cluster.yml"
-  fi
-
   if [[ "${ACTION}" == "init" ]]; then
-
-    init_package
-  elif [[ "${ACTION}" == "up" ]]; then
-
-    scale_services_up
+    docker::deploy_config_importer "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "interoperability-layer-openhim-config-importer" "openhim"
   fi
 }
 
@@ -179,7 +137,7 @@ main() {
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
     log info "Running Interoperability Layer OpenHIM package in ${NODE_MODE} node mode"
 
-    start_package
+    initialize_package
   elif [[ "${ACTION}" == "down" ]]; then
     log info "Scaling down Interoperability Layer OpenHIM"
 
