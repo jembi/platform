@@ -2,8 +2,9 @@
 
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare TIMESTAMP
-declare TIMESTAMPED_NGINX
+declare TIMESTAMP=""
+declare TIMESTAMPED_NGINX=""
+declare NEWER_TIMESTAMP=""
 declare SERVICE_NAMES=""
 declare DOMAIN_ARGS=()
 
@@ -128,10 +129,10 @@ function generate_real_certificates() {
 
     try "docker volume rm data-certbot-conf" catch "Failed to remove data-certbot-conf volume"
 
-    local new_timestamp
-    new_timestamp="$(date "+%Y%m%d%H%M%S")"
+    NEWER_TIMESTAMP="$(date "+%Y%m%d%H%M%S")"
+    readonly NEW_TIMESTAMP
 
-    create_secrets_from_certificates "${new_timestamp}"
+    create_secrets_from_certificates "${NEWER_TIMESTAMP}"
 }
 
 function update_nginx_real_certificates() {
@@ -144,8 +145,8 @@ function update_nginx_real_certificates() {
     try "docker service update \
           --secret-rm ${curr_full_chain_name} \
           --secret-rm ${curr_priv_key_name} \
-          --secret-add source=${new_timestamp}-fullchain.pem,target=/run/secrets/fullchain.pem \
-          --secret-add source=${new_timestamp}-privkey.pem,target=/run/secrets/privkey.pem \
+          --secret-add source=${NEWER_TIMESTAMP}-fullchain.pem,target=/run/secrets/fullchain.pem \
+          --secret-add source=${NEWER_TIMESTAMP}-privkey.pem,target=/run/secrets/privkey.pem \
           instant_$SERVICE_NAMES" \
         throw \
         "Error updating $SERVICE_NAMES service"
