@@ -338,7 +338,7 @@ docker::await_service_ready() {
     local -r SERVICE_NAME=${1:?$(missing_param "await_service_ready")}
 
     docker::await_container_startup "$SERVICE_NAME"
-    docker::await_service_status "$SERVICE_NAME" Running
+    docker::await_service_status "$SERVICE_NAME" "Running"
     config::await_network_join instant_"$SERVICE_NAME"
 }
 
