@@ -22,11 +22,12 @@ function init_vars() {
     "postgres-1"
   )
   if [[ "${CLUSTERED_MODE}" == "true" ]]; then
-    POSTGRES_SERVICES=(
-      "${POSTGRES_SERVICES[@]}"
-      "postgres-2"
-      "postgres-3"
-    )
+    for i in {2..3}; do
+      POSTGRES_SERVICES=(
+        "${POSTGRES_SERVICES[@]}"
+        "postgres-$i"
+      )
+    done
   fi
 
   SERVICE_NAMES=(
