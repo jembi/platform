@@ -204,7 +204,7 @@ config::remove_config_importer() {
         config_importer_state=$(docker service ps instant_"$CONFIG_IMPORTER_SERVICE_NAME" --format "{{.CurrentState}}")
         if [[ $config_importer_state == *"Failed"* ]] || [[ $config_importer_state == *"Rejected"* ]]; then
             log error "Fatal: $CONFIG_IMPORTER_SERVICE_NAME failed with error:
-       $(docker service ps instant_"$config_importer_service_name" --no-trunc --format '{{.Error}}')"
+       $(docker service ps instant_"$CONFIG_IMPORTER_SERVICE_NAME" --no-trunc --format '{{.Error}}')"
             exit 1
         fi
     done
