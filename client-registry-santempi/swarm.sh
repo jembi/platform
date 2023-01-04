@@ -81,9 +81,7 @@ function initialize_package() {
 }
 
 function destroy_package() {
-  for service_name in "${SERVICE_NAMES[@]}"; do
-    docker::service_destroy "$service_name"
-  done
+  docker::service_destroy "${SERVICE_NAMES[@]}"
 
   docker::try_remove_volume santedb-data santempi-psql-1-data
 
