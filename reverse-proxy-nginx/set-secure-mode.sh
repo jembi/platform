@@ -5,6 +5,7 @@ declare UTILS_PATH=""
 declare TIMESTAMP
 declare TIMESTAMPED_NGINX
 declare service_name=""
+declare DOMAIN_ARGS=()
 
 function init_vars() {
     COMPOSE_FILE_PATH=$(
@@ -18,6 +19,12 @@ function init_vars() {
     UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
     service_name="reverse-proxy-nginx"
+
+    if [[ -n "$SUBDOMAINS" ]]; then
+        DOMAIN_ARGS=(-d "${DOMAIN_NAME},${SUBDOMAINS}")
+    else
+        DOMAIN_ARGS=(-d "${DOMAIN_NAME}")
+    fi
 
     readonly COMPOSE_FILE_PATH
     readonly UTILS_PATH
@@ -54,7 +61,7 @@ function generate_dummy_certificates() {
         certbot/certbot:v1.23.0 certonly -n \
         -m ${RENEWAL_EMAIL} \
         --staging \
-        ${domain_args[*]} \
+        ${DOMAIN_ARGS[*]} \
         --standalone --agree-tos" \
         throw \
         "Failed to create certificate network"
@@ -91,6 +98,12 @@ function update_nginx_dummy_certificates() {
 }
 
 function generate_real_certificates() {
+    local staging_args=""
+
+    if [[ "${STAGING}" == "true" ]]; then
+        staging_args="--staging"
+    fi
+
     try "docker run --rm \
           -p 8083:80 \
           -p 8443:443 \
@@ -101,7 +114,7 @@ function generate_real_certificates() {
           --standalone \
           ${staging_args} \
           -m ${RENEWAL_EMAIL} \
-          ${domain_args[*]} \
+          ${DOMAIN_ARGS[*]} \
           --agree-tos" \
         throw \
         "Failed to generate certificates"
@@ -117,6 +130,7 @@ function generate_real_certificates() {
 
     local new_timestamp
     new_timestamp="$(date "+%Y%m%d%H%M%S")"
+
     create_secrets_from_certificates "${new_timestamp}"
 }
 
@@ -154,14 +168,6 @@ set_secure_mode() {
     init_vars "$@"
     import_sources
 
-    local domain_args=()
-
-    if [[ -n "$SUBDOMAINS" ]]; then
-        domain_args=(-d "${DOMAIN_NAME},${SUBDOMAINS}")
-    else
-        domain_args=(-d "${DOMAIN_NAME}")
-    fi
-
     log info "Setting up Nginx Reverse Proxy with the following domain name: ${DOMAIN_NAME}"
 
     #Generate dummy certificates
@@ -176,11 +182,6 @@ set_secure_mode() {
 
     #Update nginx to use the dummy certificates
     update_nginx_dummy_certificates
-
-    local staging_args=""
-    if [[ "${STAGING}" == "true" ]]; then
-        staging_args="--staging"
-    fi
 
     #Generate real certificate
     generate_real_certificates

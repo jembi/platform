@@ -42,16 +42,21 @@ function import_sources() {
 
 function publish_insecure_ports() {
   IFS='-' read -ra PORTS <<<"$INSECURE_PORTS"
+
   local ports_array=()
+
   for i in "${PORTS[@]}"; do
     IFS=':' read -ra PORTS_SPLIT <<<"$i"
+
     if [[ "${PORTS_SPLIT[0]}" != "" ]] && [[ "${PORTS_SPLIT[1]}" != "" ]]; then
       ports_array+=(--publish-add "published=${PORTS_SPLIT[0]},target=${PORTS_SPLIT[1]}")
+
       log info "Exposing ports: published=%s,target=%s " "${PORTS_SPLIT[0]}" "${PORTS_SPLIT[1]}"
     else
       log error "Failed to expose ports: published=%s,target=%s " "${PORTS_SPLIT[0]}" "${PORTS_SPLIT[1]}"
     fi
   done
+
   log info "Updating ${service_name} service with configured ports..."
   try \
     "docker service update ${ports_array[*]} instant_${service_name}" \
