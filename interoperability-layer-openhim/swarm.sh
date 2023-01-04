@@ -27,7 +27,7 @@ function init_vars() {
   MONGO_SERVICES=(
     "mongo-1"
   )
-  if [[ "${NODE_MODE}" == "cluster" ]]; then
+  if [[ "${CLUSTERED_MODE}" == "true" ]]; then
     for i in {2..3}; do
       MONGO_SERVICES=(
         "${MONGO_SERVICES[@]}"
@@ -74,14 +74,14 @@ function initialize_package() {
     log info "Running Interoperability Layer OpenHIM package in PROD mode"
   fi
 
-  if [[ "${NODE_MODE}" == "cluster" ]]; then
+  if [[ "${CLUSTERED_MODE}" == "true" ]]; then
     mongo_cluster_compose_filename="docker-compose-mongo.cluster.yml"
   fi
 
   (
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose-mongo.yml" "$mongo_cluster_compose_filename" "$mongo_dev_compose_filename"
 
-    if [[ "${NODE_MODE}" == "cluster" ]] && [[ "${ACTION}" == "init" ]]; then
+    if [[ "${CLUSTERED_MODE}" == "true" ]] && [[ "${ACTION}" == "init" ]]; then
       try "${COMPOSE_FILE_PATH}/initiate-replica-set.sh" throw "Fatal: Initiate Mongo replica set failed"
     fi
     docker::deploy_sanity "${MONGO_SERVICES[@]}"
