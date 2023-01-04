@@ -67,11 +67,11 @@ function initialize_package() {
   local openhim_dev_compose_filename=""
 
   if [[ "${MODE}" == "dev" ]]; then
-    package::log info "Running package in DEV mode"
+    log info "Running Interoperability Layer OpenHIM package in DEV mode"
     mongo_dev_compose_filename="docker-compose-mongo.dev.yml"
     openhim_dev_compose_filename="docker-compose.dev.yml"
   else
-    package::log info "Running package in PROD mode"
+    log info "Running Interoperability Layer OpenHIM package in PROD mode"
   fi
 
   if [[ "${NODE_MODE}" == "cluster" ]]; then
@@ -80,11 +80,11 @@ function initialize_package() {
 
   (
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose-mongo.yml" "$mongo_cluster_compose_filename" "$mongo_dev_compose_filename"
-    docker::deploy_sanity "${mongo_services[@]}"
 
-    if [[ "${NODE_MODE}" == "cluster" ]]; then
+    if [[ "${NODE_MODE}" == "cluster" ]] && [[ "${ACTION}" == "init" ]]; then
       try "${COMPOSE_FILE_PATH}/initiate-replica-set.sh" throw "Fatal: Initiate Mongo replica set failed"
     fi
+    docker::deploy_sanity "${mongo_services[@]}"
 
     prepare_console_config
 
