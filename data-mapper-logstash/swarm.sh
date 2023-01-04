@@ -5,6 +5,7 @@ declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
 declare service_name=""
+declare LOGSTASH_DEV_MOUNT_COMPOSE_FILENAME=""
 
 function init_vars() {
   ACTION=$1
@@ -47,7 +48,7 @@ function dev_mount_logstash() {
     fi
 
     log info "Attaching dev mount file"
-    logstash_dev_mount_compose_filename="docker-compose.dev-mnt.yml"
+    LOGSTASH_DEV_MOUNT_COMPOSE_FILENAME="docker-compose.dev-mnt.yml"
   fi
 }
 
@@ -60,7 +61,6 @@ function inject_pipeline_elastic_hosts() {
 
 function initialize_package() {
   local logstash_dev_compose_filename=""
-  local logstash_dev_mount_compose_filename=""
   local logstash_temp_compose_filename=""
 
   if [[ "$MODE" == "dev" ]]; then
@@ -71,7 +71,7 @@ function initialize_package() {
   fi
 
   if [[ "$LOGSTASH_DEV_MOUNT" == "true" ]]; then
-    log warn "LOGSTASH_DEV_MOUNT is enabled: Please make sure TO REPLACE ES_HOSTS MANUALLY IN ALL THE FILES inside pipeline folder!"
+    log warn "LOGSTASH_DEV_MOUNT is enabled: Please make sure TO REPLACE ES_HOSTS MANUALLY IN ALL THE FILES inside data-mapper-logstash/pipeline folder!"
   else
     inject_pipeline_elastic_hosts
 
@@ -82,7 +82,7 @@ function initialize_package() {
   (
     dev_mount_logstash
 
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$logstash_dev_compose_filename" "$logstash_dev_mount_compose_filename" "$logstash_temp_compose_filename"
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$logstash_dev_compose_filename" "$LOGSTASH_DEV_MOUNT_COMPOSE_FILENAME" "$logstash_temp_compose_filename"
     docker::deploy_sanity "${service_name}"
   ) || {
     log error "Failed to deploy Data Mapper Logstash package"
