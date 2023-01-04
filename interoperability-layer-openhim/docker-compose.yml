@@ -9,6 +9,7 @@ services:
       - api_authenticationTypes=["token", "basic"]
       - authentication_enableCustomTokenAuthentication=true
     deploy:
+      replicas: ${OPENHIM_CORE_INSTANCES}
       placement:
         max_replicas_per_node: 1
       resources:
@@ -25,6 +26,7 @@ services:
       - source: console-default.json
         target: /usr/share/nginx/html/config/default.json
     deploy:
+      replicas: ${OPENHIM_CONSOLE_INSTANCES}
       placement:
         max_replicas_per_node: 1
       resources:

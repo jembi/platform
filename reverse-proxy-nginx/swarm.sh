@@ -42,16 +42,21 @@ function import_sources() {
 
 function publish_insecure_ports() {
   IFS='-' read -ra PORTS <<<"$INSECURE_PORTS"
+
   local ports_array=()
+
   for i in "${PORTS[@]}"; do
     IFS=':' read -ra PORTS_SPLIT <<<"$i"
-    if [ "${PORTS_SPLIT[0]}" != "" ] && [ "${PORTS_SPLIT[1]}" != "" ]; then
+
+    if [[ "${PORTS_SPLIT[0]}" != "" ]] && [[ "${PORTS_SPLIT[1]}" != "" ]]; then
       ports_array+=(--publish-add "published=${PORTS_SPLIT[0]},target=${PORTS_SPLIT[1]}")
+
       log info "Exposing ports: published=%s,target=%s " "${PORTS_SPLIT[0]}" "${PORTS_SPLIT[1]}"
     else
       log error "Failed to expose ports: published=%s,target=%s " "${PORTS_SPLIT[0]}" "${PORTS_SPLIT[1]}"
     fi
   done
+
   log info "Updating ${service_name} service with configured ports..."
   try \
     "docker service update ${ports_array[*]} instant_${service_name}" \
@@ -78,9 +83,8 @@ function deploy_nginx() {
   local -r DEPLOY_TYPE=${1:?"FATAL: deploy_nginx DEPLOY_TYPE not provided"}
 
   config::generate_service_configs "$service_name" /etc/nginx/conf.d "${COMPOSE_FILE_PATH}/package-conf-${DEPLOY_TYPE}" "${COMPOSE_FILE_PATH}" "nginx"
-  nginx_temp_compose_param="docker-compose.tmp.yml"
 
-  docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$nginx_temp_compose_param"
+  docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "docker-compose.tmp.yml"
   docker::deploy_sanity "${service_name}"
 }
 
@@ -90,7 +94,7 @@ function initialize_package() {
     (
       deploy_nginx "insecure"
 
-      if [ "${INSECURE_PORTS}" != "" ]; then
+      if [[ "${INSECURE_PORTS}" != "" ]]; then
         publish_insecure_ports
       fi
       add_insecure_configs
@@ -129,7 +133,7 @@ function destroy_package() {
   fi
 
   mapfile -t nginx_network < <(docker network ls -qf name=cert-renewal-network)
-  if [[ "${#nginx_network}" -ne 0 ]]; then
+  if [[ "${#nginx_network[@]}" -ne 0 ]]; then
     try "docker network rm ${nginx_network[*]}" catch "Failed to remove nginx networks"
   fi
 
