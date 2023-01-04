@@ -109,14 +109,12 @@ docker::await_container_destroy() {
 docker::await_service_destroy() {
     local -r SERVICE_NAME=${1:?$(missing_param "await_service_destroy")}
 
-    log info "Waiting for ${SERVICE_NAME} to be destroyed..."
     local start_time
     start_time=$(date +%s)
     while docker service ls | grep -q "\sinstant_${SERVICE_NAME}\s"; do
         config::timeout_check "${start_time}" "${SERVICE_NAME} to be destroyed"
         sleep 1
     done
-    overwrite "Waiting for ${SERVICE_NAME} to be destroyed... Done"
 }
 
 # Removes a services containers then the service itself
@@ -356,9 +354,11 @@ docker::scale_services_down() {
     fi
 
     for service_name in "$@"; do
+        log info "Waiting for $service_name to scale down ..."
         try \
             "docker service scale instant_$service_name=0" \
             catch \
             "Failed to scale down $service_name"
+        overwrite "Waiting for $service_name to scale down ... Done"
     done
 }
