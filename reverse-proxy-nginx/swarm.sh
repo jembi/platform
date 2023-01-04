@@ -78,7 +78,6 @@ function deploy_nginx() {
   local -r DEPLOY_TYPE=${1:?"FATAL: deploy_nginx DEPLOY_TYPE not provided"}
 
   config::generate_service_configs "$service_name" /etc/nginx/conf.d "${COMPOSE_FILE_PATH}/package-conf-${DEPLOY_TYPE}" "${COMPOSE_FILE_PATH}" "nginx"
-  nginx_temp_compose_param="docker-compose.tmp.yml"
 
   docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "docker-compose.tmp.yml"
   docker::deploy_sanity "${service_name}"
