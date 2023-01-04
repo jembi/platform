@@ -156,7 +156,7 @@ set_secure_mode() {
 
     local domain_args=()
 
-    if [ -n "$SUBDOMAINS" ]; then
+    if [[ -n "$SUBDOMAINS" ]]; then
         domain_args=(-d "${DOMAIN_NAME},${SUBDOMAINS}")
     else
         domain_args=(-d "${DOMAIN_NAME}")
