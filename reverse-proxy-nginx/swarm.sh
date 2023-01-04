@@ -45,7 +45,7 @@ function publish_insecure_ports() {
   local ports_array=()
   for i in "${PORTS[@]}"; do
     IFS=':' read -ra PORTS_SPLIT <<<"$i"
-    if [ "${PORTS_SPLIT[0]}" != "" ] && [ "${PORTS_SPLIT[1]}" != "" ]; then
+    if [[ "${PORTS_SPLIT[0]}" != "" ]] && [[ "${PORTS_SPLIT[1]}" != "" ]]; then
       ports_array+=(--publish-add "published=${PORTS_SPLIT[0]},target=${PORTS_SPLIT[1]}")
       log info "Exposing ports: published=%s,target=%s " "${PORTS_SPLIT[0]}" "${PORTS_SPLIT[1]}"
     else
