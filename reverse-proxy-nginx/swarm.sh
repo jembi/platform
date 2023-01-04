@@ -90,7 +90,7 @@ function initialize_package() {
     (
       deploy_nginx "insecure"
 
-      if [ "${INSECURE_PORTS}" != "" ]; then
+      if [[ "${INSECURE_PORTS}" != "" ]]; then
         publish_insecure_ports
       fi
       add_insecure_configs
