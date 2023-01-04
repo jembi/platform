@@ -138,6 +138,28 @@ docker::service_destroy() {
     overwrite "Waiting for service $SERVICE_NAME to be removed ... Done"
 }
 
+# Removes a services directly used for services deployed globally
+# This was created since global services can't be scaled down
+#
+# Arguments:
+# - $1 : service name (eg. cadvisor)
+#
+docker::remove_service() {
+    if [[ -z "$*" ]]; then
+        log error "$(missing_param "remove_service")"
+        exit 1
+    fi
+
+    for service_name in "$@"; do
+        log info "Waiting for service $service_name to be removed ... "
+        if [[ -n $(docker service ls -qf name=instant_"${service_name}") ]]; then
+            try "docker service rm instant_$service_name" catch "Failed to remove service $service_name"
+            docker::await_service_destroy "$service_name"
+        fi
+        overwrite "Waiting for service $service_name to be removed ... Done"
+    done
+}
+
 # Tries to remove volumes and retries until it works with a timeout
 #
 # Arguments:
@@ -218,6 +240,7 @@ docker::deploy_service() {
     local -r DOCKER_COMPOSE_FILE="${2:?"FATAL: function 'deploy_service' is missing a parameter"}"
     local -r DOCKER_COMPOSE_DEV_FILE="${3:-""}"
     local -r DOCKER_COMPOSE_DEV_MOUNT="${4:-""}"
+    local -r DOCKER_COMPOSE_TEMP="${5:-""}"
     local docker_compose_param=""
 
     # Check for the existance of the images
@@ -240,6 +263,10 @@ docker::deploy_service() {
     # Adding Dev mount compose file to the params
     if [[ -n "${DOCKER_COMPOSE_DEV_MOUNT}" ]]; then
         docker_compose_param="$docker_compose_param -c ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_DEV_MOUNT"
+    fi
+
+    if [[ -n "${DOCKER_COMPOSE_TEMP}" ]]; then
+        docker_compose_param="$docker_compose_param -c ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_TEMP"
     fi
 
     try "docker stack deploy \
