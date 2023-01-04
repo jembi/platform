@@ -130,7 +130,7 @@ function generate_real_certificates() {
     try "docker volume rm data-certbot-conf" catch "Failed to remove data-certbot-conf volume"
 
     NEWER_TIMESTAMP="$(date "+%Y%m%d%H%M%S")"
-    readonly NEW_TIMESTAMP
+    readonly NEWER_TIMESTAMP
 
     create_secrets_from_certificates "${NEWER_TIMESTAMP}"
 }
