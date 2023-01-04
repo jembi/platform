@@ -22,11 +22,12 @@ function init_vars() {
     "postgres-1"
   )
   if [[ "${NODE_MODE}" == "cluster" ]]; then
-    postgres_services=(
-      "${postgres_services[@]}"
-      "postgres-2"
-      "postgres-3"
-    )
+    for i in {2..3}; do
+      postgres_services=(
+        "${postgres_services[@]}"
+        "postgres-$i"
+      )
+    done
   fi
 
   service_names=(
@@ -54,7 +55,7 @@ function initialize_package() {
   local postgres_dev_compose_filename=""
   local hapi_fhir_dev_compose_filename=""
 
-  if [ "${MODE}" == "dev" ]; then
+  if [[ "${MODE}" == "dev" ]]; then
     log info "Running FHIR Datastore HAPI FHIR package in DEV mode"
     postgres_dev_compose_filename="docker-compose-postgres.dev.yml"
     hapi_fhir_dev_compose_filename="docker-compose.dev.yml"
@@ -62,7 +63,7 @@ function initialize_package() {
     log info "Running FHIR Datastore HAPI FHIR package in PROD mode"
   fi
 
-  if [ "${NODE_MODE}" == "cluster" ]; then
+  if [[ "${NODE_MODE}" == "cluster" ]]; then
     postgres_cluster_compose_filename="docker-compose-postgres.cluster.yml"
   fi
 
