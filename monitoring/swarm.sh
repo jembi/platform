@@ -50,13 +50,6 @@ function import_sources() {
   source "${UTILS_PATH}/log.sh"
 }
 
-function remove_service() {
-  local -r SERVICE_NAME=${1:?"FATAL: await_container_startup parameter not provided"}
-
-  try "docker service rm instant_$SERVICE_NAME" catch "Failed to remove service $SERVICE_NAME"
-  docker::await_service_destroy "$SERVICE_NAME"
-}
-
 function initialize_package() {
   local monitoring_dev_compose_filename=""
   local monitoring_cluster_compose_filename=""
@@ -89,8 +82,7 @@ function scale_services_down() {
       "Failed to scale down $service_name"
   done
 
-  remove_service cadvisor
-  remove_service node-exporter
+  docker::remove_service cadvisor node-exporter
 }
 
 function destroy_package() {
@@ -98,8 +90,7 @@ function destroy_package() {
     docker::service_destroy "$service_name"
   done
 
-  remove_service cadvisor
-  remove_service node-exporter
+  docker::remove_service cadvisor node-exporter
 
   docker::try_remove_volume prometheus_data grafana_data
 
