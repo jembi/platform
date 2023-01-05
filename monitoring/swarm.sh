@@ -77,13 +77,11 @@ function initialize_package() {
 function scale_services_down() {
   docker::scale_services_down "${SCALED_SERVICES[@]}"
 
-  docker::remove_service cadvisor node-exporter
+  docker::service_destroy "cadvisor" "node-exporter"
 }
 
 function destroy_package() {
-  docker::service_destroy "${SCALED_SERVICES[@]}"
-
-  docker::remove_service cadvisor node-exporter
+  docker::service_destroy "${SERVICE_NAMES[@]}"
 
   docker::try_remove_volume prometheus_data grafana_data
 
