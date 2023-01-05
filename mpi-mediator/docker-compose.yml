@@ -8,3 +8,7 @@ services:
       REGISTER_MEDIATOR: ${REGISTER_MEDIATOR}
       OPENHIM_MEDIATOR_URL: ${OPENHIM_MEDIATOR_URL}
       TRUST_SELF_SIGNED: ${TRUST_SELF_SIGNED}
+    deploy:
+      placement:
+        max_replicas_per_node: 1
+      replicas: ${MPI_MEDIATOR_INSTANCES}
