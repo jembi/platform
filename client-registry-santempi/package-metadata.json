@@ -6,7 +6,7 @@
   "version": "0.0.1",
   "dependencies": [],
   "environmentVariables": {
-    "STATEFUL_NODES": "single",
+    "NODE_MODE": "single",
     "SANTEMPI_INSTANCES": "1",
     "SANTEMPI_POSTGRESQL_PASSWORD": "SanteDB123",
     "SANTEMPI_POSTGRESQL_USERNAME": "santedb",
