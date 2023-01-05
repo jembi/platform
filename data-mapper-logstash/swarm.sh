@@ -64,10 +64,10 @@ function initialize_package() {
   local logstash_temp_compose_filename=""
 
   if [[ "$MODE" == "dev" ]]; then
-    package::log info "Running package in DEV mode"
+    log info "Running package in DEV mode"
     logstash_dev_compose_filename="docker-compose.dev.yml"
   else
-    package::log info "Running package in PROD mode"
+    log info "Running package in PROD mode"
   fi
 
   if [[ "$LOGSTASH_DEV_MOUNT" == "true" ]]; then
@@ -85,7 +85,7 @@ function initialize_package() {
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$logstash_dev_compose_filename" "$logstash_dev_mount_compose_filename" "$logstash_temp_compose_filename"
     docker::deploy_sanity "${SERVICE_NAMES}"
   ) || {
-    package::log error "Failed to deploy package"
+    log error "Failed to deploy package"
     exit 1
   }
 }
@@ -104,18 +104,18 @@ main() {
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
     if [[ "${CLUSTERED_MODE}" == "true" ]]; then
-      package::log info "Running package in Cluster node mode"
+      log info "Running package in Cluster node mode"
     else
-      package::log info "Running package in Single node mode"
+      log info "Running package in Single node mode"
     fi
 
     initialize_package
   elif [[ "${ACTION}" == "down" ]]; then
-    package::log info "Scaling down package"
+    log info "Scaling down package"
 
     docker::scale_services_down "${SERVICE_NAMES}"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    package::log info "Destroying package"
+    log info "Destroying package"
     destroy_package
   else
     log error "Valid options are: init, up, down, or destroy"

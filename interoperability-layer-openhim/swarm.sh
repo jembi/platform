@@ -95,7 +95,7 @@ function initialize_package() {
     config::await_service_running "openhim-core" "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml "${OPENHIM_CORE_INSTANCES}"
   ) ||
     {
-      package::log error "Failed to deploy package"
+      log error "Failed to deploy package"
       exit 1
     }
 
@@ -122,18 +122,18 @@ main() {
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
     if [[ "${CLUSTERED_MODE}" == "true" ]]; then
-      package::log info "Running package in Cluster node mode"
+      log info "Running package in Cluster node mode"
     else
-      package::log info "Running package in Single node mode"
+      log info "Running package in Single node mode"
     fi
 
     initialize_package
   elif [[ "${ACTION}" == "down" ]]; then
-    package::log info "Scaling down package"
+    log info "Scaling down package"
 
     docker::scale_services_down "${SERVICE_NAMES[@]}"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    package::log info "Destroying package"
+    log info "Destroying package"
     destroy_package
   else
     log error "Valid options are: init, up, down, or destroy"

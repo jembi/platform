@@ -126,10 +126,10 @@ function initialize_package() {
   local elastic_search_dev_compose_filename=""
 
   if [[ "$MODE" == "dev" ]]; then
-    package::log info "Running package in DEV mode"
+    log info "Running package in DEV mode"
     elastic_search_dev_compose_filename="docker-compose.dev.yml"
   else
-    package::log info "Running package in PROD mode"
+    log info "Running package in PROD mode"
   fi
 
   (
@@ -150,7 +150,7 @@ function initialize_package() {
     docker::deploy_sanity "${SERVICE_NAMES[@]}"
 
   ) || {
-    package::log error "Failed to deploy package"
+    log error "Failed to deploy package"
     exit 1
   }
 
@@ -187,22 +187,22 @@ main() {
 
   if [[ "${ACTION}" == "init" ]]; then
     if [[ "${CLUSTERED_MODE}" == "true" ]]; then
-      package::log info "Running package in Cluster mode"
+      log info "Running package in Cluster mode"
     else
-      package::log info "Running package in Single mode"
+      log info "Running package in Single mode"
     fi
 
     initialize_package
   elif [[ "$ACTION" == "up" ]]; then
-    package::log info "Scaling up package"
+    log info "Scaling up package"
 
     scale_services_up
   elif [[ "${ACTION}" == "down" ]]; then
-    package::log info "Scaling down package"
+    log info "Scaling down package"
 
     docker::scale_services_down "${SERVICE_NAMES[@]}"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    package::log info "Destroying package"
+    log info "Destroying package"
 
     destroy_package
   else

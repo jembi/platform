@@ -90,7 +90,7 @@ function deploy_nginx() {
 
 function initialize_package() {
   if [[ "${INSECURE}" == "true" ]]; then
-    package::log info "Running package in INSECURE mode"
+    log info "Running package in INSECURE mode"
     (
       deploy_nginx "insecure"
 
@@ -100,18 +100,19 @@ function initialize_package() {
       add_insecure_configs
     ) ||
       {
-        package::log error "Failed to deploy package in INSECURE MODE"
+        log error "Failed to deploy package in INSECURE MODE"
         exit 1
       }
   else
-    package::log info "Running package in SECURE mode"
+    log info "Running package in SECURE mode"
     (
       deploy_nginx "secure"
 
-      try "${COMPOSE_FILE_PATH}/set-secure-mode.sh" throw "Fatal: Setting SECURE Mode has failed"
+      # shellcheck disable=SC1091
+      source "${COMPOSE_FILE_PATH}/set-secure-mode.sh"
     ) ||
       {
-        package::log error "Failed to deploy package in SECURE MODE"
+        log error "Failed to deploy package in SECURE MODE"
         exit 1
       }
   fi
@@ -145,15 +146,15 @@ main() {
   fi
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    package::log info "Running package"
+    log info "Running package"
 
     initialize_package
   elif [[ "${ACTION}" == "down" ]]; then
-    package::log info "Scaling down package"
+    log info "Scaling down package"
 
     docker::scale_services_down "${SERVICE_NAMES}"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    package::log info "Destroying package"
+    log info "Destroying package"
     destroy_package
   else
     log error "Valid options are: init, up, down, or destroy"

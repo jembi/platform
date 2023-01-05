@@ -37,7 +37,7 @@ function initialize_package() {
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml"
     docker::deploy_sanity "${SERVICE_NAMES}"
   ) || {
-    package::log error "Failed to deploy package, does your .env file include all environment variables in your config.ini file?"
+    log error "Failed to deploy package, does your .env file include all environment variables in your config.ini file?"
     exit 1
   }
 }
@@ -56,15 +56,15 @@ main() {
     log warn "WARNING: config.ini file does not exist, Aborting..."
   else
     if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-      package::log info "Running package"
+      log info "Running package"
 
       initialize_package
     elif [[ "${ACTION}" == "down" ]]; then
-      package::log info "Scaling down package"
+      log info "Scaling down package"
 
       docker::scale_services_down "$SERVICE_NAMES"
     elif [[ "${ACTION}" == "destroy" ]]; then
-      package::log info "Destroying package"
+      log info "Destroying package"
 
       destroy_package
 

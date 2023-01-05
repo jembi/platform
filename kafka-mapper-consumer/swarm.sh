@@ -34,7 +34,7 @@ function initialize_package() {
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml"
     docker::deploy_sanity "${SERVICE_NAMES}"
   ) || {
-    package::log error "Failed to deploy package"
+    log error "Failed to deploy package"
     exit 1
   }
 }
@@ -50,15 +50,15 @@ main() {
   import_sources
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    package::log info "Running package"
+    log info "Running package"
 
     initialize_package
   elif [[ "${ACTION}" == "down" ]]; then
-    package::log info "Scaling down package"
+    log info "Scaling down package"
 
     docker::scale_services_down "${SERVICE_NAMES}"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    package::log info "Destroying package"
+    log info "Destroying package"
     destroy_package
   else
     log error "Valid options are: init, up, down, or destroy"
