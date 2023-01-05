@@ -6,13 +6,30 @@ services:
     volumes:
       - grafana_data:/var/lib/grafana
     environment:
-      - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
-      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
-      - GF_USERS_ALLOW_SIGN_UP=false
-      - GF_SMTP_ENABLED=${GF_SMTP_ENABLED}
-      - GF_SMTP_HOST=${GF_SMTP_HOST}
-      - GF_SMTP_USER=${GF_SMTP_USER}
-      - GF_SMTP_PASSWORD=${GF_SMTP_PASSWORD}
+      GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER}
+      GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_SMTP_ENABLED: ${GF_SMTP_ENABLED}
+      GF_SMTP_HOST: ${GF_SMTP_HOST}
+      GF_SMTP_USER: ${GF_SMTP_USER}
+      GF_SMTP_PASSWORD: ${GF_SMTP_PASSWORD}
+      GF_AUTH_BASIC_ENABLED: ${KC_SSO_ENABLED}
+      GF_AUTH_DISABLE_LOGIN_FORM: ${KC_SSO_ENABLED}
+      GF_AUTH_GENERIC_OAUTH_TLS_SKIP_VERIFY_INSECURE: "true"
+      GF_AUTH_GENERIC_OAUTH_ENABLED: ${KC_SSO_ENABLED}
+      GF_AUTH_GENERIC_OAUTH_NAME: "Keycloak"
+      GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP: "true"
+      GF_AUTH_GENERIC_OAUTH_CLIENT_ID: ${KC_GRAFANA_CLIENT_ID}
+      GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: ${KC_GRAFANA_CLIENT_SECRET}
+      GF_AUTH_GENERIC_OAUTH_EMAIL_ATTRIBUTE_NAME: "email:primary"
+      GF_AUTH_GENERIC_OAUTH_SCOPES: "openid email profile offline_access roles"
+      GF_AUTH_GENERIC_OAUTH_EMAIL_ATTRIBUTE_PATH: "email"
+      GF_AUTH_GENERIC_OAUTH_LOGIN_ATTRIBUTE_PATH: "username"
+      GF_AUTH_GENERIC_OAUTH_NAME_ATTRIBUTE_PATH: "full_name"
+      GF_AUTH_GENERIC_OAUTH_AUTH_URL: "${KC_FRONTEND_URL}/realms/${KC_REALM_NAME}/protocol/openid-connect/auth"
+      GF_AUTH_GENERIC_OAUTH_TOKEN_URL: "${KC_API_URL}/realms/${KC_REALM_NAME}/protocol/openid-connect/token"
+      GF_AUTH_GENERIC_OAUTH_API_URL: "${KC_API_URL}/realms/${KC_REALM_NAME}/protocol/openid-connect/userinfo"
+      GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH: "contains(roles[*], 'admin') && 'Admin' || contains(roles[*], 'editor') && 'Editor' || 'Viewer'"
     configs:
       - target: /etc/grafana/grafana.ini
         source: grafana.ini
@@ -34,11 +51,6 @@ services:
   prometheus:
     image: prom/prometheus:v2.38.0
     user: root
-    deploy:
-      placement:
-        constraints:
-          - "node.labels.name==node-1"
-      replicas: 1
     volumes:
       - prometheus_data:/prometheus
       - /var/run/docker.sock:/var/run/docker.sock:ro

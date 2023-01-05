@@ -3,11 +3,37 @@ version: '3.9'
 services:
   identity-access-manager-keycloak:
     image: keycloak/keycloak
-    command: start-dev
+    command: ["start", "--proxy=edge", "--hostname=${KEYCLOAK_HOSTNAME}", "--import-realm"]
     hostname: identity-access-manager-keycloak
+    healthcheck:
+      test: curl --fail http://localhost:8080/health/ready || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    configs:
+      - target: /opt/keycloak/data/import/realm.json
+        source: realm.json
     environment:
+      KC_DB: postgres
+      KC_DB_USERNAME: ${KC_POSTGRESQL_USERNAME}
+      KC_DB_PASSWORD: ${KC_POSTGRESQL_PASSWORD}
+      KC_DB_URL: "jdbc:postgresql://${KC_POSTGRES_REPLICA_SET}/${KC_POSTGRESQL_DATABASE}?targetServerType=primary"
+      KC_METRICS_ENABLED: "true"
+      KC_HEALTH_ENABLED: "true"
+      KC_REALM_NAME: ${KC_REALM_NAME}
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_GRAFANA_CLIENT_ID: ${KC_GRAFANA_CLIENT_ID}
+      KC_GRAFANA_CLIENT_SECRET: ${KC_GRAFANA_CLIENT_SECRET}
+      KC_GRAFANA_ROOT_URL: ${KC_GRAFANA_ROOT_URL}
     deploy:
       placement:
         max_replicas_per_node: 1
+
+configs:
+  realm.json:
+    file: ./config/realm.json
+    name: realm.json-${realm_json_DIGEST:?err}
+    labels:
+      name: keycloak
