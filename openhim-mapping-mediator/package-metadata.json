@@ -1,0 +1,16 @@
+{
+  "id": "openhim-mapping-mediator",
+  "name": "Openhim Mapping Mediator",
+  "description": "An Openhim mediator to simplify data adaptation between systems",
+  "type": "infrastructure",
+  "version": "0.0.1",
+  "dependencies": ["interoperability-layer-openhim"],
+  "environmentVariables": {
+    "STATEFUL_NODES": "single",
+    "OPENHIM_URL": "https://openhim-core:8080",
+    "OPENHIM_USERNAME": "root@openhim.org",
+    "OPENHIM_MONGO_URL": "mongodb://mongo-1:27017/openhim",
+    "OPENHIM_REGISTER": "true",
+    "OPENHIM_PASSWORD": "instant101"
+  }
+}
