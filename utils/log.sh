@@ -128,9 +128,14 @@ function log() {
     local norm="${colours['DEFAULT']}"
     local colour="${colours[${upper}]:-\033[31m}"
 
-    local package_name=$(dirname -- "$0" | sed -e 's/-/ /g' -e 's/\b\(.\)/\u\1/g')
+    if [[ "${line}" == *"${CLEAR_PREV_LINE}"* ]]; then
+        # Append package name dynamically when override
+        line="${CLEAR_PREV_LINE}[$(dirname -- "$0" | sed -e 's/-/ /g' -e 's/\b\(.\)/\u\1/g')] ${line#*"$CLEAR_PREV_LINE"}"
+    else
+        line="[$(dirname -- "$0" | sed -e 's/-/ /g' -e 's/\b\(.\)/\u\1/g')] ${line}"
+    fi
 
-    local std_line="${colour} ${emoticons[${upper}]} [${package_name}] ${line}${norm}"
+    local std_line="${colour} ${emoticons[${upper}]} ${line}${norm}"
 
     # Standard Output (Pretty)
     case "${level}" in
