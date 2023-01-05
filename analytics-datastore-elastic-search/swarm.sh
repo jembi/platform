@@ -57,9 +57,11 @@ function install_expect() {
 
 function set_elasticsearch_passwords() {
   local container=$1
-  log info "Setting passwords..."
+
   local elastic_search_container_id=""
   elastic_search_container_id=$(docker ps -qlf name="${container}")
+
+  log info "Setting passwords..."
   try \
     "${COMPOSE_FILE_PATH}/set-elastic-passwords.exp ${elastic_search_container_id}" \
     throw \
@@ -95,6 +97,7 @@ function create_certs() {
 function add_docker_configs() {
   local -r TIMESTAMP="$(date "+%Y%m%d%H%M%S")"
   local -r path_config_certs="/usr/share/elasticsearch/config/certs/"
+
   log info "Creating configs..."
 
   try "docker config create --label name=elasticsearch ${TIMESTAMP}-ca.crt ./certs/ca/ca.crt" catch "Error creating config ca.crt"
@@ -157,15 +160,6 @@ function initialize_package() {
   config::await_network_join "instant_$ES_LEADER_NODE"
 
   docker::deploy_config_importer "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "elastic-search-config-importer" "elasticsearch"
-}
-
-function scale_services_up() {
-  for service_name in "${SERVICE_NAMES[@]}"; do
-    try \
-      "docker service scale instant_$service_name=1" \
-      catch \
-      "Failed to scale up $service_name"
-  done
 }
 
 function destroy_package() {
