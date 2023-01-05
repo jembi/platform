@@ -18,6 +18,7 @@
 #
 # Exports:
 # As many digest environment variables as are declared in the provided docker compose file
+#
 config::set_config_digests() {
     local -r DOCKER_COMPOSE_PATH="${1:?$(missing_param "set_config_digests")}"
 
@@ -61,6 +62,7 @@ config::set_config_digests() {
 # Arguments:
 # - $1 : docker compose directory path (eg. /home/user/project/docker-compose.yml)
 # - $2 : config label (eg. logstash)
+#
 config::remove_stale_service_configs() {
     local -r DOCKER_COMPOSE_PATH="${1:?$(missing_param "remove_stale_service_configs" "DOCKER_COMPOSE_PATH")}"
     local -r CONFIG_LABEL="${2:?$(missing_param "remove_stale_service_configs" "CONFIG_LABEL")}"
@@ -114,6 +116,7 @@ config::remove_stale_service_configs() {
 # - $2 : a message containing reference to the loop that timed out
 # - $3 : timeout time in seconds, default is 300 seconds
 # - $4 : elapsed time to issue running-for-longer-than-expected warning (in seconds), default is 60 seconds
+#
 config::timeout_check() {
     local start_time=$(($1))
     local message=$2
@@ -142,6 +145,7 @@ config::timeout_check() {
 # - $3 : desired number of instances of the awaited-service
 # - $4 : (optional) the max time allowed to wait for a service's response, defaults to 300 seconds
 # - $5 : (optional) elapsed time to throw a warning, defaults to 60 seconds
+#
 config::await_service_running() {
     local -r SERVICE_NAME="${1:?$(missing_param "await_service_running" "SERVICE_NAME")}"
     local -r AWAIT_HELPER_FILE_PATH="${2:?$(missing_param "await_service_running" "AWAIT_HELPER_FILE_PATH")}"
@@ -183,6 +187,7 @@ config::await_service_running() {
 # - $1 : the name of the config importer
 # - $2 : (optional) the timeout time for the config importer to run, defaults to 300 seconds
 # - $3 : (optional) elapsed time to throw a warning, defaults to 60 seconds
+#
 config::remove_config_importer() {
     local -r CONFIG_IMPORTER_SERVICE_NAME="${1:?$(missing_param "remove_config_importer")}"
     local -r exit_time="${2:-}"
@@ -216,6 +221,7 @@ config::remove_config_importer() {
 #
 # Arguments:
 # - $1 : service name (eg. instant_analytics-datastore-elastic-search)
+#
 config::await_service_removed() {
     local -r SERVICE_NAME="${1:?$(missing_param "await_service_removed")}"
     local start_time=$(date +%s)
@@ -231,6 +237,7 @@ config::await_service_removed() {
 #
 # Arguments:
 # $1 : service name (eg. instant_analytics-datastore-elastic-search)
+#
 config::await_network_join() {
     local -r SERVICE_NAME="${1:?$(missing_param "await_network_join")}"
     local start_time=$(date +%s)
@@ -268,6 +275,7 @@ config::await_network_join() {
 # - config_file
 # - config_label_name
 # - config_service_name
+#
 config::generate_service_configs() {
     local -r SERVICE_NAME=${1:?$(missing_param "generate_service_configs" "SERVICE_NAME")}
     local -r TARGET_BASE=${2:?$(missing_param "generate_service_configs" "TARGET_BASE")}
@@ -315,6 +323,7 @@ config::generate_service_configs() {
 #
 # Arguments:
 # - $@ : a list of configs to remove
+#
 config::remove_service_nginx_config() {
     local configs=("$@")
     local config_rm_command=""
@@ -330,11 +339,11 @@ config::remove_service_nginx_config() {
     try "docker config rm $config_rm_list" catch "Failed to remove configs"
 }
 
-#######################################
 # Replaces all environment variables in a file with the environment variable value
+#
 # Arguments:
 # - $1 : the path to the file that you wish to substitute env vars into (eg. "${COMPOSE_FILE_PATH}"/config.ini)
-#######################################
+#
 config::substitute_env_vars() {
     local -r FILE_PATH="${1:?$(missing_param "substitute_env_vars")}"
     config_with_env=$(envsubst <"${FILE_PATH}")
@@ -342,8 +351,6 @@ config::substitute_env_vars() {
     echo "$config_with_env" >>"${FILE_PATH}"
 }
 
-#######################################
-#
 # Modify a variable to contain the necessary `--config-rm` and `--config-add` arguments to update a service's
 # configs based off newly created docker configs for a provided folder. The modified variable must then be
 # used in a `docker service update` command, like follows:
@@ -360,7 +367,6 @@ config::substitute_env_vars() {
 # - $3 : target folder path in absolute format (eg. "$PATH_TO_FILE"/pipeline)
 # - $4 : config label name (eg. cares)
 #
-#######################################
 config::update_service_configs() {
     declare -n REF_config_update_var="${1:?$(missing_param "update_service_configs" "REF_config_update_var")}"
     local -r TARGET_BASE=${2:?$(missing_param "update_service_configs" "TARGET_BASE")}
@@ -396,8 +402,6 @@ config::update_service_configs() {
     REF_config_update_var+="$config_rm_string $config_add_string"
 }
 
-#######################################
-#
 # Modify a variable to contain the necessary `--env-add` arguments to update a service's
 # environment specified in a .env file. The modified variable must then be
 # used in a `docker service update` command, like follows:
@@ -412,7 +416,6 @@ config::update_service_configs() {
 # Arguments:
 # - $2 : .env file (eg. "$PATH_TO_FILE"/.env.add)
 #
-#######################################
 config::env_var_add_from_file() {
     declare -n REF_service_update_var="${1:?$(missing_param "env_var_add_from_file" "REF_service_update_var")}"
     local -r ENV_FILE=${2:?$(missing_param "env_var_add_from_file" "ENV_FILE")}
@@ -428,8 +431,6 @@ config::env_var_add_from_file() {
     done
 }
 
-#######################################
-#
 # Modify a variable to contain the necessary `--env-add` arguments to update a service's
 # environment based on the provided env var. The modified variable must then be
 # used in a `docker service update` command, like follows:
@@ -444,7 +445,6 @@ config::env_var_add_from_file() {
 # Arguments:
 # - $2 : env var (eg. MY_ENV_VAR=my_value)
 #
-#######################################
 config::env_var_add() {
     declare -n REF_service_update_var="${1:?$(missing_param "env_var_add" "REF_service_update_var")}"
     local -r ENV_VAR=${2:?$(missing_param "env_var_add" "ENV_VAR")}
@@ -452,13 +452,12 @@ config::env_var_add() {
     REF_service_update_var+=" --env-add $ENV_VAR"
 }
 
-#######################################
 # Waits for the provided service to be reachable by checking logs
 #
 # Arguments:
 # $1 : service name (eg. analytics-datastore-elastic-search)
 # $2 : log string to be checked (eg. Starting)
-#######################################
+#
 config::await_service_reachable() {
     local -r SERVICE_NAME=${1:?$(missing_param "await_service_reachable" "SERVICE_NAME")}
     local -r LOG_MESSAGE=${2:?$(missing_param "await_service_reachable" "LOG_MESSAGE")}
