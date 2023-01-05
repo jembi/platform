@@ -1,37 +1,15 @@
 #!/bin/bash
 
-declare COMPOSE_FILE_PATH=""
-declare UTILS_PATH=""
-declare TIMESTAMP=""
-declare TIMESTAMPED_NGINX=""
+#The other variables are initiated in the swarm.sh script and used here
 declare NEWER_TIMESTAMP=""
-declare service_name=""
 declare DOMAIN_ARGS=()
 
 function init_vars() {
-    COMPOSE_FILE_PATH=$(
-        cd "$(dirname "${BASH_SOURCE[0]}")" || exit
-        pwd -P
-    )
-
-    TIMESTAMP="$(date "+%Y%m%d%H%M%S")"
-    TIMESTAMPED_NGINX="${TIMESTAMP}-nginx.conf"
-
-    UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
-
-    service_name="reverse-proxy-nginx"
-
     if [[ -n "$SUBDOMAINS" ]]; then
         DOMAIN_ARGS=(-d "${DOMAIN_NAME},${SUBDOMAINS}")
     else
         DOMAIN_ARGS=(-d "${DOMAIN_NAME}")
     fi
-
-    readonly COMPOSE_FILE_PATH
-    readonly UTILS_PATH
-    readonly TIMESTAMP
-    readonly TIMESTAMPED_NGINX
-    readonly service_name
 }
 
 # shellcheck disable=SC1091
@@ -130,7 +108,7 @@ function generate_real_certificates() {
     try "docker volume rm data-certbot-conf" catch "Failed to remove data-certbot-conf volume"
 
     NEWER_TIMESTAMP="$(date "+%Y%m%d%H%M%S")"
-    readonly NEW_TIMESTAMP
+    readonly NEWER_TIMESTAMP
 
     create_secrets_from_certificates "${NEWER_TIMESTAMP}"
 }
@@ -156,6 +134,7 @@ function update_nginx_real_certificates() {
 function set_nginx_network() {
     local nginx_network_exists
     nginx_network_exists=$(docker network ls --filter name=cert-renewal-network --format '{{.Name}}')
+
     #Do not create docker network if it exists
     if [[ -z "${nginx_network_exists}" ]]; then
         try \
