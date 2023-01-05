@@ -190,7 +190,7 @@ main() {
   elif [[ "$ACTION" == "up" ]]; then
     log info "Scaling up package"
 
-    scale_services_up
+    docker::scale_services_up 1 "${SERVICE_NAMES[@]}"
   elif [[ "${ACTION}" == "down" ]]; then
     log info "Scaling down package"
 
