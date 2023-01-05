@@ -108,7 +108,8 @@ function initialize_package() {
     (
       deploy_nginx "secure"
 
-      try "${COMPOSE_FILE_PATH}/set-secure-mode.sh" throw "Fatal: Setting SECURE Mode has failed"
+      # shellcheck disable=SC1091
+      source "${COMPOSE_FILE_PATH}/set-secure-mode.sh"
     ) ||
       {
         log error "Failed to deploy Message Nginx Reverse Proxy package in SECURE MODE"
