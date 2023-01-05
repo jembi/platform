@@ -67,11 +67,11 @@ function initialize_package() {
   local openhim_dev_compose_filename=""
 
   if [[ "${MODE}" == "dev" ]]; then
-    log info "Running Interoperability Layer OpenHIM package in DEV mode"
+    log info "Running package in DEV mode"
     mongo_dev_compose_filename="docker-compose-mongo.dev.yml"
     openhim_dev_compose_filename="docker-compose.dev.yml"
   else
-    log info "Running Interoperability Layer OpenHIM package in PROD mode"
+    log info "Running package in PROD mode"
   fi
 
   if [[ "${CLUSTERED_MODE}" == "true" ]]; then
