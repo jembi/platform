@@ -6,7 +6,7 @@
 . "$(pwd)/utils/config-utils.sh"
 . "$(pwd)/utils/log.sh"
 
-# Get current status of the provided service
+# Gets current status of the provided service
 #
 # Arguments:
 # - $1 : service name (eg. analytics-datastore-elastic-search)
@@ -17,7 +17,7 @@ docker::get_current_service_status() {
     docker service ps instant_"${SERVICE_NAME}" --format "{{.CurrentState}}" 2>/dev/null
 }
 
-# Get unique errors from the provided service
+# Gets unique errors from the provided service
 #
 # Arguments:
 # - $1 : service name (eg. analytics-datastore-elastic-search)
@@ -117,14 +117,14 @@ docker::await_service_destroy() {
     done
 }
 
-# Removes a services containers then the service itself
+# Removes services containers then the service itself
 # This was created to aid in removing volumes,
 # since volumes being removed were still attached to some lingering containers after container remove
 #
 # NB: Global services can't be scale down
 #
 # Arguments:
-# - $1 : service name (eg. analytics-datastore-elastic-search)
+# - $@ : service names list (eg. analytics-datastore-elastic-search)
 #
 docker::service_destroy() {
     if [[ -z "$*" ]]; then
@@ -148,7 +148,7 @@ docker::service_destroy() {
 # Tries to remove volumes and retries until it works with a timeout
 #
 # Arguments:
-# - $1 : volumes names, e.g. "es-data" "psql-1" ..
+# - $@ : volumes names (eg. es-data psql-1)
 #
 docker::try_remove_volume() {
     if [[ -z "$*" ]]; then
@@ -175,7 +175,7 @@ docker::try_remove_volume() {
 # Prunes configs based on a label
 #
 # Arguments:
-# - $1 : config label, e.g. "logstash"
+# - $@ : configs label list (eg. logstash)
 #
 docker::prune_configs() {
     if [[ -z "$*" ]]; then
@@ -195,6 +195,11 @@ docker::prune_configs() {
     done
 }
 
+# Checks if the image exists, if not it will pull it from docker
+#
+# Arguments:
+# - $@ : images list (eg. bitnami/kafka:3.3.1)
+#
 docker::check_images_existence() {
     if [[ -z "$*" ]]; then
         log error "$(missing_param "check_images_existence")"
@@ -217,13 +222,17 @@ docker::check_images_existence() {
     done
 }
 
-# Deploy a service, it will set config digests (in case a config is defined in the compose file)
+# Deploys a service
+# It will pull images if they don't exist in the local docker hub registry
+# It will set config digests (in case a config is defined in the compose file)
+# It will remove stale configs
 #
 # Arguments:
-# - $1 : docker compose path, e.g. "/instant/monitoring" ...
-# - $2 : docker compose file, e.g. "docker-compose.yml" "docker-compose.cluster.yml" ...
-# - $3 : docker compose dev file, e.g. "docker-compose.dev.yml"
-# - $4 : services names, e.g. "monitoring" "hapi-fhir" ...
+# - $1 : docker compose path (eg. /instant/monitoring)
+# - $2 : docker compose file (eg. docker-compose.yml docker-compose.cluster.yml)
+# - $3 : (optional) docker compose dev file (eg. docker-compose.dev.yml)
+# - $4 : (optional) docker compose dev mount file (eg. docker-compose.dev-mount.yml)
+# - $5 : (optional) docker compose temp file (eg. docker-compose.tmp.yml)
 #
 docker::deploy_service() {
     local -r DOCKER_COMPOSE_PATH="${1:?$(missing_param "deploy_service" "DOCKER_COMPOSE_PATH")}"
@@ -275,14 +284,13 @@ docker::deploy_service() {
     fi
 }
 
-# Deploy a config importer:
-# Sets the config digests, deploy the config importer, remove it and remove the stale configs
+# Deploys a config importer
+# Sets the config digests, deploys the config importer, removes it and removes the stale configs
 #
 # Arguments:
-# - $1 : docker compose path, e.g. "/instant/monitoring/importer/docker-compose.config.yml" ...
-# - $2 : services name, e.g. "clickhouse-config-importer" ...
-# - $3 : config label, e.g. "clickhouse" "kibana" ...
-# - $4 : docker compose file name, default "docker-compose.config.yml"
+# - $1 : docker compose path (eg. /instant/monitoring/importer/docker-compose.config.yml)
+# - $2 : services name (eg. clickhouse-config-importer)
+# - $3 : config label (eg. clickhouse kibana)
 #
 docker::deploy_config_importer() {
     local -r CONFIG_COMPOSE_PATH="${1:?$(missing_param "deploy_config_importer" "CONFIG_COMPOSE_PATH")}"
@@ -317,10 +325,10 @@ docker::deploy_config_importer() {
     }
 }
 
-# Check for errors when deploying
+# Checks for errors when deploying
 #
 # Arguments:
-# - $1 : service names, e.g. "monitoring" "hapi-fhir" ...
+# - $@ : service names (eg. "monitoring" "hapi-fhir")
 #
 docker::deploy_sanity() {
     if [[ -z "$*" ]]; then
@@ -333,7 +341,7 @@ docker::deploy_sanity() {
     done
 }
 
-# An aggregate function to do multiple service ready checks in one function
+# Does multiple service ready checks in one function
 #
 # Arguments:
 # - $1 : service name (eg. analytics-datastore-elastic-search)
@@ -346,10 +354,10 @@ docker::await_service_ready() {
     config::await_network_join instant_"$SERVICE_NAME"
 }
 
-# An function to scale down services
+# Scales down services
 #
 # Arguments:
-# - $1 : service names (eg. analytics-datastore-elastic-search)
+# - $@ : service names (eg. analytics-datastore-elastic-search)
 #
 docker::scale_services_down() {
     if [[ -z "$*" ]]; then
@@ -364,5 +372,30 @@ docker::scale_services_down() {
             catch \
             "Failed to scale down $service_name"
         overwrite "Waiting for $service_name to scale down ... Done"
+    done
+}
+
+# Scales up services
+#
+# Arguments:
+# - $1 : replicas number (eg. 1)
+# - $@ : service names list (eg. analytics-datastore-elastic-search)
+#
+docker::scale_services_up() {
+    local -r REPLICAS="${1:?$(missing_param "scale_services_up" "REPLICAS")}"
+    # Use shift to be able to get the array of services
+    shift
+    if [[ -z "$*" ]]; then
+        log error "$(missing_param "scale_services_up" "SERVICES_NAME")"
+        exit 1
+    fi
+
+    for service_name in "${@}"; do
+        log info "Waiting for $service_name to scale up ..."
+        try \
+            "docker service scale instant_$service_name=$REPLICAS" \
+            catch \
+            "Failed to scale up $service_name"
+        overwrite "Waiting for $service_name to scale up ... Done"
     done
 }
