@@ -1,7 +1,7 @@
 version: '3.9'
 
 services:
-  postgres-1:
+  postgres-01:
     environment:
       REPMGR_PARTNER_NODES: ${REPMGR_PARTNER_NODES}
     deploy:
@@ -9,20 +9,20 @@ services:
         constraints:
           - "node.labels.name==node-1"
 
-  postgres-2:
+  postgres-02:
     image: bitnami/postgresql-repmgr:14
     environment:
       POSTGRESQL_PASSWORD: ${HF_POSTGRESQL_PASSWORD}
       POSTGRESQL_USERNAME: ${HF_POSTGRESQL_USERNAME}
       POSTGRESQL_DATABASE: ${HF_POSTGRESQL_DATABASE}
-      REPMGR_NODE_NETWORK_NAME: postgres-2
+      REPMGR_NODE_NETWORK_NAME: postgres-02
       REPMGR_PASSWORD: ${REPMGR_PASSWORD}
       REPMGR_RECONNECT_INTERVAL: 3
-      REPMGR_NODE_NAME: postgres-2
+      REPMGR_NODE_NAME: postgres-02
       REPMGR_PRIMARY_HOST: ${REPMGR_PRIMARY_HOST}
       REPMGR_PARTNER_NODES: ${REPMGR_PARTNER_NODES}
     volumes:
-      - 'hapi-postgres-2-data:/bitnami/postgresql'
+      - 'hapi-postgres-02-data:/bitnami/postgresql'
     deploy:
       placement:
         constraints:
@@ -39,21 +39,20 @@ services:
       default:
       pg_backup_net: {}
 
-
-  postgres-3:
+  postgres-03:
     image: bitnami/postgresql-repmgr:14
     environment:
       POSTGRESQL_PASSWORD: ${HF_POSTGRESQL_PASSWORD}
       POSTGRESQL_USERNAME: ${HF_POSTGRESQL_USERNAME}
       POSTGRESQL_DATABASE: ${HF_POSTGRESQL_DATABASE}
-      REPMGR_NODE_NETWORK_NAME: postgres-3
+      REPMGR_NODE_NETWORK_NAME: postgres-03
       REPMGR_PASSWORD: ${REPMGR_PASSWORD}
       REPMGR_RECONNECT_INTERVAL: 3
-      REPMGR_NODE_NAME: postgres-3
+      REPMGR_NODE_NAME: postgres-03
       REPMGR_PRIMARY_HOST: ${REPMGR_PRIMARY_HOST}
       REPMGR_PARTNER_NODES: ${REPMGR_PARTNER_NODES}
     volumes:
-      - 'hapi-postgres-3-data:/bitnami/postgresql'
+      - 'hapi-postgres-03-data:/bitnami/postgresql'
     deploy:
       placement:
         constraints:
@@ -70,7 +69,6 @@ services:
       default:
       pg_backup_net: {}
 
-
 volumes:
-  hapi-postgres-2-data:
-  hapi-postgres-3-data:
+  hapi-postgres-02-data:
+  hapi-postgres-03-data:

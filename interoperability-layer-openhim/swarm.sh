@@ -25,13 +25,13 @@ function init_vars() {
   )
 
   MONGO_SERVICES=(
-    "mongo-1"
+    "mongo-01"
   )
   if [[ "${CLUSTERED_MODE}" == "true" ]]; then
     for i in {2..3}; do
       MONGO_SERVICES=(
         "${MONGO_SERVICES[@]}"
-        "mongo-$i"
+        "mongo-0$i"
       )
     done
   fi

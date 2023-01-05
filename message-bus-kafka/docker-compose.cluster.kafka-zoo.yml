@@ -1,10 +1,10 @@
 version: '3.9'
 
 services:
-  zookeeper-1:
+  zookeeper-01:
     environment:
       - ZOO_SERVER_ID=1
-      - ZOO_SERVERS=0.0.0.0:2888:3888,zookeeper-2:2888:3888,zookeeper-3:2888:3888
+      - ZOO_SERVERS=0.0.0.0:2888:3888,zookeeper-02:2888:3888,zookeeper-03:2888:3888
     deploy:
       placement:
         constraints:
@@ -17,14 +17,14 @@ services:
           cpus: ${ZOOKEEPER_CPU_RESERVE}
           memory: ${ZOOKEEPER_MEMORY_RESERVE}
 
-  zookeeper-2:
+  zookeeper-02:
     image: bitnami/zookeeper:3.7.0
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
       - ZOO_SERVER_ID=2
-      - ZOO_SERVERS=zookeeper-1:2888:3888,0.0.0.0:2888:3888,zookeeper-3:2888:3888
+      - ZOO_SERVERS=zookeeper-01:2888:3888,0.0.0.0:2888:3888,zookeeper-03:2888:3888
     volumes:
-      - zookeeper-2-volume:/bitnami/zookeeper
+      - zookeeper-02-volume:/bitnami/zookeeper
     deploy:
       placement:
         constraints:
@@ -37,14 +37,14 @@ services:
           cpus: ${ZOOKEEPER_CPU_RESERVE}
           memory: ${ZOOKEEPER_MEMORY_RESERVE}
 
-  zookeeper-3:
+  zookeeper-03:
     image: bitnami/zookeeper:3.7.0
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
       - ZOO_SERVER_ID=3
-      - ZOO_SERVERS=zookeeper-1:2888:3888,zookeeper-2:2888:3888,0.0.0.0:2888:3888
+      - ZOO_SERVERS=zookeeper-01:2888:3888,zookeeper-02:2888:3888,0.0.0.0:2888:3888
     volumes:
-      - zookeeper-3-volume:/bitnami/zookeeper
+      - zookeeper-03-volume:/bitnami/zookeeper
     deploy:
       placement:
         constraints:
@@ -58,5 +58,5 @@ services:
           memory: ${ZOOKEEPER_MEMORY_RESERVE}
 
 volumes:
-  zookeeper-2-volume:
-  zookeeper-3-volume:
+  zookeeper-02-volume:
+  zookeeper-03-volume:

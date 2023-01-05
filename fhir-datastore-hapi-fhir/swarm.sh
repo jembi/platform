@@ -19,13 +19,13 @@ function init_vars() {
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
   POSTGRES_SERVICES=(
-    "postgres-1"
+    "postgres-01"
   )
   if [[ "${CLUSTERED_MODE}" == "true" ]]; then
     for i in {2..3}; do
       POSTGRES_SERVICES=(
         "${POSTGRES_SERVICES[@]}"
-        "postgres-$i"
+        "postgres-0$i"
       )
     done
   fi
@@ -83,7 +83,7 @@ function initialize_package() {
 function destroy_package() {
   docker::service_destroy "${SERVICE_NAMES[@]}"
 
-  docker::try_remove_volume hapi-postgres-1-data
+  docker::try_remove_volume hapi-postgres-01-data
 
   if [[ "${CLUSTERED_MODE}" == "true" ]]; then
     log warn "Volumes are only deleted on the host on which the command is run. Postgres volumes on other nodes are not deleted"

@@ -12,8 +12,8 @@ description: >-
 | OPENHIM\_MEDIATOR\_API\_PORT      | Number | Port of the Openhim mediator            | Yes      | 8080                            |
 | OPENHIM\_CORE\_INSTANCES          | Number | Number of openhim-core instances        | No       | 1                               |
 | OPENHIM\_CONSOLE\_INSTANCES       | String | Number of openhim-console instances     | No       | 1                               |
-| OPENHIM\_MONGO\_URL               | String | MongoDB connection string               | Yes      | mongodb://mongo-1:27017/openhim |
-| OPENHIM\_MONGO\_ATNAURL           | String | ???????????                             | Yes      | mongodb://mongo-1:27017/openhim |
+| OPENHIM\_MONGO\_URL               | String | MongoDB connection string               | Yes      | mongodb://mongo-01:27017/openhim |
+| OPENHIM\_MONGO\_ATNAURL           | String | ???????????                             | Yes      | mongodb://mongo-01:27017/openhim |
 | OPENHIM\_CPU\_LIMIT               | Number | CPU limit usage for openhim-core        | No       | 0                               |
 | OPENHIM\_CPU\_RESERVE             | Number | Reserverd CPU usage for openhim-core    | No       | 0.05                            |
 | OPENHIM\_MEMORY\_LIMIT            | String | RAM usage limit for openhim-core        | No       | 3G                              |

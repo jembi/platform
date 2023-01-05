@@ -19,14 +19,15 @@ function init_vars() {
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
   POSTGRES_SERVICES=(
-    "santempi-psql-1"
+    "santempi-psql-01"
   )
   if [[ "${CLUSTERED_MODE}" == "true" ]]; then
-    POSTGRES_SERVICES=(
-      "${POSTGRES_SERVICES[@]}"
-      "santempi-psql-2"
-      "santempi-psql-3"
-    )
+    for i in {2..3}; do
+      POSTGRES_SERVICES=(
+        "${POSTGRES_SERVICES[@]}"
+        "santempi-psql-0$i"
+      )
+    done
   fi
 
   SERVICE_NAMES=(
@@ -83,7 +84,7 @@ function initialize_package() {
 function destroy_package() {
   docker::service_destroy "${SERVICE_NAMES[@]}"
 
-  docker::try_remove_volume santedb-data santempi-psql-1-data
+  docker::try_remove_volume santedb-data santempi-psql-01-data
 
   if [[ "${CLUSTERED_MODE}" == "true" ]]; then
     log warn "Volumes are only deleted on the host on which the command is run. Postgres volumes on other nodes are not deleted"

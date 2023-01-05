@@ -8,9 +8,9 @@ description: >-
 
 | Variable Name                 | Type   | Revelance                                                         | Required | Default         |
 | ----------------------------- | ------ | ----------------------------------------------------------------- | -------- | --------------- |
-| REPMGR\_PRIMARY\_HOST         | String | Service name of the primary replication manager host (PostgreSQL) | No       | postgres-1      |
-| REPMGR\_PARTNER\_NODES        | String | Service names of the replicas of PostgreSQL                       | Yes      | postgres-1      |
-| POSTGRES\_REPLICA\_SET        | String | PostgreSQL replica set (host and port of the replicas)            | Yes      | postgres-1:5432 |
+| REPMGR\_PRIMARY\_HOST         | String | Service name of the primary replication manager host (PostgreSQL) | No       | postgres-01      |
+| REPMGR\_PARTNER\_NODES        | String | Service names of the replicas of PostgreSQL                       | Yes      | postgres-01      |
+| POSTGRES\_REPLICA\_SET        | String | PostgreSQL replica set (host and port of the replicas)            | Yes      | postgres-01:5432 |
 | HAPI\_FHIR\_CPU\_LIMIT        | Number | CPU limit usage for hapi-fhir service                             | No       | 0 (unlimited)   |
 | HAPI\_FHIR\_CPU\_RESERVE      | Number | Reserved CPU usage for hapi-fhir service                          | No       | 0.05            |
 | HAPI\_FHIR\_MEMORY\_LIMIT     | String | RAM limit usage for hapi-fhir service                             | No       | 3G              |
