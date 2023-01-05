@@ -41,14 +41,16 @@ function generate_dummy_certificates() {
         -m ${RENEWAL_EMAIL} \
         --staging \
         ${DOMAIN_ARGS[*]} \
-        --standalone --agree-tos" \
+        --standalone --agree-tos &>/dev/null" \
         throw \
         "Failed to create certificate network"
 
-    docker run --rm --network host --name certbot-helper -w /temp \
+    try "docker run --rm --network host --name certbot-helper -w /temp \
         -v dummy-data-certbot-conf:/temp-certificates \
         -v instant:/temp busybox sh \
-        -c "rm -rf certificates; mkdir certificates; cp -r /temp-certificates/* /temp/certificates"
+        -c \"rm -rf certificates; mkdir certificates; cp -r /temp-certificates/* /temp/certificates\"" \
+        throw \
+        "Failed to transfer dummy certificates"
 
     try "docker volume rm dummy-data-certbot-conf" catch "Failed to remove volume dummy-data-certbot-conf"
 
@@ -94,7 +96,7 @@ function generate_real_certificates() {
           ${staging_args} \
           -m ${RENEWAL_EMAIL} \
           ${DOMAIN_ARGS[*]} \
-          --agree-tos" \
+          --agree-tos &>/dev/null" \
         throw \
         "Failed to generate certificates"
 
@@ -103,7 +105,7 @@ function generate_real_certificates() {
           -v instant:/temp busybox sh \
           -c \"rm -rf certificates; mkdir -p certificates; cp -r /temp-certificates/* /temp/certificates\"" \
         throw \
-        "Failed to transfer certificates"
+        "Failed to transfer real certificates"
 
     try "docker volume rm data-certbot-conf" catch "Failed to remove data-certbot-conf volume"
 

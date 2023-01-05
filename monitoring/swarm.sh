@@ -50,18 +50,6 @@ function import_sources() {
   source "${UTILS_PATH}/log.sh"
 }
 
-function remove_service() {
-  if [[ -z "$*" ]]; then
-    log error "$(missing_param "remove_service")"
-    exit 1
-  fi
-
-  for service_name in "$@"; do
-    try "docker service rm instant_$service_name" catch "Failed to remove service $service_name"
-    docker::await_service_destroy "$service_name"
-  done
-}
-
 function initialize_package() {
   local monitoring_dev_compose_filename=""
   local monitoring_cluster_compose_filename=""
@@ -89,13 +77,13 @@ function initialize_package() {
 function scale_services_down() {
   docker::scale_services_down "${SCALED_SERVICES[@]}"
 
-  remove_service cadvisor node-exporter
+  docker::remove_service cadvisor node-exporter
 }
 
 function destroy_package() {
   docker::service_destroy "${SCALED_SERVICES[@]}"
 
-  remove_service "cadvisor" "node-exporter"
+  docker::remove_service cadvisor node-exporter
 
   docker::try_remove_volume prometheus_data grafana_data
 

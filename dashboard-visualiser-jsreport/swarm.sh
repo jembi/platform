@@ -5,6 +5,7 @@ declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
 declare SERVICE_NAMES=""
+declare JS_REPORT_DEV_MOUNT_COMPOSE_FILENAME=""
 
 function init_vars() {
   ACTION=$1
@@ -48,13 +49,12 @@ function dev_mount_jsreport() {
     log warn "MAKE SURE YOU HAVE RUN 'set-permissions.sh' SCRIPT BEFORE AND AFTER RUNNING JSREPORT"
 
     log info "Attaching dev mount file"
-    js_report_dev_mount_compose_filename="docker-compose.dev-mnt.yml"
+    JS_REPORT_DEV_MOUNT_COMPOSE_FILENAME="docker-compose.dev-mnt.yml"
   fi
 }
 
 function initialize_package() {
   local js_report_dev_compose_filename=""
-  local js_report_dev_mount_compose_filename=""
 
   if [[ "${MODE}" == "dev" ]]; then
     log info "Running package in DEV mode"
@@ -68,7 +68,7 @@ function initialize_package() {
 
     check_es_hosts_env_var
 
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$js_report_dev_compose_filename" "$js_report_dev_mount_compose_filename"
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$js_report_dev_compose_filename" "$JS_REPORT_DEV_MOUNT_COMPOSE_FILENAME"
     docker::deploy_sanity "${SERVICE_NAMES}"
   ) || {
     log error "Failed to deploy package"
