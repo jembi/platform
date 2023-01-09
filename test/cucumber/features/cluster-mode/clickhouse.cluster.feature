@@ -4,10 +4,10 @@ Feature: Analytics Datastore Clickhouse?
     Scenario: Init Analytics Datastore Clickhouse
         Given I use parameters "init analytics-datastore-clickhouse --dev --env-file=.env.cluster"
         When I launch the platform with params
-        Then The service "analytics-datastore-clickhouse-01" should be started
-        And The service "analytics-datastore-clickhouse-02" should be started
-        And The service "analytics-datastore-clickhouse-03" should be started
-        And The service "analytics-datastore-clickhouse-04" should be started
+        Then The service "analytics-datastore-clickhouse-01" should be started with 1 replicas
+        And The service "analytics-datastore-clickhouse-02" should be started with 1 replicas
+        And The service "analytics-datastore-clickhouse-03" should be started with 1 replicas
+        And The service "analytics-datastore-clickhouse-04" should be started with 1 replicas
         And The service "clickhouse-config-importer" should be removed
         And There should be 4 services
         And There should be 4 volumes

@@ -4,10 +4,9 @@ Feature: Dashboard Visualiser Jsreport?
     Scenario: Init Dashboard Visualiser Jsreport
         Given I use parameters "init dashboard-visualiser-jsreport --only --dev --env-file=.env.cluster"
         When I launch the platform with params
-        Then The service "dashboard-visualiser-jsreport" should be started
+        Then The service "dashboard-visualiser-jsreport" should be started with 3 replicas
         And There should be 1 services
         And The service "dashboard-visualiser-jsreport" should have healthy containers
-        And The service "dashboard-visualiser-jsreport" should have 3 replicas
 
 
     Scenario: Destroy Dashboard Visualiser Jsreport
