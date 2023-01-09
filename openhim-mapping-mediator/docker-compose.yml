@@ -1,0 +1,11 @@
+version: '3.9'
+
+services:
+  openhim-mapping-mediator:
+    image: jembi/openhim-mediator-mapping:v3.0.0
+    environment:
+      OPENHIM_REGISTER: ${OPENHIM_REGISTER}
+      MONGO_URL: ${OPENHIM_MONGO_URL}
+      OPENHIM_URL: ${OPENHIM_URL}
+      OPENHIM_USERNAME: ${OPENHIM_USERNAME}
+      OPENHIM_PASSWORD: ${OPENHIM_PASSWORD}
