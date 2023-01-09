@@ -6,7 +6,7 @@
   "version": "0.0.1",
   "dependencies": [],
   "environmentVariables": {
-    "NODE_MODE": "single",
+    "CLUSTERED_MODE": "false",
     "ES_LEADER_NODE": "analytics-datastore-elastic-search",
     "ES_PATH_REPO": "/backups/elasticsearch",
     "ES_LOGSTASH_SYSTEM": "dev_password_only",

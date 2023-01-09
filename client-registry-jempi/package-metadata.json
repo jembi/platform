@@ -6,7 +6,7 @@
   "version": "0.0.1",
   "dependencies": ["interoperability-layer-openhim"],
   "environmentVariables": {
-    "STATEFUL_NODES": "single",
+    "CLUSTERED_MODE": "false",
     "JEMPI_KAFKA_01_MEMORY_LIMIT": "3G",
     "JEMPI_KAFKA_01_MEMORY_RESERVE": "500M",
     "JEMPI_KAFKA_02_MEMORY_LIMIT": "3G",

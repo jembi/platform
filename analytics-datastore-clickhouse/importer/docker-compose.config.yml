@@ -9,7 +9,7 @@ services:
     environment:
       CLICKHOUSE_HOST: ${CLICKHOUSE_HOST}
       CLICKHOUSE_PORT: ${CLICKHOUSE_PORT}
-      NODE_MODE: ${NODE_MODE}
+      CLUSTERED_MODE: ${CLUSTERED_MODE}
     configs:
       - source: config-importer-clickhouseConfig.js
         target: /clickhouseConfig.js
