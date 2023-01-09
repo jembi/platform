@@ -1,0 +1,8 @@
+version: '3.9'
+
+services:
+  openhim-mapping-mediator:
+    ports:
+      - target: 3003
+        published: 3003
+        mode: host
