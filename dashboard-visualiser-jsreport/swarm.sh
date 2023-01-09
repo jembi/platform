@@ -83,6 +83,8 @@ function initialize_package() {
 function destroy_package() {
   docker::service_destroy "$SERVICE_NAMES" "jsreport-config-importer" "await-helper"
 
+  docker::try_remove_volume "jsreport-data"
+
   docker::prune_configs "jsreport"
 }
 

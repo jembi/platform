@@ -69,10 +69,10 @@ jobs:
             --become
             --user=ubuntu
             --extra-vars @./inventories/development/group_vars/all.yml
-  launch-platform:
+  run-cluster-e2e-tests:
     runs-on: ubuntu-20.04
     needs: configure-e2e-server
-    timeout-minutes: 20
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v3
       - run: ./get-cli.sh linux
@@ -86,8 +86,11 @@ jobs:
       - run: ssh-keyscan -H ${{ github.run_id }}.jembi.cloud >> ~/.ssh/known_hosts
       - run: ./remote-img-load.sh ${{ github.run_id }}.jembi.cloud
       - run: sed -i 's/domain/${{ github.run_id }}.jembi.cloud/g' .env.cluster
-      # TODO: (PLAT-385, rcrichton) add 'client-registry-santempi' add santempi once it works in cluster mode
-      - run: DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud ./platform-linux --env-file=.env.cluster init reverse-proxy-nginx interoperability-layer-openhim fhir-datastore-hapi-fhir message-bus-kafka analytics-datastore-elastic-search dashboard-visualiser-kibana data-mapper-logstash dashboard-visualiser-jsreport message-bus-helper-hapi-proxy
+      - run:
+          working-directory: ./test
+      - run: yarn
+      - run: yarn test:cluster
+      # - run: DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud ./platform-linux --env-file=.env.cluster init reverse-proxy-nginx interoperability-layer-openhim fhir-datastore-hapi-fhir message-bus-kafka analytics-datastore-elastic-search dashboard-visualiser-kibana data-mapper-logstash dashboard-visualiser-jsreport message-bus-helper-hapi-proxy client-registry-santempi analytics-datastore-clickhouse
   destroy-e2e-server:
     runs-on: ubuntu-20.04
     if: always()
