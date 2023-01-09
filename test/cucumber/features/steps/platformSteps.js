@@ -20,14 +20,13 @@ When('I launch the platform with params', async function () {
 });
 
 Then('The service {string} should be started with {int} replicas', async function (serviceName, replicas) {
-  const containers = await docker.listContainers({
+  const services = await docker.listServices({
     filters: { name: [`instant_${serviceName}`] },
   });
-  const serviceContainers = containers.filter(
-    (container) => container.Labels['com.docker.swarm.service.name'] === `instant_${serviceName}`
-  );
-  expect(serviceContainers).to.be.array();
-  expect(serviceContainers, 'number of containers is not equal to replicas number').to.have.lengthOf(replicas);
+  const filterServicesWithExactName = services.filter((e) => e.Spec.Name === `instant_${serviceName}`);
+
+  expect(filterServicesWithExactName).to.be.array();
+  expect(filterServicesWithExactName, `${serviceName} is missing from the list of services`).to.have.lengthOf(1);
 
   const serviceReplicas = await checkServiceReplicasNumber(serviceName);
   expect(serviceReplicas, `Service is not replicated ${replicas} times`).to.equal(`${replicas}`);
