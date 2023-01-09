@@ -86,8 +86,7 @@ jobs:
       - run: ssh-keyscan -H ${{ github.run_id }}.jembi.cloud >> ~/.ssh/known_hosts
       - run: ./remote-img-load.sh ${{ github.run_id }}.jembi.cloud
       - run: sed -i 's/domain/${{ github.run_id }}.jembi.cloud/g' .env.cluster
-      - run:
-          working-directory: ./test
+      - run: cd ./test/cucumber
       - run: yarn
       - run: yarn test:cluster
       # - run: DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud ./platform-linux --env-file=.env.cluster init reverse-proxy-nginx interoperability-layer-openhim fhir-datastore-hapi-fhir message-bus-kafka analytics-datastore-elastic-search dashboard-visualiser-kibana data-mapper-logstash dashboard-visualiser-jsreport message-bus-helper-hapi-proxy client-registry-santempi analytics-datastore-clickhouse
