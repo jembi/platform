@@ -17,8 +17,7 @@ Feature: Analytics Datastore Elasticsearch - Dashboard Visualiser Kibana - Data 
     Scenario: Init Data Mapper Logstash
         Given I use parameters "init data-mapper-logstash --dev --env-file=.env.cluster"
         When I launch the platform with params
-        And The service "data-mapper-logstash" should be started with 1 replicas
-        And The service "data-mapper-logstash" should have 3 replicas
+        And The service "data-mapper-logstash" should be started with 3 replicas
         And There should be 5 services
         And The service "data-mapper-logstash" should have healthy containers
         And There should be 4 volumes
