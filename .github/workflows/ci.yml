@@ -95,7 +95,7 @@ jobs:
   destroy-e2e-server:
     runs-on: ubuntu-20.04
     if: always()
-    needs: [provision-e2e-server, configure-e2e-server, launch-platform]
+    needs: [provision-e2e-server, configure-e2e-server, run-e2e-tests]
     timeout-minutes: 15
     env:
       TF_VAR_PROJECT_NAME: platform-e2e-tests-${{ github.run_id }}

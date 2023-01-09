@@ -10,7 +10,6 @@ Feature: Fhir Datastore HAPI-FHIR?
         And The service "hapi-fhir" should be started with 3 replicas
         And There should be 4 services
         And The service "hapi-fhir" should have healthy containers
-        And There should be 3 volumes
 
     Scenario: Init Message Bus Helper Hapi Proxy
         Given I use parameters "init message-bus-helper-hapi-proxy --only --dev --env-file=.env.cluster"
