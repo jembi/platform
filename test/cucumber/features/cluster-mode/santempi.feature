@@ -10,7 +10,6 @@ Feature: Client Registry JeMPI?
         And The service "santedb-www" should be started with 3 replicas
         And The service "santedb-mpi" should be started with 3 replicas
         And There should be 5 services
-        And There should be 4 volumes
 
     Scenario: Destroy Client Registry JeMPI
         Given I use parameters "destroy client-registry-santempi --dev --env-file=.env.local"

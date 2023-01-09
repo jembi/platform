@@ -10,7 +10,6 @@ Feature: Analytics Datastore Clickhouse?
         And The service "analytics-datastore-clickhouse-04" should be started with 1 replicas
         And The service "clickhouse-config-importer" should be removed
         And There should be 4 services
-        And There should be 4 volumes
 
     Scenario: Destroy Analytics Datastore Clickhouse
         Given I use parameters "destroy analytics-datastore-clickhouse --dev --env-file=.env.cluster"

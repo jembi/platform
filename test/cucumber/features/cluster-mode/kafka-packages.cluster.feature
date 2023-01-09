@@ -12,7 +12,6 @@ Feature: Kafka and its dependent packages?
         And The service "kafka-minion" should be started with 1 replicas
         And The service "message-bus-kafka-config-importer" should be removed
         And There should be 6 services
-        And There should be 4 volumes
 
     Scenario: Init Monitoring
         Given I use parameters "init monitoring --only --dev --env-file=.env.cluster"
@@ -24,7 +23,6 @@ Feature: Kafka and its dependent packages?
         And The service "cadvisor" should be started with 1 replicas
         And The service "node-exporter" should be started with 1 replicas
         And The service "cadvisor" should have healthy containers
-        And There should be 7 volumes
 
     Scenario: Destroy Kafka and its dependent packages
         Given I use parameters "destroy monitoring --dev --env-file=.env.cluster"

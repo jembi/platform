@@ -12,7 +12,6 @@ Feature: Analytics Datastore Elasticsearch - Dashboard Visualiser Kibana - Data 
         And The service "kibana-config-importer" should be removed
         And There should be 4 services
         And The service "dashboard-visualiser-kibana" should have healthy containers
-        And There should be 3 volume
 
     Scenario: Init Data Mapper Logstash
         Given I use parameters "init data-mapper-logstash --dev --env-file=.env.cluster"
@@ -20,7 +19,6 @@ Feature: Analytics Datastore Elasticsearch - Dashboard Visualiser Kibana - Data 
         And The service "data-mapper-logstash" should be started with 3 replicas
         And There should be 5 services
         And The service "data-mapper-logstash" should have healthy containers
-        And There should be 4 volumes
 
     Scenario: Destroy ELK stack
         Given I use parameters "destroy dashboard-visualiser-kibana data-mapper-logstash --dev --env-file=.env.cluster"

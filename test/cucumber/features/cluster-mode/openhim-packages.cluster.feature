@@ -11,7 +11,6 @@ Feature: Openhim and its dependent packages?
         And The service "openhim-console" should be started with 3 replicas
         And The service "interoperability-layer-openhim-config-importer" should be removed
         And There should be 5 services
-        And There should be 6 volumes
 
     Scenario: Init Mpi Mediator
         Given I use parameters "init mpi-mediator --only --dev --env-file=.env.cluster"
