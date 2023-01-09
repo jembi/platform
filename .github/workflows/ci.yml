@@ -93,7 +93,7 @@ jobs:
         run: yarn
       - name: Run Cucumber tests in single node mode
         working-directory: ./test/cucumber
-        run: yarn test:single
+        run: DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:single
       # - run: DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud ./platform-linux --env-file=.env.local init
   destroy-e2e-server:
     runs-on: ubuntu-20.04
