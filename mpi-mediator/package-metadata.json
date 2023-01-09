@@ -5,15 +5,30 @@
   "type": "infrastructure",
   "version": "0.0.1",
   "dependencies": [
+    "interoperability-layer-openhim",
     "fhir-datastore-hapi-fhir",
     "message-bus-kafka",
     "client-registry-santempi"
   ],
   "environmentVariables": {
     "STATEFUL_NODES": "single",
-    "CLIENT_REGISTRY_URL": "http://santedb-mpi:8080",
     "OPENHIM_MEDIATOR_URL": "https://openhim-core:8080",
-    "TRUST_SELF_SIGNED": true,
-    "REGISTER_MEDIATOR": true
+    "TRUST_SELF_SIGNED": "true",
+    "OPENHIM_USERNAME": "root@openhim.org",
+    "OPENHIM_PASSWORD": "instant101",
+    "REGISTER_MEDIATOR": "true",
+    "MPI_CLIENT_ID": "fiddler",
+    "MPI_CLIENT_SECRET": "fiddler",
+    "MPI_PROTOCOL": "http",
+    "MPI_HOST": "santedb-mpi",
+    "MPI_PORT": 8080,
+    "MPI_AUTH_ENABLED": "true",
+    "KAFKA_BROKERS": "kafka:9092",
+    "KAFKA_BUNDLE_TOPIC": "2xx",
+    "KAFKA_ASYNC_BUNDLE_TOPIC": "2xx-async",
+    "KAFKA_ERROR_TOPIC": "errors",
+    "FHIR_DATASTORE_PROTOCOL": "http",
+    "FHIR_DATASTORE_HOST": "hapi-fhir",
+    "FHIR_DATASTORE_PORT": 8080
   }
 }
