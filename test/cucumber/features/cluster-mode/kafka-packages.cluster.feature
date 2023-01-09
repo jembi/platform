@@ -20,8 +20,8 @@ Feature: Kafka and its dependent packages?
         And The service "prometheus" should be started with 1 replicas
         And The service "prometheus-kafka-adapter" should be started with 1 replicas
         And The service "prometheus_backup" should be started with 1 replicas
-        And The service "cadvisor" should be started with 1 replicas
-        And The service "node-exporter" should be started with 1 replicas
+        And The service "cadvisor" should be started with 3 replicas
+        And The service "node-exporter" should be started with 3 replicas
         And The service "cadvisor" should have healthy containers
 
     Scenario: Destroy Kafka and its dependent packages

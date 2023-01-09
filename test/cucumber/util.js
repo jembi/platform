@@ -27,12 +27,12 @@ async function checkServiceReplicasNumber(serviceName) {
   return stdout.split('/')[0];
 }
 
-// Service should have Running status for 20 seconds
+// Service should have Running status for 5 seconds
 async function checkServiceStatus(serviceName) {
   let serviceStatuses = '';
   let timeNow = Date.now();
   let timePassedWithRunningStatus = 0;
-  while (!serviceStatuses.includes('Running') || timePassedWithRunningStatus < 20 * 1000) {
+  while (!serviceStatuses.includes('Running') || timePassedWithRunningStatus < 5 * 1000) {
     const { stdout, stderr } = await execPromise(
       `docker service ps instant_${serviceName} --format "{{.CurrentState}}"`
     );
@@ -43,7 +43,7 @@ async function checkServiceStatus(serviceName) {
     serviceStatuses = stdout;
     if (serviceStatuses.includes('Running')) {
       timePassedWithRunningStatus = Date.now() - timeNow;
-    } else if (Date.now() - timeNow > 20 * 1000) {
+    } else if (Date.now() - timeNow > 5 * 1000) {
       throw new Error(`${serviceName} is not in a stable status`);
     }
 

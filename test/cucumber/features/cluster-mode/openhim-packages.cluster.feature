@@ -19,7 +19,7 @@ Feature: Openhim and its dependent packages?
         And There should be 6 services
 
     Scenario: Destroy Openhim and its dependent packages
-        Given I use parameters "destroy mpi-mediator --dev --env-file=.env.cluster"
+        Given I use parameters "destroy interoperability-layer-openhim mpi-mediator --only --dev --env-file=.env.cluster"
         When I launch the platform with params
         Then The service "mongo-1" should be removed
         And The service "mongo-2" should be removed

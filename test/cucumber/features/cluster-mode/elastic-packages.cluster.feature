@@ -14,7 +14,7 @@ Feature: Analytics Datastore Elasticsearch - Dashboard Visualiser Kibana - Data 
         And The service "dashboard-visualiser-kibana" should have healthy containers
 
     Scenario: Init Data Mapper Logstash
-        Given I use parameters "init data-mapper-logstash --dev --env-file=.env.cluster"
+        Given I use parameters "init data-mapper-logstash --dev --only --env-file=.env.cluster"
         When I launch the platform with params
         And The service "data-mapper-logstash" should be started with 3 replicas
         And There should be 5 services
