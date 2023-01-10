@@ -4,7 +4,7 @@ declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare SERVICE_NAMES=""
+declare SERVICE_NAMES=()
 declare JS_REPORT_DEV_MOUNT_COMPOSE_FILENAME=""
 
 function init_vars() {
@@ -18,7 +18,7 @@ function init_vars() {
 
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-  SERVICE_NAMES="dashboard-visualiser-jsreport"
+  SERVICE_NAMES=("dashboard-visualiser-jsreport")
 
   readonly ACTION
   readonly MODE

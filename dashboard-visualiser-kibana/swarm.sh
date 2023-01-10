@@ -5,7 +5,7 @@ declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
 declare NODE_MODE_PREFIX=""
-declare SERVICE_NAMES=""
+declare SERVICE_NAMES=()
 
 function init_vars() {
   ACTION=$1
@@ -18,7 +18,7 @@ function init_vars() {
 
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-  SERVICE_NAMES="dashboard-visualiser-kibana"
+  SERVICE_NAMES=("dashboard-visualiser-kibana")
 
   if [[ "${CLUSTERED_MODE}" == "true" ]]; then
     NODE_MODE_PREFIX="-cluster"
