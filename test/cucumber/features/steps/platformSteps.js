@@ -19,7 +19,7 @@ When('I launch the platform with params', async function () {
   await launchPlatformWithParams(this.params);
 });
 
-Then('The service {string} should be started with {int} replicas', async function (serviceName, replicas) {
+Then('The service {string} should be started with {int} replica(s)', async function (serviceName, replicas) {
   const services = await docker.listServices({
     filters: { name: [`instant_${serviceName}`] },
   });

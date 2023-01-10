@@ -4,15 +4,15 @@ Feature: Analytics Datastore Clickhouse?
     Scenario: Init Analytics Datastore Clickhouse
         Given I use parameters "init analytics-datastore-clickhouse --dev --env-file=.env.local"
         When I launch the platform with params
-        Then The service "analytics-datastore-clickhouse" should be started with 1 replicas
+        Then The service "analytics-datastore-clickhouse" should be started with 1 replica
         And The service "clickhouse-config-importer" should be removed
-        And There should be 1 services
-        And There should be 1 volumes
+        And There should be 1 service
+        And There should be 1 volume
 
     Scenario: Destroy Analytics Datastore Clickhouse
         Given I use parameters "destroy analytics-datastore-clickhouse --dev --env-file=.env.local"
         When I launch the platform with params
         Then The service "analytics-datastore-clickhouse" should be removed
-        And There should be 0 services
-        And There should be 0 volumes
-        And There should be 0 configs
+        And There should be 0 service
+        And There should be 0 volume
+        And There should be 0 config

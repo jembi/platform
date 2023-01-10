@@ -4,9 +4,9 @@ Feature: Fhir Datastore HAPI-FHIR?
     Scenario: Init Fhir Datastore HAPI-FHIR
         Given I use parameters "init fhir-datastore-hapi-fhir --dev --env-file=.env.cluster"
         When I launch the platform with params
-        Then The service "postgres-1" should be started with 1 replicas
-        And The service "postgres-2" should be started with 1 replicas
-        And The service "postgres-3" should be started with 1 replicas
+        Then The service "postgres-1" should be started with 1 replica
+        And The service "postgres-2" should be started with 1 replica
+        And The service "postgres-3" should be started with 1 replica
         And The service "hapi-fhir" should be started with 3 replicas
         And There should be 4 services
         And The service "hapi-fhir" should have healthy containers
@@ -25,6 +25,6 @@ Feature: Fhir Datastore HAPI-FHIR?
         And The service "postgres-3" should be removed
         And The service "hapi-fhir" should be removed
         And The service "hapi-proxy" should be removed
-        And There should be 0 services
-        And There should be 0 volumes
-        And There should be 0 configs
+        And There should be 0 service
+        And There should be 0 volume
+        And There should be 0 config

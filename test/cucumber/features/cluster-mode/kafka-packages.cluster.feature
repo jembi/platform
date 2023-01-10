@@ -4,22 +4,22 @@ Feature: Kafka and its dependent packages?
     Scenario: Init Message Bus Kafka
         Given I use parameters "init message-bus-kafka --dev --env-file=.env.cluster"
         When I launch the platform with params
-        Then The service "zookeeper-1" should be started with 1 replicas
-        And The service "zookeeper-2" should be started with 1 replicas
-        And The service "zookeeper-3" should be started with 1 replicas
+        Then The service "zookeeper-1" should be started with 1 replica
+        And The service "zookeeper-2" should be started with 1 replica
+        And The service "zookeeper-3" should be started with 1 replica
         And The service "kafka" should be started with 3 replicas
-        And The service "kafdrop" should be started with 1 replicas
-        And The service "kafka-minion" should be started with 1 replicas
+        And The service "kafdrop" should be started with 1 replica
+        And The service "kafka-minion" should be started with 1 replica
         And The service "message-bus-kafka-config-importer" should be removed
         And There should be 6 services
 
     Scenario: Init Monitoring
         Given I use parameters "init monitoring --only --dev --env-file=.env.cluster"
         When I launch the platform with params
-        Then The service "grafana" should be started with 1 replicas
-        And The service "prometheus" should be started with 1 replicas
-        And The service "prometheus-kafka-adapter" should be started with 1 replicas
-        And The service "prometheus_backup" should be started with 1 replicas
+        Then The service "grafana" should be started with 1 replica
+        And The service "prometheus" should be started with 1 replica
+        And The service "prometheus-kafka-adapter" should be started with 1 replica
+        And The service "prometheus_backup" should be started with 1 replica
         And The service "cadvisor" should be started with 3 replicas
         And The service "node-exporter" should be started with 3 replicas
         And The service "cadvisor" should have healthy containers
@@ -39,6 +39,6 @@ Feature: Kafka and its dependent packages?
         And The service "prometheus_backup" should be removed
         And The service "cadvisor" should be removed
         And The service "node-exporter" should be removed
-        And There should be 0 services
-        And There should be 0 volumes
-        And There should be 0 configs
+        And There should be 0 service
+        And There should be 0 volume
+        And There should be 0 config
