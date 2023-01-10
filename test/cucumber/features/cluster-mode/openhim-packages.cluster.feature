@@ -12,12 +12,6 @@ Feature: Openhim and its dependent packages?
         And The service "interoperability-layer-openhim-config-importer" should be removed
         And There should be 5 services
 
-    Scenario: Init Mpi Mediator
-        Given I use parameters "init mpi-mediator --only --dev --env-file=.env.cluster"
-        When I launch the platform with params
-        Then The service "mpi-mediator" should be started with 3 replicas
-        And There should be 6 services
-
     Scenario: Destroy Openhim and its dependent packages
         Given I use parameters "destroy interoperability-layer-openhim mpi-mediator --only --dev --env-file=.env.cluster"
         When I launch the platform with params

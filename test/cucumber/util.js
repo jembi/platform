@@ -15,16 +15,27 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// Return the service replicas number
-async function checkServiceReplicasNumber(serviceName) {
-  const { stdout, stderr } = await execPromise(
-    `docker service ls --filter name=instant_${serviceName} --format "{{.Replicas}}"`
-  );
-  if (stderr) {
-    throw new Error(`Error on checking ${serviceName} replicas`, stderr);
-  }
+// Return the service replicas number (wait time max of 5 seconds)
+async function checkServiceReplicasNumber(serviceName, expectedReplicas) {
+  let serviceCurrentReplicas = '0';
+  let timeNow = Date.now();
+  let timePassed = 0;
+  while (serviceCurrentReplicas !== expectedReplicas) {
+    const { stdout, stderr } = await execPromise(
+      `docker service ls --filter name=instant_${serviceName} --format "{{.Replicas}}"`
+    );
+    if (stderr) {
+      throw new Error(`Error on checking ${serviceName} replicas`, stderr);
+    }
 
-  return stdout.split('/')[0];
+    timePassed = Date.now() - timeNow;
+    serviceCurrentReplicas = stdout.split('/')[0];
+    if (serviceCurrentReplicas === expectedReplicas || timePassed >= 5 * 1000) {
+      return serviceCurrentReplicas;
+    }
+
+    await sleep(1000);
+  }
 }
 
 // Service should have Running status for 5 seconds

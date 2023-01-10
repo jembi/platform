@@ -28,7 +28,7 @@ Then('The service {string} should be started with {int} replicas', async functio
   expect(filterServicesWithExactName).to.be.array();
   expect(filterServicesWithExactName, `${serviceName} is missing from the list of services`).to.have.lengthOf(1);
 
-  const serviceReplicas = await checkServiceReplicasNumber(serviceName);
+  const serviceReplicas = await checkServiceReplicasNumber(serviceName, `${replicas}`);
   expect(serviceReplicas, `Service is not replicated ${replicas} times`).to.equal(`${replicas}`);
 
   await checkServiceStatus(serviceName);
