@@ -4,7 +4,7 @@ declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare SERVICE_NAMES=""
+declare SERVICE_NAMES=()
 
 function init_vars() {
   ACTION=$1
@@ -17,7 +17,7 @@ function init_vars() {
 
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-  SERVICE_NAMES="mpi-mediator"
+  SERVICE_NAMES=("mpi-mediator")
 
   readonly ACTION
   readonly MODE

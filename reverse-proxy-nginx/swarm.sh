@@ -6,7 +6,7 @@ declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
 declare TIMESTAMP
 declare TIMESTAMPED_NGINX
-declare SERVICE_NAMES=""
+declare SERVICE_NAMES=()
 
 function init_vars() {
   ACTION=$1
@@ -22,7 +22,7 @@ function init_vars() {
 
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-  SERVICE_NAMES="reverse-proxy-nginx"
+  SERVICE_NAMES=("reverse-proxy-nginx")
 
   readonly ACTION
   readonly MODE

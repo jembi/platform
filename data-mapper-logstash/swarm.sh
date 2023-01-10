@@ -4,7 +4,7 @@ declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare SERVICE_NAMES=""
+declare SERVICE_NAMES=()
 declare LOGSTASH_DEV_MOUNT_COMPOSE_FILENAME=""
 
 function init_vars() {
@@ -18,7 +18,7 @@ function init_vars() {
 
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-  SERVICE_NAMES="data-mapper-logstash"
+  SERVICE_NAMES=("data-mapper-logstash")
 
   if [[ "${CLUSTERED_MODE}" == "true" ]]; then
     export LOGSTASH_YML_CONFIG="logstash-logstash.cluster.yml"
