@@ -100,7 +100,7 @@ function add_docker_configs() {
 
   log info "Creating configs..."
 
-  try "docker config create --label name=elasticsearch ${TIMESTAMP}-ca.crt ./certs/ca/ca.crt" catch "Error creating config ca.crt"
+  try "docker config create --label name=elasticsearch ${TIMESTAMP}-ca.crt ./certs/ca/ca.crt" throw "Error creating config ca.crt"
 
   number_configs=(
     "01"
@@ -108,8 +108,8 @@ function add_docker_configs() {
     "03"
   )
   for n in "${number_configs[@]}"; do
-    try "docker config create --label name=elasticsearch ${TIMESTAMP}-es$n.crt ./certs/es$n/es$n.crt" catch "Error creating config es$n.crt"
-    try "docker config create --label name=elasticsearch ${TIMESTAMP}-es$n.key ./certs/es$n/es$n.key" catch "Error creating config es$n.key"
+    try "docker config create --label name=elasticsearch ${TIMESTAMP}-es$n.crt ./certs/es$n/es$n.crt" throw "Error creating config es$n.crt"
+    try "docker config create --label name=elasticsearch ${TIMESTAMP}-es$n.key ./certs/es$n/es$n.key" throw "Error creating config es$n.key"
 
     log info "Updating analytics-datastore-elastic-search-$n with certs..."
     try \
@@ -119,7 +119,7 @@ function add_docker_configs() {
       --config-add source=${TIMESTAMP}-es$n.key,target=$path_config_certs/es$n/es$n.key \
       --replicas 1 \
       instant_analytics-datastore-elastic-search-$n" \
-      catch \
+      throw \
       "Error updating analytics-datastore-elastic-search-$n"
     overwrite "Updating analytics-datastore-elastic-search-$n with certs... Done"
   done
