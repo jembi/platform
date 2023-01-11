@@ -4,8 +4,8 @@ declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare container_status=""
-declare service_names=()
+declare CONTAINER_STATUS=""
+declare SERVICE_NAMES=()
 
 function init_vars() {
   ACTION=$1
@@ -18,19 +18,18 @@ function init_vars() {
 
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-  if [[ "${NODE_MODE}" == "cluster" ]]; then
-    container_status="Running"
+  if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+    CONTAINER_STATUS="Running"
 
     for i in {1..3}; do
-      service_names=(
-        "${service_names[@]}"
+      SERVICE_NAMES=(
+        "${SERVICE_NAMES[@]}"
         "analytics-datastore-elastic-search-0$i"
       )
     done
-
   else
-    container_status="Starting"
-    service_names=(
+    CONTAINER_STATUS="Starting"
+    SERVICE_NAMES=(
       "analytics-datastore-elastic-search"
     )
   fi
@@ -39,8 +38,8 @@ function init_vars() {
   readonly MODE
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
-  readonly container_status
-  readonly service_names
+  readonly CONTAINER_STATUS
+  readonly SERVICE_NAMES
 }
 
 # shellcheck disable=SC1091
@@ -58,9 +57,11 @@ function install_expect() {
 
 function set_elasticsearch_passwords() {
   local container=$1
-  log info "Setting passwords..."
+
   local elastic_search_container_id=""
   elastic_search_container_id=$(docker ps -qlf name="${container}")
+
+  log info "Setting passwords..."
   try \
     "${COMPOSE_FILE_PATH}/set-elastic-passwords.exp ${elastic_search_container_id}" \
     throw \
@@ -76,7 +77,7 @@ function create_certs() {
     "Creating certificates failed"
 
   docker::await_container_startup create_certs
-  docker::await_container_status create_certs Complete
+  docker::await_service_status create_certs Complete
 
   log info "Creating cert helper..."
   try \
@@ -96,6 +97,7 @@ function create_certs() {
 function add_docker_configs() {
   local -r TIMESTAMP="$(date "+%Y%m%d%H%M%S")"
   local -r path_config_certs="/usr/share/elasticsearch/config/certs/"
+
   log info "Creating configs..."
 
   try "docker config create --label name=elasticsearch ${TIMESTAMP}-ca.crt ./certs/ca/ca.crt" catch "Error creating config ca.crt"
@@ -127,14 +129,14 @@ function initialize_package() {
   local elastic_search_dev_compose_filename=""
 
   if [[ "$MODE" == "dev" ]]; then
-    log info "Running Analytics Datastore Elastic Search package in DEV mode"
+    log info "Running package in DEV mode"
     elastic_search_dev_compose_filename="docker-compose.dev.yml"
   else
-    log info "Running Analytics Datastore Elastic Search package in PROD mode"
+    log info "Running package in PROD mode"
   fi
 
   (
-    if [[ "$NODE_MODE" == "cluster" ]]; then
+    if [[ "$CLUSTERED_MODE" == "true" ]]; then
       create_certs
       docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.cluster.yml"
       add_docker_configs
@@ -144,14 +146,14 @@ function initialize_package() {
 
     log info "Waiting for elasticsearch to start before automatically setting built-in passwords"
 
-    docker::await_container_status "$ES_LEADER_NODE" "$container_status"
+    docker::await_service_status "$ES_LEADER_NODE" "$CONTAINER_STATUS"
     install_expect
     set_elasticsearch_passwords "$ES_LEADER_NODE"
 
-    docker::deploy_sanity "${service_names[@]}"
+    docker::deploy_sanity "${SERVICE_NAMES[@]}"
 
   ) || {
-    log error "Failed to deploy Analytics Datastore Elastic Search package"
+    log error "Failed to deploy package"
     exit 1
   }
 
@@ -160,30 +162,10 @@ function initialize_package() {
   docker::deploy_config_importer "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "elastic-search-config-importer" "elasticsearch"
 }
 
-function scale_services() {
-  local -r REPLICA_NUMBER=${1:?"FATAL: scale_services REPLICA_NUMBER not provided"}
-  local scale_action="up"
-
-  if [[ $REPLICA_NUMBER == 0 ]]; then
-    scale_action="down"
-  fi
-
-  for service_name in "${service_names[@]}"; do
-    try \
-      "docker service scale instant_$service_name=$REPLICA_NUMBER" \
-      catch \
-      "Failed to scale $scale_action $service_name"
-  done
-}
-
 function destroy_package() {
-  docker::service_destroy elastic-search-config-importer
+  docker::service_destroy "${SERVICE_NAMES[@]}" "elastic-search-config-importer"
 
-  for service_name in "${service_names[@]}"; do
-    docker::service_destroy "$service_name"
-  done
-
-  if [[ "$NODE_MODE" == "cluster" ]]; then
+  if [[ "$CLUSTERED_MODE" == "true" ]]; then
     docker::try_remove_volume es01-data certs
     log warn "Volumes are only deleted on the host on which the command is run. Cluster volumes on other nodes are not deleted"
   else
@@ -198,19 +180,23 @@ main() {
   import_sources
 
   if [[ "${ACTION}" == "init" ]]; then
-    log info "Running Analytics Datastore Elastic Search package in ${NODE_MODE} node mode"
+    if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+      log info "Running package in Cluster mode"
+    else
+      log info "Running package in Single mode"
+    fi
 
     initialize_package
   elif [[ "$ACTION" == "up" ]]; then
-    log info "Scaling up Analytics Datastore Elastic Search"
+    log info "Scaling up package"
 
-    scale_services 1
+    docker::scale_services_up 1 "${SERVICE_NAMES[@]}"
   elif [[ "${ACTION}" == "down" ]]; then
-    log info "Scaling down Analytics Datastore Elastic Search"
+    log info "Scaling down package"
 
-    scale_services 0
+    docker::scale_services_down "${SERVICE_NAMES[@]}"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    log info "Destroying Analytics Datastore Elastic Search"
+    log info "Destroying package"
 
     destroy_package
   else

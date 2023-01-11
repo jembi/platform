@@ -4,11 +4,11 @@ declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare kafka_services=()
-declare dgraph_services=()
-declare combined_services=()
-declare service_names=()
-declare volume_names=()
+declare KAFKA_SERVICES=()
+declare DGRAPH_SERVICES=()
+declare COMBINED_SERVICES=()
+declare SERVICE_NAMES=()
+declare VOLUME_NAMES=()
 
 function init_vars() {
   ACTION=$1
@@ -21,26 +21,26 @@ function init_vars() {
 
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-  dgraph_services=("jempi-ratel")
-  volume_names=("jempi-zero-01-data")
+  DGRAPH_SERVICES=("jempi-ratel")
+  VOLUME_NAMES=("jempi-zero-01-data")
 
   for i in {1..3}; do
-    kafka_services=(
-      "${kafka_services[@]}"
+    KAFKA_SERVICES=(
+      "${KAFKA_SERVICES[@]}"
       "jempi-kafka-0$i"
     )
-    dgraph_services=(
-      "${dgraph_services[@]}"
+    DGRAPH_SERVICES=(
+      "${DGRAPH_SERVICES[@]}"
       "jempi-alpha-0$i"
     )
-    volume_names=(
-      "${volume_names[@]}"
+    VOLUME_NAMES=(
+      "${VOLUME_NAMES[@]}"
       "jempi-kafka-0$i-data"
       "jempi-alpha-0$i-data"
     )
   done
 
-  combined_services=(
+  COMBINED_SERVICES=(
     "jempi-async-receiver"
     "jempi-sync-receiver"
     "jempi-pre-processor"
@@ -49,10 +49,10 @@ function init_vars() {
     "jempi-linker"
   )
 
-  service_names=(
-    "${kafka_services[@]}"
-    "${dgraph_services[@]}"
-    "${combined_services[@]}"
+  SERVICE_NAMES=(
+    "${KAFKA_SERVICES[@]}"
+    "${DGRAPH_SERVICES[@]}"
+    "${COMBINED_SERVICES[@]}"
     "jempi-kafdrop"
     "jempi-zero-01"
     "jempi-api"
@@ -62,11 +62,11 @@ function init_vars() {
   readonly MODE
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
-  readonly kafka_services
-  readonly dgraph_services
-  readonly combined_services
-  readonly service_names
-  readonly volume_names
+  readonly KAFKA_SERVICES
+  readonly DGRAPH_SERVICES
+  readonly COMBINED_SERVICES
+  readonly SERVICE_NAMES
+  readonly VOLUME_NAMES
 }
 
 # shellcheck disable=SC1091
@@ -86,17 +86,17 @@ function initialize_package() {
   local dgraph_zero_cluster_compose_param=""
 
   if [[ "$MODE" == "dev" ]]; then
-    log info "Running Client Registry JeMPI package in DEV mode"
+    log info "Running package in DEV mode"
     kafdrop_dev_compose_param="docker-compose.kafdrop-dev.yml"
     dgraph_dev_compose_param="docker-compose.dgraph-dev.yml"
     dgraph_zero_dev_compose_param="docker-compose.dgraph-zero-dev.yml"
     combined_dev_compose_param="docker-compose.combined-dev.yml"
     api_dev_compose_param="docker-compose.api-dev.yml"
   else
-    log info "Running Client Registry JeMPI package in PROD mode"
+    log info "Running package in PROD mode"
   fi
 
-  if [[ "$NODE_MODE" == "cluster" ]]; then
+  if [[ "$CLUSTERED_MODE" == "true" ]]; then
     dgraph_cluster_compose_param="docker-compose.dgraph-cluster.yml"
     dgraph_zero_cluster_compose_param="docker-compose.dgraph-zero-cluster.yml"
   fi
@@ -104,7 +104,7 @@ function initialize_package() {
   (
     log info "Deploy Kafka"
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.kafka.yml"
-    docker::deploy_sanity "${kafka_services[@]}"
+    docker::deploy_sanity "${KAFKA_SERVICES[@]}"
 
     log info "Deploy Kafdrop"
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.kafdrop.yml" "$kafdrop_dev_compose_param"
@@ -117,11 +117,11 @@ function initialize_package() {
     docker::deploy_sanity "jempi-zero-01"
 
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.dgraph.yml" "$dgraph_dev_compose_param" "$dgraph_cluster_compose_param"
-    docker::deploy_sanity "${dgraph_services[@]}"
+    docker::deploy_sanity "${DGRAPH_SERVICES[@]}"
 
     log info "Deploy other combined services"
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.combined.yml" "$combined_dev_compose_param"
-    docker::deploy_sanity "${combined_services[@]}"
+    docker::deploy_sanity "${COMBINED_SERVICES[@]}"
 
     log info "Deploy JeMPI API"
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.api.yml" "$api_dev_compose_param"
@@ -136,33 +136,17 @@ function initialize_package() {
 
   ) ||
     {
-      log error "Failed to deploy Client Registry JeMPI package"
+      log error "Failed to deploy package"
       exit 1
     }
 }
 
-function scale_services_down() {
-  for service_name in "${service_names[@]}"; do
-    try \
-      "docker service scale instant_$service_name=0" \
-      catch \
-      "Failed to scale down $service_name"
-  done
-}
-
 function destroy_package() {
-  docker::service_destroy jempi-kafka-config-importer
-  docker::service_destroy jempi-openhim-config-importer
+  docker::service_destroy "${SERVICE_NAMES[@]}" "jempi-kafka-config-importer" "jempi-openhim-config-importer"
 
-  for service_name in "${service_names[@]}"; do
-    docker::service_destroy "$service_name"
-  done
+  docker::try_remove_volume "${VOLUME_NAMES[@]}"
 
-  for volume__name in "${volume_names[@]}"; do
-    docker::try_remove_volume "$volume__name"
-  done
-
-  if [[ "${NODE_MODE}" == "cluster" ]]; then
+  if [[ "${CLUSTERED_MODE}" == "true" ]]; then
     log warn "Volumes are only deleted on the host on which the command is run. Postgres volumes on other nodes are not deleted"
   fi
 
@@ -174,15 +158,19 @@ main() {
   import_sources
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    log info "Running Client Registry JeMPI package in ${NODE_MODE} node mode"
+    if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+      log info "Running package in Cluster node mode"
+    else
+      log info "Running package in Single node mode"
+    fi
 
     initialize_package
   elif [[ "${ACTION}" == "down" ]]; then
-    log info "Scaling down Client Registry JeMPI"
+    log info "Scaling down package"
 
-    scale_services_down
+    docker::scale_services_down "${SERVICE_NAMES[@]}"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    log info "Destroying Client Registry JeMPI"
+    log info "Destroying package"
 
     destroy_package
   else

@@ -4,8 +4,8 @@ declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare nodes_mode=""
-declare service_name=""
+declare NODE_MODE_PREFIX=""
+declare SERVICE_NAMES=()
 
 function init_vars() {
   ACTION=$1
@@ -18,18 +18,18 @@ function init_vars() {
 
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-  service_name="dashboard-visualiser-kibana"
+  SERVICE_NAMES=("dashboard-visualiser-kibana")
 
-  if [[ "${NODE_MODE}" == "cluster" ]]; then
-    nodes_mode="-${NODE_MODE}"
+  if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+    NODE_MODE_PREFIX="-cluster"
   fi
 
   readonly ACTION
   readonly MODE
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
-  readonly nodes_mode
-  readonly service_name
+  readonly NODE_MODE_PREFIX
+  readonly SERVICE_NAMES
 }
 
 # shellcheck disable=SC1091
@@ -41,30 +41,29 @@ function import_sources() {
 
 function check_elastic() {
   if [[ ! $(docker::get_current_service_status "$ES_LEADER_NODE") == *"Running"* ]]; then
-    log error "FATAL: Elasticsearch is not running, Kibana is dependant on it\n \
-      Failed to deploy Dashboard Visualiser Kibana"
+    log error "FATAL: Elasticsearch is not running, Kibana is dependant on it\n"
     exit 1
   fi
 }
 
 function initialize_package() {
-  check_elastic
-
   local kibana_dev_compose_filename=""
   if [[ "${MODE}" == "dev" ]]; then
-    log info "Running Dashboard Visualiser Kibana package in DEV mode"
+    log info "Running package in DEV mode"
     kibana_dev_compose_filename="docker-compose.dev.yml"
   else
-    log info "Running Dashboard Visualiser Kibana package in PROD mode"
+    log info "Running package in PROD mode"
   fi
 
   (
-    export KIBANA_YML_CONFIG="kibana-kibana$nodes_mode.yml"
+    check_elastic
+
+    export KIBANA_YML_CONFIG="kibana-kibana$NODE_MODE_PREFIX.yml"
 
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$kibana_dev_compose_filename"
-    docker::deploy_sanity "$service_name"
+    docker::deploy_sanity "$SERVICE_NAMES"
   ) || {
-    log error "Failed to deploy Dashboard Visualiser Kibana"
+    log error "Failed to deploy package"
     exit 1
   }
 
@@ -73,17 +72,8 @@ function initialize_package() {
   docker::deploy_config_importer "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "kibana-config-importer" "kibana"
 }
 
-function scale_services_down() {
-  try \
-    "docker service scale instant_$service_name=0" \
-    catch \
-    "Failed to scale down $service_name"
-}
-
 function destroy_package() {
-  docker::service_destroy kibana-config-importer
-  docker::service_destroy await-helper
-  docker::service_destroy "$service_name"
+  docker::service_destroy "$SERVICE_NAMES" "kibana-config-importer" "await-helper"
 
   docker::prune_configs "kibana"
 }
@@ -93,16 +83,19 @@ main() {
   import_sources
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    log info "Running Dashboard Visualiser Kibana package in ${NODE_MODE} node mode"
+    if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+      log info "Running package in Cluster node mode"
+    else
+      log info "Running package in Single node mode"
+    fi
 
     initialize_package
   elif [[ "${ACTION}" == "down" ]]; then
-    log info "Scaling down Dashboard Visualiser Kibana"
+    log info "Scaling down package"
 
-    scale_services_down
+    docker::scale_services_down "${SERVICE_NAMES}"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    log info "Destroying Dashboard Visualiser Kibana"
-
+    log info "Destroying package"
     destroy_package
   else
     log error "Valid options are: init, up, down, or destroy"

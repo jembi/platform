@@ -4,8 +4,8 @@ declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare mongo_services=()
-declare service_names=()
+declare MONGO_SERVICES=()
+declare SERVICE_NAMES=()
 declare OPENHIM_SERVICES=()
 
 function init_vars() {
@@ -24,20 +24,20 @@ function init_vars() {
     "openhim-console"
   )
 
-  mongo_services=(
+  MONGO_SERVICES=(
     "mongo-1"
   )
-  if [[ "${NODE_MODE}" == "cluster" ]]; then
+  if [[ "${CLUSTERED_MODE}" == "true" ]]; then
     for i in {2..3}; do
-      mongo_services=(
-        "${mongo_services[@]}"
+      MONGO_SERVICES=(
+        "${MONGO_SERVICES[@]}"
         "mongo-$i"
       )
     done
   fi
 
-  service_names=(
-    "${mongo_services[@]}"
+  SERVICE_NAMES=(
+    "${MONGO_SERVICES[@]}"
     "${OPENHIM_SERVICES[@]}"
   )
 
@@ -45,8 +45,8 @@ function init_vars() {
   readonly MODE
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
-  readonly mongo_services
-  readonly service_names
+  readonly MONGO_SERVICES
+  readonly SERVICE_NAMES
 }
 
 # shellcheck disable=SC1091
@@ -67,24 +67,24 @@ function initialize_package() {
   local openhim_dev_compose_filename=""
 
   if [[ "${MODE}" == "dev" ]]; then
-    log info "Running Interoperability Layer OpenHIM package in DEV mode"
+    log info "Running package in DEV mode"
     mongo_dev_compose_filename="docker-compose-mongo.dev.yml"
     openhim_dev_compose_filename="docker-compose.dev.yml"
   else
-    log info "Running Interoperability Layer OpenHIM package in PROD mode"
+    log info "Running package in PROD mode"
   fi
 
-  if [[ "${NODE_MODE}" == "cluster" ]]; then
+  if [[ "${CLUSTERED_MODE}" == "true" ]]; then
     mongo_cluster_compose_filename="docker-compose-mongo.cluster.yml"
   fi
 
   (
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose-mongo.yml" "$mongo_cluster_compose_filename" "$mongo_dev_compose_filename"
 
-    if [[ "${NODE_MODE}" == "cluster" ]] && [[ "${ACTION}" == "init" ]]; then
+    if [[ "${CLUSTERED_MODE}" == "true" ]] && [[ "${ACTION}" == "init" ]]; then
       try "${COMPOSE_FILE_PATH}/initiate-replica-set.sh" throw "Fatal: Initiate Mongo replica set failed"
     fi
-    docker::deploy_sanity "${mongo_services[@]}"
+    docker::deploy_sanity "${MONGO_SERVICES[@]}"
 
     prepare_console_config
 
@@ -95,7 +95,7 @@ function initialize_package() {
     config::await_service_running "openhim-core" "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml "${OPENHIM_CORE_INSTANCES}"
   ) ||
     {
-      log error "Failed to deploy Interoperability Layer OpenHIM package"
+      log error "Failed to deploy package"
       exit 1
     }
 
@@ -104,26 +104,12 @@ function initialize_package() {
   fi
 }
 
-function scale_services_down() {
-  for service_name in "${service_names[@]}"; do
-    try \
-      "docker service scale instant_$service_name=0" \
-      catch \
-      "Failed to scale down $service_name"
-  done
-}
-
 function destroy_package() {
-  docker::service_destroy interoperability-layer-openhim-config-importer
-  docker::service_destroy await-helper
-
-  for service_name in "${service_names[@]}"; do
-    docker::service_destroy "$service_name"
-  done
+  docker::service_destroy "${SERVICE_NAMES[@]}" "interoperability-layer-openhim-config-importer" "await-helper"
 
   docker::try_remove_volume openhim-mongo-01
 
-  if [[ "${NODE_MODE}" == "cluster" ]]; then
+  if [[ "${CLUSTERED_MODE}" == "true" ]]; then
     log warn "Volumes are only deleted on the host on which the command is run. Mongo volumes on other nodes are not deleted"
   fi
 
@@ -135,16 +121,19 @@ main() {
   import_sources
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    log info "Running Interoperability Layer OpenHIM package in ${NODE_MODE} node mode"
+    if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+      log info "Running package in Cluster node mode"
+    else
+      log info "Running package in Single node mode"
+    fi
 
     initialize_package
   elif [[ "${ACTION}" == "down" ]]; then
-    log info "Scaling down Interoperability Layer OpenHIM"
+    log info "Scaling down package"
 
-    scale_services_down
+    docker::scale_services_down "${SERVICE_NAMES[@]}"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    log info "Destroying Interoperability Layer OpenHIM"
-
+    log info "Destroying package"
     destroy_package
   else
     log error "Valid options are: init, up, down, or destroy"

@@ -5,22 +5,22 @@ services:
     deploy:
       placement:
         constraints:
-          - node.hostname == node-1
+          - node.labels.name == node-1
 
   jempi-alpha-02:
     deploy:
       placement:
         constraints:
-          - node.hostname == node-2
+          - node.labels.name == node-2
 
   jempi-alpha-03:
     deploy:
       placement:
         constraints:
-          - node.hostname == node-3
+          - node.labels.name == node-3
 
   jempi-ratel:
     deploy:
       placement:
         constraints:
-          - node.hostname == node-1
+          - node.labels.name == node-1

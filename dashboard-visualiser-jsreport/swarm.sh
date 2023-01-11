@@ -4,7 +4,7 @@ declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare service_name=""
+declare SERVICE_NAMES=()
 declare JS_REPORT_DEV_MOUNT_COMPOSE_FILENAME=""
 
 function init_vars() {
@@ -18,13 +18,13 @@ function init_vars() {
 
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-  service_name="dashboard-visualiser-jsreport"
+  SERVICE_NAMES=("dashboard-visualiser-jsreport")
 
   readonly ACTION
   readonly MODE
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
-  readonly service_name
+  readonly SERVICE_NAMES
 }
 
 # shellcheck disable=SC1091
@@ -34,7 +34,7 @@ function import_sources() {
 }
 
 function check_es_hosts_env_var() {
-  if [[ ${NODE_MODE} == "cluster" ]] && [[ -z ${ES_HOSTS:-""} ]]; then
+  if [[ ${CLUSTERED_MODE} == "true" ]] && [[ -z ${ES_HOSTS:-""} ]]; then
     log error "ES_HOSTS environment variable not set... Exiting"
     exit 1
   fi
@@ -57,10 +57,10 @@ function initialize_package() {
   local js_report_dev_compose_filename=""
 
   if [[ "${MODE}" == "dev" ]]; then
-    log info "Running Dashboard Visualiser Jsreport package in DEV mode"
+    log info "Running package in DEV mode"
     js_report_dev_compose_filename="docker-compose.dev.yml"
   else
-    log info "Running Dashboard Visualiser Jsreport package in in PROD mode"
+    log info "Running package in PROD mode"
   fi
 
   (
@@ -69,9 +69,9 @@ function initialize_package() {
     check_es_hosts_env_var
 
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$js_report_dev_compose_filename" "$JS_REPORT_DEV_MOUNT_COMPOSE_FILENAME"
-    docker::deploy_sanity "${service_name}"
+    docker::deploy_sanity "${SERVICE_NAMES}"
   ) || {
-    log error "Failed to deploy Dashboard Visualiser Jsreport package"
+    log error "Failed to deploy package"
     exit 1
   }
 
@@ -80,18 +80,8 @@ function initialize_package() {
   fi
 }
 
-function scale_services_down() {
-  try \
-    "docker service scale instant_$service_name=0" \
-    catch \
-    "Failed to scale down $service_name"
-}
-
 function destroy_package() {
-  docker::service_destroy jsreport-config-importer
-  docker::service_destroy await-helper
-
-  docker::service_destroy "$service_name"
+  docker::service_destroy "$SERVICE_NAMES" "jsreport-config-importer" "await-helper"
 
   docker::prune_configs "jsreport"
 }
@@ -101,16 +91,19 @@ main() {
   import_sources
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    log info "Running Dashboard Visualiser Jsreport package in ${NODE_MODE} node mode"
+    if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+      log info "Running package in Cluster node mode"
+    else
+      log info "Running package in Single node mode"
+    fi
 
     initialize_package
   elif [[ "${ACTION}" == "down" ]]; then
-    log info "Scaling down Dashboard Visualiser Jsreport"
+    log info "Scaling down package"
 
-    scale_services_down
+    docker::scale_services_down "${SERVICE_NAMES}"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    log info "Destroying Dashboard Visualiser Jsreport"
-
+    log info "Destroying package"
     destroy_package
   else
     log error "Valid options are: init, up, down, or destroy"

@@ -4,7 +4,7 @@ declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare service_name=""
+declare SERVICE_NAMES=()
 declare LOGSTASH_DEV_MOUNT_COMPOSE_FILENAME=""
 
 function init_vars() {
@@ -18,9 +18,9 @@ function init_vars() {
 
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-  service_name="data-mapper-logstash"
+  SERVICE_NAMES=("data-mapper-logstash")
 
-  if [[ "${NODE_MODE}" == "cluster" ]]; then
+  if [[ "${CLUSTERED_MODE}" == "true" ]]; then
     export LOGSTASH_YML_CONFIG="logstash-logstash.cluster.yml"
   else
     export LOGSTASH_YML_CONFIG="logstash-logstash.yml"
@@ -30,7 +30,7 @@ function init_vars() {
   readonly MODE
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
-  readonly service_name
+  readonly SERVICE_NAMES
 }
 
 # shellcheck disable=SC1091
@@ -64,10 +64,10 @@ function initialize_package() {
   local logstash_temp_compose_filename=""
 
   if [[ "$MODE" == "dev" ]]; then
-    log info "Running Data Mapper Logstash package in DEV mode"
+    log info "Running package in DEV mode"
     logstash_dev_compose_filename="docker-compose.dev.yml"
   else
-    log info "Running Data Mapper Logstash package in PROD mode"
+    log info "Running package in PROD mode"
   fi
 
   if [[ "$LOGSTASH_DEV_MOUNT" == "true" ]]; then
@@ -83,24 +83,15 @@ function initialize_package() {
     dev_mount_logstash
 
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$logstash_dev_compose_filename" "$LOGSTASH_DEV_MOUNT_COMPOSE_FILENAME" "$logstash_temp_compose_filename"
-    docker::deploy_sanity "${service_name}"
+    docker::deploy_sanity "${SERVICE_NAMES}"
   ) || {
-    log error "Failed to deploy Data Mapper Logstash package"
+    log error "Failed to deploy package"
     exit 1
   }
 }
 
-function scale_services_down() {
-  try \
-    "docker service scale instant_$service_name=0" \
-    catch \
-    "Failed to scale down $service_name"
-}
-
 function destroy_package() {
-  docker::service_destroy clickhouse-config-importer
-
-  docker::service_destroy "$service_name"
+  docker::service_destroy "$SERVICE_NAMES" "clickhouse-config-importer"
 
   docker::try_remove_volume logstash-data
 
@@ -112,16 +103,19 @@ main() {
   import_sources
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    log info "Running Data Mapper Logstash package in ${NODE_MODE} node mode"
+    if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+      log info "Running package in Cluster node mode"
+    else
+      log info "Running package in Single node mode"
+    fi
 
     initialize_package
   elif [[ "${ACTION}" == "down" ]]; then
-    log info "Scaling down Data Mapper Logstash"
+    log info "Scaling down package"
 
-    scale_services_down
+    docker::scale_services_down "${SERVICE_NAMES}"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    log info "Destroying Data Mapper Logstash"
-
+    log info "Destroying package"
     destroy_package
   else
     log error "Valid options are: init, up, down, or destroy"

@@ -128,6 +128,13 @@ function log() {
     local norm="${colours['DEFAULT']}"
     local colour="${colours[${upper}]:-\033[31m}"
 
+    if [[ "${line}" == *"${CLEAR_PREV_LINE}"* ]]; then
+        # Append package name dynamically when override
+        line="${CLEAR_PREV_LINE}[$(dirname -- "$0" | sed -e 's/-/ /g' -e 's/\b\(.\)/\u\1/g')] ${line#*"$CLEAR_PREV_LINE"}"
+    else
+        line="[$(dirname -- "$0" | sed -e 's/-/ /g' -e 's/\b\(.\)/\u\1/g')] ${line}"
+    fi
+
     local std_line="${colour} ${emoticons[${upper}]} ${line}${norm}"
 
     # Standard Output (Pretty)
@@ -157,21 +164,6 @@ if [[ $DEBUG -eq 1 ]]; then
 
     trap 'prev_cmd=$this_cmd; this_cmd=$BASH_COMMAND; log debug $this_cmd' DEBUG
 fi
-
-# A function to log messages related to package
-#
-# Arguments:
-# - $1 : optional - function name missing the parameter
-# - $2 : optional - name of the parameter missing
-package::log() {
-    local LOG_TYPE=${1:?$(missing_param "log_with_pack_name" "LOG_TYPE")}
-    local LOG_MESSAGE=${2:?$(missing_param "log_with_pack_name" "LOG_MESSAGE")}
-
-    local package_name
-    package_name=$(dirname -- "$0" | sed -e 's/-/ /g' -e 's/\b\(.\)/\u\1/g')
-
-    log "${LOG_TYPE}" "[$package_name]: $LOG_MESSAGE"
-}
 
 # A function that will return a message called when of parameter not provided
 #

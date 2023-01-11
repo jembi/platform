@@ -63,7 +63,7 @@ function update_nginx_dummy_certificates() {
         throw \
         "Failed to create nginx config"
 
-    log info "Updating $service_name service: adding config for dummy certificates..."
+    log info "Updating $SERVICE_NAMES service: adding config for dummy certificates..."
     try "docker service update \
           --config-add source=${TIMESTAMPED_NGINX},target=/etc/nginx/nginx.conf \
           --secret-add source=${TIMESTAMP}-fullchain.pem,target=/run/secrets/fullchain.pem \
@@ -71,11 +71,11 @@ function update_nginx_dummy_certificates() {
           --network-add name=cert-renewal-network,alias=cert-renewal-network \
           --publish-add published=80,target=80 \
           --publish-add published=443,target=443 \
-          instant_$service_name" \
+          instant_$SERVICE_NAMES" \
         throw \
-        "Error updating $service_name service"
+        "Error updating $SERVICE_NAMES service"
 
-    overwrite "Updating $service_name service: adding config for dummy certificates... Done"
+    overwrite "Updating $SERVICE_NAMES service: adding config for dummy certificates... Done"
 }
 
 function generate_real_certificates() {
@@ -117,20 +117,20 @@ function generate_real_certificates() {
 
 function update_nginx_real_certificates() {
     local curr_full_chain_name
-    curr_full_chain_name=$(docker service inspect instant_"$service_name" --format "{{(index .Spec.TaskTemplate.ContainerSpec.Secrets 0).SecretName}}")
+    curr_full_chain_name=$(docker service inspect instant_"$SERVICE_NAMES" --format "{{(index .Spec.TaskTemplate.ContainerSpec.Secrets 0).SecretName}}")
     local curr_priv_key_name
-    curr_priv_key_name=$(docker service inspect instant_"$service_name" --format "{{(index .Spec.TaskTemplate.ContainerSpec.Secrets 1).SecretName}}")
+    curr_priv_key_name=$(docker service inspect instant_"$SERVICE_NAMES" --format "{{(index .Spec.TaskTemplate.ContainerSpec.Secrets 1).SecretName}}")
 
-    log info "Updating $service_name service: adding secrets for generated certificates..."
+    log info "Updating $SERVICE_NAMES service: adding secrets for generated certificates..."
     try "docker service update \
           --secret-rm ${curr_full_chain_name} \
           --secret-rm ${curr_priv_key_name} \
           --secret-add source=${NEWER_TIMESTAMP}-fullchain.pem,target=/run/secrets/fullchain.pem \
           --secret-add source=${NEWER_TIMESTAMP}-privkey.pem,target=/run/secrets/privkey.pem \
-          instant_$service_name" \
+          instant_$SERVICE_NAMES" \
         throw \
-        "Error updating $service_name service"
-    overwrite "Updating $service_name service: adding secrets for generated certificates... Done"
+        "Error updating $SERVICE_NAMES service"
+    overwrite "Updating $SERVICE_NAMES service: adding secrets for generated certificates... Done"
 }
 
 function set_nginx_network() {
