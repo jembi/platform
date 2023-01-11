@@ -1,22 +1,22 @@
 version: '3.9'
 
 services:
-  santempi-psql-1:
+  santempi-psql-01:
     image: bitnami/postgresql-repmgr:14
     environment:
       POSTGRESQL_PASSWORD: ${SANTEMPI_POSTGRESQL_PASSWORD}
       POSTGRESQL_USERNAME: ${SANTEMPI_POSTGRESQL_USERNAME}
-      REPMGR_NODE_NETWORK_NAME: santempi-psql-1
+      REPMGR_NODE_NETWORK_NAME: santempi-psql-01
       REPMGR_PASSWORD: SanteDB123
       REPMGR_RECONNECT_INTERVAL: 3
-      REPMGR_NODE_NAME: santempi-psql-1
+      REPMGR_NODE_NAME: santempi-psql-01
       REPMGR_PRIMARY_HOST: ${SANTEMPI_REPMGR_PRIMARY_HOST}
       REPMGR_PARTNER_NODES: ${SANTEMPI_REPMGR_PARTNER_NODES}
       POSTGRESQL_POSTGRES_PASSWORD: ${SANTE_POSTGRES_PASSWORD}
     volumes:
-      - 'santempi-psql-1-data:/bitnami/postgresql'
+      - 'santempi-psql-01-data:/bitnami/postgresql'
     deploy:
       replicas: 1
 
 volumes:
-  santempi-psql-1-data:
+  santempi-psql-01-data:

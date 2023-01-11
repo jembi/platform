@@ -54,6 +54,6 @@ In order to restore from a backup you would need to launch a Mongo container wit
 
 Then exec into the container and run mongorestore:
 
-`mongorestore --uri="mongodb://mongo-1:27017,mongo-2:27017,mongo-3:27017/openhim?replicaSet=mongo-set" --gzip --archive=/backups/<NAME_OF_BACKUP_FILE>`
+`mongorestore --uri="mongodb://mongo-01:27017,mongo-02:27017,mongo-03:27017/openhim?replicaSet=mongo-set" --gzip --archive=/backups/<NAME_OF_BACKUP_FILE>`
 
 The data should be restored.

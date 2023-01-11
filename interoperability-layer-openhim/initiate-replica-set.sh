@@ -15,8 +15,8 @@ MONGO_SET_COUNT=${MONGO_SET_COUNT:-3}
 config='{"_id":"mongo-set","members":['
 priority="1"
 for i in $(seq 1 "$MONGO_SET_COUNT"); do
-    config=$(printf '%s{"_id":%s,"priority":%s,"host":"mongo-%s:27017"}' "$config" $((i - 1)) $priority "$i")
-    if [[ $i != $MONGO_SET_COUNT ]]; then
+    config=$(printf '%s{"_id":%s,"priority":%s,"host":"mongo-0%s:27017"}' "$config" $((i - 1)) $priority "$i")
+    if [[ $i != "$MONGO_SET_COUNT" ]]; then
         config=$(printf '%s,' "$config")
     fi
     priority="0.5"
@@ -41,7 +41,7 @@ done
 # Ensures that the replica sets are reachable
 reachable_instance_count=1
 until [[ $reachable_instance_count -eq $((MONGO_SET_COUNT + 1)) ]]; do
-    config::await_service_reachable "mongo-$reachable_instance_count" "waiting for connections on port"
+    config::await_service_reachable "mongo-0$reachable_instance_count" "waiting for connections on port"
     reachable_instance_count=$((reachable_instance_count + 1))
 done
 
@@ -49,8 +49,8 @@ done
 # With docker swarm any manager can be the target but this bit of code only work if we target node-1 specifically.
 # Which is generally what we do, but if node-1 is down or we choose to target another node this won't work.
 container_name=""
-if [[ "$(docker ps -f name=instant_mongo-1 --format "{{.ID}}")" ]]; then
-    container_name="$(docker ps -f name=instant_mongo-1 --format "{{.ID}}")"
+if [[ "$(docker ps -f name=instant_mongo-01 --format "{{.ID}}")" ]]; then
+    container_name="$(docker ps -f name=instant_mongo-01 --format "{{.ID}}")"
 fi
 
 initiate_rep_set_response=$(docker exec -i "$container_name" mongo --eval "rs.initiate($config)")

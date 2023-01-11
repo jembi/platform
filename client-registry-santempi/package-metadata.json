@@ -11,7 +11,7 @@
     "SANTE_POSTGRES_PASSWORD": "postgres",
     "SANTEMPI_POSTGRESQL_PASSWORD": "SanteDB123",
     "SANTEMPI_POSTGRESQL_USERNAME": "santedb",
-    "SANTEMPI_REPMGR_PRIMARY_HOST": "santempi-psql-1",
-    "SANTEMPI_REPMGR_PARTNER_NODES": "santempi-psql-1"
+    "SANTEMPI_REPMGR_PRIMARY_HOST": "santempi-psql-01",
+    "SANTEMPI_REPMGR_PARTNER_NODES": "santempi-psql-01"
   }
 }

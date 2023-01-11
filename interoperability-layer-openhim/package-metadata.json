@@ -24,7 +24,7 @@
     "OPENHIM_MONGO_CPU_RESERVE": "0.05",
     "OPENHIM_MONGO_MEMORY_LIMIT": "2G",
     "OPENHIM_MONGO_MEMORY_RESERVE": "500M",
-    "OPENHIM_MONGO_URL": "mongodb://mongo-1:27017/openhim",
-    "OPENHIM_MONGO_ATNAURL": "mongodb://mongo-1:27017/openhim"
+    "OPENHIM_MONGO_URL": "mongodb://mongo-01:27017/openhim",
+    "OPENHIM_MONGO_ATNAURL": "mongodb://mongo-01:27017/openhim"
   }
 }

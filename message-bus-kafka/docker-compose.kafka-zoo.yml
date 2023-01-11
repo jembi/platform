@@ -1,12 +1,12 @@
 version: '3.9'
 
 services:
-  zookeeper-1:
+  zookeeper-01:
     image: bitnami/zookeeper:3.7.0
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
     volumes:
-      - zookeeper-1-volume:/bitnami/zookeeper
+      - zookeeper-01-volume:/bitnami/zookeeper
     deploy:
       resources:
         limits:
@@ -17,4 +17,4 @@ services:
           memory: ${ZOOKEEPER_MEMORY_RESERVE}
 
 volumes:
-  zookeeper-1-volume:
+  zookeeper-01-volume:

@@ -10,6 +10,6 @@
     "STAGING": "true",
     "DOMAIN_NAME": "localhost",
     "SUBDOMAINS": "",
-    "OPENHIM_MONGO_URL": "mongodb://mongo-1:27017/openhim"
+    "OPENHIM_MONGO_URL": "mongodb://mongo-01:27017/openhim"
   }
 }

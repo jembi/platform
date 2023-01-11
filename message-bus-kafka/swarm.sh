@@ -19,21 +19,21 @@ function init_vars() {
 
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-  ZOOKEEPER_SERVICES=(
-    "zookeeper-1"
-  )
-
   UTILS_SERVICES=(
     "kafdrop"
     "kafka-minion"
   )
 
+  ZOOKEEPER_SERVICES=(
+    "zookeeper-01"
+  )
   if [[ "${CLUSTERED_MODE}" == "true" ]]; then
-    ZOOKEEPER_SERVICES=(
-      "${ZOOKEEPER_SERVICES[@]}"
-      "zookeeper-2"
-      "zookeeper-3"
-    )
+    for i in {2..3}; do
+      ZOOKEEPER_SERVICES=(
+        "${ZOOKEEPER_SERVICES[@]}"
+        "zookeeper-0$i"
+      )
+    done
   fi
 
   SERVICE_NAMES=(
@@ -106,7 +106,7 @@ function initialize_package() {
 function destroy_package() {
   docker::service_destroy "${SERVICE_NAMES[@]}" "message-bus-kafka-config-importer"
 
-  docker::try_remove_volume zookeeper-1-volume kafka-volume
+  docker::try_remove_volume zookeeper-01-volume kafka-volume
 
   if [[ "$CLUSTERED_MODE" == "true" ]]; then
     log warn "Volumes are only deleted on the host on which the command is run. Cluster volumes on other nodes are not deleted"

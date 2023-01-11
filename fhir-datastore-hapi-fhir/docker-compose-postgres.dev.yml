@@ -1,7 +1,7 @@
 version: '3.9'
 
 services:
-  postgres-1:
+  postgres-01:
     ports:
       - target: 5432
         published: 5432
