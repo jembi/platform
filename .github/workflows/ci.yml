@@ -71,9 +71,17 @@ jobs:
   run-e2e-tests:
     runs-on: ubuntu-20.04
     needs: configure-e2e-server
-    timeout-minutes: 60
+    timeout-minutes: 80
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v29.0.3
+        with:
+          since_last_remote_commit: 'true'
+          dir_names: 'true'
       - run: ./get-cli.sh linux
       - run: ./build-image.sh
       - run: sudo sh -c 'echo "    ServerAliveInterval 30" >> /etc/ssh/ssh_config'
@@ -88,13 +96,38 @@ jobs:
       - run: sed -i 's/OPENHIM_MEDIATOR_API_PORT=8080/OPENHIM_MEDIATOR_API_PORT=443/g' .env.local
       - run: sed -i 's/INSECURE=true/INSECURE=false/g' .env.local
       - run: sed -i 's/domain/${{ github.run_id }}.jembi.cloud/g' .env.local
+
       - name: Install dependencies
         working-directory: ./test/cucumber
         run: yarn
       - name: Run Cucumber tests in single node mode
         working-directory: ./test/cucumber
-        run: DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:single
-      # - run: DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud ./platform-linux --env-file=.env.local init
+        run: |
+          for folder_name in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            echo "$folder_name was changed"
+
+            if [[ $folder_name == *"analytics-datastore-clickhouse"* ]]; then
+                DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:single:clickhouse
+            elif [[ $folder_name == *"analytics-datastore-elastic-search"* ]] || [[ $folder_name == *"dashboard-visualiser-kibana"* ]] || [[ $folder_name == *"data-mapper-logstash"* ]]; then
+                DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:single:elk
+            elif [[ $folder_name == *"dashboard-visualiser-superset"* ]]; then
+                DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:single:superset
+            elif [[ $folder_name == *"kafka"* ]] || [[ $folder_name == *"monitoring"* ]]; then
+                DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:single:kafka
+            elif [[ $folder_name == *"openhim"* ]] || [[ $folder_name == *"client-registry-jempi"* ]]; then
+                DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:single:openhim
+            elif [[ $folder_name == *"reverse-proxy-nginx"* ]]; then
+                DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:single:nginx
+            elif [[ $folder_name == *"hapi"* ]]; then
+                DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:single:hapi
+            elif [[ $folder_name == *"client-registry-santempi"* ]]; then
+                DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:single:sante
+            elif [[ $folder_name == *"dashboard-visualiser-jsreport"* ]]; then
+                DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:single:jsreport
+            elif [[ $folder_name == *"utils"* ]]; then
+                DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:single
+            fi
+          done
   destroy-e2e-server:
     runs-on: ubuntu-20.04
     if: always()
