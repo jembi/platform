@@ -93,7 +93,6 @@ jobs:
       - name: Run Cucumber tests in cluster node mode
         working-directory: ./test/cucumber
         run: DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:cluster
-      # - run: DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud ./platform-linux --env-file=.env.cluster init reverse-proxy-nginx interoperability-layer-openhim fhir-datastore-hapi-fhir message-bus-kafka analytics-datastore-elastic-search dashboard-visualiser-kibana data-mapper-logstash dashboard-visualiser-jsreport message-bus-helper-hapi-proxy client-registry-santempi analytics-datastore-clickhouse
   destroy-e2e-server:
     runs-on: ubuntu-20.04
     if: always()

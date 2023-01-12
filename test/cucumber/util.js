@@ -62,9 +62,17 @@ async function checkServiceStatus(serviceName) {
   }
 }
 
+const filterServicesWithExactName = async (serviceName) => {
+  const services = await docker.listServices({
+    filters: { name: [`instant_${serviceName}`] },
+  });
+  return services.filter((e) => e.Spec.Name === `instant_${serviceName}`);
+};
+
 module.exports = {
   launchPlatformWithParams,
   checkServiceStatus,
   checkServiceReplicasNumber,
+  filterServicesWithExactName,
   docker,
 };
