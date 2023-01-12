@@ -1,0 +1,75 @@
+version: '3.9'
+
+services:
+  keycloak-postgres-1:
+    environment:
+      REPMGR_PARTNER_NODES: ${KC_REPMGR_PARTNER_NODES}
+    deploy:
+      placement:
+        constraints:
+          - "node.labels.name==node-1"
+
+  keycloak-postgres-2:
+    image: bitnami/postgresql-repmgr:14
+    environment:
+      POSTGRESQL_PASSWORD: ${KC_POSTGRESQL_PASSWORD}
+      POSTGRESQL_USERNAME: ${KC_POSTGRESQL_USERNAME}
+      POSTGRESQL_DATABASE: ${KC_POSTGRESQL_DATABASE}
+      REPMGR_NODE_NETWORK_NAME: keycloak-postgres-2
+      REPMGR_PASSWORD: ${KC_REPMGR_PASSWORD}
+      REPMGR_RECONNECT_INTERVAL: 3
+      REPMGR_NODE_NAME: keycloak-postgres-2
+      REPMGR_PRIMARY_HOST: ${KC_REPMGR_PRIMARY_HOST}
+      REPMGR_PARTNER_NODES: ${KC_REPMGR_PARTNER_NODES}
+    volumes:
+      - 'keycloak-postgres-2-data:/bitnami/postgresql'
+    deploy:
+      placement:
+        constraints:
+          - "node.labels.name==node-2"
+      replicas: 1
+      resources:
+        limits:
+          cpus: ${KC_POSTGRES_CPU_LIMIT}
+          memory: ${KC_POSTGRES_MEMORY_LIMIT}
+        reservations:
+          cpus: ${KC_POSTGRES_CPU_RESERVE}
+          memory: ${KC_POSTGRES_MEMORY_RESERVE}
+    networks:
+      default:
+      keycloak_backup_net: {}
+
+
+  keycloak-postgres-3:
+    image: bitnami/postgresql-repmgr:14
+    environment:
+      POSTGRESQL_PASSWORD: ${KC_POSTGRESQL_PASSWORD}
+      POSTGRESQL_USERNAME: ${KC_POSTGRESQL_USERNAME}
+      POSTGRESQL_DATABASE: ${KC_POSTGRESQL_DATABASE}
+      REPMGR_NODE_NETWORK_NAME: keycloak-postgres-3
+      REPMGR_PASSWORD: ${KC_REPMGR_PASSWORD}
+      REPMGR_RECONNECT_INTERVAL: 3
+      REPMGR_NODE_NAME: keycloak-postgres-3
+      REPMGR_PRIMARY_HOST: ${KC_REPMGR_PRIMARY_HOST}
+      REPMGR_PARTNER_NODES: ${KC_REPMGR_PARTNER_NODES}
+    volumes:
+      - 'keycloak-postgres-3-data:/bitnami/postgresql'
+    deploy:
+      placement:
+        constraints:
+          - "node.labels.name==node-3"
+      replicas: 1
+      resources:
+        limits:
+          cpus: ${KC_POSTGRES_CPU_LIMIT}
+          memory: ${KC_POSTGRES_MEMORY_LIMIT}
+        reservations:
+          cpus: ${KC_POSTGRES_CPU_RESERVE}
+          memory: ${KC_POSTGRES_MEMORY_RESERVE}
+    networks:
+      default:
+      keycloak_backup_net: {}
+
+volumes:
+  keycloak-postgres-2-data:
+  keycloak-postgres-3-data:

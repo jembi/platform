@@ -1,0 +1,8 @@
+version: '3.9'
+
+services:
+  keycloak-postgres-1:
+    ports:
+      - target: 5432
+        published: 5434
+        mode: host

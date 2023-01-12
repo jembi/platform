@@ -1,0 +1,8 @@
+version: '3.9'
+
+services:
+  identity-access-manager-keycloak:
+    ports:
+      - target: 8080
+        published: 9080
+        mode: host
