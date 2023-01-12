@@ -9,7 +9,13 @@ chai.should();
 chai.use(chaiArrays);
 chai.use(chaiThings);
 
-const { launchPlatformWithParams, checkServiceStatus, checkServiceReplicasNumber, docker } = require('../../util');
+const {
+  launchPlatformWithParams,
+  checkServiceStatus,
+  checkServiceReplicasNumber,
+  filterServicesWithExactName,
+  docker,
+} = require('../../util');
 
 Given('I use parameters {string}', function (params) {
   this.params = params;
@@ -20,13 +26,10 @@ When('I launch the platform with params', async function () {
 });
 
 Then('The service {string} should be started with {int} replica(s)', async function (serviceName, replicas) {
-  const services = await docker.listServices({
-    filters: { name: [`instant_${serviceName}`] },
-  });
-  const filterServicesWithExactName = services.filter((e) => e.Spec.Name === `instant_${serviceName}`);
+  const services = await filterServicesWithExactName(serviceName);
 
-  expect(filterServicesWithExactName).to.be.array();
-  expect(filterServicesWithExactName, `${serviceName} is missing from the list of services`).to.have.lengthOf(1);
+  expect(services).to.be.array();
+  expect(services, `${serviceName} is missing from the list of services`).to.have.lengthOf(1);
 
   const serviceReplicas = await checkServiceReplicasNumber(serviceName, `${replicas}`);
   expect(serviceReplicas, `Service is not replicated ${replicas} times`).to.equal(`${replicas}`);
@@ -71,13 +74,10 @@ Then('The volume {string} should be created', async function (volumeName) {
 });
 
 Then('The service {string} should be removed', async function (serviceName) {
-  const services = await docker.listServices({
-    filters: { name: [`instant_${serviceName}`] },
-  });
-  const filterServicesWithExactName = services.filter((e) => e.Spec.Name === `instant_${serviceName}`);
+  const services = await filterServicesWithExactName(serviceName);
 
-  expect(filterServicesWithExactName).to.be.array();
-  expect(filterServicesWithExactName).to.be.empty;
+  expect(services).to.be.array();
+  expect(services).to.be.empty;
 });
 
 Then('The volume {string} should be removed', async function (volumeName) {

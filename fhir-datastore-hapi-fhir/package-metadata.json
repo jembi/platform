@@ -6,7 +6,6 @@
   "version": "0.0.1",
   "dependencies": [],
   "environmentVariables": {
-    "CLUSTERED_MODE": "false",
     "REPMGR_PRIMARY_HOST": "postgres-1",
     "REPMGR_PARTNER_NODES": "postgres-1",
     "REPMGR_PASSWORD": "instant101",

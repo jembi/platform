@@ -6,7 +6,6 @@
   "version": "0.0.1",
   "dependencies": ["analytics-datastore-elastic-search"],
   "environmentVariables": {
-    "CLUSTERED_MODE": "false",
     "KIBANA_INSTANCES": 1,
     "ES_LEADER_NODE": "analytics-datastore-elastic-search",
     "ES_KIBANA_SYSTEM": "dev_password_only",
