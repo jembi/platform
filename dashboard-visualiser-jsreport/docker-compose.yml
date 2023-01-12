@@ -33,3 +33,8 @@ services:
       ES_PASSWORD: ${ES_ELASTIC}
       licenseKey: ${JS_REPORT_LICENSE_KEY}
       ES_HOSTS: ${ES_HOSTS}
+    volumes:
+      - jsreport-data:/jsreport
+
+volumes:
+  jsreport-data:

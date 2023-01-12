@@ -12,6 +12,7 @@ services:
     image: mongo:4.2
     volumes:
       - 'openhim-mongo-02:/data/db'
+      - 'openhim-mongo-02-config:/data/configdb'
     command: ['--replSet', 'mongo-set', '--wiredTigerCacheSizeGB', '0.5']
     deploy:
       placement:
@@ -33,6 +34,7 @@ services:
     image: mongo:4.2
     volumes:
       - 'openhim-mongo-03:/data/db'
+      - 'openhim-mongo-03-config:/data/configdb'
     command: ['--replSet', 'mongo-set', '--wiredTigerCacheSizeGB', '0.5']
     deploy:
       placement:
@@ -53,3 +55,5 @@ services:
 volumes:
   openhim-mongo-02:
   openhim-mongo-03:
+  openhim-mongo-02-config:
+  openhim-mongo-03-config:

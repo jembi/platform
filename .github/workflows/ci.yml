@@ -68,10 +68,10 @@ jobs:
             --become
             --user=ubuntu
             --extra-vars @./inventories/development/group_vars/all.yml
-  launch-platform:
+  run-e2e-tests:
     runs-on: ubuntu-20.04
     needs: configure-e2e-server
-    timeout-minutes: 25
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v3
       - run: ./get-cli.sh linux
@@ -88,11 +88,16 @@ jobs:
       - run: sed -i 's/OPENHIM_MEDIATOR_API_PORT=8080/OPENHIM_MEDIATOR_API_PORT=443/g' .env.local
       - run: sed -i 's/INSECURE=true/INSECURE=false/g' .env.local
       - run: sed -i 's/domain/${{ github.run_id }}.jembi.cloud/g' .env.local
-      - run: DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud ./platform-linux --env-file=.env.local init
+      - name: Install dependencies
+        working-directory: ./test/cucumber
+        run: yarn
+      - name: Run Cucumber tests in single node mode
+        working-directory: ./test/cucumber
+        run: DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:single
   destroy-e2e-server:
     runs-on: ubuntu-20.04
     if: always()
-    needs: [provision-e2e-server, configure-e2e-server, launch-platform]
+    needs: [provision-e2e-server, configure-e2e-server, run-e2e-tests]
     timeout-minutes: 15
     env:
       TF_VAR_PROJECT_NAME: platform-e2e-tests-${{ github.run_id }}

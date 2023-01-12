@@ -107,7 +107,7 @@ function initialize_package() {
 function destroy_package() {
   docker::service_destroy "${SERVICE_NAMES[@]}" "interoperability-layer-openhim-config-importer" "await-helper"
 
-  docker::try_remove_volume openhim-mongo-01
+  docker::try_remove_volume "openhim-mongo-01" "openhim-mongo-01-config"
 
   if [[ "${CLUSTERED_MODE}" == "true" ]]; then
     log warn "Volumes are only deleted on the host on which the command is run. Mongo volumes on other nodes are not deleted"
