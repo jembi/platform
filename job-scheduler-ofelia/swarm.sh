@@ -23,7 +23,7 @@ main() {
 
     config::substitute_env_vars "${COMPOSE_FILE_PATH}"/config.ini
     config::set_config_digests "${COMPOSE_FILE_PATH}"/docker-compose.yml
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml instant" "Failed to deploy Job Scheduler Ofelia, does your .env file include all environment variables in your config.ini file?"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml --with-registry-auth instant" "Failed to deploy Job Scheduler Ofelia, does your .env file include all environment variables in your config.ini file?"
 
     docker::deploy_sanity job-scheduler-ofelia
   elif [[ "${ACTION}" == "down" ]]; then

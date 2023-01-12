@@ -64,19 +64,19 @@ main() {
   fi
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.kafka.yml instant" "Failed to deploy Client Registry - JeMPI (kafka.yml)"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.kafka.yml --with-registry-auth instant" "Failed to deploy Client Registry - JeMPI (kafka.yml)"
 
     docker::await_service_ready jempi-kafka-01
     docker::await_service_ready jempi-kafka-02
     docker::await_service_ready jempi-kafka-03
 
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.kafdrop.yml $kafdrop_dev_compose_param instant" "Failed to deploy Client Registry - JeMPI (kafdrop.yml)"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.kafdrop.yml $kafdrop_dev_compose_param --with-registry-auth instant" "Failed to deploy Client Registry - JeMPI (kafdrop.yml)"
 
     docker::await_service_ready jempi-kafdrop
 
     config::set_config_digests "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml
 
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to deploy jempi-kafka-config-importer"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml --with-registry-auth instant" "Failed to deploy jempi-kafka-config-importer"
 
     log info "Waiting to give JeMPI Kafka config importer time to run before cleaning up service"
 
@@ -85,11 +85,11 @@ main() {
 
     config::remove_stale_service_configs "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml "jempi-kafka"
 
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.dgraph-zero.yml $dgraph_zero_dev_compose_param $dgraph_zero_cluster_compose_param instant" "Failed to deploy Client Registry - JeMPI (dgraph-zero.yml)"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.dgraph-zero.yml $dgraph_zero_dev_compose_param $dgraph_zero_cluster_compose_param --with-registry-auth instant" "Failed to deploy Client Registry - JeMPI (dgraph-zero.yml)"
 
     docker::await_service_ready jempi-zero-01
 
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.dgraph.yml $dgraph_dev_compose_param $dgraph_cluster_compose_param instant" "Failed to deploy Client Registry - JeMPI (dgraph.yml)"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.dgraph.yml $dgraph_dev_compose_param $dgraph_cluster_compose_param --with-registry-auth instant" "Failed to deploy Client Registry - JeMPI (dgraph.yml)"
 
     docker::await_service_ready jempi-alpha-01
     docker::await_service_ready jempi-alpha-02
@@ -97,7 +97,7 @@ main() {
 
     docker::await_service_ready jempi-ratel
 
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.combined.yml $combined_dev_compose_param instant" "Failed to deploy Client Registry - JeMPI (combined.yml)"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.combined.yml $combined_dev_compose_param --with-registry-auth instant" "Failed to deploy Client Registry - JeMPI (combined.yml)"
 
     docker::await_service_ready jempi-async-receiver
     docker::await_service_ready jempi-sync-receiver
@@ -106,14 +106,14 @@ main() {
     docker::await_service_ready jempi-em-calculator
     docker::await_service_ready jempi-linker
 
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.api.yml $api_dev_compose_param instant" "Failed to deploy Client Registry - JeMPI (api.yml)"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.api.yml $api_dev_compose_param --with-registry-auth instant" "Failed to deploy Client Registry - JeMPI (api.yml)"
 
     docker::await_service_ready jempi-api
 
     if docker service ps -q instant_openhim-core &>/dev/null; then
       config::set_config_digests "${COMPOSE_FILE_PATH}"/importer/openhim/docker-compose.config.yml
 
-      try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/openhim/docker-compose.config.yml instant" "Failed to deploy jempi-openhim-config-importer"
+      try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/openhim/docker-compose.config.yml --with-registry-auth instant" "Failed to deploy jempi-openhim-config-importer"
 
       log info "Waiting to give JeMPI Openhim config importer time to run before cleaning up service"
 

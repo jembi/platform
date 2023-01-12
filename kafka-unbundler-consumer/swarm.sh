@@ -16,7 +16,7 @@ readonly ROOT_PATH
 
 main() {
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml instant" "Failed to deploy Kafka Unbundler Consumer"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml --with-registry-auth instant" "Failed to deploy Kafka Unbundler Consumer"
 
     docker::deploy_sanity kafka-unbundler-consumer
   elif [[ "${ACTION}" == "down" ]]; then

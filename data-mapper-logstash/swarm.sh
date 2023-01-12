@@ -59,7 +59,7 @@ if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
   config::generate_service_configs data-mapper-logstash /usr/share/logstash "${COMPOSE_FILE_PATH}/pipeline" "${COMPOSE_FILE_PATH}" logstash
   logstash_temp_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.tmp.yml"
 
-  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $logstash_dev_compose_param $logstash_dev_mount_compose_param $logstash_temp_compose_param instant" "Failed to deploy Data Mapper Logstash"
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $logstash_dev_compose_param $logstash_dev_mount_compose_param $logstash_temp_compose_param --with-registry-auth instant" "Failed to deploy Data Mapper Logstash"
 
   docker::await_container_startup data-mapper-logstash
   docker::await_container_status data-mapper-logstash Running

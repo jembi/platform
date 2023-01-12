@@ -51,17 +51,17 @@ main() {
   fi
 
   if [ "$ACTION" == "init" ]; then
-    try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose-postgres.yml $postgres_cluster_compose_param $postgres_dev_compose_param instant" "Failed to deploy SanteMPI Postgres"
+    try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose-postgres.yml $postgres_cluster_compose_param $postgres_dev_compose_param --with-registry-auth instant" "Failed to deploy SanteMPI Postgres"
 
     await_postgres_start
 
-    try "docker stack deploy -c ""$COMPOSE_FILE_PATH""/docker-compose.yml $sante_mpi_dev_compose_param instant" "Failed to deploy SanteMPI"
+    try "docker stack deploy -c ""$COMPOSE_FILE_PATH""/docker-compose.yml $sante_mpi_dev_compose_param --with-registry-auth instant" "Failed to deploy SanteMPI"
   elif [ "$ACTION" == "up" ]; then
-    try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose-postgres.yml $postgres_cluster_compose_param $postgres_dev_compose_param instant" "Failed to stand up SanteMPI Postgres"
+    try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose-postgres.yml $postgres_cluster_compose_param $postgres_dev_compose_param --with-registry-auth instant" "Failed to stand up SanteMPI Postgres"
 
     await_postgres_start
 
-    try "docker stack deploy -c ""$COMPOSE_FILE_PATH""/docker-compose.yml $sante_mpi_dev_compose_param instant" "Failed to stand up SanteMPI"
+    try "docker stack deploy -c ""$COMPOSE_FILE_PATH""/docker-compose.yml $sante_mpi_dev_compose_param --with-registry-auth instant" "Failed to stand up SanteMPI"
 
     if [[ "$STATEFUL_NODES" == "cluster" ]]; then
       docker::deploy_sanity santedb-www santedb-mpi santempi-psql-1 santempi-psql-2 santempi-psql-3

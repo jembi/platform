@@ -31,7 +31,7 @@ main() {
         clickhouse_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.cluster.dev.yml"
       fi
 
-      try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.cluster.yml $clickhouse_dev_compose_param instant" "Failed to deploy Analytics Datastore Clickhouse"
+      try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.cluster.yml $clickhouse_dev_compose_param --with-registry-auth instant" "Failed to deploy Analytics Datastore Clickhouse"
 
       docker::await_container_startup analytics-datastore-clickhouse-01
       docker::await_container_status analytics-datastore-clickhouse-01 Running
@@ -52,14 +52,14 @@ main() {
         clickhouse_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
       fi
 
-      try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $clickhouse_dev_compose_param instant" "Failed to deploy Analytics Datastore Clickhouse"
+      try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $clickhouse_dev_compose_param --with-registry-auth instant" "Failed to deploy Analytics Datastore Clickhouse"
       docker::await_container_startup analytics-datastore-clickhouse
       docker::await_container_status analytics-datastore-clickhouse Running
     fi
 
     log info "Setting config digests"
     config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to start config importer"
+    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml --with-registry-auth instant" "Failed to start config importer"
 
     log info "Waiting to give core config importer time to run before cleaning up service"
 

@@ -37,7 +37,7 @@ if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
   config::set_config_digests "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml
 
   log info "Deploy Zookeeper"
-  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.kafka-zoo.yml $kafka_zoo_cluster_compose_param instant" "Failed to deploy Message Bus Kafka"
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.kafka-zoo.yml $kafka_zoo_cluster_compose_param --with-registry-auth instant" "Failed to deploy Message Bus Kafka"
 
   docker::await_container_startup zookeeper-1
   docker::await_container_status zookeeper-1 Running
@@ -51,7 +51,7 @@ if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
   fi
 
   log info "Deploy Kafka"
-  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.kafka.yml $kafka_cluster_compose_param $kafka_dev_compose_param instant" "Failed to deploy Message Bus Kafka"
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.kafka.yml $kafka_cluster_compose_param $kafka_dev_compose_param --with-registry-auth instant" "Failed to deploy Message Bus Kafka"
 
   docker::await_container_startup kafka
   docker::await_container_status kafka Running
@@ -59,11 +59,11 @@ if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
   config::await_service_reachable "kafka" "Connected"
 
   log info "Deploy the other services dependent of Kafka"
-  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.kafka-utils.yml $kafka_utils_dev_compose_param instant" "Failed to deploy Message Bus Kafka"
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.kafka-utils.yml $kafka_utils_dev_compose_param --with-registry-auth instant" "Failed to deploy Message Bus Kafka"
 
   config::await_service_running "kafka" "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml "${KAFKA_INSTANCES}"
 
-  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to deploy Message Bus Kafka"
+  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml --with-registry-auth instant" "Failed to deploy Message Bus Kafka"
 
   config::remove_stale_service_configs "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml "ethiopia"
   config::remove_config_importer message-bus-kafka-config-importer
