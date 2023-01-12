@@ -165,3 +165,16 @@ docker::deploy_sanity() {
     done
     overwrite "No errors found during deployment"
 }
+
+# An aggregate function to do multiple service ready checks in one function
+#
+# Arguments:
+# - $1 : service name (eg. analytics-datastore-elastic-search)
+#
+docker::await_service_ready() {
+    local -r SERVICE_NAME=${1:?"FATAL: await_service_ready SERVICE_NAME not provided"}
+
+    docker::await_container_startup "$SERVICE_NAME"
+    docker::await_container_status "$SERVICE_NAME" Running
+    config::await_network_join instant_"$SERVICE_NAME"
+}

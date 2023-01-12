@@ -4,7 +4,7 @@ services:
   grafana:
     ports:
       - target: 3000
-        published: 3030
+        published: 3000
         mode: host
 
   prometheus:
