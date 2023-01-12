@@ -6,7 +6,6 @@
   "version": "0.0.1",
   "dependencies": [],
   "environmentVariables": {
-    "CLUSTERED_MODE": "false",
     "SANTEMPI_INSTANCES": "1",
     "SANTE_POSTGRES_PASSWORD": "postgres",
     "SANTEMPI_POSTGRESQL_PASSWORD": "SanteDB123",
