@@ -1,6 +1,13 @@
 version: '3.9'
 
 services:
+  prometheus:
+    deploy:
+      placement:
+        constraints:
+          - "node.labels.name==node-1"
+      replicas: 1
+
   prometheus_backup:
     image: prom/prometheus:v2.38.0
     user: root
