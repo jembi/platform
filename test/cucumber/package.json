@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "A package to test the platform",
   "scripts": {
-    "test": "cucumber-js"
+    "test:single": "cucumber-js 'features/single-mode/**/*.feature'",
+    "test:cluster": "cucumber-js 'features/cluster-mode/**/*.feature'"
   },
   "devDependencies": {
     "@cucumber/cucumber": "8.5.0",
