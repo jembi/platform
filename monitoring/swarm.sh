@@ -15,10 +15,10 @@ ROOT_PATH="${COMPOSE_FILE_PATH}/.."
 . "${ROOT_PATH}/utils/log.sh"
 
 if [[ "${MODE}" == "dev" ]]; then
-  log info "Running Message Bus Kafka package in DEV mode"
+  log info "Running Monitoring package in DEV mode"
   monitoring_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
 else
-  log info "Running Message Bus Kafka package in PROD mode"
+  log info "Running Monitoring package in PROD mode"
   monitoring_dev_compose_param=""
 fi
 

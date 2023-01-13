@@ -12,3 +12,27 @@ services:
       - target: 9090
         published: 9090
         mode: host
+
+  loki:
+    ports:
+      - target: 3100
+        published: 3100
+        mode: host
+
+  loki2:
+    ports:
+      - target: 3100
+        published: 3101
+        mode: host
+
+  loki3:
+    ports:
+      - target: 3100
+        published: 3102
+        mode: host
+
+  minio1:
+    ports:
+      - target: 9001
+        published: 9001
+        mode: host

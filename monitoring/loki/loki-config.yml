@@ -1,0 +1,55 @@
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+
+# I think the issue cold be due to the network interface that is being used
+# common:
+#   ring:
+#     instance_interface_names:
+#     - eth0
+#     - eth1
+#     - lo
+#   instance_interface_names:
+#   - eth0
+#   - eth1
+
+memberlist:
+  node_name: ${NODE_NAME}
+  join_members: 
+    - ${MEMBER1}
+    - ${MEMBER2}
+
+ingester:
+  wal:
+    enabled: true
+    dir: /tmp/wal
+
+schema_config:
+  configs:
+    - from: 2020-07-01
+      store: boltdb-shipper
+      object_store: aws
+      schema: v11
+      index:
+        prefix: index_
+        period: 24h
+
+storage_config:
+  boltdb_shipper:
+    active_index_directory: /loki/boltdb-shipper-active
+    cache_location: /loki/boltdb-shipper-cache
+    resync_interval: 30s
+    shared_store: s3
+  aws:
+    s3: http://minioadmin:minioadmin@minio1.:9000/loki
+    s3forcepathstyle: true
+
+compactor:
+  working_directory: /loki/boltdb-shipper-compactor
+  shared_store: s3
+
+limits_config:
+  ingestion_rate_mb: 100
+  ingestion_burst_size_mb: 150
+  max_concurrent_tail_requests: 200
