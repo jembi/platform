@@ -71,9 +71,17 @@ jobs:
   run-e2e-tests:
     runs-on: ubuntu-20.04
     needs: configure-e2e-server
-    timeout-minutes: 60
+    timeout-minutes: 80
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v29.0.3
+        with:
+          since_last_remote_commit: 'true'
+          dir_names: 'true'
       - run: ./get-cli.sh linux
       - run: ./build-image.sh
       - run: sudo sh -c 'echo "    ServerAliveInterval 30" >> /etc/ssh/ssh_config'
@@ -88,12 +96,14 @@ jobs:
       - run: sed -i 's/OPENHIM_MEDIATOR_API_PORT=8080/OPENHIM_MEDIATOR_API_PORT=443/g' .env.local
       - run: sed -i 's/INSECURE=true/INSECURE=false/g' .env.local
       - run: sed -i 's/domain/${{ github.run_id }}.jembi.cloud/g' .env.local
+
       - name: Install dependencies
         working-directory: ./test/cucumber
         run: yarn
       - name: Run Cucumber tests in single node mode
-        working-directory: ./test/cucumber
-        run: DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:single
+        working-directory: ./.github/workflows
+        run: ./run-tests.sh ${{ github.run_id }} "single" ${{ steps.changed-files.outputs.all_changed_files }}
+        shell: bash
   destroy-e2e-server:
     runs-on: ubuntu-20.04
     if: always()
