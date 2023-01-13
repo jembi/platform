@@ -97,17 +97,49 @@ services:
       - KAFKA_COMPRESSION=gzip
 
   loki:
-    image: grafana/loki:2.6.1
-    volumes:
-      - loki_data:/tmp/loki
+    image: grafana/loki:2.7.1
     configs:
       - target: /etc/loki/loki-config.yml
         source: loki-config.yml
-    command: -config.file=/etc/loki/loki-config.yml
+    command: -config.file=/etc/loki/loki-config.yml -config.expand-env=true -print-config-stderr
+    environment:
+      - NODE_NAME=loki
+      - MEMBER1=loki2
+      - MEMBER2=loki3
     deploy:
       labels:
         - prometheus-job-service=loki
         - prometheus-address=loki:3100
+
+  loki2:
+    image: grafana/loki:2.7.1
+    configs:
+      - target: /etc/loki/loki-config.yml
+        source: loki-config.yml
+    command: -config.file=/etc/loki/loki-config.yml -config.expand-env=true -print-config-stderr
+    environment:
+      - NODE_NAME=loki2
+      - MEMBER1=loki1
+      - MEMBER2=loki3
+    deploy:
+      labels:
+        - prometheus-job-service=loki2
+        - prometheus-address=loki2:3100
+
+  loki3:
+    image: grafana/loki:2.7.1
+    configs:
+      - target: /etc/loki/loki-config.yml
+        source: loki-config.yml
+    command: -config.file=/etc/loki/loki-config.yml -config.expand-env=true -print-config-stderr
+    environment:
+      - NODE_NAME=loki3
+      - MEMBER1=loki2
+      - MEMBER2=loki1
+    deploy:
+      labels:
+        - prometheus-job-service=loki3
+        - prometheus-address=loki3:3100
 
   promtail:
     image: grafana/promtail:2.6.1
@@ -211,6 +243,5 @@ configs:
 volumes:
   prometheus_data:
   grafana_data:
-  loki_data:
   minio_data1:
   minio_data2:
