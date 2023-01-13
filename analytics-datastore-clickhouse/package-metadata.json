@@ -7,7 +7,6 @@
   "dependencies": [],
   "environmentVariables": {
     "CLICKHOUSE_HOST": "analytics-datastore-clickhouse",
-    "CLICKHOUSE_PORT": "8123",
-    "hello": "hh"
+    "CLICKHOUSE_PORT": "8123"
   }
 }

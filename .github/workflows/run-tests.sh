@@ -8,10 +8,6 @@ CHANGED_FILES=($@)
 
 cd ../../test/cucumber/ || exit
 
-echo "GITHUB: $GITHUB_RUN_ID"
-echo "NODE_MODE: $NODE_MODE"
-echo "CHANGED: ${CHANGED_FILES[*]}"
-
 if [[ ${#CHANGED_FILES[@]} -eq 0 ]] || [[ "${CHANGED_FILES[*]}" == *"utils"* ]]; then
     DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE"
 elif [[ "${CHANGED_FILES[*]}" == *"features/single-mode"* ]]; then
