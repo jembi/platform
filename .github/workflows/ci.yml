@@ -106,25 +106,25 @@ jobs:
           for folder_name in ${{ steps.changed-files.outputs.all_changed_files }}; do
             echo "$folder_name was changed"
 
-            if [[ $folder_name == *"analytics-datastore-clickhouse"* ]]; then
+            if [[ $folder_name == *"clickhouse"* ]]; then
                 DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:single:clickhouse
-            elif [[ $folder_name == *"analytics-datastore-elastic-search"* ]] || [[ $folder_name == *"dashboard-visualiser-kibana"* ]] || [[ $folder_name == *"data-mapper-logstash"* ]]; then
+            elif [[ $folder_name == *"elastic"* ]] || [[ $folder_name == *"dashboard-visualiser-kibana"* ]] || [[ $folder_name == *"data-mapper-logstash"* ]]; then
                 DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:single:elk
-            elif [[ $folder_name == *"dashboard-visualiser-superset"* ]]; then
+            elif [[ $folder_name == *"superset"* ]]; then
                 DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:single:superset
             elif [[ $folder_name == *"kafka"* ]] || [[ $folder_name == *"monitoring"* ]]; then
                 DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:single:kafka
             elif [[ $folder_name == *"openhim"* ]] || [[ $folder_name == *"client-registry-jempi"* ]]; then
                 DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:single:openhim
-            elif [[ $folder_name == *"reverse-proxy-nginx"* ]]; then
+            elif [[ $folder_name == *"reverse-proxy"* ]]; then
                 DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:single:nginx
             elif [[ $folder_name == *"hapi"* ]]; then
                 DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:single:hapi
-            elif [[ $folder_name == *"client-registry-santempi"* ]]; then
+            elif [[ $folder_name == *"santempi"* ]]; then
                 DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:single:sante
-            elif [[ $folder_name == *"dashboard-visualiser-jsreport"* ]]; then
+            elif [[ $folder_name == *"jsreport"* ]]; then
                 DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:single:jsreport
-            elif [[ $folder_name == *"identity-access-manager-keycloak"* ]]; then
+            elif [[ $folder_name == *"keycloak"* ]]; then
                 DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:single:keycloak
             elif [[ $folder_name == *"mpi-mediator"* ]]; then
                 DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:single:mpi-mediator
