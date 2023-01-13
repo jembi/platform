@@ -10,9 +10,9 @@ cd ../../test/cucumber/ || exit
 
 if [[ ${#CHANGED_FILES[@]} -eq 0 ]] || [[ "${CHANGED_FILES[*]}" == *"utils"* ]]; then
     DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE"
-elif [[ "${CHANGED_FILES[*]}" == *"features/single-mode"* ]]; then
+elif [[ "${CHANGED_FILES[*]}" == *"features/single-mode"* ]] && [[ $NODE_MODE == "single" ]]; then
     DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:single
-elif [[ "${CHANGED_FILES[*]}" == *"features/cluster-mode"* ]]; then
+elif [[ "${CHANGED_FILES[*]}" == *"features/cluster-mode"* ]] && [[ $NODE_MODE == "cluster" ]]; then
     DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:cluster
 else
     for folder_name in "${CHANGED_FILES[@]}"; do
