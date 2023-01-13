@@ -76,8 +76,8 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Get changed folders
-        id: changed-folders
+      - name: Get changed files
+        id: changed-files
         uses: tj-actions/changed-files@v29.0.3
         with:
           since_last_remote_commit: 'true'
@@ -100,7 +100,7 @@ jobs:
       - name: Install dependencies
         working-directory: ./test/cucumber
         run: yarn
-      - name: Running single tests
+      - name: Run Cucumber tests in single node mode
         working-directory: ./.github/workflows
         run: ./run-tests.sh ${{ github.run_id }} "single" ${{ steps.changed-files.outputs.all_changed_files }}
         shell: bash
