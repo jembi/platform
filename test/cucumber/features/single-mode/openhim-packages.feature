@@ -12,6 +12,12 @@ Feature: Openhim and its dependent packages?
         And There should be 3 services
         And There should be 2 volumes
 
+    Scenario: Init Openhim Mapping Mediator
+        Given I use parameters "init openhim-mapping-mediator --only --dev --env-file=.env.local"
+        When I launch the platform with params
+        Then The service "openhim-mapping-mediator" should be started with 1 replica
+        And There should be 4 services
+
     Scenario: Init Client Registry JemMPI
         Given I use parameters "init client-registry-jempi --only --dev --env-file=.env.local"
         When I launch the platform with params
@@ -31,11 +37,11 @@ Feature: Openhim and its dependent packages?
         And The service "jempi-kafdrop" should be started with 1 replica
         And The service "jempi-zero-01" should be started with 1 replica
         And The service "jempi-api" should be started with 1 replica
-        And There should be 19 services
+        And There should be 20 services
         And There should be 9 volumes
 
     Scenario: Destroy Openhim and its dependent packages
-        Given I use parameters "destroy interoperability-layer-openhim client-registry-jempi --only --dev --env-file=.env.local"
+        Given I use parameters "destroy interoperability-layer-openhim client-registry-jempi openhim-mapping-mediator --only --dev --env-file=.env.local"
         When I launch the platform with params
         Then The service "mongo-1" should be removed
         And The service "openhim-core" should be removed
@@ -56,6 +62,7 @@ Feature: Openhim and its dependent packages?
         And The service "jempi-kafdrop" should be removed
         And The service "jempi-zero-01" should be removed
         And The service "jempi-api" should be removed
+        And The service "openhim-mapping-mediator" should be removed
         And There should be 0 service
         And There should be 0 volume
         And There should be 0 config
