@@ -119,6 +119,8 @@ jobs:
                 DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:cluster:hapi
             elif [[ $folder_name == *"client-registry-santempi"* ]]; then
                 DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:cluster:sante
+            elif [[ $folder_name == *"identity-access-manager-keycloak"* ]]; then
+                DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:cluster:keycloak
             elif [[ $folder_name == *"utils"* ]]; then
                 DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:cluster
             fi

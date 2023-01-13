@@ -1,43 +1,79 @@
 #!/bin/bash
 
-readonly ACTION=$1
-readonly MODE=$2
+declare ACTION=""
+declare MODE=""
+declare COMPOSE_FILE_PATH=""
+declare UTILS_PATH=""
+declare SERVICE_NAMES=()
 
-COMPOSE_FILE_PATH=$(
-  cd "$(dirname "${BASH_SOURCE[0]}")" || exit
-  pwd -P
-)
-readonly COMPOSE_FILE_PATH
+function init_vars() {
+  ACTION=$1
+  MODE=$2
 
-ROOT_PATH="${COMPOSE_FILE_PATH}/.."
-readonly ROOT_PATH
+  COMPOSE_FILE_PATH=$(
+    cd "$(dirname "${BASH_SOURCE[0]}")" || exit
+    pwd -P
+  )
 
-. "${ROOT_PATH}/utils/config-utils.sh"
-. "${ROOT_PATH}/utils/docker-utils.sh"
-. "${ROOT_PATH}/utils/log.sh"
+  UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-main() {
+  SERVICE_NAMES=("openhim-mapping-mediator")
+
+  readonly ACTION
+  readonly MODE
+  readonly COMPOSE_FILE_PATH
+  readonly UTILS_PATH
+  readonly SERVICE_NAMES
+}
+
+# shellcheck disable=SC1091
+function import_sources() {
+  source "${UTILS_PATH}/docker-utils.sh"
+  source "${UTILS_PATH}/log.sh"
+}
+
+function initialize_package() {
+  local openhim_mapping_dev_compose_filename=""
+
   if [[ "${MODE}" == "dev" ]]; then
     log info "Running Openhim Mapping Mediator package in DEV mode"
-    openhim_mapping_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
+    openhim_mapping_dev_compose_filename="docker-compose.dev.yml"
   else
     log info "Running Openhim Mapping Mediator package in PROD mode"
-    openhim_mapping_dev_compose_param=""
   fi
 
+  (
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$openhim_mapping_dev_compose_filename"
+    docker::deploy_sanity "${SERVICE_NAMES}"
+  ) || {
+    log error "Failed to deploy package"
+    exit 1
+  }
+}
+
+function destroy_package() {
+  docker::service_destroy "${SERVICE_NAMES}"
+}
+
+main() {
+  init_vars "$@"
+  import_sources
+
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $openhim_mapping_dev_compose_param instant" "Failed to deploy Openhim Mapping Mediator"
+    if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+      log info "Running package in Cluster node mode"
+    else
+      log info "Running package in Single node mode"
+    fi
 
-    docker::await_container_startup openhim-mapping-mediator
-    docker::await_container_status openhim-mapping-mediator Running
-
-    config::await_network_join "instant_openhim-mapping-mediator"
-
-    docker::deploy_sanity openhim-mapping-mediator
+    initialize_package
   elif [[ "${ACTION}" == "down" ]]; then
-    try "docker service scale instant_openhim-mapping-mediator=0" "Failed to scale down openhim-mapping-mediator"
+    log info "Scaling down package"
+
+    docker::scale_services_down "${SERVICE_NAMES}"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    docker::service_destroy openhim-mapping-mediator
+    log info "Destroying package"
+    destroy_package
   else
     log error "Valid options are: init, up, down, or destroy"
   fi

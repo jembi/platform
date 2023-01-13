@@ -124,6 +124,10 @@ jobs:
                 DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:single:sante
             elif [[ $folder_name == *"dashboard-visualiser-jsreport"* ]]; then
                 DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:single:jsreport
+            elif [[ $folder_name == *"identity-access-manager-keycloak"* ]]; then
+                DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:single:keycloak
+            elif [[ $folder_name == *"mpi-mediator"* ]]; then
+                DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:single:mpi-mediator
             elif [[ $folder_name == *"utils"* ]]; then
                 DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:single
             fi
