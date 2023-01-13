@@ -94,37 +94,13 @@ jobs:
       - run: ssh-keyscan -H ${{ github.run_id }}.jembi.cloud >> ~/.ssh/known_hosts
       - run: ./remote-img-load.sh ${{ github.run_id }}.jembi.cloud
       - run: sed -i 's/domain/${{ github.run_id }}.jembi.cloud/g' .env.cluster
-      - run: cd ./test/cucumber
-
       - name: Install dependencies
         working-directory: ./test/cucumber
         run: yarn
       - name: Run Cucumber tests in cluster node mode
-        working-directory: ./test/cucumber
-        run: |
-          for folder_name in ${{ steps.changed-files.outputs.all_changed_files }}; do
-            echo "$folder_name was changed"
-
-            if [[ $folder_name == *"clickhouse"* ]]; then
-                DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:cluster:clickhouse
-            elif [[ $folder_name == *"elastic"* ]] || [[ $folder_name == *"dashboard-visualiser-kibana"* ]] || [[ $folder_name == *"data-mapper-logstash"* ]]; then
-                DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:cluster:elk
-            elif [[ $folder_name == *"kafka"* ]] || [[ $folder_name == *"monitoring"* ]]; then
-                DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:cluster:kafka
-            elif [[ $folder_name == *"openhim"* ]] || [[ $folder_name == *"client-registry-jempi"* ]]; then
-                DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:cluster:openhim
-            elif [[ $folder_name == *"reverse-proxy"* ]]; then
-                DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:cluster:nginx
-            elif [[ $folder_name == *"hapi"* ]]; then
-                DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:cluster:hapi
-            elif [[ $folder_name == *"santempi"* ]]; then
-                DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:cluster:sante
-            elif [[ $folder_name == *"keycloak"* ]]; then
-                DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:cluster:keycloak
-            elif [[ $folder_name == *"utils"* ]]; then
-                DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud yarn test:cluster
-            fi
-          done
+        working-directory: ./.github/workflows
+        run: ./run-tests.sh ${{ github.run_id }} "cluster" ${{ steps.changed-files.outputs.all_changed_files }}
+        shell: bash
   destroy-e2e-server:
     runs-on: ubuntu-20.04
     if: always()
