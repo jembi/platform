@@ -271,7 +271,8 @@ docker::deploy_service() {
     try "docker stack deploy \
         -c ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE \
         $docker_compose_param \
-         instant" \
+        --with-registry-auth \
+        instant" \
         throw \
         "Wrong configuration in ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE or in the other supplied compose files"
 
