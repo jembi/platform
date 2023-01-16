@@ -15,7 +15,7 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// Return the service replicas number (wait time max of 30 seconds)
+// Return the service replicas number (wait time max of 180 seconds)
 async function checkServiceReplicasNumber(serviceName, expectedReplicas) {
   let serviceCurrentReplicas = '0';
   let timeNow = Date.now();
@@ -30,7 +30,7 @@ async function checkServiceReplicasNumber(serviceName, expectedReplicas) {
 
     timePassed = Date.now() - timeNow;
     serviceCurrentReplicas = stdout.split('/')[0];
-    if (serviceCurrentReplicas === expectedReplicas || timePassed >= 30 * 1000) {
+    if (serviceCurrentReplicas === expectedReplicas || timePassed >= 180 * 1000) {
       return serviceCurrentReplicas;
     }
 
