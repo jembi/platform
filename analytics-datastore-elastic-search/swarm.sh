@@ -1,172 +1,207 @@
 #!/bin/bash
 
-ACTION=$1
-MODE=$2
+declare ACTION=""
+declare MODE=""
+declare COMPOSE_FILE_PATH=""
+declare UTILS_PATH=""
+declare CONTAINER_STATUS=""
+declare SERVICE_NAMES=()
 
-COMPOSE_FILE_PATH=$(
-  cd "$(dirname "${BASH_SOURCE[0]}")" || exit
-  pwd -P
-)
+function init_vars() {
+  ACTION=$1
+  MODE=$2
 
-# Import libraries
-ROOT_PATH="${COMPOSE_FILE_PATH}/.."
-. "${ROOT_PATH}/utils/config-utils.sh"
-. "${ROOT_PATH}/utils/docker-utils.sh"
-. "${ROOT_PATH}/utils/log.sh"
+  COMPOSE_FILE_PATH=$(
+    cd "$(dirname "${BASH_SOURCE[0]}")" || exit
+    pwd -P
+  )
 
-install_expect() {
+  UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
+
+  if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+    CONTAINER_STATUS="Running"
+
+    for i in {1..3}; do
+      SERVICE_NAMES=(
+        "${SERVICE_NAMES[@]}"
+        "analytics-datastore-elastic-search-0$i"
+      )
+    done
+  else
+    CONTAINER_STATUS="Starting"
+    SERVICE_NAMES=(
+      "analytics-datastore-elastic-search"
+    )
+  fi
+
+  readonly ACTION
+  readonly MODE
+  readonly COMPOSE_FILE_PATH
+  readonly UTILS_PATH
+  readonly CONTAINER_STATUS
+  readonly SERVICE_NAMES
+}
+
+# shellcheck disable=SC1091
+function import_sources() {
+  source "${UTILS_PATH}/docker-utils.sh"
+  source "${UTILS_PATH}/config-utils.sh"
+  source "${UTILS_PATH}/log.sh"
+}
+
+function install_expect() {
   log info "Installing Expect..."
-  try "apt-get install -y expect" "Fatal: Failed to install Expect library. Cannot update Elastic Search passwords"
+  try "apt-get install -y expect &>/dev/null" throw "Fatal: Failed to install Expect library. Cannot update Elasticsearch passwords"
   overwrite "Installing Expect... Done"
 }
 
-set_elasticsearch_passwords() {
+function set_elasticsearch_passwords() {
   local container=$1
-  log info "Setting passwords..."
+
   local elastic_search_container_id=""
   elastic_search_container_id=$(docker ps -qlf name="${container}")
-  try "${COMPOSE_FILE_PATH}/set-elastic-passwords.exp ${elastic_search_container_id}" "Fatal: Failed to set elastic passwords. Cannot update Elastic Search passwords"
+
+  log info "Setting passwords..."
+  try \
+    "${COMPOSE_FILE_PATH}/set-elastic-passwords.exp ${elastic_search_container_id}" \
+    throw \
+    "Fatal: Failed to set elastic passwords. Cannot update Elastic Search passwords"
   overwrite "Setting passwords... Done"
 }
 
-import_elastic_index() {
-  # TODO: (castelloG) [PLAT-255] Add support for multiple index imports
-  log info "Importing Elasticsearch index mapping"
-  config::set_config_digests "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml
-  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to start elastic search config importer"
-  config::remove_stale_service_configs "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml "elasticsearch"
-  config::remove_config_importer elastic-search-config-importer
-}
+function create_certs() {
+  log info "Creating certificates..."
+  try \
+    "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose.certs.yml instant" \
+    throw \
+    "Creating certificates failed"
 
-if [[ "$STATEFUL_NODES" == "cluster" ]]; then
-  log info "Running Analytics Datastore Elastic Search package in Cluster node mode"
-  leader_node="analytics-datastore-elastic-search-01"
-else
-  log info "Running Analytics Datastore Elastic Search package in Single node mode"
-  leader_node="analytics-datastore-elastic-search"
-fi
-
-if [[ "$MODE" == "dev" ]]; then
-  log info "Running Analytics Datastore Elastic Search package in DEV mode"
-  elastic_search_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
-else
-  log info "Running Analytics Datastore Elastic Search package in PROD mode"
-  elastic_search_dev_compose_param=""
-fi
-
-create_certs() {
-  log info "Creating certificates"
-  try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose.certs.yml instant" "Creating certificates failed"
   docker::await_container_startup create_certs
-  docker::await_container_status create_certs Complete
+  docker::await_service_status create_certs Complete
 
-  log info "Creating cert helper"
-
-  try "docker run --rm --network host --name es-cert-helper -w /temp \
+  log info "Creating cert helper..."
+  try \
+    "docker run --rm --network host --name es-cert-helper -w /temp \
     -v instant_certgen:/temp-certificates \
     -v instant:/temp busybox sh \
-    -c \"mkdir -p /temp/certs; cp -r /temp-certificates/* /temp/certs\"" "Error creating es-cert-helper"
+    -c \"mkdir -p /temp/certs; cp -r /temp-certificates/* /temp/certs\"" \
+    throw \
+    "Error creating es-cert-helper"
 
-  try "docker service rm instant_create_certs" "Error removing instant_create_certs"
+  docker::service_destroy create_certs
   docker::await_container_destroy create_certs
   docker::await_container_destroy es-cert-helper
-  try "docker volume rm instant_certgen" "Error removing certgen volume"
+  docker::try_remove_volume certgen
 }
 
-add_docker_configs() {
-  TIMESTAMP="$(date "+%Y%m%d%H%M%S")"
-  readonly TIMESTAMP
-  log info "Creating configs"
-  try "docker config create --label name=elasticsearch ${TIMESTAMP}-ca.crt ./certs/ca/ca.crt" "Error creating config ca.crt"
-  try "docker config create --label name=elasticsearch ${TIMESTAMP}-es01.crt ./certs/es01/es01.crt" "Error creating config es01.crt"
-  try "docker config create --label name=elasticsearch ${TIMESTAMP}-es01.key ./certs/es01/es01.key" "Error creating config es01.key"
-  try "docker config create --label name=elasticsearch ${TIMESTAMP}-es02.crt ./certs/es02/es02.crt" "Error creating config es02.crt"
-  try "docker config create --label name=elasticsearch ${TIMESTAMP}-es02.key ./certs/es02/es02.key" "Error creating config es02.key"
-  try "docker config create --label name=elasticsearch ${TIMESTAMP}-es03.crt ./certs/es03/es03.crt" "Error creating config es03.crt"
-  try "docker config create --label name=elasticsearch ${TIMESTAMP}-es03.key ./certs/es03/es03.key" "Error creating config es03.key"
+function add_docker_configs() {
+  local -r TIMESTAMP="$(date "+%Y%m%d%H%M%S")"
+  local -r path_config_certs="/usr/share/elasticsearch/config/certs/"
 
-  log info "Updating es-01 with certs"
-  try "docker service update \
-    --config-add source=${TIMESTAMP}-ca.crt,target=/usr/share/elasticsearch/config/certs/ca/ca.crt \
-    --config-add source=${TIMESTAMP}-es01.crt,target=/usr/share/elasticsearch/config/certs/es01/es01.crt \
-    --config-add source=${TIMESTAMP}-es01.key,target=/usr/share/elasticsearch/config/certs/es01/es01.key \
-    --replicas 1 \
-    instant_analytics-datastore-elastic-search-01" "Error updating es01"
+  log info "Creating configs..."
 
-  log info "Updating es-02 with certs"
-  try "docker service update \
-    --config-add source=${TIMESTAMP}-ca.crt,target=/usr/share/elasticsearch/config/certs/ca/ca.crt \
-    --config-add source=${TIMESTAMP}-es02.crt,target=/usr/share/elasticsearch/config/certs/es02/es02.crt \
-    --config-add source=${TIMESTAMP}-es02.key,target=/usr/share/elasticsearch/config/certs/es02/es02.key \
-    --replicas 1 \
-    instant_analytics-datastore-elastic-search-02" "Error updating es02"
+  try "docker config create --label name=elasticsearch ${TIMESTAMP}-ca.crt ./certs/ca/ca.crt" throw "Error creating config ca.crt"
 
-  log info "Updating es-03 with certs"
-  try "docker service update \
-    --config-add source=${TIMESTAMP}-ca.crt,target=/usr/share/elasticsearch/config/certs/ca/ca.crt \
-    --config-add source=${TIMESTAMP}-es03.crt,target=/usr/share/elasticsearch/config/certs/es03/es03.crt \
-    --config-add source=${TIMESTAMP}-es03.key,target=/usr/share/elasticsearch/config/certs/es03/es03.key \
-    --replicas 1 \
-    instant_analytics-datastore-elastic-search-03" "Error updating es03"
+  number_configs=(
+    "01"
+    "02"
+    "03"
+  )
+  for n in "${number_configs[@]}"; do
+    try "docker config create --label name=elasticsearch ${TIMESTAMP}-es$n.crt ./certs/es$n/es$n.crt" throw "Error creating config es$n.crt"
+    try "docker config create --label name=elasticsearch ${TIMESTAMP}-es$n.key ./certs/es$n/es$n.key" throw "Error creating config es$n.key"
+
+    log info "Updating analytics-datastore-elastic-search-$n with certs..."
+    try \
+      "docker service update \
+      --config-add source=${TIMESTAMP}-ca.crt,target=$path_config_certs/ca/ca.crt \
+      --config-add source=${TIMESTAMP}-es$n.crt,target=$path_config_certs/es$n/es$n.crt \
+      --config-add source=${TIMESTAMP}-es$n.key,target=$path_config_certs/es$n/es$n.key \
+      --replicas 1 \
+      instant_analytics-datastore-elastic-search-$n" \
+      throw \
+      "Error updating analytics-datastore-elastic-search-$n"
+    overwrite "Updating analytics-datastore-elastic-search-$n with certs... Done"
+  done
 }
 
-if [[ "$ACTION" == "init" ]]; then
-  if [[ "$STATEFUL_NODES" == "cluster" ]]; then
-    create_certs
-    try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose.cluster.yml instant" "Failed to deploy cluster"
-    add_docker_configs
+function initialize_package() {
+  local elastic_search_dev_compose_filename=""
+
+  if [[ "$MODE" == "dev" ]]; then
+    log info "Running package in DEV mode"
+    elastic_search_dev_compose_filename="docker-compose.dev.yml"
+  else
+    log info "Running package in PROD mode"
+  fi
+
+  (
+    if [[ "$CLUSTERED_MODE" == "true" ]]; then
+      create_certs
+      docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.cluster.yml"
+      add_docker_configs
+    else
+      docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$elastic_search_dev_compose_filename"
+    fi
 
     log info "Waiting for elasticsearch to start before automatically setting built-in passwords"
-    docker::await_container_status $leader_node Running
-  else
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $elastic_search_dev_compose_param instant" "Failed to deploy Analytics Datastore Elastic Search"
 
-    log info "Waiting for elasticsearch to start before automatically setting built-in passwords"
-    docker::await_container_status $leader_node Starting
+    docker::await_service_status "$ES_LEADER_NODE" "$CONTAINER_STATUS"
+    install_expect
+    set_elasticsearch_passwords "$ES_LEADER_NODE"
+
+    docker::deploy_sanity "${SERVICE_NAMES[@]}"
+
+  ) || {
+    log error "Failed to deploy package"
+    exit 1
+  }
+
+  config::await_network_join "instant_$ES_LEADER_NODE"
+
+  docker::deploy_config_importer "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "elastic-search-config-importer" "elasticsearch"
+}
+
+function destroy_package() {
+  docker::service_destroy "${SERVICE_NAMES[@]}" "elastic-search-config-importer"
+
+  if [[ "$CLUSTERED_MODE" == "true" ]]; then
+    docker::try_remove_volume es01-data certs
+    log warn "Volumes are only deleted on the host on which the command is run. Cluster volumes on other nodes are not deleted"
+  else
+    docker::try_remove_volume es-data
   fi
 
-  install_expect
-  set_elasticsearch_passwords $leader_node
-
-  config::await_network_join "instant_$leader_node"
-
-  import_elastic_index
-
-  if [[ "$STATEFUL_NODES" == "cluster" ]]; then
-    docker::deploy_sanity analytics-datastore-elastic-search-01 analytics-datastore-elastic-search-02 analytics-datastore-elastic-search-03
-  else
-    docker::deploy_sanity analytics-datastore-elastic-search
-  fi
-  log info "Done"
-elif [[ "$ACTION" == "up" ]]; then
-  if [[ "$STATEFUL_NODES" == "cluster" ]]; then
-    try "docker service scale instant_analytics-datastore-elastic-search-01=1" "Failed to scale up analytics-datastore-elastic-search-01"
-    try "docker service scale instant_analytics-datastore-elastic-search-02=1" "Failed to scale up analytics-datastore-elastic-search-02"
-    try "docker service scale instant_analytics-datastore-elastic-search-03=1" "Failed to scale up analytics-datastore-elastic-search-03"
-  else
-    try "docker service scale instant_analytics-datastore-elastic-search=1" "Failed to scale up analytics-datastore-elastic-search"
-  fi
-elif [[ "$ACTION" == "down" ]]; then
-  if [[ "$STATEFUL_NODES" == "cluster" ]]; then
-    try "docker service scale instant_analytics-datastore-elastic-search-01=0" "Failed to scale down analytics-datastore-elastic-search-01"
-    try "docker service scale instant_analytics-datastore-elastic-search-02=0" "Failed to scale down analytics-datastore-elastic-search-02"
-    try "docker service scale instant_analytics-datastore-elastic-search-03=0" "Failed to scale down analytics-datastore-elastic-search-03"
-  else
-    try "docker service scale instant_analytics-datastore-elastic-search=0" "Failed to scale down analytics-datastore-elastic-search"
-  fi
-elif [[ "$ACTION" == "destroy" ]]; then
-  if [[ "$STATEFUL_NODES" == "cluster" ]]; then
-    docker::service_destroy analytics-datastore-elastic-search-01
-    docker::service_destroy analytics-datastore-elastic-search-02
-    docker::service_destroy analytics-datastore-elastic-search-03
-
-    log warn "Volumes are only deleted on the host on which the command is run. Elastic Search volumes on other nodes are not deleted"
-  else
-    docker::service_destroy analytics-datastore-elastic-search
-  fi
-
-  docker::try_remove_volume es-data
   docker::prune_configs "elasticsearch"
-else
-  log error "Valid options are: init, up, down, or destroy"
-fi
+}
+
+main() {
+  init_vars "$@"
+  import_sources
+
+  if [[ "${ACTION}" == "init" ]]; then
+    if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+      log info "Running package in Cluster mode"
+    else
+      log info "Running package in Single mode"
+    fi
+
+    initialize_package
+  elif [[ "$ACTION" == "up" ]]; then
+    log info "Scaling up package"
+
+    docker::scale_services_up 1 "${SERVICE_NAMES[@]}"
+  elif [[ "${ACTION}" == "down" ]]; then
+    log info "Scaling down package"
+
+    docker::scale_services_down "${SERVICE_NAMES[@]}"
+  elif [[ "${ACTION}" == "destroy" ]]; then
+    log info "Destroying package"
+
+    destroy_package
+  else
+    log error "Valid options are: init, up, down, or destroy"
+  fi
+}
+
+main "$@"

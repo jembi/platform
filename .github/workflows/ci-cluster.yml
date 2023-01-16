@@ -69,12 +69,20 @@ jobs:
             --become
             --user=ubuntu
             --extra-vars @./inventories/development/group_vars/all.yml
-  launch-platform:
+  run-e2e-tests:
     runs-on: ubuntu-20.04
     needs: configure-e2e-server
-    timeout-minutes: 20
+    timeout-minutes: 80
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v29.0.3
+        with:
+          since_last_remote_commit: 'true'
+          dir_names: 'true'
       - run: ./get-cli.sh linux
       - run: ./build-image.sh
       - run: sudo sh -c 'echo "    ServerAliveInterval 30" >> /etc/ssh/ssh_config'
@@ -86,12 +94,17 @@ jobs:
       - run: ssh-keyscan -H ${{ github.run_id }}.jembi.cloud >> ~/.ssh/known_hosts
       - run: ./remote-img-load.sh ${{ github.run_id }}.jembi.cloud
       - run: sed -i 's/domain/${{ github.run_id }}.jembi.cloud/g' .env.cluster
-      # TODO: (PLAT-385, rcrichton) add 'client-registry-santempi' add santempi once it works in cluster mode
-      - run: DOCKER_HOST=ssh://ubuntu@${{ github.run_id }}.jembi.cloud ./platform-linux --env-file=.env.cluster init reverse-proxy-nginx interoperability-layer-openhim fhir-datastore-hapi-fhir message-bus-kafka analytics-datastore-elastic-search dashboard-visualiser-kibana data-mapper-logstash dashboard-visualiser-jsreport message-bus-helper-hapi-proxy
+      - name: Install dependencies
+        working-directory: ./test/cucumber
+        run: yarn
+      - name: Run Cucumber tests in cluster node mode
+        working-directory: ./.github/workflows
+        run: ./run-tests.sh ${{ github.run_id }} "cluster" ${{ steps.changed-files.outputs.all_changed_files }}
+        shell: bash
   destroy-e2e-server:
     runs-on: ubuntu-20.04
     if: always()
-    needs: [provision-e2e-server, configure-e2e-server, launch-platform]
+    needs: [provision-e2e-server, configure-e2e-server, run-e2e-tests]
     timeout-minutes: 15
     env:
       TF_VAR_PROJECT_NAME: platform-e2e-tests-${{ github.run_id }}

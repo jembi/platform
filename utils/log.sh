@@ -128,6 +128,13 @@ function log() {
     local norm="${colours['DEFAULT']}"
     local colour="${colours[${upper}]:-\033[31m}"
 
+    if [[ "${line}" == *"${CLEAR_PREV_LINE}"* ]]; then
+        # Append package name dynamically when override
+        line="${CLEAR_PREV_LINE}[$(dirname -- "$0" | sed -e 's/-/ /g' -e 's/\b\(.\)/\u\1/g')] ${line#*"$CLEAR_PREV_LINE"}"
+    else
+        line="[$(dirname -- "$0" | sed -e 's/-/ /g' -e 's/\b\(.\)/\u\1/g')] ${line}"
+    fi
+
     local std_line="${colour} ${emoticons[${upper}]} ${line}${norm}"
 
     # Standard Output (Pretty)
@@ -152,18 +159,30 @@ function log() {
 # This is an option if you want to log every single command executed,
 # but it will significantly impact script performance and unit tests will fail
 if [[ $DEBUG -eq 1 ]]; then
-    declare prev_cmd="null"
-    declare this_cmd="null"
+    declare -g prev_cmd="null"
+    declare -g this_cmd="null"
 
     trap 'prev_cmd=$this_cmd; this_cmd=$BASH_COMMAND; log debug $this_cmd' DEBUG
 fi
+
+# A function that will return a message called when of parameter not provided
+#
+# Arguments:
+# - $1 : optional - function name missing the parameter
+# - $2 : optional - name of the parameter missing
+missing_param() {
+    local FUNC_NAME=${1:-""}
+    local ARG_NAME=${2:-""}
+
+    echo "FATAL: ${FUNC_NAME} parameter ${ARG_NAME} not provided"
+}
 
 # Overwrites the last echo'd command with what is provided
 #
 # Arguments:
 # - $1 : message (eg. "Setting passwords... Done")
 overwrite() {
-    local -r MESSAGE=${1:?"FATAL: function 'overwrite' is missing a parameter"}
+    local -r MESSAGE=${1:?$(missing_param "overwrite")}
     if [ "${DEBUG}" -eq 1 ]; then
         log info "${MESSAGE}"
     else
@@ -175,23 +194,34 @@ overwrite() {
 #
 # Arguments:
 # - $1 : command (eg. "docker service rm elastic-search")
-# - $2 : error message (eg. "Failed to remove elastic-search service")
+# - $2 : throw or catch (eg. "throw", "catch")
+# - $3 : error message (eg. "Failed to remove elastic-search service")
 try() {
-    local -r COMMAND=${1:?"FATAL: function 'try' is missing a parameter"}
-    local -r ERROR_MESSAGE=${2:?"FATAL: function 'try' is missing a parameter"}
+    local -r COMMAND=${1:?$(missing_param "try" "COMMAND")}
+    local -r SHOULD_THROW=${2:-"throw"}
+    local -r ERROR_MESSAGE=${3:?$(missing_param "try" "ERROR_MESSAGE")}
 
     if [ "${BASHLOG_FILE}" -eq 1 ]; then
         if ! eval "$COMMAND" >>"$LOG_FILE_PATH" 2>&1; then
             log error "$ERROR_MESSAGE"
+            if [[ "$SHOULD_THROW" == "throw" ]]; then
+                exit 1
+            fi
         fi
     else
         if [ "${DEBUG}" -eq 1 ]; then
             if ! eval "$COMMAND"; then
                 log error "$ERROR_MESSAGE"
+                if [[ "$SHOULD_THROW" == "throw" ]]; then
+                    exit 1
+                fi
             fi
         else
             if ! eval "$COMMAND" 1>/dev/null; then
                 log error "$ERROR_MESSAGE"
+                if [[ "$SHOULD_THROW" == "throw" ]]; then
+                    exit 1
+                fi
             fi
         fi
     fi

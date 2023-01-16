@@ -1,28 +1,63 @@
 #!/bin/bash
 
-readonly ACTION=$1
+declare ACTION=""
+declare COMPOSE_FILE_PATH=""
+declare UTILS_PATH=""
+declare SERVICE_NAMES=()
 
-COMPOSE_FILE_PATH=$(
-  cd "$(dirname "${BASH_SOURCE[0]}")" || exit
-  pwd -P
-)
-readonly COMPOSE_FILE_PATH
+function init_vars() {
+  ACTION=$1
 
-ROOT_PATH="${COMPOSE_FILE_PATH}/.."
-readonly ROOT_PATH
+  COMPOSE_FILE_PATH=$(
+    cd "$(dirname "${BASH_SOURCE[0]}")" || exit
+    pwd -P
+  )
 
-. "${ROOT_PATH}/utils/docker-utils.sh"
-. "${ROOT_PATH}/utils/log.sh"
+  UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
+
+  SERVICE_NAMES=("kafka-unbundler-consumer")
+
+  readonly ACTION
+  readonly COMPOSE_FILE_PATH
+  readonly UTILS_PATH
+  readonly SERVICE_NAMES
+}
+
+# shellcheck disable=SC1091
+function import_sources() {
+  source "${UTILS_PATH}/docker-utils.sh"
+  source "${UTILS_PATH}/log.sh"
+}
+
+function initialize_package() {
+  (
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml"
+    docker::deploy_sanity "${SERVICE_NAMES}"
+  ) || {
+    log error "Failed to deploy package"
+    exit 1
+  }
+}
+
+function destroy_package() {
+  docker::service_destroy "$SERVICE_NAMES"
+}
 
 main() {
-  if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml instant" "Failed to deploy Kafka Unbundler Consumer"
+  init_vars "$@"
+  import_sources
 
-    docker::deploy_sanity kafka-unbundler-consumer
+  if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
+    log info "Running package"
+
+    initialize_package
   elif [[ "${ACTION}" == "down" ]]; then
-    try "docker service scale instant_kafka-unbundler-consumer=0" "Failed to scale down kafka-unbundler-consumer"
+    log info "Scaling down package"
+
+    docker::scale_services_down "${SERVICE_NAMES}"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    docker::service_destroy kafka-unbundler-consumer
+    log info "Destroying package"
+    destroy_package
   else
     log error "Valid options are: init, up, down, or destroy"
   fi

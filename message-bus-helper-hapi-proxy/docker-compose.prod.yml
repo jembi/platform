@@ -1,7 +1,0 @@
-version: '3.9'
-
-services:
-  hapi-proxy:
-    deploy:
-      placement:
-        max_replicas_per_node: 1

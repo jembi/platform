@@ -1,82 +1,125 @@
 #!/bin/bash
 
-# Arguments
-readonly ACTION=$1
-readonly MODE=$2
+declare ACTION=""
+declare MODE=""
+declare COMPOSE_FILE_PATH=""
+declare UTILS_PATH=""
+declare SERVICE_NAMES=()
+declare LOGSTASH_DEV_MOUNT_COMPOSE_FILENAME=""
 
-readonly LOGSTASH_DEV_MOUNT=$LOGSTASH_DEV_MOUNT
+function init_vars() {
+  ACTION=$1
+  MODE=$2
 
-COMPOSE_FILE_PATH=$(
-  cd "$(dirname "${BASH_SOURCE[0]}")" || exit
-  pwd -P
-)
+  COMPOSE_FILE_PATH=$(
+    cd "$(dirname "${BASH_SOURCE[0]}")" || exit
+    pwd -P
+  )
 
-# Import libraries
-ROOT_PATH="${COMPOSE_FILE_PATH}/.."
-. "${ROOT_PATH}/utils/config-utils.sh"
-. "${ROOT_PATH}/utils/docker-utils.sh"
-. "${ROOT_PATH}/utils/log.sh"
+  UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-inject_pipeline_elastic_hosts() {
+  SERVICE_NAMES=("data-mapper-logstash")
+
+  if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+    export LOGSTASH_YML_CONFIG="logstash-logstash.cluster.yml"
+  else
+    export LOGSTASH_YML_CONFIG="logstash-logstash.yml"
+  fi
+
+  readonly ACTION
+  readonly MODE
+  readonly COMPOSE_FILE_PATH
+  readonly UTILS_PATH
+  readonly SERVICE_NAMES
+}
+
+# shellcheck disable=SC1091
+function import_sources() {
+  source "${UTILS_PATH}/docker-utils.sh"
+  source "${UTILS_PATH}/config-utils.sh"
+  source "${UTILS_PATH}/log.sh"
+}
+
+function dev_mount_logstash() {
+  if [[ "$LOGSTASH_DEV_MOUNT" == "true" ]]; then
+    if [[ -z $LOGSTASH_PACKAGE_PATH ]]; then
+      log error "LOGSTASH_PACKAGE_PATH environment variable not specified. Please specify LOGSTASH_PACKAGE_PATH as stated in the README."
+      exit 1
+    fi
+
+    log info "Attaching dev mount file"
+    LOGSTASH_DEV_MOUNT_COMPOSE_FILENAME="docker-compose.dev-mnt.yml"
+  fi
+}
+
+function inject_pipeline_elastic_hosts() {
   ES_HOSTS=${ES_HOSTS:-"\"analytics-datastore-elastic-search:9200\""}
   for file in "${COMPOSE_FILE_PATH}"/pipeline/*.conf; do
     sed -i "s/\$ES_HOSTS/${ES_HOSTS}/g" "${file}"
   done
 }
 
-if [[ "$MODE" == "dev" ]]; then
-  log info "Running Data Mapper Logstash package in DEV mode"
-  logstash_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
-else
-  log info "Running Data Mapper Logstash package in PROD mode"
-  logstash_dev_compose_param=""
-fi
+function initialize_package() {
+  local logstash_dev_compose_filename=""
+  local logstash_temp_compose_filename=""
 
-if [[ "$LOGSTASH_DEV_MOUNT" == "true" ]]; then
-  if [[ -z $LOGSTASH_PACKAGE_PATH ]]; then
-    log error "LOGSTASH_PACKAGE_PATH environment variable not specified. Please specify LOGSTASH_PACKAGE_PATH as stated in the README."
-    exit 1
-  fi
-
-  log info "Running Data Mapper Logstash package with dev mount"
-  logstash_dev_mount_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev-mnt.yml"
-else
-  logstash_dev_mount_compose_param=""
-fi
-
-if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-
-  if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
-    export LOGSTASH_YML_CONFIG="logstash-logstash.cluster.yml"
+  if [[ "$MODE" == "dev" ]]; then
+    log info "Running package in DEV mode"
+    logstash_dev_compose_filename="docker-compose.dev.yml"
   else
-    export LOGSTASH_YML_CONFIG="logstash-logstash.yml"
+    log info "Running package in PROD mode"
   fi
 
-  inject_pipeline_elastic_hosts
+  if [[ "$LOGSTASH_DEV_MOUNT" == "true" ]]; then
+    log warn "LOGSTASH_DEV_MOUNT is enabled: Please make sure TO REPLACE ES_HOSTS MANUALLY IN ALL THE FILES inside data-mapper-logstash/pipeline folder!"
+  else
+    inject_pipeline_elastic_hosts
 
-  config::set_config_digests "${COMPOSE_FILE_PATH}"/docker-compose.yml
+    config::generate_service_configs data-mapper-logstash /usr/share/logstash "${COMPOSE_FILE_PATH}/pipeline" "${COMPOSE_FILE_PATH}" "logstash"
+    logstash_temp_compose_filename="docker-compose.tmp.yml"
+  fi
 
-  config::generate_service_configs data-mapper-logstash /usr/share/logstash "${COMPOSE_FILE_PATH}/pipeline" "${COMPOSE_FILE_PATH}" logstash
-  logstash_temp_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.tmp.yml"
+  (
+    dev_mount_logstash
 
-  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $logstash_dev_compose_param $logstash_dev_mount_compose_param $logstash_temp_compose_param instant" "Failed to deploy Data Mapper Logstash"
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$logstash_dev_compose_filename" "$LOGSTASH_DEV_MOUNT_COMPOSE_FILENAME" "$logstash_temp_compose_filename"
+    docker::deploy_sanity "${SERVICE_NAMES}"
+  ) || {
+    log error "Failed to deploy package"
+    exit 1
+  }
+}
 
-  docker::await_container_startup data-mapper-logstash
-  docker::await_container_status data-mapper-logstash Running
+function destroy_package() {
+  docker::service_destroy "$SERVICE_NAMES" "clickhouse-config-importer"
 
-  config::remove_stale_service_configs "${COMPOSE_FILE_PATH}/docker-compose.yml" "logstash"
-
-  docker::prune_configs logstash
-
-  docker::deploy_sanity data-mapper-logstash
-  log info "Done"
-elif [[ "${ACTION}" == "down" ]]; then
-  try "docker service scale instant_data-mapper-logstash=0" "Failed to scale down data-mapper-logstash"
-elif [[ "${ACTION}" == "destroy" ]]; then
-  docker::service_destroy data-mapper-logstash
   docker::try_remove_volume logstash-data
 
-  docker::prune_configs logstash
-else
-  log error "Valid options are: init, up, down, or destroy"
-fi
+  docker::prune_configs "logstash"
+}
+
+main() {
+  init_vars "$@"
+  import_sources
+
+  if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
+    if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+      log info "Running package in Cluster node mode"
+    else
+      log info "Running package in Single node mode"
+    fi
+
+    initialize_package
+  elif [[ "${ACTION}" == "down" ]]; then
+    log info "Scaling down package"
+
+    docker::scale_services_down "${SERVICE_NAMES}"
+  elif [[ "${ACTION}" == "destroy" ]]; then
+    log info "Destroying package"
+    destroy_package
+  else
+    log error "Valid options are: init, up, down, or destroy"
+  fi
+}
+
+main "$@"
