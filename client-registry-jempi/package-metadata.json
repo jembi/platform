@@ -51,9 +51,9 @@
     "JEMPI_API_IMAGE_TAG": "0.1.1",
     "JEMPI_OPENHIM_PASSWORD": "instant101",
     "KC_REALM_NAME": "platform-realm",
+    "KC_API_URL": "http://identity-access-manager-keycloak:8080",
     "KC_JEMPI_CLIENT_ID": "jempi-oauth",
     "KC_JEMPI_CLIENT_SECRET": "Tbe3llP5OJIlqUjz7K1wPp8YDAdCOEMn",
-    "KC_API_URL": "http://identity-access-manager-keycloak:8080",
-    "JEMPI_SERVER_ROOT_URL": "http://localhost:3000"
+    "KC_JEMPI_ROOT_URL": "http://localhost:3000"
   }
 }
