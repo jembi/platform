@@ -50,6 +50,7 @@
     "JEMPI_LINKER_IMAGE_TAG": "0.1.1",
     "JEMPI_API_IMAGE_TAG": "0.1.1",
     "JEMPI_OPENHIM_PASSWORD": "instant101",
+    "JEMPI_SESSION_SECRET": "c05ll3lesrinf39t7mc5h6un6r0c69lgfno69dsak3vabeqamouq4328cuaekros401ajdpkh60rrt",
     "KC_REALM_NAME": "platform-realm",
     "KC_API_URL": "http://identity-access-manager-keycloak:8080",
     "KC_JEMPI_CLIENT_ID": "jempi-oauth",
