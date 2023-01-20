@@ -56,6 +56,9 @@ function initialize_package() {
 
   if [[ "${CLUSTERED_MODE}" == "true" ]]; then
     monitoring_cluster_compose_filename="docker-compose.cluster.yml"
+    export NUM_MINIO_SERVERS=4
+  else
+    export NUM_MINIO_SERVERS=1
   fi
 
   if [[ "${MODE}" == "dev" ]]; then

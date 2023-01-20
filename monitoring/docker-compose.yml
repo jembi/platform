@@ -127,7 +127,7 @@ services:
   minio1:
     image: quay.io/minio/minio:RELEASE.2022-10-24T18-35-07Z
     entrypoint: sh
-    command: -c 'mkdir -p /data1/loki /data2/loki && minio server --console-address ":9001" http://minio{1...1}/data{1...2}'
+    command: -c 'mkdir -p /data1/loki /data2/loki && minio server --console-address ":9001" http://minio{1...${NUM_MINIO_SERVERS}}/data{1...2}'
     environment:
       MINIO_ROOT_USER: ${MO_SECURITY_ADMIN_USER}
       MINIO_ROOT_PASSWORD: ${MO_SECURITY_ADMIN_PASSWORD}
