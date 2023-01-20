@@ -39,9 +39,7 @@ storage_config:
     resync_interval: 30s
     shared_store: s3
   aws:
-    # Note: use a fully qualified domain name, like localhost.
-    # full example: http://loki:supersecret@localhost.:9000
-    s3: http://minioadmin:minioadmin@minio1.:9000/loki
+    s3: http://${MO_SECURITY_ADMIN_USER}:${MO_SECURITY_ADMIN_PASSWORD}@minio1.:9000/loki
     s3forcepathstyle: true
 
 compactor:

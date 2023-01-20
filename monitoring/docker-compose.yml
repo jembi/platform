@@ -126,8 +126,8 @@ services:
     entrypoint: sh
     command: -c 'mkdir -p /data1/loki /data2/loki && minio server --console-address ":9001" http://minio{1...1}/data{1...2}'
     environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_ROOT_USER: ${MO_SECURITY_ADMIN_USER}
+      MINIO_ROOT_PASSWORD: ${MO_SECURITY_ADMIN_PASSWORD}
     healthcheck:
       test:
         [
@@ -141,8 +141,8 @@ services:
       retries: 3
     hostname: minio1
     volumes:
-      - minio_data1:/data1
-      - minio_data2:/data2
+      - minio1_data1:/data1
+      - minio1_data2:/data2
     deploy:
       replicas: 1
 
@@ -212,5 +212,5 @@ volumes:
   prometheus_data:
   grafana_data:
   loki_data:
-  minio_data1:
-  minio_data2:
+  minio1_data1:
+  minio1_data2:

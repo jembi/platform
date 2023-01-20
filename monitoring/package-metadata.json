@@ -6,7 +6,7 @@
   "version": "0.0.1",
   "dependencies": [],
   "environmentVariables": {
-    "STATEFUL_NODES": "single",
+    "STATEFUL_NODES": "cluster",
     "GF_SECURITY_ADMIN_USER": "admin",
     "GF_SECURITY_ADMIN_PASSWORD": "dev_password_only",
     "GF_SMTP_ENABLED": "false",
@@ -20,6 +20,8 @@
     "KC_GRAFANA_CLIENT_ID": "grafana-oauth",
     "KC_GRAFANA_CLIENT_SECRET": "CV14QfwnpYFj1IH5dK5lScPNCYAIYP1c",
     "GF_SERVER_DOMAIN": "localhost",
-    "GF_SERVER_ROOT_URL": "http://localhost:3000"
+    "GF_SERVER_ROOT_URL": "http://localhost:3000",
+    "MO_SECURITY_ADMIN_USER": "admin",
+    "MO_SECURITY_ADMIN_PASSWORD": "dev_password_only"
   }
 }

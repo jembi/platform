@@ -29,6 +29,97 @@ services:
       - '--web.console.templates=/etc/prometheus/consoles'
       - '--web.enable-lifecycle'
 
+  minio1:
+    command: -c 'mkdir -p /data1/loki /data2/loki && minio server --console-address ":9001" http://minio{1...4}/data{1...2}'
+    deploy:
+      placement:
+        constraints:
+          - "node.labels.name==node-1"
+
+  minio2:
+    image: quay.io/minio/minio:RELEASE.2022-10-24T18-35-07Z
+    entrypoint: sh
+    command: -c 'mkdir -p /data1/loki /data2/loki && minio server --console-address ":9001" http://minio{1...4}/data{1...2}'
+    environment:
+      MINIO_ROOT_USER: ${MO_SECURITY_ADMIN_USER}
+      MINIO_ROOT_PASSWORD: ${MO_SECURITY_ADMIN_PASSWORD}
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "http://localhost:9000/minio/health/live"
+        ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    hostname: minio2
+    volumes:
+      - minio2_data1:/data1
+      - minio2_data2:/data2
+    deploy:
+      placement:
+        constraints:
+          - "node.labels.name==node-1"
+      replicas: 1
+
+  minio3:
+    image: quay.io/minio/minio:RELEASE.2022-10-24T18-35-07Z
+    entrypoint: sh
+    command: -c 'mkdir -p /data1/loki /data2/loki && minio server --console-address ":9001" http://minio{1...4}/data{1...2}'
+    environment:
+      MINIO_ROOT_USER: ${MO_SECURITY_ADMIN_USER}
+      MINIO_ROOT_PASSWORD: ${MO_SECURITY_ADMIN_PASSWORD}
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "http://localhost:9000/minio/health/live"
+        ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    hostname: minio3
+    volumes:
+      - minio3_data1:/data1
+      - minio3_data2:/data2
+    deploy:
+      placement:
+        constraints:
+          - "node.labels.name==node-2"
+      replicas: 1
+
+  minio4:
+    image: quay.io/minio/minio:RELEASE.2022-10-24T18-35-07Z
+    entrypoint: sh
+    command: -c 'mkdir -p /data1/loki /data2/loki && minio server --console-address ":9001" http://minio{1...4}/data{1...2}'
+    environment:
+      MINIO_ROOT_USER: ${MO_SECURITY_ADMIN_USER}
+      MINIO_ROOT_PASSWORD: ${MO_SECURITY_ADMIN_PASSWORD}
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "http://localhost:9000/minio/health/live"
+        ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    hostname: minio4
+    volumes:
+      - minio4_data1:/data1
+      - minio4_data2:/data2
+    deploy:
+      placement:
+        constraints:
+          - "node.labels.name==node-3"
+      replicas: 1
+
 configs:
   prometheus.yml:
     file: ./prometheus/prometheus.yml
@@ -38,3 +129,9 @@ configs:
 
 volumes:
   prometheus_data_backup:
+  minio2_data1:
+  minio2_data2:
+  minio3_data1:
+  minio3_data2:
+  minio4_data1:
+  minio4_data2:
