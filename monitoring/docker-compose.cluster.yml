@@ -30,7 +30,6 @@ services:
       - '--web.enable-lifecycle'
 
   minio1:
-    command: -c 'mkdir -p /data1/loki /data2/loki && minio server --console-address ":9001" http://minio{1...4}/data{1...2}'
     deploy:
       placement:
         constraints:
