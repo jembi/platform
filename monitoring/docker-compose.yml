@@ -100,10 +100,13 @@ services:
     image: grafana/loki:2.6.1
     volumes:
       - loki_data:/tmp/loki
+    environment:
+      MO_SECURITY_ADMIN_USER: ${MO_SECURITY_ADMIN_USER}
+      MO_SECURITY_ADMIN_PASSWORD: ${MO_SECURITY_ADMIN_PASSWORD}
     configs:
       - target: /etc/loki/loki-config.yml
         source: loki-config.yml
-    command: -config.file=/etc/loki/loki-config.yml
+    command: -config.file=/etc/loki/loki-config.yml -config.expand-env=true
     deploy:
       labels:
         - prometheus-job-service=loki
