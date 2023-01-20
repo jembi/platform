@@ -3,7 +3,27 @@
   "version": "1.0.0",
   "description": "A package to test the platform",
   "scripts": {
-    "test": "cucumber-js"
+    "test:single": "cucumber-js 'features/single-mode/**/*.feature'",
+    "test:cluster": "cucumber-js 'features/cluster-mode/**/*.feature'",
+    "test:single:clickhouse": "cucumber-js 'features/single-mode/clickhouse.feature'",
+    "test:cluster:clickhouse": "cucumber-js 'features/cluster-mode/clickhouse.cluster.feature'",
+    "test:single:elk": "cucumber-js 'features/single-mode/elastic-packages.feature'",
+    "test:cluster:elk": "cucumber-js 'features/cluster-mode/elastic-packages.cluster.feature'",
+    "test:single:hapi": "cucumber-js 'features/single-mode/hapi-fhir.feature'",
+    "test:cluster:hapi": "cucumber-js 'features/cluster-mode/hapi-fhir.cluster.feature'",
+    "test:single:kafka": "cucumber-js 'features/single-mode/kafka-packages.feature'",
+    "test:cluster:kafka": "cucumber-js 'features/cluster-mode/kafka-packages.cluster.feature'",
+    "test:single:openhim": "cucumber-js 'features/single-mode/openhim-packages.feature'",
+    "test:cluster:openhim": "cucumber-js 'features/cluster-mode/openhim-packages.cluster.feature'",
+    "test:single:nginx": "cucumber-js 'features/single-mode/reverse-proxy.feature'",
+    "test:cluster:nginx": "cucumber-js 'features/cluster-mode/reverse-proxy.cluster.feature'",
+    "test:single:sante": "cucumber-js 'features/single-mode/santempi.feature'",
+    "test:cluster:sante": "cucumber-js 'features/cluster-mode/santempi.cluster.feature'",
+    "test:single:keycloak": "cucumber-js 'features/single-mode/keycloak.feature'",
+    "test:cluster:keycloak": "cucumber-js 'features/cluster-mode/keycloak.cluster.feature'",
+    "test:single:jsreport": "cucumber-js 'features/single-mode/jsreport.feature'",
+    "test:single:superset": "cucumber-js 'features/single-mode/superset.feature'",
+    "test:single:mpi-mediator": "cucumber-js 'features/single-mode/mpi-mediator.feature'"
   },
   "devDependencies": {
     "@cucumber/cucumber": "8.5.0",

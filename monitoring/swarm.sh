@@ -1,63 +1,119 @@
 #!/bin/bash
 
-# Constants
-readonly ACTION=$1
-readonly MODE=$2
+declare ACTION=""
+declare MODE=""
+declare COMPOSE_FILE_PATH=""
+declare UTILS_PATH=""
+declare SERVICE_NAMES=()
+declare SCALED_SERVICES=()
 
-COMPOSE_FILE_PATH=$(
-  cd "$(dirname "${BASH_SOURCE[0]}")" || exit
-  pwd -P
-)
+function init_vars() {
+  ACTION=$1
+  MODE=$2
 
-# Import libraries
-ROOT_PATH="${COMPOSE_FILE_PATH}/.."
-. "${ROOT_PATH}/utils/docker-utils.sh"
-. "${ROOT_PATH}/utils/log.sh"
+  COMPOSE_FILE_PATH=$(
+    cd "$(dirname "${BASH_SOURCE[0]}")" || exit
+    pwd -P
+  )
 
-if [[ "${MODE}" == "dev" ]]; then
-  log info "Running Monitoring package in DEV mode"
-  monitoring_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
-else
-  log info "Running Monitoring package in PROD mode"
-  monitoring_dev_compose_param=""
-fi
+  UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-  log info "Setting config digests"
-  config::set_config_digests "$COMPOSE_FILE_PATH"/docker-compose.yml
+  SCALED_SERVICES=(
+    "grafana"
+    "prometheus"
+    "prometheus-kafka-adapter"
+  )
+  if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+    SCALED_SERVICES=(
+      "${SCALED_SERVICES[@]}"
+      "prometheus_backup"
+    )
+  fi
+  SERVICE_NAMES=(
+    "${SCALED_SERVICES[@]}"
+    "cadvisor"
+    "node-exporter"
+  )
 
-  try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml ${monitoring_dev_compose_param} instant" "Failed to deploy monitoring stack"
+  readonly ACTION
+  readonly MODE
+  readonly COMPOSE_FILE_PATH
+  readonly UTILS_PATH
+  readonly SERVICE_NAMES
+  readonly SCALED_SERVICES
+}
 
-  log info "Removing stale configs..."
-  config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "grafana"
-  config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "prometheus"
+# shellcheck disable=SC1091
+function import_sources() {
+  source "${UTILS_PATH}/docker-utils.sh"
+  source "${UTILS_PATH}/config-utils.sh"
+  source "${UTILS_PATH}/log.sh"
+}
 
-  docker::deploy_sanity grafana prometheus prometheus-kafka-adapter cadvisor node-exporter
-elif [[ "${ACTION}" == "down" ]]; then
-  try "docker service scale instant_grafana=0 instant_prometheus=0 instant_prometheus-kafka-adapter=0" "Failed to down monitoring stack"
-  try "docker service rm instant_cadvisor" "Failed to remove global service cadvisor"
-  docker::await_service_destroy "cadvisor"
-  try "docker service rm instant_node-exporter" "Failed to remove global service node-exporter"
-  docker::await_service_destroy "node-exporter"
-elif [[ "${ACTION}" == "destroy" ]]; then
-  docker::service_destroy grafana
-  docker::service_destroy prometheus
-  docker::service_destroy prometheus-kafka-adapter
+function initialize_package() {
+  local monitoring_dev_compose_filename=""
+  local monitoring_cluster_compose_filename=""
 
-  try "docker service rm instant_cadvisor" "Failed to remove global service cadvisor"
-  docker::await_service_destroy "cadvisor"
-  try "docker service rm instant_node-exporter" "Failed to remove global service node-exporter"
-  docker::await_service_destroy "node-exporter"
+  if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+    monitoring_cluster_compose_filename="docker-compose.cluster.yml"
+  fi
 
-  docker::try_remove_volume prometheus_data
-  docker::try_remove_volume grafana_data
+  if [[ "${MODE}" == "dev" ]]; then
+    log info "Running package in DEV mode"
+    monitoring_dev_compose_filename="docker-compose.dev.yml"
+  else
+    log info "Running package in PROD mode"
+  fi
 
-  if [[ $STATEFUL_NODES == "cluster" ]]; then
+  (
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$monitoring_dev_compose_filename" "$monitoring_cluster_compose_filename"
+    docker::deploy_sanity "${SERVICE_NAMES[@]}"
+  ) || {
+    log error "Failed to deploy package"
+    exit 1
+  }
+}
+
+function scale_services_down() {
+  docker::scale_services_down "${SCALED_SERVICES[@]}"
+
+  docker::service_destroy "cadvisor" "node-exporter"
+}
+
+function destroy_package() {
+  docker::service_destroy "${SERVICE_NAMES[@]}"
+
+  docker::try_remove_volume prometheus_data grafana_data
+
+  if [[ $CLUSTERED_MODE == "true" ]]; then
     log warn "Volumes are only deleted on the host on which the command is run. Monitoring volumes on other nodes are not deleted"
   fi
 
-  docker::prune_configs grafana
-  docker::prune_configs prometheus
-else
-  log error "Valid options are: init, up, down, or destroy"
-fi
+  docker::prune_configs "grafana" "prometheus"
+}
+
+main() {
+  init_vars "$@"
+  import_sources
+
+  if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
+    if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+      log info "Running package in Cluster node mode"
+    else
+      log info "Running package in Single node mode"
+    fi
+
+    initialize_package
+  elif [[ "${ACTION}" == "down" ]]; then
+    log info "Scaling down package"
+
+    scale_services_down
+  elif [[ "${ACTION}" == "destroy" ]]; then
+    log info "Destroying package"
+    destroy_package
+  else
+    log error "Valid options are: init, up, down, or destroy"
+  fi
+}
+
+main "$@"

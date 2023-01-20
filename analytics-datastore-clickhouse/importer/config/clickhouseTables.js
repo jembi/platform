@@ -1,7 +1,7 @@
-const STATEFUL_NODES = process.env.STATEFUL_NODES || 'cluster';
+const CLUSTERED_MODE = process.env.CLUSTERED_MODE || 'true';
 
 const queries =
-  STATEFUL_NODES === 'single'
+  Boolean(CLUSTERED_MODE) === true
     ? [
         `CREATE TABLE default_table(
 			createdAt Date,

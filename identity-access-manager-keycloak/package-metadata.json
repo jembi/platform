@@ -6,10 +6,9 @@
   "version": "0.0.1",
   "dependencies": [],
   "environmentVariables": {
-    "STATEFUL_NODES": "single",
     "KEYCLOAK_ADMIN": "admin",
     "KEYCLOAK_ADMIN_PASSWORD": "dev_password_only",
-    "KC_FRONTEND_URL": "http://localhost:9080",
+    "KC_FRONTEND_URL": "http://localhost:9088",
     "KC_REALM_NAME": "platform-realm",
     "KC_REPMGR_PRIMARY_HOST": "keycloak-postgres-1",
     "KC_REPMGR_PARTNER_NODES": "keycloak-postgres-1",

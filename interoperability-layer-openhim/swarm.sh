@@ -1,171 +1,140 @@
 #!/bin/bash
 
-# Constants
-readonly ACTION=$1
-readonly MODE=$2
+declare ACTION=""
+declare MODE=""
+declare COMPOSE_FILE_PATH=""
+declare UTILS_PATH=""
+declare MONGO_SERVICES=()
+declare SERVICE_NAMES=()
+declare OPENHIM_SERVICES=()
 
-COMPOSE_FILE_PATH=$(
-  cd "$(dirname "${BASH_SOURCE[0]}")" || exit
-  pwd -P
-)
-readonly COMPOSE_FILE_PATH
+function init_vars() {
+  ACTION=$1
+  MODE=$2
 
-# Import libraries
-ROOT_PATH="${COMPOSE_FILE_PATH}/.."
-. "${ROOT_PATH}/utils/config-utils.sh"
-. "${ROOT_PATH}/utils/docker-utils.sh"
-. "${ROOT_PATH}/utils/log.sh"
+  COMPOSE_FILE_PATH=$(
+    cd "$(dirname "${BASH_SOURCE[0]}")" || exit
+    pwd -P
+  )
 
-verify_core() {
-  local start_time
-  start_time=$(date +%s)
-  until [[ $(docker service ls -f name=instant_openhim-core --format "{{.Replicas}}") == *"${OPENHIM_CORE_INSTANCES}/${OPENHIM_CORE_INSTANCES}"* ]]; do
-    config::timeout_check "${start_time}" "openhim-core to start"
-    sleep 1
-  done
+  UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-  local await_helper_state
-  await_helper_state=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
-  until [[ "${await_helper_state}" == *"Complete"* ]]; do
-    config::timeout_check "${start_time}" "openhim-core heartbeat check"
-    sleep 1
+  OPENHIM_SERVICES=(
+    "openhim-core"
+    "openhim-console"
+  )
 
-    await_helper_state=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
-    if [[ "${await_helper_state}" == *"Failed"* ]] || [[ "${await_helper_state}" == *"Rejected"* ]]; then
-      log error "Fatal: Received error when trying to verify state of openhim-core. Error:
-       $(docker service ps instant_await-helper --no-trunc --format '{{.Error}}')"
-      exit 1
-    fi
-  done
-
-  try "docker service rm instant_await-helper" "Failed to remove await helper"
-}
-
-verify_mongos() {
-  log info 'Waiting to ensure all the mongo instances for the replica set are up and running'
-  local -i running_instance_count
-  running_instance_count=0
-  local start_time
-  start_time=$(date +%s)
-  until [[ "${running_instance_count}" -eq "${MONGO_SET_COUNT}" ]]; do
-    config::timeout_check "${start_time}" "mongo set to start"
-    sleep 1
-
-    running_instance_count=0
-    for i in $(docker service ls -f name=instant_mongo --format "{{.Replicas}}"); do
-      if [[ "${i}" == "1/1" ]]; then
-        running_instance_count=$((running_instance_count + 1))
-      fi
+  MONGO_SERVICES=(
+    "mongo-1"
+  )
+  if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+    for i in {2..3}; do
+      MONGO_SERVICES=(
+        "${MONGO_SERVICES[@]}"
+        "mongo-$i"
+      )
     done
-  done
+  fi
+
+  SERVICE_NAMES=(
+    "${MONGO_SERVICES[@]}"
+    "${OPENHIM_SERVICES[@]}"
+  )
+
+  readonly ACTION
+  readonly MODE
+  readonly COMPOSE_FILE_PATH
+  readonly UTILS_PATH
+  readonly MONGO_SERVICES
+  readonly SERVICE_NAMES
 }
 
-prepare_console_config() {
+# shellcheck disable=SC1091
+function import_sources() {
+  source "${UTILS_PATH}/docker-utils.sh"
+  source "${UTILS_PATH}/config-utils.sh"
+  source "${UTILS_PATH}/log.sh"
+}
+
+function prepare_console_config() {
   # Set host in OpenHIM console config
   sed -i "s/localhost/${OPENHIM_CORE_MEDIATOR_HOSTNAME}/g; s/8080/${OPENHIM_MEDIATOR_API_PORT}/g" /instant/interoperability-layer-openhim/importer/volume/default.json
 }
 
-main() {
-  if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
-    log info "Running Interoperability Layer OpenHIM package in Cluster node mode"
-    mongo_cluster_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose-mongo.cluster.yml"
-  else
-    log info "Running Interoperability Layer OpenHIM package in Single node mode"
-    mongo_cluster_compose_param=""
-  fi
+function initialize_package() {
+  local mongo_cluster_compose_filename=""
+  local mongo_dev_compose_filename=""
+  local openhim_dev_compose_filename=""
 
   if [[ "${MODE}" == "dev" ]]; then
-    log info "Running Interoperability Layer OpenHIM package in DEV mode"
-    local mongo_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose-mongo.dev.yml"
-    local openhim_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
+    log info "Running package in DEV mode"
+    mongo_dev_compose_filename="docker-compose-mongo.dev.yml"
+    openhim_dev_compose_filename="docker-compose.dev.yml"
   else
-    log info "Running Interoperability Layer OpenHIM package in PROD mode"
-    local mongo_dev_compose_param=""
-    local openhim_dev_compose_param=""
+    log info "Running package in PROD mode"
   fi
 
+  if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+    mongo_cluster_compose_filename="docker-compose-mongo.cluster.yml"
+  fi
+
+  (
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose-mongo.yml" "$mongo_cluster_compose_filename" "$mongo_dev_compose_filename"
+
+    if [[ "${CLUSTERED_MODE}" == "true" ]] && [[ "${ACTION}" == "init" ]]; then
+      try "${COMPOSE_FILE_PATH}/initiate-replica-set.sh" throw "Fatal: Initiate Mongo replica set failed"
+    fi
+    docker::deploy_sanity "${MONGO_SERVICES[@]}"
+
+    prepare_console_config
+
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$openhim_dev_compose_filename"
+    docker::deploy_sanity "${OPENHIM_SERVICES[@]}"
+
+    log info "Waiting OpenHIM Core to be running and responding"
+    config::await_service_running "openhim-core" "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml "${OPENHIM_CORE_INSTANCES}"
+  ) ||
+    {
+      log error "Failed to deploy package"
+      exit 1
+    }
+
   if [[ "${ACTION}" == "init" ]]; then
-    config::set_config_digests "${COMPOSE_FILE_PATH}"/docker-compose.yml
-    config::set_config_digests "${COMPOSE_FILE_PATH}"/importer/docker-compose.config.yml
+    docker::deploy_config_importer "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "interoperability-layer-openhim-config-importer" "openhim"
+  fi
+}
 
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose-mongo.yml $mongo_cluster_compose_param $mongo_dev_compose_param instant" "Failed to deploy mongo"
+function destroy_package() {
+  docker::service_destroy "${SERVICE_NAMES[@]}" "interoperability-layer-openhim-config-importer" "await-helper"
 
-    if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
-      try "${COMPOSE_FILE_PATH}/initiateReplicaSet.sh" "Fatal: Initate Mongo replica set failed."
-    fi
+  docker::try_remove_volume "openhim-mongo-01" "openhim-mongo-01-config"
 
-    prepare_console_config
+  if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+    log warn "Volumes are only deleted on the host on which the command is run. Mongo volumes on other nodes are not deleted"
+  fi
 
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml -c ${COMPOSE_FILE_PATH}/docker-compose.stack-0.yml $openhim_dev_compose_param instant" "Failed to create stack-0 openhim core/console"
+  docker::prune_configs "openhim"
+}
 
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.await-helper.yml instant" "Failed to deploy await-helper"
+main() {
+  init_vars "$@"
+  import_sources
 
-    log info "Waiting to give OpenHIM Core time to start up before OpenHIM Console run"
-    verify_core
-
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml -c ${COMPOSE_FILE_PATH}/docker-compose.stack-1.yml $openhim_dev_compose_param instant" "Failed to create stack-1 openhim core/console"
-
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to deploy config importer"
-
-    log info "Waiting to give core config importer time to run before cleaning up service"
-
-    config::remove_config_importer interoperability-layer-openhim-config-importer
-
-    # Ensure config importer is removed
-    config::await_service_removed instant_interoperability-layer-openhim-config-importer
-
-    log info "Removing stale configs..."
-    config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "openhim"
-    config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "openhim"
-
-    if [ "$STATEFUL_NODES" == "cluster" ]; then
-      docker::deploy_sanity openhim-core openhim-console mongo-1 mongo-2 mongo-3
+  if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
+    if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+      log info "Running package in Cluster node mode"
     else
-      docker::deploy_sanity openhim-core openhim-console mongo-1
+      log info "Running package in Single node mode"
     fi
-  elif [[ "${ACTION}" == "up" ]]; then
-    config::set_config_digests "$COMPOSE_FILE_PATH"/docker-compose.yml
-    config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
 
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose-mongo.yml $mongo_cluster_compose_param $mongo_dev_compose_param instant" "Failed to deploy mongo"
-    verify_mongos
-    prepare_console_config
-
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml -c ${COMPOSE_FILE_PATH}/docker-compose.stack-1.yml $openhim_dev_compose_param instant" "Failed to create stack-1 openhim core/console"
-
-    log info "Removing stale configs..."
-    config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "openhim"
-    config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "openhim"
+    initialize_package
   elif [[ "${ACTION}" == "down" ]]; then
-    log info "Scaling down services..."
-    try "docker service scale instant_openhim-core=0 instant_openhim-console=0 instant_mongo-1=0" "Error scaling down services"
+    log info "Scaling down package"
 
-    if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
-      try "docker service scale instant_mongo-2=0 instant_mongo-3=0" "Error scaling down services"
-    fi
-    log info "Done scaling down services"
+    docker::scale_services_down "${SERVICE_NAMES[@]}"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    docker::service_destroy openhim-core
-    docker::service_destroy openhim-console
-    docker::service_destroy mongo-1
-    docker::service_destroy await-helper
-    docker::service_destroy interoperability-layer-openhim-config-importer
-
-    docker::try_remove_volume openhim-mongo1
-
-    if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
-      log info "Volumes are only deleted on the host on which the command is run. Mongo volumes on other nodes are not deleted"
-
-      docker::service_destroy mongo-2
-      docker::service_destroy mongo-3
-
-      docker::try_remove_volume openhim-mongo2
-      docker::try_remove_volume openhim-mongo3
-    fi
-
-    # shellcheck disable=SC2046 # intentional word splitting
-    docker::prune_configs "openhim"
-
+    log info "Destroying package"
+    destroy_package
   else
     log error "Valid options are: init, up, down, or destroy"
   fi

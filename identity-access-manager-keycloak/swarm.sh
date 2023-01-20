@@ -1,96 +1,116 @@
 #!/bin/bash
 
-readonly ACTION=$1
-readonly MODE=$2
+declare ACTION=""
+declare MODE=""
+declare COMPOSE_FILE_PATH=""
+declare UTILS_PATH=""
+declare POSTGRES_SERVICES=()
+declare SERVICE_NAMES=()
 
-COMPOSE_FILE_PATH=$(
-  cd "$(dirname "${BASH_SOURCE[0]}")" || exit
-  pwd -P
-)
-readonly COMPOSE_FILE_PATH
+function init_vars() {
+  ACTION=$1
+  MODE=$2
 
-ROOT_PATH="${COMPOSE_FILE_PATH}/.."
-readonly ROOT_PATH
+  COMPOSE_FILE_PATH=$(
+    cd "$(dirname "${BASH_SOURCE[0]}")" || exit
+    pwd -P
+  )
 
-. "${ROOT_PATH}/utils/config-utils.sh"
-. "${ROOT_PATH}/utils/docker-utils.sh"
-. "${ROOT_PATH}/utils/log.sh"
+  UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-await_postgres_start() {
-  log info "Waiting for Postgres to start up before KeyCloak"
-
-  docker::await_container_startup keycloak-postgres-1
-  docker::await_container_status keycloak-postgres-1 Running
-
-  if [[ "$STATEFUL_NODES" == "cluster" ]]; then
-    docker::await_container_startup keycloak-postgres-2
-    docker::await_container_status keycloak-postgres-2 Running
-
-    docker::await_container_startup keycloak-postgres-3
-    docker::await_container_status keycloak-postgres-3 Running
+  POSTGRES_SERVICES=(
+    "keycloak-postgres-1"
+  )
+  if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+    for i in {2..3}; do
+      POSTGRES_SERVICES=(
+        "${POSTGRES_SERVICES[@]}"
+        "keycloak-postgres-$i"
+      )
+    done
   fi
+
+  SERVICE_NAMES=(
+    "${POSTGRES_SERVICES[@]}"
+    "identity-access-manager-keycloak"
+  )
+
+  readonly ACTION
+  readonly MODE
+  readonly COMPOSE_FILE_PATH
+  readonly UTILS_PATH
+  readonly POSTGRES_SERVICES
+  readonly SERVICE_NAMES
+}
+
+# shellcheck disable=SC1091
+function import_sources() {
+  source "${UTILS_PATH}/docker-utils.sh"
+  source "${UTILS_PATH}/config-utils.sh"
+  source "${UTILS_PATH}/log.sh"
+}
+
+function initialize_package() {
+  local postgres_cluster_compose_filename=""
+  local postgres_dev_compose_filename=""
+  local keycloak_dev_compose_filename=""
+
+  if [ "${MODE}" == "dev" ]; then
+    log info "Running package in DEV mode"
+    postgres_dev_compose_filename="docker-compose-postgres.dev.yml"
+    keycloak_dev_compose_filename="docker-compose.dev.yml"
+  else
+    log info "Running package in PROD mode"
+  fi
+
+  if [ "${CLUSTERED_MODE}" == "true" ]; then
+    postgres_cluster_compose_filename="docker-compose-postgres.cluster.yml"
+  fi
+
+  (
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose-postgres.yml" "$postgres_cluster_compose_filename" "$postgres_dev_compose_filename"
+    docker::deploy_sanity "${POSTGRES_SERVICES[@]}"
+
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$keycloak_dev_compose_filename"
+    docker::deploy_sanity "identity-access-manager-keycloak"
+  ) ||
+    {
+      log error "Failed to deploy package"
+      exit 1
+    }
+}
+
+function destroy_package() {
+  docker::service_destroy "${SERVICE_NAMES[@]}"
+
+  docker::try_remove_volume keycloak-postgres-1-data
+
+  if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+    log warn "Volumes are only deleted on the host on which the command is run. Postgres volumes on other nodes are not deleted"
+  fi
+
+  docker::prune_configs "keycloak"
 }
 
 main() {
-  if [ "${STATEFUL_NODES}" == "cluster" ]; then
-    log info "Running Identity Access Manager Keycloak package in Cluster node mode"
-    postgres_cluster_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose-postgres.cluster.yml"
-  else
-    log info "Running Identity Access Manager Keycloak package in Single node mode"
-    postgres_cluster_compose_param=""
-  fi
-
-  if [[ "${MODE}" == "dev" ]]; then
-    log info "Running Identity Access Manager Keycloak package in DEV mode"
-    keycloak_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
-    postgres_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose-postgres.dev.yml"
-  else
-    log info "Running Identity Access Manager Keycloak package in PROD mode"
-    keycloak_dev_compose_param=""
-    postgres_dev_compose_param=""
-  fi
+  init_vars "$@"
+  import_sources
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    log info "Setting config digests"
-    config::set_config_digests "$COMPOSE_FILE_PATH"/docker-compose.yml
-
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose-postgres.yml $postgres_cluster_compose_param $postgres_dev_compose_param instant" "Failed to deploy KeyCloak Postgres"
-
-    await_postgres_start
-
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $keycloak_dev_compose_param instant" "Failed to deploy Identity Access Manager Keycloak"
-
-    docker::await_container_startup identity-access-manager-keycloak
-    docker::await_container_status identity-access-manager-keycloak Running
-
-    config::await_network_join "instant_identity-access-manager-keycloak"
-
-    if [ "$STATEFUL_NODES" == "cluster" ]; then
-      docker::deploy_sanity identity-access-manager-keycloak keycloak-postgres-1 keycloak-postgres-2 keycloak-postgres-3
+    if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+      log info "Running package in Cluster node mode"
     else
-      docker::deploy_sanity identity-access-manager-keycloak keycloak-postgres-1
+      log info "Running package in Single node mode"
     fi
+
+    initialize_package
   elif [[ "${ACTION}" == "down" ]]; then
-    try "docker service scale instant_identity-access-manager-keycloak=0 instant_keycloak-postgres-1=0" "Failed to scale down identity-access-manager-keycloak"
+    log info "Scaling down package"
 
-    if [ "$STATEFUL_NODES" == "cluster" ]; then
-      try "docker service scale instant_keycloak-postgres-2=0 instant_keycloak-postgres-3=0" "Failed to scale down keycloak postgres replicas"
-    fi
+    docker::scale_services_down "${SERVICE_NAMES[@]}"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    docker::service_destroy identity-access-manager-keycloak
-
-    docker::service_destroy keycloak-postgres-1
-    docker::try_remove_volume keycloak-postgres-1-data
-
-    if [ "${STATEFUL_NODES}" == "cluster" ]; then
-      docker::service_destroy keycloak-postgres-2
-      docker::service_destroy keycloak-postgres-3
-      docker::try_remove_volume keycloak-postgres-2-data
-      docker::try_remove_volume keycloak-postgres-3-data
-      log warn "Volumes are only deleted on the host on which the command is run. Postgres volumes on other nodes are not deleted"
-    fi
-
-    docker::prune_configs "keycloak"
+    log info "Destroying package"
+    destroy_package
   else
     log error "Valid options are: init, up, down, or destroy"
   fi

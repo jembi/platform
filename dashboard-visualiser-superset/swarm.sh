@@ -1,67 +1,86 @@
 #!/bin/bash
 
-readonly ACTION=$1
-readonly MODE=$2
+declare ACTION=""
+declare MODE=""
+declare COMPOSE_FILE_PATH=""
+declare UTILS_PATH=""
+declare SERVICE_NAMES=()
 
-COMPOSE_FILE_PATH=$(
-  cd "$(dirname "${BASH_SOURCE[0]}")" || exit
-  pwd -P
-)
-readonly COMPOSE_FILE_PATH
+function init_vars() {
+  ACTION=$1
+  MODE=$2
 
-ROOT_PATH="${COMPOSE_FILE_PATH}/.."
-readonly ROOT_PATH
+  COMPOSE_FILE_PATH=$(
+    cd "$(dirname "${BASH_SOURCE[0]}")" || exit
+    pwd -P
+  )
 
-. "${ROOT_PATH}/utils/config-utils.sh"
-. "${ROOT_PATH}/utils/docker-utils.sh"
-. "${ROOT_PATH}/utils/log.sh"
+  UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-main() {
+  SERVICE_NAMES=("dashboard-visualiser-superset")
+
+  readonly ACTION
+  readonly MODE
+  readonly COMPOSE_FILE_PATH
+  readonly UTILS_PATH
+  readonly SERVICE_NAMES
+}
+
+# shellcheck disable=SC1091
+function import_sources() {
+  source "${UTILS_PATH}/docker-utils.sh"
+  source "${UTILS_PATH}/config-utils.sh"
+  source "${UTILS_PATH}/log.sh"
+}
+
+function initialize_package() {
+  local superset_dev_compose_filename=""
+
   if [[ "${MODE}" == "dev" ]]; then
-    log info "Running Dashboard Visualiser Superset package in DEV mode"
-    superset_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
+    log info "Running package in DEV mode"
+    superset_dev_compose_filename="docker-compose.dev.yml"
   else
-    log info "Running Dashboard Visualiser Superset package in PROD mode"
-    superset_dev_compose_param=""
+    log info "Running package in PROD mode"
   fi
 
+  (
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$superset_dev_compose_filename"
+    docker::deploy_sanity "${SERVICE_NAMES}"
+  ) || {
+    log error "Failed to deploy package"
+    exit 1
+  }
+
+  docker::deploy_config_importer "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "superset-config-importer" "superset"
+}
+
+function destroy_package() {
+  docker::service_destroy "$SERVICE_NAMES" "superset-config-importer"
+
+  docker::try_remove_volume superset superset-frontend superset_home
+
+  docker::prune_configs "superset"
+}
+
+main() {
+  init_vars "$@"
+  import_sources
+
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    config::set_config_digests "$COMPOSE_FILE_PATH"/docker-compose.yml
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/docker-compose.yml $superset_dev_compose_param instant" "Failed to deploy Dashboard Visualiser Superset"
+    if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+      log info "Running package in Cluster node mode"
+    else
+      log info "Running package in Single node mode"
+    fi
 
-    docker::await_container_startup dashboard-visualiser-superset
-    docker::await_container_status dashboard-visualiser-superset Running
-
-    config::await_network_join "instant_dashboard-visualiser-superset"
-
-    log info "Setting config digests"
-    config::set_config_digests "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml
-    try "docker stack deploy -c ${COMPOSE_FILE_PATH}/importer/docker-compose.config.yml instant" "Failed to start config importer"
-
-    log info "Waiting to give core config importer time to run before cleaning up service"
-
-    config::remove_config_importer superset-config-importer
-
-    # Ensure config importer is removed
-    config::await_service_removed instant_superset-config-importer
-
-    log info "Removing stale configs..."
-    config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/importer/docker-compose.config.yml "superset"
-    config::remove_stale_service_configs "$COMPOSE_FILE_PATH"/docker-compose.yml "superset"
-
-    docker::deploy_sanity dashboard-visualiser-superset
+    initialize_package
   elif [[ "${ACTION}" == "down" ]]; then
-    try "docker service scale instant_dashboard-visualiser-superset=0" "Failed to scale down dashboard-visualiser-superset"
+    log info "Scaling down package"
+
+    docker::scale_services_down "${SERVICE_NAMES}"
   elif [[ "${ACTION}" == "destroy" ]]; then
-    docker::service_destroy dashboard-visualiser-superset
-    docker::service_destroy superset-config-importer
-
-    # Removing Superset volumes
-    docker::try_remove_volume superset
-    docker::try_remove_volume superset-frontend
-    docker::try_remove_volume superset_home
-
-    docker::prune_configs "superset"
+    log info "Destroying package"
+    destroy_package
   else
     log error "Valid options are: init, up, down, or destroy"
   fi

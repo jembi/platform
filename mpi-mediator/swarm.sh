@@ -1,54 +1,79 @@
 #!/bin/bash
 
-# Constants
-readonly ACTION=$1
-readonly MODE=$2
+declare ACTION=""
+declare MODE=""
+declare COMPOSE_FILE_PATH=""
+declare UTILS_PATH=""
+declare SERVICE_NAMES=()
 
-COMPOSE_FILE_PATH=$(
-  cd "$(dirname "${BASH_SOURCE[0]}")" || exit
-  pwd -P
-)
-readonly COMPOSE_FILE_PATH
+function init_vars() {
+  ACTION=$1
+  MODE=$2
 
-# Import libraries
-ROOT_PATH="${COMPOSE_FILE_PATH}/.."
-. "${ROOT_PATH}/utils/config-utils.sh"
-. "${ROOT_PATH}/utils/docker-utils.sh"
-. "${ROOT_PATH}/utils/log.sh"
+  COMPOSE_FILE_PATH=$(
+    cd "$(dirname "${BASH_SOURCE[0]}")" || exit
+    pwd -P
+  )
 
-main() {
-  if [[ "${STATEFUL_NODES}" == "cluster" ]]; then
-    log info "Running MPI-Mediator package in Cluster node mode"
-    local mpi_mediator_cluster_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.cluster.yml"
-  else
-    log info "Running MPI-Mediator package in Single node mode"
-    local mpi_mediator_cluster_compose_param=""
-  fi
+  UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
+
+  SERVICE_NAMES=("mpi-mediator")
+
+  readonly ACTION
+  readonly MODE
+  readonly COMPOSE_FILE_PATH
+  readonly UTILS_PATH
+  readonly SERVICE_NAMES
+}
+
+# shellcheck disable=SC1091
+function import_sources() {
+  source "${UTILS_PATH}/docker-utils.sh"
+  source "${UTILS_PATH}/log.sh"
+}
+
+function initialize_package() {
+  local mpi_mediator_dev_compose_filename=""
 
   if [[ "${MODE}" == "dev" ]]; then
-    log info "Running MPI-Mediator package in DEV mode"
-    local mpi_mediator_dev_compose_param="-c ${COMPOSE_FILE_PATH}/docker-compose.dev.yml"
+    log info "Running package in DEV mode"
+    mpi_mediator_dev_compose_filename="docker-compose.dev.yml"
   else
-    log info "Running MPI-Mediator package in PROD mode"
-    local mpi_mediator_dev_compose_param=""
+    log info "Running package in PROD mode"
   fi
 
-  if [[ "$ACTION" == "init" ]]; then
-    log info "Deploying MPI-Mediator..."
-    try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose.yml $mpi_mediator_cluster_compose_param $mpi_mediator_dev_compose_param instant" "Failed to deploy mpi-mediator"
-    overwrite "Deploying MPI-Mediator... Done"
-  elif [[ "$ACTION" == "up" ]]; then
-    log info "Updating MPI-Mediator..."
-    try "docker stack deploy -c $COMPOSE_FILE_PATH/docker-compose.yml $mpi_mediator_cluster_compose_param $mpi_mediator_dev_compose_param instant" "Failed to stand up mpi-mediator"
-    overwrite "Updating MPI-Mediator... Done"
-  elif [[ "$ACTION" == "down" ]]; then
-    log info "Scaling MPI-Mediator down..."
-    try "docker service scale instant_mpi-mediator=0" "Failed to scale down mpi-mediator"
-    overwrite "Scaling MPI-Mediator down... Done"
-  elif [[ "$ACTION" == "destroy" ]]; then
-    log info "Destroying MPI-Mediator..."
-    docker::service_destroy mpi-mediator
-    overwrite "Destroying MPI-Mediator... Done"
+  (
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$mpi_mediator_dev_compose_filename"
+    docker::deploy_sanity "${SERVICE_NAMES}"
+  ) || {
+    log error "Failed to deploy package"
+    exit 1
+  }
+}
+
+function destroy_package() {
+  docker::service_destroy "${SERVICE_NAMES}"
+}
+
+main() {
+  init_vars "$@"
+  import_sources
+
+  if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
+    if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+      log info "Running package in Cluster node mode"
+    else
+      log info "Running package in Single node mode"
+    fi
+
+    initialize_package
+  elif [[ "${ACTION}" == "down" ]]; then
+    log info "Scaling down package"
+
+    docker::scale_services_down "${SERVICE_NAMES}"
+  elif [[ "${ACTION}" == "destroy" ]]; then
+    log info "Destroying package"
+    destroy_package
   else
     log error "Valid options are: init, up, down, or destroy"
   fi
