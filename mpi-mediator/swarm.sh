@@ -49,10 +49,13 @@ function initialize_package() {
     log error "Failed to deploy package"
     exit 1
   }
+  docker::deploy_config_importer "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "mpi-mediator-config-importer" "mpi-mediator"
 }
 
 function destroy_package() {
   docker::service_destroy "${SERVICE_NAMES}"
+
+  docker::prune_configs "mpi-mediator"
 }
 
 main() {
