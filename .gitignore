@@ -81,3 +81,6 @@ typings/
 platform-linux
 platform.exe
 platform-macos
+instant-linux
+instant.exe
+instant-macos
