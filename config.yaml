@@ -1,6 +1,5 @@
 projectName: platform
 image: jembi/platform
-platformImage: jembi/platform
 logPath: /tmp/logs
 
 packages:
