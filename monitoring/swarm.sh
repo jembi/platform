@@ -22,17 +22,23 @@ function init_vars() {
     "grafana"
     "prometheus"
     "prometheus-kafka-adapter"
+    "loki"
+    "minio-01"
   )
   if [[ "${CLUSTERED_MODE}" == "true" ]]; then
     SCALED_SERVICES=(
       "${SCALED_SERVICES[@]}"
       "prometheus_backup"
+      "minio-02"
+      "minio-03"
+      "minio-04"
     )
   fi
   SERVICE_NAMES=(
     "${SCALED_SERVICES[@]}"
     "cadvisor"
     "node-exporter"
+    "promtail"
   )
 
   readonly ACTION
@@ -80,19 +86,19 @@ function initialize_package() {
 function scale_services_down() {
   docker::scale_services_down "${SCALED_SERVICES[@]}"
 
-  docker::service_destroy "cadvisor" "node-exporter"
+  docker::service_destroy "cadvisor" "node-exporter" "promtail"
 }
 
 function destroy_package() {
   docker::service_destroy "${SERVICE_NAMES[@]}"
 
-  docker::try_remove_volume prometheus_data grafana_data
+  docker::try_remove_volume prometheus-data grafana-data loki-data minio-01-data1 minio-01-data2 prometheus_data_backup
 
   if [[ $CLUSTERED_MODE == "true" ]]; then
     log warn "Volumes are only deleted on the host on which the command is run. Monitoring volumes on other nodes are not deleted"
   fi
 
-  docker::prune_configs "grafana" "prometheus"
+  docker::prune_configs "grafana" "prometheus" "promtail" "loki"
 }
 
 main() {

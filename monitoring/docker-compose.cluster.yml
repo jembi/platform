@@ -29,16 +29,16 @@ services:
       - '--web.console.templates=/etc/prometheus/consoles'
       - '--web.enable-lifecycle'
 
-  minio1:
+  minio-01:
     deploy:
       placement:
         constraints:
           - "node.labels.name==node-1"
 
-  minio2:
+  minio-02:
     image: quay.io/minio/minio:RELEASE.2022-10-24T18-35-07Z
     entrypoint: sh
-    command: -c 'mkdir -p /data1/loki /data2/loki && minio server --console-address ":9001" http://minio{1...4}/data{1...2}'
+    command: -c 'mkdir -p /data1/loki /data2/loki && minio server --console-address ":9001" http://minio-0{1...4}/data{1...2}'
     environment:
       MINIO_ROOT_USER: ${MO_SECURITY_ADMIN_USER}
       MINIO_ROOT_PASSWORD: ${MO_SECURITY_ADMIN_PASSWORD}
@@ -53,20 +53,20 @@ services:
       interval: 30s
       timeout: 20s
       retries: 3
-    hostname: minio2
+    hostname: minio-02
     volumes:
-      - minio2_data1:/data1
-      - minio2_data2:/data2
+      - minio-02-data1:/data1
+      - minio-02-data2:/data2
     deploy:
       placement:
         constraints:
           - "node.labels.name==node-1"
       replicas: 1
 
-  minio3:
+  minio-03:
     image: quay.io/minio/minio:RELEASE.2022-10-24T18-35-07Z
     entrypoint: sh
-    command: -c 'mkdir -p /data1/loki /data2/loki && minio server --console-address ":9001" http://minio{1...4}/data{1...2}'
+    command: -c 'mkdir -p /data1/loki /data2/loki && minio server --console-address ":9001" http://minio-0{1...4}/data{1...2}'
     environment:
       MINIO_ROOT_USER: ${MO_SECURITY_ADMIN_USER}
       MINIO_ROOT_PASSWORD: ${MO_SECURITY_ADMIN_PASSWORD}
@@ -81,20 +81,20 @@ services:
       interval: 30s
       timeout: 20s
       retries: 3
-    hostname: minio3
+    hostname: minio-03
     volumes:
-      - minio3_data1:/data1
-      - minio3_data2:/data2
+      - minio-03-data1:/data1
+      - minio-03-data2:/data2
     deploy:
       placement:
         constraints:
           - "node.labels.name==node-2"
       replicas: 1
 
-  minio4:
+  minio-04:
     image: quay.io/minio/minio:RELEASE.2022-10-24T18-35-07Z
     entrypoint: sh
-    command: -c 'mkdir -p /data1/loki /data2/loki && minio server --console-address ":9001" http://minio{1...4}/data{1...2}'
+    command: -c 'mkdir -p /data1/loki /data2/loki && minio server --console-address ":9001" http://minio-0{1...4}/data{1...2}'
     environment:
       MINIO_ROOT_USER: ${MO_SECURITY_ADMIN_USER}
       MINIO_ROOT_PASSWORD: ${MO_SECURITY_ADMIN_PASSWORD}
@@ -109,10 +109,10 @@ services:
       interval: 30s
       timeout: 20s
       retries: 3
-    hostname: minio4
+    hostname: minio-04
     volumes:
-      - minio4_data1:/data1
-      - minio4_data2:/data2
+      - minio-04-data1:/data1
+      - minio-04-data2:/data2
     deploy:
       placement:
         constraints:
@@ -128,9 +128,9 @@ configs:
 
 volumes:
   prometheus_data_backup:
-  minio2_data1:
-  minio2_data2:
-  minio3_data1:
-  minio3_data2:
-  minio4_data1:
-  minio4_data2:
+  minio-02-data1:
+  minio-02-data2:
+  minio-03-data1:
+  minio-03-data2:
+  minio-04-data1:
+  minio-04-data2:
