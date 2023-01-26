@@ -22,5 +22,5 @@ services:
   minio1:
     ports:
       - target: 9001
-        published: 9001
+        published: 9005
         mode: host
