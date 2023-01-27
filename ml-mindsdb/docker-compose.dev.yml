@@ -1,0 +1,11 @@
+version: '3.9'
+
+services:
+  mindsdb:
+    ports:
+      - target: 47334
+        published: 47334
+        mode: host
+      - target: 47335
+        published: 47335
+        mode: host

@@ -1,0 +1,10 @@
+{
+  "id": "ml-mindsdb",
+  "name": "Mindsdb package",
+  "description": "",
+  "type": "infrastructure",
+  "version": "0.0.1",
+  "dependencies": ["analytics-datastore-clickhouse"],
+  "environmentVariables": {
+  }
+}
