@@ -3,6 +3,13 @@ version: '3.9'
 services:
   jempi-api:
     image: jembi/jempi-api:${JEMPI_API_IMAGE_TAG}
+    environment:
+      KC_REALM_NAME: ${KC_REALM_NAME}
+      KC_JEMPI_CLIENT_ID: ${KC_JEMPI_CLIENT_ID}
+      KC_JEMPI_CLIENT_SECRET: ${KC_JEMPI_CLIENT_SECRET}
+      KC_API_URL: ${KC_API_URL}
+      KC_JEMPI_ROOT_URL: ${KC_JEMPI_ROOT_URL}
+      JEMPI_SESSION_SECRET: ${JEMPI_SESSION_SECRET}
     deploy:
       replicas: 1
       resources:
