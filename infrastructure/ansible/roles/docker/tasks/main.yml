@@ -87,6 +87,9 @@
     password: '{{ docker_password }}'
     state: present
 
+- name: create docker daemon config path if it doesn't exist
+  raw: sudo mkdir -p /etc/docker
+
 - name: configure docker logs rotation
   copy:
     src: docker-daemon.json
