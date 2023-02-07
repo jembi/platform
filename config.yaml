@@ -22,3 +22,4 @@ packages:
   - mpi-mediator
   - client-registry-jempi
   - identity-access-manager-keycloak
+  - openhim-mapping-mediator
