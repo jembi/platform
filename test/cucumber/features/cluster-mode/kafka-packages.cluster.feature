@@ -18,7 +18,6 @@ Feature: Kafka and its dependent packages?
         When I launch the platform with params
         Then The service "grafana" should be started with 1 replica
         And The service "prometheus" should be started with 1 replica
-        And The service "prometheus-kafka-adapter" should be started with 1 replica
         And The service "prometheus_backup" should be started with 1 replica
         And The service "cadvisor" should be started with 3 replicas
         And The service "node-exporter" should be started with 3 replicas
@@ -35,7 +34,6 @@ Feature: Kafka and its dependent packages?
         And The service "kafka-minion" should be removed
         And The service "grafana" should be removed
         And The service "prometheus" should be removed
-        And The service "prometheus-kafka-adapter" should be removed
         And The service "prometheus_backup" should be removed
         And The service "cadvisor" should be removed
         And The service "node-exporter" should be removed
