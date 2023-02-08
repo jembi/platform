@@ -15,7 +15,7 @@ Feature: Monitoring package?
         And The service "minio-03" should be started with 1 replica
         And The service "minio-04" should be started with 1 replica
         And The service "prometheus_backup" should be started with 1 replica
-        And There should be 8 volumes
+        And There should be 7 volumes
 
     Scenario: Destroy Monitoring package
         Given I use parameters "destroy monitoring --dev --env-file=.env.cluster"
