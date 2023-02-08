@@ -90,12 +90,6 @@ services:
     deploy:
       mode: global
 
-  prometheus-kafka-adapter:
-    image: telefonica/prometheus-kafka-adapter:1.8.0
-    environment:
-      - KAFKA_BROKER_LIST=kafka:9092
-      - KAFKA_COMPRESSION=gzip
-
   loki:
     image: grafana/loki:2.6.1
     volumes:

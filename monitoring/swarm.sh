@@ -21,7 +21,6 @@ function init_vars() {
   SCALED_SERVICES=(
     "grafana"
     "prometheus"
-    "prometheus-kafka-adapter"
     "loki"
     "minio-01"
   )

@@ -74,6 +74,3 @@ scrape_configs:
       # Use the prometheus-job Swarm label as Prometheus job label.
       - source_labels: [__meta_dockerswarm_service_label_prometheus_job_task]
         target_label: job
-
-remote_write:
-  - url: "http://prometheus-kafka-adapter:8080/receive"
