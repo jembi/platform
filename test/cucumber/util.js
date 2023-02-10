@@ -6,7 +6,7 @@ const { exec } = require('child_process');
 const execPromise = util.promisify(exec);
 
 async function launchPlatformWithParams(params) {
-  const { stdout, stderr } = await execPromise(`cd ../../ && ./platform-linux ${params}`);
+  const { stdout, stderr } = await execPromise(`cd ../../ && ./instant-linux ${params}`);
   console.log('\n', stdout);
   if (stderr) console.log('stderr', stderr);
 }
