@@ -47,7 +47,7 @@ const req = https.request(options, res => {
 })
 
 req.on('error', error => {
-  console.error('Failed to import OpenHIM config: ', error)
+  throw new Error(`Failed to import OpenHIM config: ${error}`)
 })
 
 req.write(data)
