@@ -20,14 +20,14 @@ jobs:
       run: ./get-cli.sh
 
     - name: Test binaries
-      run: ./platform-linux help
+      run: ./instant-linux help
 
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          ./platform-linux
-          ./platform-macos
-          ./platform.exe
+          ./instant-linux
+          ./instant-macos
+          ./instant.exe
           ./config.yml
           ./banner.txt
