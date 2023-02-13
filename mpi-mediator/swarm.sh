@@ -53,7 +53,7 @@ function initialize_package() {
 }
 
 function destroy_package() {
-  docker::service_destroy "${SERVICE_NAMES}"
+  docker::service_destroy "${SERVICE_NAMES}" "mpi-mediator-config-importer"
 
   docker::prune_configs "mpi-mediator"
 }
