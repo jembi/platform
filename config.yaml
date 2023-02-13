@@ -1,0 +1,25 @@
+projectName: platform
+image: jembi/platform
+logPath: /tmp/logs
+
+packages:
+  - interoperability-layer-openhim
+  - reverse-proxy-nginx
+  - fhir-datastore-hapi-fhir
+  - message-bus-kafka
+  - analytics-datastore-elastic-search
+  - dashboard-visualiser-kibana
+  - data-mapper-logstash
+  - dashboard-visualiser-jsreport
+  - client-registry-santempi
+  - message-bus-helper-hapi-proxy
+  - job-scheduler-ofelia
+  - kafka-mapper-consumer
+  - kafka-unbundler-consumer
+  - analytics-datastore-clickhouse
+  - dashboard-visualiser-superset
+  - monitoring
+  - mpi-mediator
+  - client-registry-jempi
+  - identity-access-manager-keycloak
+  - openhim-mapping-mediator

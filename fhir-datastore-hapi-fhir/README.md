@@ -92,7 +92,7 @@ To start up Hapi FHIR and ensure that the backups can be made, ensure that you h
 
 Preliminary steps:
 
-1. Do a `destroy` of `fhir-datastore-hapi-fhir` using the CLI binary (./platform-linux for linux)
+1. Do a `destroy` of `fhir-datastore-hapi-fhir` using the CLI binary (./instant-linux for linux)
 1. Make sure the Postgres volumes on nodes other than the swarm leader have been removed as well! You will need to ssh into each server and manually remove them.
 1. Do an `init` of `fhir-datastore-hapi-fhir` using the CLI binary
 
