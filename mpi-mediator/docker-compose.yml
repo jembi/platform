@@ -22,6 +22,7 @@ services:
       FHIR_DATASTORE_PROTOCOL: ${FHIR_DATASTORE_PROTOCOL}
       FHIR_DATASTORE_HOST: ${FHIR_DATASTORE_HOST}
       FHIR_DATASTORE_PORT: ${FHIR_DATASTORE_PORT}
+      DISABLE_VALIDATION: ${DISABLE_VALIDATION}
     deploy:
       placement:
         max_replicas_per_node: 1
