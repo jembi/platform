@@ -104,61 +104,6 @@
       "addAutoRewriteRules": true,
       "autoRetryEnabled": false,
       "autoRetryPeriodMinutes": 60,
-      "routes": [
-        {
-          "type": "http",
-          "status": "enabled",
-          "forwardAuthHeader": false,
-          "name": "Reprocess Endpoint",
-          "secured": false,
-          "host": "reprocess-mediator",
-          "port": 3000,
-          "path": "/reprocess",
-          "pathTransform": "",
-          "primary": true,
-          "username": "",
-          "password": ""
-        }
-      ],
-      "requestBody": true,
-      "responseBody": true,
-      "rewriteUrlsConfig": [],
-      "name": "Reprocess Mediator",
-      "description": "Monitor reprocessed data triggered by this mediator",
-      "urlPattern": "^/reprocess$",
-      "matchContentRegex": null,
-      "matchContentXpath": null,
-      "matchContentValue": null,
-      "matchContentJson": null,
-      "pollingSchedule": null,
-      "tcpHost": null,
-      "tcpPort": null,
-      "updatedBy": {
-        "id": "63cd5092c962240014b87c59",
-        "name": "Super User"
-      },
-      "alerts": []
-    },
-    {
-      "methods": [
-        "POST"
-      ],
-      "type": "http",
-      "allow": [
-        "instant"
-      ],
-      "whitelist": [],
-      "authType": "private",
-      "matchContentTypes": [],
-      "properties": [],
-      "txViewAcl": [],
-      "txViewFullAcl": [],
-      "txRerunAcl": [],
-      "status": "enabled",
-      "rewriteUrls": false,
-      "addAutoRewriteRules": true,
-      "autoRetryEnabled": false,
-      "autoRetryPeriodMinutes": 60,
       "updatedBy": {
         "id": "63cd5092c962240014b87c59",
         "name": "Super User"
