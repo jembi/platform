@@ -4,7 +4,7 @@ services:
   kafdrop:
     image: obsidiandynamics/kafdrop:3.27.0
     environment:
-      KAFKA_BROKERCONNECT: 'kafka:9092'
+      KAFKA_BROKERCONNECT: 'kafka-01:9092,kafka-02:9092,kafka-03:9092'
       JVM_OPTS: '-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify'
       CMD_ARGS: '--server.port=9013 --management.server.port=9013'
     deploy:
@@ -20,7 +20,7 @@ services:
     image: quay.io/cloudhut/kminion:master
     hostname: kafka-minion
     environment:
-      KAFKA_BROKERS: kafka:9092
+      KAFKA_BROKERS: kafka-01:9092,kafka-02:9092,kafka-03:9092
     deploy:
       resources:
         limits:
