@@ -12,7 +12,7 @@
     "HAPI_PROXY_MEMORY_LIMIT": "3G",
     "HAPI_PROXY_MEMORY_RESERVE": "500M",
     "HAPI_SERVER_URL": "http://hapi-fhir:8080/fhir",
-    "KAFKA_BOOTSTRAP_SERVERS": "kafka:9092",
+    "KAFKA_BOOTSTRAP_SERVERS": "kafka-01:9092,kafka-02:9092,kafka-03:9092",
     "HAPI_SERVER_VALIDATE_FORMAT": "NONE"
   }
 }
