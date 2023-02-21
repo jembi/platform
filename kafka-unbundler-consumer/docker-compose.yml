@@ -1,6 +1,7 @@
 version: '3.9'
 
 services:
+# TODO: update version once new unbundler-consumer is released
   kafka-unbundler-consumer:
     image: jembi/kafka-unbundler-consumer:0.0.2
     environment:

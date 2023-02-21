@@ -6,7 +6,7 @@
   "version": "0.0.1",
   "dependencies": ["message-bus-kafka"],
   "environmentVariables": {
-    "KAFKA_HOST": "kafka",
+    "KAFKA_HOST": "kafka-01,kafka-02,kafka-03",
     "KAFKA_PORT": "9092"
   }
 }
