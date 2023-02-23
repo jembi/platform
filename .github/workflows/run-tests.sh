@@ -8,14 +8,31 @@ CHANGED_FILES=($@)
 
 cd ../../test/cucumber/ || exit
 
-if [[ ${#CHANGED_FILES[@]} -eq 0 ]] || [[ "${CHANGED_FILES[*]}" == *"utils"* ]]; then
+declare -A changed_packages
+for package in "${CHANGED_FILES[@]}"; do
+    if [[ $package == *"features/cluster-mode"* ]]; then
+        changed_packages["features/cluster-mode"]="true"
+
+    elif [[ $package == *"features/single-mode"* ]]; then
+        changed_packages["features/single-mode"]="true"
+
+    else
+        IFS='/' read -r -a split_string <<<"$package"
+        changed_packages["${split_string[0]}"]="true"
+        
+    fi
+done
+
+if [[ ${#changed_packages[@]} -eq 0 ]] || [[ "${!changed_packages[*]}" == *"utils"* ]]; then
     DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE"
-elif [[ "${CHANGED_FILES[*]}" == *"features/single-mode"* ]] && [[ $NODE_MODE == "single" ]]; then
+elif [[ "${!changed_packages[*]}" == *"features/single-mode"* ]] && [[ $NODE_MODE == "single" ]]; then
     DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:single
-elif [[ "${CHANGED_FILES[*]}" == *"features/cluster-mode"* ]] && [[ $NODE_MODE == "cluster" ]]; then
+elif [[ "${!changed_packages[*]}" == *"features/cluster-mode"* ]] && [[ $NODE_MODE == "cluster" ]]; then
     DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:cluster
+elif [[ "${!changed_packages[*]}" == *"infrastructure"* ]]; then
+    DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE"
 else
-    for folder_name in "${CHANGED_FILES[@]}"; do
+    for folder_name in "${!changed_packages[@]}"; do
         echo "$folder_name was changed"
 
         if [[ $folder_name == *"clickhouse"* ]]; then

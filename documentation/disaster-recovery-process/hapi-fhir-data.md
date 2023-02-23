@@ -74,10 +74,10 @@ After running the preliminary steps, run the following commands on the node host
     docker exec -t <postgres_leader_container_id> pg_ctl start -D /bitnami/postgresql/data
     ```
 8. Do a `down` of `fhir-datastore-hapi-fhir` using the CLI binary\
-   Example: `./platform-linux down fhir-datastore-hapi-fhir –env-file=.env.*`
+   Example: `./instant-linux package down -n=fhir-datastore-hapi-fhir --env-file=.env.*`
 9. Wait for the `down` operation to complete
 10. Do an `init` of `fhir-datastore-hapi-fhir` using the CLI binary\
-    Example: `./platform-linux init fhir-datastore-hapi-fhir –env-file=.env.*`
+    Example: `./instant-linux package init -n=fhir-datastore-hapi-fhir --env-file=.env.*`
 
 Postgres should now be recovered
 

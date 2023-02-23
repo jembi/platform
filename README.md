@@ -14,11 +14,10 @@
 1. Initialise Docker Swarm mode: `docker swarm init`
 1. Run `go cli` binary to launch the project:
 
-    - **Linux**. From terminal run: `./platform-linux`
-    - Mac. From terminal run: `./platform-macos`
+    - **Linux**. From terminal run: `./instant-linux` with your selected arguments. A list of available arguments can be found in the help menu by running `./instant-linux help`
+    - Mac. From terminal run: `./instant-macos` with your selected arguments. A list of available arguments can be found in the help menu by running `./instant-macos help`
         > Warning: Mac has an issue with the binary as it views the file as a security risk. See [this article](https://www.lifewire.com/fix-developer-cannot-be-verified-error-5183898) to bypass warning
-    - Windows. Double click: `platform.exe`
-1. Choose your options and deploy!
+    - Windows. Double click: `platform.exe` (Windows users will need to use a release version below 2.0.0)
 
 ## Quick Start for devs (remote cluster)
 
@@ -30,17 +29,13 @@ To set up a remote cluster environment, see [readme](https://github.com/jembi/cl
 
     > Each Package contains a `metadata.json` file which lists the configurable Env vars and their default values
 
-1. Run `go cli` binary to launch the project (*Make sure to add the `DOCKER_HOST` variable indicating your **lead Swarm manager***, i.e. DOCKER_HOST=ssh://{lead_ip} ./platform-linux):
+1. Run `go cli` binary to launch the project (*Make sure to add the `DOCKER_HOST` variable indicating your **lead Swarm manager***, i.e. DOCKER_HOST=ssh://{lead_ip} ./instant-linux):
 
-1. Check the current cli version in `./get-cli.sh` and run to download binaries
-    - **Linux**. From terminal run: `./platform-linux`
-    - Mac. From terminal run: `./platform-macos`
-        > Warning: Mac has an issue with the binary as it views the file as a security risk
-    - Windows. Double click: `platform.exe`
-
-1. Choose the **Custom Setup** option
-1. Specify your environment variable file (or type them all out :| )
-1. Add your package IDs, etc. and deploy!
+1. Check the current cli version in `./get-cli.sh` and run to download the binaries. This script can be run with the OS as the first parameter to download only the binary for your prefered OS.
+    - **Linux**. From terminal run: `./instant-linux` with your selected arguments. A list of available arguments can be found in the help menu by running `./instant-linux help`
+    - Mac. From terminal run: `./instant-macos` with your selected arguments. A list of available arguments can be found in the help menu by running `./instant-macos help`
+        > Warning: Mac has an issue with the binary as it views the file as a security risk. See [this article](https://www.lifewire.com/fix-developer-cannot-be-verified-error-5183898) to bypass warning
+    - Windows. Double click: `platform.exe` (Windows users will need to use a release version below 2.0.0)
 
 ## Go Cli Dev
 
@@ -56,7 +51,7 @@ The Go Cli runs all services from the `jembi/platform` docker image. When develo
 ./build-image.sh
 ```
 
-As you add new packages to the platform remember to list them in `config.yml` file. This config file controls what packages the Go Cli can launch from the UI.
+As you add new packages to the platform remember to list them in `config.yaml` file. This config file controls what packages the GO CLI can launch.
 
 For logging all output to a file, ensure that you have created the file and it has the required permissions to be written to.
 The default log file with it's path is set in `.env.local` in `BASHLOG_FILE_PATH`. 

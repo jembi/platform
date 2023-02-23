@@ -1,0 +1,206 @@
+{
+  "Users": [
+    {
+      "groups": [
+        "admin"
+      ],
+      "firstname": "Super",
+      "surname": "User",
+      "email": "root@openhim.org",
+      "passwordAlgorithm": "sha512",
+      "passwordHash": "ea3824f17cf1379eb118a36bc7c8cf0f45712e2af7748567fca5313dec6fa66d61064e82a5e5cb88e998486ee3c7d0dac235bbeda8c341d6edc1c77406be2ab6",
+      "passwordSalt": "d4f622c0404f09bd959bfb263efa3452",
+      "expiry": null,
+      "locked": false,
+      "token": null,
+      "tokenType": null
+    }
+  ],
+  "Clients": [
+    {
+      "roles": [
+        "instant"
+      ],
+      "customTokenID": "test",
+      "clientID": "test",
+      "name": "Test Client"
+    }
+  ],
+  "Channels": [
+    {
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "type": "http",
+      "allow": [
+        "instant"
+      ],
+      "whitelist": [],
+      "authType": "private",
+      "matchContentTypes": [],
+      "properties": [],
+      "txViewAcl": [],
+      "txViewFullAcl": [],
+      "txRerunAcl": [],
+      "status": "enabled",
+      "rewriteUrls": false,
+      "addAutoRewriteRules": true,
+      "autoRetryEnabled": false,
+      "autoRetryPeriodMinutes": 60,
+      "routes": [
+        {
+          "type": "http",
+          "status": "enabled",
+          "forwardAuthHeader": false,
+          "name": "MPI Mediator",
+          "secured": false,
+          "host": "mpi-mediator",
+          "port": 3000,
+          "path": "",
+          "pathTransform": "",
+          "primary": true,
+          "username": "",
+          "password": ""
+        }
+      ],
+      "requestBody": true,
+      "responseBody": true,
+      "rewriteUrlsConfig": [],
+      "name": "MPI Orchestrations - Create/Read operations for patients and their clinical data",
+      "urlPattern": "^/fhir.*$",
+      "priority": null,
+      "matchContentRegex": null,
+      "matchContentXpath": null,
+      "matchContentValue": null,
+      "matchContentJson": null,
+      "pollingSchedule": null,
+      "tcpHost": null,
+      "tcpPort": null,
+      "updatedBy": {
+        "id": "63cd5092c962240014b87c59",
+        "name": "Super User"
+      },
+      "alerts": [],
+      "description": ""
+    },
+    {
+      "methods": [
+        "POST"
+      ],
+      "type": "http",
+      "allow": [
+        "instant"
+      ],
+      "whitelist": [],
+      "authType": "private",
+      "matchContentTypes": [],
+      "properties": [],
+      "txViewAcl": [],
+      "txViewFullAcl": [],
+      "txRerunAcl": [],
+      "status": "enabled",
+      "rewriteUrls": false,
+      "addAutoRewriteRules": true,
+      "autoRetryEnabled": false,
+      "autoRetryPeriodMinutes": 60,
+      "updatedBy": {
+        "id": "63cd5092c962240014b87c59",
+        "name": "Super User"
+      },
+      "routes": [
+        {
+          "type": "http",
+          "status": "enabled",
+          "forwardAuthHeader": false,
+          "name": "MPI Mediator",
+          "secured": false,
+          "host": "mpi-mediator",
+          "port": 3000,
+          "path": "",
+          "pathTransform": "",
+          "primary": true,
+          "username": "",
+          "password": ""
+        }
+      ],
+      "requestBody": true,
+      "responseBody": true,
+      "rewriteUrlsConfig": [],
+      "urlPattern": "^/async/fhir/?$",
+      "priority": null,
+      "matchContentRegex": null,
+      "matchContentXpath": null,
+      "matchContentValue": null,
+      "matchContentJson": null,
+      "pollingSchedule": null,
+      "tcpHost": null,
+      "tcpPort": null,
+      "alerts": [],
+      "name": "MPI Orchestration for fhir bundles - Asynchronous flow"
+    }
+  ],
+  "Mediators": [
+    {
+      "urn": "urn:mediator:mpi-mediator",
+      "version": "1.0.0",
+      "name": "MPI mediator",
+      "description": "A mediator handling interactions between the OpenHIM Core service, Sante MPI, Hapi-FHIR, and Kafka",
+      "defaultChannelConfig": [
+        {
+          "methods": [
+            "POST",
+            "GET"
+          ],
+          "type": "http",
+          "allow": [
+            "instant"
+          ],
+          "whitelist": [],
+          "authType": "private",
+          "matchContentTypes": [],
+          "properties": [],
+          "txViewAcl": [],
+          "txViewFullAcl": [],
+          "txRerunAcl": [],
+          "status": "enabled",
+          "rewriteUrls": false,
+          "addAutoRewriteRules": true,
+          "autoRetryEnabled": false,
+          "autoRetryPeriodMinutes": 60,
+          "name": "MPI mediator",
+          "urlPattern": "^(/async)?/fhir.*$",
+          "routes": [
+            {
+              "type": "http",
+              "status": "enabled",
+              "forwardAuthHeader": false,
+              "name": "MPI Endpoint",
+              "host": "mpi-mediator",
+              "port": 3000,
+              "primary": true
+            }
+          ],
+          "alerts": [],
+          "rewriteUrlsConfig": []
+        }
+      ],
+      "endpoints": [
+        {
+          "type": "http",
+          "status": "enabled",
+          "forwardAuthHeader": false,
+          "name": "MPI Endpoint",
+          "host": "mpi-mediator",
+          "path": "/fhir",
+          "port": 3000,
+          "primary": true
+        }
+      ],
+      "configDefs": [],
+      "_lastHeartbeat": "2023-01-23T09:40:21.368Z",
+      "_uptime": 52784.4956787
+    }
+  ],
+  "ContactGroups": []
+}
