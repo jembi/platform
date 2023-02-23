@@ -26,6 +26,9 @@
     "KC_GRAFANA_ROOT_URL": "http://localhost:3000",
     "KC_JEMPI_CLIENT_ID": "jempi-oauth",
     "KC_JEMPI_CLIENT_SECRET": "Tbe3llP5OJIlqUjz7K1wPp8YDAdCOEMn",
-    "KC_JEMPI_ROOT_URL": "http://localhost:3000"
+    "KC_JEMPI_ROOT_URL": "http://localhost:3000",
+    "KC_OPENHIM_CLIENT_ID": "openhim-oauth",
+    "KC_OPENHIM_CLIENT_SECRET": "tZKfEbWf0Ka5HBNZwFrdSyQH2xT1sNMR",
+    "KC_OPENHIM_ROOT_URL": "http://localhost:9000"
   }
 }
