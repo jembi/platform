@@ -2,7 +2,7 @@ Feature: Monitoring package?
     Does the Monitoring package work as expected
 
     Scenario: Init Monitoring
-        Given I use parameters "init monitoring --only --dev --env-file=.env.cluster"
+        Given I use parameters "package init -n=monitoring --only --dev --env-file=.env.cluster"
         When I launch the platform with params
         Then The service "grafana" should be started with 1 replica
         And The service "prometheus" should be started with 1 replica
@@ -18,7 +18,7 @@ Feature: Monitoring package?
         And There should be 7 volumes
 
     Scenario: Destroy Monitoring package
-        Given I use parameters "destroy monitoring --dev --env-file=.env.cluster"
+        Given I use parameters "package destroy -n=monitoring --dev --env-file=.env.cluster"
         When I launch the platform with params
         Then The service "grafana" should be removed
         And The service "prometheus" should be removed
