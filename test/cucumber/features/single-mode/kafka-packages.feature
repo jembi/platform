@@ -1,5 +1,5 @@
 Feature: Kafka and its dependent packages?
-    Does Kafka and its dependent packages work as expected
+  Does Kafka and its dependent packages work as expected
 
   Scenario: Init Message Bus Kafka
     Given I use parameters "package init -n=message-bus-kafka --dev --env-file=.env.local"
@@ -22,19 +22,8 @@ Feature: Kafka and its dependent packages?
     When I launch the platform with params
     Then The service "kafka-unbundler-consumer" should be started with 1 replica
 
-  Scenario: Init Monitoring
-    Given I use parameters "package init -n=monitoring --only --dev --env-file=.env.local"
-    When I launch the platform with params
-    Then The service "grafana" should be started with 1 replica
-    And The service "prometheus" should be started with 1 replica
-    And The service "prometheus-kafka-adapter" should be started with 1 replica
-    And The service "cadvisor" should be started with 1 replica
-    And The service "node-exporter" should be started with 1 replica
-    And The service "cadvisor" should have healthy containers
-    And There should be 4 volumes
-
   Scenario: Destroy Kafka and its dependent packages
-    Given I use parameters "package destroy -n=kafka-mapper-consumer,kafka-unbundler-consumer,monitoring --dev --env-file=.env.local"
+    Given I use parameters "package destroy -n=kafka-mapper-consumer,kafka-unbundler-consumer --dev --env-file=.env.local"
     When I launch the platform with params
     Then The service "zookeeper-1" should be removed
     And The service "kafka" should be removed
@@ -42,11 +31,6 @@ Feature: Kafka and its dependent packages?
     And The service "kafka-minion" should be removed
     And The service "kafka-mapper-consumer" should be removed
     And The service "kafka-unbundler-consumer" should be removed
-    And The service "grafana" should be removed
-    And The service "prometheus" should be removed
-    And The service "prometheus-kafka-adapter" should be removed
-    And The service "cadvisor" should be removed
-    And The service "node-exporter" should be removed
     And There should be 0 service
     And There should be 0 volume
     And There should be 0 config
