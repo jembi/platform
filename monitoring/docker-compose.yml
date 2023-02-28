@@ -4,7 +4,7 @@ services:
   grafana:
     image: grafana/grafana-oss:9.2.3
     volumes:
-      - grafana_data:/var/lib/grafana
+      - grafana-data:/var/lib/grafana
     environment:
       GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER}
       GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
@@ -49,12 +49,14 @@ services:
         source: kminion-groups_rev1.json
       - target: /etc/grafana/provisioning/dashboards/applications/kminion-topic_rev1.json
         source: kminion-topic_rev1.json
+      - target: /etc/grafana/provisioning/dashboards/containers/logging-universal-dashboard_rev1.json
+        source: logging-universal-dashboard_rev1.json
 
   prometheus:
     image: prom/prometheus:v2.38.0
     user: root
     volumes:
-      - prometheus_data:/prometheus
+      - prometheus-data:/prometheus
       - /var/run/docker.sock:/var/run/docker.sock:ro
     configs:
       - target: /etc/prometheus/prometheus.yml
@@ -88,11 +90,58 @@ services:
     deploy:
       mode: global
 
-  prometheus-kafka-adapter:
-    image: telefonica/prometheus-kafka-adapter:1.8.0
+  loki:
+    image: grafana/loki:2.6.1
+    volumes:
+      - loki-data:/tmp/loki
     environment:
-      - KAFKA_BROKER_LIST=kafka:9092
-      - KAFKA_COMPRESSION=gzip
+      MO_SECURITY_ADMIN_USER: ${MO_SECURITY_ADMIN_USER}
+      MO_SECURITY_ADMIN_PASSWORD: ${MO_SECURITY_ADMIN_PASSWORD}
+    configs:
+      - target: /etc/loki/loki-config.yml
+        source: loki-config.yml
+    command: -config.file=/etc/loki/loki-config.yml -config.expand-env=true
+    deploy:
+      labels:
+        - prometheus-job-service=loki
+        - prometheus-address=loki:3100
+
+  promtail:
+    image: grafana/promtail:2.6.1
+    volumes:
+      - /var/lib/docker/containers:/host/containers
+      - /var/log:/var/log:ro
+    configs:
+      - target: /etc/promtail/promtail-config.yml
+        source: promtail-config.yml
+    command: -config.file=/etc/promtail/promtail-config.yml
+    deploy:
+      mode: global
+
+  minio-01:
+    image: quay.io/minio/minio:RELEASE.2022-10-24T18-35-07Z
+    entrypoint: sh
+    command: -c 'mkdir -p /data1/loki /data2/loki && minio server --console-address ":9001" http://minio-0{1...${NUM_MINIO_SERVERS}}/data{1...2}'
+    environment:
+      MINIO_ROOT_USER: ${MO_SECURITY_ADMIN_USER}
+      MINIO_ROOT_PASSWORD: ${MO_SECURITY_ADMIN_PASSWORD}
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "http://localhost:9000/minio/health/live"
+        ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    hostname: minio-01
+    volumes:
+      - minio-01-data1:/data1
+      - minio-01-data2:/data2
+    deploy:
+      replicas: 1
 
 configs:
   grafana.ini:
@@ -135,12 +184,30 @@ configs:
     name: kminion-topic_rev1.json-${kminion_topic_rev1_json_DIGEST:?err}
     labels:
       name: grafana
+  logging-universal-dashboard_rev1.json:
+    file: ./grafana/dashboards/containers/logging-universal-dashboard_rev1.json
+    name: logging-universal-dashboard_rev1.json-${logging_universal_dashboard_rev1_json_DIGEST:?err}
+    labels:
+      name: grafana
   prometheus.yml:
     file: ./prometheus/prometheus.yml
     name: prometheus.yml-${prometheus_yml_DIGEST:?err}
     labels:
       name: prometheus
+  loki-config.yml:
+    file: ./loki/loki-config.yml
+    name: loki-config.yml-${loki_config_yml_DIGEST:?err}
+    labels:
+      name: loki
+  promtail-config.yml:
+    file: ./promtail/promtail-config.yml
+    name: promtail-config.yml-${promtail_config_yml_DIGEST:?err}
+    labels:
+      name: promtail
 
 volumes:
-  prometheus_data:
-  grafana_data:
+  prometheus-data:
+  grafana-data:
+  loki-data:
+  minio-01-data1:
+  minio-01-data2:
