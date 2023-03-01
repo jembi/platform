@@ -4,10 +4,9 @@ Feature: Kafka and its dependent packages?
   Scenario: Init Message Bus Kafka
     Given I use parameters "package init -n=message-bus-kafka --dev --env-file=.env.cluster"
     When I launch the platform with params
-    Then The service "zookeeper-1" should be started with 1 replica
-    And The service "zookeeper-2" should be started with 1 replica
-    And The service "zookeeper-3" should be started with 1 replica
-    And The service "kafka" should be started with 3 replicas
+    Then The service "kafka-01" should be started with 1 replica
+    And The service "kafka-02" should be started with 1 replica
+    And The service "kafka-03" should be started with 1 replica
     And The service "kafdrop" should be started with 1 replica
     And The service "kafka-minion" should be started with 1 replica
     And The service "message-bus-kafka-config-importer" should be removed
@@ -16,9 +15,9 @@ Feature: Kafka and its dependent packages?
   Scenario: Destroy Kafka and its dependent packages
     Given I use parameters "package destroy -n=message-bus-kafka --dev --env-file=.env.cluster"
     When I launch the platform with params
-    Then The service "zookeeper-1" should be removed
-    And The service "zookeeper-2" should be removed
-    And The service "zookeeper-3" should be removed
+    Then The service "kafka-01" should be removed
+    And The service "kafka-02" should be removed
+    And The service "kafka-03" should be removed
     And The service "kafka" should be removed
     And The service "kafdrop" should be removed
     And The service "kafka-minion" should be removed
