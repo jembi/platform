@@ -10,23 +10,27 @@
 #
 # Arguments:
 # - $1 : service name (eg. analytics-datastore-elastic-search)
+# - $2 : (optional) stack name that service falls under (defaults to 'instant')
 #
 docker::get_current_service_status() {
     local -r SERVICE_NAME=${1:?$(missing_param "get_current_service_status")}
+    local -r STACK_NAME=${2:-"instant"}
 
-    docker service ps instant_"${SERVICE_NAME}" --format "{{.CurrentState}}" 2>/dev/null
+    docker service ps "${STACK_NAME}"_"${SERVICE_NAME}" --format "{{.CurrentState}}" 2>/dev/null
 }
 
 # Gets unique errors from the provided service
 #
 # Arguments:
 # - $1 : service name (eg. analytics-datastore-elastic-search)
+# - $2 : (optional) stack name that service falls under (defaults to 'instant')
 #
 docker::get_service_unique_errors() {
     local -r SERVICE_NAME=${1:?$(missing_param "get_service_unique_errors")}
+    local -r STACK_NAME=${2:-"instant"}
 
     # Get unique error messages using sort -u
-    docker service ps instant_"${SERVICE_NAME}" --no-trunc --format '{{ .Error }}' 2>&1 | sort -u
+    docker service ps "${STACK_NAME}"_"${SERVICE_NAME}" --no-trunc --format '{{ .Error }}' 2>&1 | sort -u
 }
 
 # Waits for a container to be up
@@ -52,20 +56,22 @@ docker::await_container_startup() {
 # Arguments:
 # - $1 : service name (eg. analytics-datastore-elastic-search)
 # - $2 : service status (eg. running)
+# - $3 : (optional) stack name that service falls under (defaults to 'instant')
 #
 docker::await_service_status() {
     local -r SERVICE_NAME=${1:?$(missing_param "await_service_status" "SERVICE_NAME")}
     local -r SERVICE_STATUS=${2:?$(missing_param "await_service_status" "SERVICE_STATUS")}
+    local -r STACK_NAME=${3:-"instant"}
     local -r start_time=$(date +%s)
     local error_message=()
 
     log info "Waiting for ${SERVICE_NAME} to be ${SERVICE_STATUS}..."
-    until [[ $(docker::get_current_service_status "${SERVICE_NAME}") == *"${SERVICE_STATUS}"* ]]; do
+    until [[ $(docker::get_current_service_status "${SERVICE_NAME}" "${STACK_NAME}") == *"${SERVICE_STATUS}"* ]]; do
         config::timeout_check "${start_time}" "${SERVICE_NAME} to start"
         sleep 1
 
         # Get unique error messages using sort -u
-        new_error_message=($(docker::get_service_unique_errors "$SERVICE_NAME"))
+        new_error_message=($(docker::get_service_unique_errors "$SERVICE_NAME" "$STACK_NAME"))
         if [[ -n ${new_error_message[*]} ]]; then
             # To prevent logging the same error
             if [[ "${error_message[*]}" != "${new_error_message[*]}" ]]; then
@@ -233,6 +239,7 @@ docker::check_images_existence() {
 # - $3 : (optional) docker compose dev file (eg. docker-compose.dev.yml)
 # - $4 : (optional) docker compose dev mount file (eg. docker-compose.dev-mount.yml)
 # - $5 : (optional) docker compose temp file (eg. docker-compose.tmp.yml)
+# - $6 : (optional) docker stack name to group the service under (defaults to 'instant')
 #
 docker::deploy_service() {
     local -r DOCKER_COMPOSE_PATH="${1:?$(missing_param "deploy_service" "DOCKER_COMPOSE_PATH")}"
@@ -240,6 +247,7 @@ docker::deploy_service() {
     local -r DOCKER_COMPOSE_DEV_FILE="${3:-""}"
     local -r DOCKER_COMPOSE_DEV_MOUNT="${4:-""}"
     local -r DOCKER_COMPOSE_TEMP="${5:-""}"
+    local -r DOCKER_COMPOSE_STACKNAME="${6:-"instant"}"
     local docker_compose_param=""
 
     # Check for the existance of the images
@@ -272,7 +280,7 @@ docker::deploy_service() {
         -c ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE \
         $docker_compose_param \
         --with-registry-auth \
-        instant" \
+        ${DOCKER_COMPOSE_STACKNAME}" \
         throw \
         "Wrong configuration in ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE or in the other supplied compose files"
 
@@ -292,11 +300,13 @@ docker::deploy_service() {
 # - $1 : docker compose path (eg. /instant/monitoring/importer/docker-compose.config.yml)
 # - $2 : services name (eg. clickhouse-config-importer)
 # - $3 : config label (eg. clickhouse kibana)
+# - $4 : (optional) stack name that the service falls under (defaults to 'instant')
 #
 docker::deploy_config_importer() {
     local -r CONFIG_COMPOSE_PATH="${1:?$(missing_param "deploy_config_importer" "CONFIG_COMPOSE_PATH")}"
     local -r SERVICE_NAME="${2:?$(missing_param "deploy_config_importer" "SERVICE_NAME")}"
     local -r CONFIG_LABEL="${3:?$(missing_param "deploy_config_importer" "CONFIG_LABEL")}"
+    local -r STACK_NAME="${4:-"instant"}"
 
     log info "Waiting for config importer $SERVICE_NAME to start ..."
     (
@@ -308,14 +318,14 @@ docker::deploy_config_importer() {
         config::set_config_digests "$CONFIG_COMPOSE_PATH"
 
         try \
-            "docker stack deploy -c ${CONFIG_COMPOSE_PATH} instant" \
+            "docker stack deploy -c ${CONFIG_COMPOSE_PATH} ${STACK_NAME}" \
             throw \
             "Wrong configuration in $CONFIG_COMPOSE_PATH"
 
         log info "Waiting to give core config importer time to run before cleaning up service"
 
-        config::remove_config_importer "$SERVICE_NAME"
-        config::await_service_removed "instant_$SERVICE_NAME"
+        config::remove_config_importer "$SERVICE_NAME" "$STACK_NAME"
+        config::await_service_removed "$SERVICE_NAME" "$STACK_NAME"
 
         log info "Removing stale configs..."
         config::remove_stale_service_configs "$CONFIG_COMPOSE_PATH" "$CONFIG_LABEL"
@@ -329,16 +339,24 @@ docker::deploy_config_importer() {
 # Checks for errors when deploying
 #
 # Arguments:
+# - $1 : (optional) stack name that the service falls under (defaults to 'instant')
 # - $@ : service names (eg. "monitoring" "hapi-fhir")
 #
 docker::deploy_sanity() {
+    local -r STACK_NAME="${1:-"instant"}"
+    # if STACK_NAME is not the default 'instant' we passed in $1 so shift to get to the service names
+    # if $1 is instant, then we are called explicitly with the STACK_NAME as the default so need to shift
+    if [[ "$STACK_NAME" != "instant" || "$1" == "instant" ]]; then
+        shift
+    fi
+
     if [[ -z "$*" ]]; then
         log error "$(missing_param "deploy_sanity")"
         exit 1
     fi
 
     for service_name in "$@"; do
-        docker::await_service_status "$service_name" "Running"
+        docker::await_service_status "$service_name" "Running" "$STACK_NAME"
     done
 }
 
@@ -358,9 +376,17 @@ docker::await_service_ready() {
 # Scales down services
 #
 # Arguments:
+# - $1 : (optional) stack name that the service falls under (defaults to 'instant')
 # - $@ : service names (eg. analytics-datastore-elastic-search)
 #
 docker::scale_services_down() {
+    local -r STACK_NAME="${1:-"instant"}"
+    # if STACK_NAME is not the default 'instant' we passed in $1 so shift to get to the service names
+    # if $1 is instant, then we are called explicitly with the STACK_NAME as the default so need to shift
+    if [[ "$STACK_NAME" != "instant" || "$1" == "instant" ]]; then
+        shift
+    fi
+
     if [[ -z "$*" ]]; then
         log error "$(missing_param "scale_services_down")"
         exit 1
@@ -369,7 +395,7 @@ docker::scale_services_down() {
     for service_name in "$@"; do
         log info "Waiting for $service_name to scale down ..."
         try \
-            "docker service scale instant_$service_name=0" \
+            "docker service scale "$STACK_NAME"_$service_name=0" \
             catch \
             "Failed to scale down $service_name"
         overwrite "Waiting for $service_name to scale down ... Done"
