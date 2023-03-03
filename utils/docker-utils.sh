@@ -111,13 +111,15 @@ docker::await_container_destroy() {
 #
 # Arguments:
 # - $1 : service name (eg. analytics-datastore-elastic-search)
+# - $2 : (optional) stack name that the service falls under (defaults to 'instant')
 #
 docker::await_service_destroy() {
     local -r SERVICE_NAME=${1:?$(missing_param "await_service_destroy")}
+    local -r STACK_NAME="${2:-"instant"}"
 
     local start_time
     start_time=$(date +%s)
-    while docker service ls | grep -q "\sinstant_${SERVICE_NAME}\s"; do
+    while docker service ls | grep -q "\s${STACK_NAME}_${SERVICE_NAME}\s"; do
         config::timeout_check "${start_time}" "${SERVICE_NAME} to be destroyed"
         sleep 1
     done
@@ -151,25 +153,57 @@ docker::service_destroy() {
     done
 }
 
+# Removes the stack and awaits for each service in the stack to be removed
+#
+# Arguments:
+# - $1 : stack name to be removed
+# - $@ : service names list (eg. analytics-datastore-elastic-search)
+#
+docker::stack_destroy() {
+    local -r STACK_NAME=${1:?$(missing_param "stack_destroy")}
+    shift
+    log info "Waiting for stack $STACK_NAME to be removed ..."
+    try "docker stack rm \
+        $STACK_NAME" \
+        throw \
+        "Failed to remove $STACK_NAME"
+    overwrite "Waiting for stack $STACK_NAME to be removed ... Done"
+    
+    for service_name in "$@"; do
+        log info "Waiting for service $service_name to be removed ... "
+        if [[ -n $(docker service ls -qf name="${STACK_NAME}"_"${service_name}") ]]; then
+            docker::await_service_destroy "${service_name}" "${STACK_NAME}"
+        fi
+        overwrite "Waiting for service $service_name to be removed ... Done"
+    done
+}
+
 # Tries to remove volumes and retries until it works with a timeout
 #
 # Arguments:
+# - $1 : (optional) stack name that the service falls under (requires the prefix stack=, eg. stack=openhim) (defaults to instant)
 # - $@ : volumes names (eg. es-data psql-1)
 #
 docker::try_remove_volume() {
+    local STACK_NAME="instant"
+    if [[ $1 == stack=* ]]; then
+        STACK_NAME=${1#stack=}
+        shift
+    fi
+
     if [[ -z "$*" ]]; then
         log error "$(missing_param "try_remove_volume")"
         exit 1
     fi
 
     for volume_name in "$@"; do
-        if ! docker volume ls | grep -q "\sinstant_${volume_name}$"; then
+        if ! docker volume ls | grep -q "\s${STACK_NAME}_${volume_name}$"; then
             log warn "Tried to remove volume ${volume_name} but it doesn't exist on this node"
         else
             log info "Waiting for volume ${volume_name} to be removed..."
             local start_time
             start_time=$(date +%s)
-            until [[ -n "$(docker volume rm instant_"${volume_name}" 2>/dev/null)" ]]; do
+            until [[ -n "$(docker volume rm "${STACK_NAME}"_"${volume_name}" 2>/dev/null)" ]]; do
                 config::timeout_check "${start_time}" "${volume_name} to be removed" "60" "10"
                 sleep 1
             done
@@ -339,14 +373,13 @@ docker::deploy_config_importer() {
 # Checks for errors when deploying
 #
 # Arguments:
-# - $1 : (optional) stack name that the service falls under (defaults to 'instant')
+# - $1 : (optional) stack name that the service falls under (requires the prefix stack=, eg. stack=openhim) (defaults to instant)
 # - $@ : service names (eg. "monitoring" "hapi-fhir")
 #
 docker::deploy_sanity() {
-    local -r STACK_NAME="${1:-"instant"}"
-    # if STACK_NAME is not the default 'instant' we passed in $1 so shift to get to the service names
-    # if $1 is instant, then we are called explicitly with the STACK_NAME as the default so need to shift
-    if [[ "$STACK_NAME" != "instant" || "$1" == "instant" ]]; then
+    local STACK_NAME="instant"
+    if [[ $1 == stack=* ]]; then
+        STACK_NAME=${1#stack=}
         shift
     fi
 
@@ -376,14 +409,13 @@ docker::await_service_ready() {
 # Scales down services
 #
 # Arguments:
-# - $1 : (optional) stack name that the service falls under (defaults to 'instant')
+# - $1 : (optional) stack name that the service falls under (requires the prefix stack=, eg. stack=openhim) (defaults to instant)
 # - $@ : service names (eg. analytics-datastore-elastic-search)
 #
 docker::scale_services_down() {
-    local -r STACK_NAME="${1:-"instant"}"
-    # if STACK_NAME is not the default 'instant' we passed in $1 so shift to get to the service names
-    # if $1 is instant, then we are called explicitly with the STACK_NAME as the default so need to shift
-    if [[ "$STACK_NAME" != "instant" || "$1" == "instant" ]]; then
+    local STACK_NAME="instant"
+    if [[ $1 == stack=* ]]; then
+        STACK_NAME=${1#stack=}
         shift
     fi
 
