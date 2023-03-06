@@ -3,6 +3,7 @@ version: '3.9'
 services:
   kafka-01:
     image: bitnami/kafka:3.4.0
+    hostname: "{{.Node.Hostname}}-{{.Service.Name}}"
     environment:
       BITNAMI_DEBUG: ${KAFKA_DEBUG}
       KAFKA_ENABLE_KRAFT: 'yes'
@@ -31,6 +32,7 @@ services:
 
   kafka-02:
     image: bitnami/kafka:3.4.0
+    hostname: "{{.Node.Hostname}}-{{.Service.Name}}"
     environment:
       BITNAMI_DEBUG: ${KAFKA_DEBUG}
       KAFKA_ENABLE_KRAFT: 'yes'
@@ -59,6 +61,7 @@ services:
 
   kafka-03:
     image: bitnami/kafka:3.4.0
+    hostname: "{{.Node.Hostname}}-{{.Service.Name}}"
     environment:
       BITNAMI_DEBUG: ${KAFKA_DEBUG}
       KAFKA_ENABLE_KRAFT: 'yes'

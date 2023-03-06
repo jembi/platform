@@ -5,6 +5,7 @@ declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
 declare UTILS_SERVICES=()
+declare KAFKA_SERVICES=()
 declare SERVICE_NAMES=()
 
 function init_vars() {
@@ -23,17 +24,23 @@ function init_vars() {
     "kafka-minion"
   )
 
-  SERVICE_NAMES=(
-    "${UTILS_SERVICES[@]}"
+  KAFKA_SERVICES=(
     "kafka-01"
     "kafka-02"
     "kafka-03"
+  )
+
+  SERVICE_NAMES=(
+    "${UTILS_SERVICES[@]}"
+    "${KAFKA_SERVICES[@]}"
   )
 
   readonly ACTION
   readonly MODE
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
+  readonly UTILS_SERVICES
+  readonly KAFKA_SERVICES
   readonly SERVICE_NAMES
 }
 
@@ -63,10 +70,11 @@ function initialize_package() {
     log info "Deploy Kafka"
 
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.kafka.yml" "$kafka_cluster_compose_filename"
-    docker::deploy_sanity "kafka-01" "kafka-02" "kafka-03"
-    config::await_service_reachable "kafka-01" "Kafka Server started"
-    config::await_service_reachable "kafka-02" "Kafka Server started"
-    config::await_service_reachable "kafka-03" "Kafka Server started"
+    docker::deploy_sanity "${KAFKA_SERVICES[@]}"
+
+    for service_name in "${KAFKA_SERVICES[@]}"; do
+      config::await_service_reachable "$service_name" "Kafka Server started"
+    done
 
     log info "Deploy the other services dependent of Kafka"
 

@@ -2,8 +2,14 @@ version: '3.9'
 
 services:
   identity-access-manager-keycloak:
-    image: keycloak/keycloak
-    command: ["start", "--proxy=edge", "--hostname-url=${KC_FRONTEND_URL}", "--import-realm"]
+    image: keycloak/keycloak:20.0
+    command:
+      [
+        "start",
+        "--proxy=edge",
+        "--hostname-url=${KC_FRONTEND_URL}",
+        "--import-realm"
+      ]
     hostname: identity-access-manager-keycloak
     healthcheck:
       test: curl --fail http://localhost:8080/health/ready || exit 1
