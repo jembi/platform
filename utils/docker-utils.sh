@@ -512,3 +512,36 @@ docker::ensure_external_networks_existence() {
         done
     fi
 }
+
+# Tries to remove the networks provided
+#
+# Arguments:
+# - $@ : network names (eg. openhim_default instant_proxy)
+#
+docker::try_remove_network() {
+    if [[ -z "$*" ]]; then
+        log error "$(missing_param "try_remove_network")"
+        exit 1
+    fi
+
+    for network_name in "$@"; do
+        if ! docker network ls | grep -q "\s$network_name\s"; then
+            log warn "Tried to remove network $network_name but it doesn't exist on this node"
+            continue
+        fi
+
+        # Network currently has containers attached so don't try remove it 
+        if [[ $(docker network inspect $network_name --format {{.Containers}}) != "map[]" ]]; then
+            log warn "Tried to remove network $network_name but it still has containers attached"
+            continue
+        fi
+
+        log info "Trying to remove network $network_name ..."
+        try \
+            "docker network rm $network_name" \
+            throw \
+            "Failed to remove network $network_name"
+        overwrite "Trying to remove network $network_name ... Done"
+
+    done
+}
