@@ -284,6 +284,8 @@ docker::deploy_service() {
     local -r DOCKER_COMPOSE_STACKNAME="${6:-"instant"}"
     local docker_compose_param=""
 
+    docker::ensure_external_networks_existence "$DOCKER_COMPOSE_PATH/$DOCKER_COMPOSE_FILE"
+
     # Check for the existance of the images
     local -r images=($(yq '.services."*".image' "${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE"))
     if [[ "${images[*]}" != "null" ]]; then
@@ -457,4 +459,56 @@ docker::scale_services_up() {
             "Failed to scale up $service_name"
         overwrite "Waiting for $service_name to scale up ... Done"
     done
+}
+
+# Checks if the external networks exist and tries create it if not
+#
+# Arguments:
+# - $1 : path to the docker compose file with the network definitions
+#
+docker::ensure_external_networks_existence() {
+    if [[ -z "$1" ]]; then
+        log error "$(missing_param "ensure_external_networks_existence")"
+        exit 1
+    fi
+
+    local -r network_keys=$(yq '.networks | keys' $1)
+    local -r networks=(${network_keys//- /})
+    if [[ "${networks[*]}" != "null" ]]; then
+        for network_name in "${networks[@]}"; do
+        # check if the property external is both present and set to true for the current network
+        # then pull the necessary properties to create the network
+        if [[ $(name=$network_name yq '.networks.[env(name)] | select(has("external")) | .external' $1) == true ]]; then
+            local name=$(name=$network_name yq '.networks.[env(name)] | .name' $1)
+            if [[ $name == "null" ]]; then
+                name=$network_name
+            fi
+            
+            # network with the name already exists so no need to create it
+            if docker network ls | grep -q "\s$name\s"; then
+                continue
+            fi
+
+            local driver=$(name=$network_name yq '.networks.[env(name)] | .driver' $1)
+            if [[ $driver == "null" ]]; then
+                driver="overlay"
+            fi
+
+            local attachable=""
+            if [[ $(name=$network_name yq '.networks.[env(name)] | .attachable' $1) == true ]]; then
+                attachable="--attachable"
+            fi
+
+            log info "Waiting to create external network $name ..."
+            try \
+                "docker network create --scope=swarm \
+                -d $driver \
+                $attachable \
+                $name" \
+                throw \
+                "Failed to create network $name"
+            overwrite "Waiting to create external network $name ... Done"
+        fi
+        done
+    fi
 }
