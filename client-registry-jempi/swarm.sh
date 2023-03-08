@@ -28,9 +28,6 @@ function init_vars() {
       "${DGRAPH_SERVICES[@]}"
       "jempi-alpha-0$i"
     )
-    VOLUME_NAMES=(
-      "${VOLUME_NAMES[@]}"
-    )
   done
 
   COMBINED_SERVICES=(
@@ -45,7 +42,6 @@ function init_vars() {
   SERVICE_NAMES=(
     "${DGRAPH_SERVICES[@]}"
     "${COMBINED_SERVICES[@]}"
-    "jempi-kafdrop"
     "jempi-zero-01"
     "jempi-api"
   )

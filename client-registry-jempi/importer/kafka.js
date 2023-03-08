@@ -2,7 +2,7 @@
 
 const http = require("http");
 
-const KAFDROP_HOST = process.env.KAFDROP_HOST || "jempi-kafdrop";
+const KAFDROP_HOST = process.env.KAFDROP_HOST || "kafdrop";
 const KAFDROP_PORT = process.env.KAFDROP_PORT || "9013";
 const KAFKA_TOPICS = process.env.KAFKA_TOPICS;
 
