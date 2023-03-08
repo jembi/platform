@@ -270,7 +270,7 @@ docker::deploy_service() {
     local -r DOCKER_COMPOSE_DEV_FILE="${3:-""}"
     local -r DOCKER_COMPOSE_DEV_MOUNT="${4:-""}"
     local -r DOCKER_COMPOSE_TEMP="${5:-""}"
-    local -r DOCKER_COMPOSE_STACKNAME="${6:-"instant"}"
+    local -r STACK_NAME="${6:-"instant"}"
     local docker_compose_param=""
 
     docker::ensure_external_networks_existence "$DOCKER_COMPOSE_PATH/$DOCKER_COMPOSE_FILE"
@@ -305,7 +305,7 @@ docker::deploy_service() {
         -c ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE \
         $docker_compose_param \
         --with-registry-auth \
-        ${DOCKER_COMPOSE_STACKNAME}" \
+        ${STACK_NAME}" \
         throw \
         "Wrong configuration in ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE or in the other supplied compose files"
 
@@ -316,6 +316,12 @@ docker::deploy_service() {
             config::remove_stale_service_configs "$COMPOSE_FILE_PATH/$DOCKER_COMPOSE_FILE" "${label_name}"
         done
     fi
+
+    # yq keys returns:"- foo - bar" if you have yml with a foo: and bar: service definition
+    # so we use bash parameter expansion to replace all occurances of - with "$STACK_NAME"_ (eg: openhim_foo openhim_bar)  
+    local services=$(yq '.services | keys' "${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE")
+    services=${services//- /"$STACK_NAME"_}
+    docker::deploy_sanity "$STACK_NAME" $services
 }
 
 # Deploys a config importer
@@ -369,16 +375,9 @@ docker::deploy_config_importer() {
 #
 docker::deploy_sanity() {
     local -r STACK_NAME="${1:?$(missing_param "deploy_sanity" "STACK_NAME")}"
-    # shift off the stack name and then update the IFS to be | so our list joins as mongo|console
-    # then restore IFS to it's original value so when we make our services set it behaves normally
+    # shift off the stack name to get the subset of services to check  
     shift
-    local old_IFS="$IFS"
-    IFS='|'
-    local service_subset="$*"
-    IFS=$old_IFS
-    local services=($(docker stack services $STACK_NAME | awk '{print $2}' | tail -n +2 | grep -E "$service_subset"))
-    
-    for service_name in ${services[@]}; do
+    for service_name in "$@"; do
         docker::await_service_status "$service_name" "Running"
     done
 }
