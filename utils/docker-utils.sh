@@ -151,21 +151,20 @@ docker::service_destroy() {
 #
 docker::stack_destroy() {
     local -r STACK_NAME=${1:?$(missing_param "stack_destroy")}
-    local services=($(docker stack services $STACK_NAME | awk '{print $2}' | tail -n +2))
     log info "Waiting for stack $STACK_NAME to be removed ..."
     try "docker stack rm \
         $STACK_NAME" \
         throw \
         "Failed to remove $STACK_NAME"
-    overwrite "Waiting for stack $STACK_NAME to be removed ... Done"
-    
-    for service_name in "${services[@]}"; do
-        log info "Waiting for service $service_name to be removed ... "
-        if [[ -n $(docker service ls -qf name="${service_name}") ]]; then
-            docker::await_service_destroy "${service_name}"
-        fi
-        overwrite "Waiting for service $service_name to be removed ... Done"
+
+    local start_time
+    start_time=$(date +%s)
+    while [[ -n $(docker stack ps $STACK_NAME) ]] ; do
+        config::timeout_check "${start_time}" "${STACK_NAME} to be destroyed"
+        sleep 1
     done
+
+    overwrite "Waiting for stack $STACK_NAME to be removed ... Done"
 }
 
 # Tries to remove volumes and retries until it works with a timeout
