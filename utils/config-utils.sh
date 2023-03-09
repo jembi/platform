@@ -462,15 +462,17 @@ config::env_var_add() {
 #
 # Arguments:
 # $1 : service name (eg. analytics-datastore-elastic-search)
-# $2 : log string to be checked (eg. Starting)
+# $2 : stack name that the service falls under (eg. openhim)
+# $3 : log string to be checked (eg. Starting)
 #
 config::await_service_reachable() {
     local -r SERVICE_NAME=${1:?$(missing_param "await_service_reachable" "SERVICE_NAME")}
-    local -r LOG_MESSAGE=${2:?$(missing_param "await_service_reachable" "LOG_MESSAGE")}
+    local -r STACK_NAME=${2:?$(missing_param "await_service_reachable" "STACK_NAME")}
+    local -r LOG_MESSAGE=${3:?$(missing_param "await_service_reachable" "LOG_MESSAGE")}
     local -r start_time=$(date +%s)
 
-    until [[ $(docker service logs --tail all instant_"${SERVICE_NAME}" 2>/dev/null | grep -c "${LOG_MESSAGE}") -gt 0 ]]; do
-        config::timeout_check "$start_time" "$SERVICE_NAME to be reachable"
+    until [[ $(docker service logs --tail all "${STACK_NAME}"_"${SERVICE_NAME}" 2>/dev/null | grep -c "${LOG_MESSAGE}") -gt 0 ]]; do
+        config::timeout_check "$start_time" "${STACK_NAME}_$SERVICE_NAME to be reachable"
         sleep 1
     done
 }
