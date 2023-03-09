@@ -257,20 +257,15 @@ docker::check_images_existence() {
 # It will remove stale configs
 #
 # Arguments:
-# - $1 : docker compose path (eg. /instant/monitoring)
-# - $2 : docker compose file (eg. docker-compose.yml docker-compose.cluster.yml)
-# - $3 : (optional) docker compose dev file (eg. docker-compose.dev.yml)
-# - $4 : (optional) docker compose dev mount file (eg. docker-compose.dev-mount.yml)
-# - $5 : (optional) docker compose temp file (eg. docker-compose.tmp.yml)
-# - $6 : (optional) docker stack name to group the service under (defaults to 'instant')
+# - $1 : docker stack name to group the service under
+# - $2 : docker compose path (eg. /instant/monitoring)
+# - $3 : docker compose file (eg. docker-compose.yml or docker-compose.cluster.yml)
+# - $@ : (optional) list of docker compose files (eg. docker-compose.cluster.yml docker-compose.dev.yml)
 #
 docker::deploy_service() {
-    local -r DOCKER_COMPOSE_PATH="${1:?$(missing_param "deploy_service" "DOCKER_COMPOSE_PATH")}"
-    local -r DOCKER_COMPOSE_FILE="${2:?$(missing_param "deploy_service" "DOCKER_COMPOSE_FILE")}"
-    local -r DOCKER_COMPOSE_DEV_FILE="${3:-""}"
-    local -r DOCKER_COMPOSE_DEV_MOUNT="${4:-""}"
-    local -r DOCKER_COMPOSE_TEMP="${5:-""}"
-    local -r STACK_NAME="${6:-"instant"}"
+    local -r STACK_NAME="${1:?$(missing_param "deploy_service" "STACK_NAME")}"
+    local -r DOCKER_COMPOSE_PATH="${2:?$(missing_param "deploy_service" "DOCKER_COMPOSE_PATH")}"
+    local -r DOCKER_COMPOSE_FILE="${3:?$(missing_param "deploy_service" "DOCKER_COMPOSE_FILE")}"
     local docker_compose_param=""
 
     # Check for the existance of the images
@@ -285,19 +280,9 @@ docker::deploy_service() {
         config::set_config_digests "${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE"
     fi
 
-    # Adding Dev compose file to the params
-    if [[ -n "${DOCKER_COMPOSE_DEV_FILE}" ]]; then
-        docker_compose_param="-c ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_DEV_FILE"
-    fi
-
-    # Adding Dev mount compose file to the params
-    if [[ -n "${DOCKER_COMPOSE_DEV_MOUNT}" ]]; then
-        docker_compose_param="$docker_compose_param -c ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_DEV_MOUNT"
-    fi
-
-    if [[ -n "${DOCKER_COMPOSE_TEMP}" ]]; then
-        docker_compose_param="$docker_compose_param -c ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_TEMP"
-    fi
+    for optional_config in "${@:4}"; do
+        docker_compose_param="$docker_compose_param -c ${DOCKER_COMPOSE_PATH}/$optional_config"
+    done
 
     docker::ensure_external_networks_existence "$DOCKER_COMPOSE_PATH/$DOCKER_COMPOSE_FILE" ${docker_compose_param//-c /}
 
