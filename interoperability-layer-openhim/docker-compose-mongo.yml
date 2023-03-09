@@ -16,17 +16,15 @@ services:
           cpus: ${OPENHIM_MONGO_CPU_RESERVE}
           memory: ${OPENHIM_MONGO_MEMORY_RESERVE}
     networks:
-      default:
-      mongo_backup_net: {}
+      private:
+      mongo_backup_net:
 
 volumes:
   openhim-mongo-01:
   openhim-mongo-01-config:
 
-
 networks:
-  default:
-    name: instant_default
+  private:
   mongo_backup_net:
     name: mongo_backup
     driver: overlay

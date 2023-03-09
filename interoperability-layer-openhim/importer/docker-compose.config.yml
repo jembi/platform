@@ -4,6 +4,8 @@ services:
   # container for executing config import scripts for setting up initial config
   interoperability-layer-openhim-config-importer:
     image: node:erbium-alpine
+    networks:
+      private:
     environment:
       OPENHIM_CORE_SERVICE_NAME: 'openhim-core'
       OPENHIM_MEDIATOR_API_PORT: 8080
@@ -33,3 +35,6 @@ configs:
     name: openhim-config-importer-openhim-import.json-${openhim_config_importer_openhim_import_js_DIGEST:?err}
     labels:
       name: openhim
+
+networks:
+  private:

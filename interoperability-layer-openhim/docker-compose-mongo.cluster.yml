@@ -27,8 +27,8 @@ services:
           cpus: ${OPENHIM_MONGO_CPU_RESERVE}
           memory: ${OPENHIM_MONGO_MEMORY_RESERVE}
     networks:
-      default:
-      mongo_backup_net: {}
+      private:
+      mongo_backup_net:
 
   mongo-3:
     image: mongo:4.2
@@ -49,8 +49,8 @@ services:
           cpus: ${OPENHIM_MONGO_CPU_RESERVE}
           memory: ${OPENHIM_MONGO_MEMORY_RESERVE}
     networks:
-      default:
-      mongo_backup_net: {}
+      private:
+      mongo_backup_net:
 
 volumes:
   openhim-mongo-02:

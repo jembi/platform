@@ -3,6 +3,10 @@ version: '3.9'
 services:
   openhim-core:
     image: jembi/openhim-core:7
+    networks:
+      public:
+      private:
+      proxy:
     environment:
       - mongo_url=${OPENHIM_MONGO_URL}
       - mongo_atnaUrl=${OPENHIM_MONGO_ATNAURL}
@@ -22,6 +26,10 @@ services:
 
   openhim-console:
     image: jembi/openhim-console:1.14.4
+    networks:
+      public:
+      private:
+      proxy:
     configs:
       - source: console-default.json
         target: /usr/share/nginx/html/config/default.json
@@ -43,3 +51,11 @@ configs:
     name: console.config-${console_config_DIGEST:?err}
     labels:
       name: openhim
+
+networks:
+  proxy:
+    name: proxy_public
+    external: true
+  public:
+    name: openhim_public
+  private:
