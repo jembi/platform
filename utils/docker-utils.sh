@@ -159,7 +159,7 @@ docker::stack_destroy() {
 
     local start_time
     start_time=$(date +%s)
-    while [[ -n $(docker stack ps $STACK_NAME) ]] ; do
+    while [[ -n "$(docker stack ps $STACK_NAME 2>/dev/null)" ]] ; do
         config::timeout_check "${start_time}" "${STACK_NAME} to be destroyed"
         sleep 1
     done
