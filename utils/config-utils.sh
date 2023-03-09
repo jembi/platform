@@ -143,17 +143,17 @@ config::timeout_check() {
 # - $1 : the service being awaited
 # - $2 : path to await-helper compose.yml file (eg. ~/projects/platform/dashboard-visualiser-jsreport/docker-compose.await-helper.yml)
 # - $3 : desired number of instances of the awaited-service
-# - $4 : (optional) the max time allowed to wait for a service's response, defaults to 300 seconds
-# - $5 : (optional) elapsed time to throw a warning, defaults to 60 seconds
-# - $6 : (optional) stack name that the service falls under (defaults to 'instant')
+# - $4 : stack name that the service falls under (eg. openhim)
+# - $5 : (optional) the max time allowed to wait for a service's response, defaults to 300 seconds
+# - $6 : (optional) elapsed time to throw a warning, defaults to 60 seconds
 #
 config::await_service_running() {
     local -r SERVICE_NAME="${1:?$(missing_param "await_service_running" "SERVICE_NAME")}"
     local -r AWAIT_HELPER_FILE_PATH="${2:?$(missing_param "await_service_running" "AWAIT_HELPER_FILE_PATH")}"
     local -r SERVICE_INSTANCES="${3:?$(missing_param "await_service_running" "SERVICE_INSTANCES")}"
-    local -r exit_time="${4:-}"
-    local -r warning_time="${5:-}"
-    local -r STACK_NAME="${6:-"instant"}"
+    local -r STACK_NAME="${4:?$(missing_param "await_service_running" "STACK_NAME")}"
+    local -r exit_time="${5:-}"
+    local -r warning_time="${6:-}"
     local start_time
     start_time=$(date +%s)
 
@@ -187,13 +187,13 @@ config::await_service_running() {
 #
 # Arguments:
 # - $1 : the name of the config importer
-# - $2 : (optional) stack name that the service falls under (defaults to 'instant')
+# - $2 : stack name that the service falls under (eg. openhim)
 # - $3 : (optional) the timeout time for the config importer to run, defaults to 300 seconds
 # - $4 : (optional) elapsed time to throw a warning, defaults to 60 seconds
 #
 config::remove_config_importer() {
-    local -r CONFIG_IMPORTER_SERVICE_NAME="${1:?$(missing_param "remove_config_importer")}"
-    local -r STACK_NAME="${2:-"instant"}"
+    local -r CONFIG_IMPORTER_SERVICE_NAME="${1:?$(missing_param "remove_config_importer" "CONFIG_IMPORTER_SERVICE_NAME")}"
+    local -r STACK_NAME="${2:?$(missing_param "remove_config_importer" "STACK_NAME")}"
     local -r exit_time="${3:-}"
     local -r warning_time="${4:-}"
     local -r start_time=$(date +%s)
@@ -225,11 +225,11 @@ config::remove_config_importer() {
 #
 # Arguments:
 # - $1 : service name (eg. analytics-datastore-elastic-search)
-# - $2 : (optional) stack name that the service falls under (defaults to 'instant')
+# - $2 : stack name that the service falls under (eg. openhim)
 #
 config::await_service_removed() {
-    local -r SERVICE_NAME="${1:?$(missing_param "await_service_removed")}"
-    local -r STACK_NAME="${2:-"instant"}"
+    local -r SERVICE_NAME="${1:?$(missing_param "await_service_removed", "SERVICE_NAME")}"
+    local -r STACK_NAME="${2:?$(missing_param "await_service_removed", "STACK_NAME")}"
     local start_time=$(date +%s)
 
     until [[ -z $(docker stack ps $STACK_NAME -qf name="${STACK_NAME}_${SERVICE_NAME}" 2>/dev/null) ]]; do
