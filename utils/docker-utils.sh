@@ -273,8 +273,6 @@ docker::deploy_service() {
     local -r STACK_NAME="${6:-"instant"}"
     local docker_compose_param=""
 
-    docker::ensure_external_networks_existence "$DOCKER_COMPOSE_PATH/$DOCKER_COMPOSE_FILE"
-
     # Check for the existance of the images
     local -r images=($(yq '.services."*".image' "${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE"))
     if [[ "${images[*]}" != "null" ]]; then
@@ -301,6 +299,8 @@ docker::deploy_service() {
         docker_compose_param="$docker_compose_param -c ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_TEMP"
     fi
 
+    docker::ensure_external_networks_existence "$DOCKER_COMPOSE_PATH/$DOCKER_COMPOSE_FILE" ${docker_compose_param//-c /}
+
     try "docker stack deploy \
         -c ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE \
         $docker_compose_param \
@@ -317,11 +317,7 @@ docker::deploy_service() {
         done
     fi
 
-    # yq keys returns:"- foo - bar" if you have yml with a foo: and bar: service definition
-    # so we use bash parameter expansion to replace all occurances of - with "$STACK_NAME"_ (eg: openhim_foo openhim_bar)  
-    local services=$(yq '.services | keys' "${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE")
-    services=${services//- /"$STACK_NAME"_}
-    docker::deploy_sanity "$STACK_NAME" $services
+    docker::deploy_sanity "$STACK_NAME" "$DOCKER_COMPOSE_PATH/$DOCKER_COMPOSE_FILE" ${docker_compose_param//-c /}
 }
 
 # Deploys a config importer
@@ -371,13 +367,33 @@ docker::deploy_config_importer() {
 #
 # Arguments:
 # - $1 : stack name that the services falls under
-# - $2 : (optional) a list of service names to create a subset of services to look at (eg. mongo console)
+# - $@ : the list of compose files with the service definitions
 #
 docker::deploy_sanity() {
     local -r STACK_NAME="${1:?$(missing_param "deploy_sanity" "STACK_NAME")}"
     # shift off the stack name to get the subset of services to check  
     shift
-    for service_name in "$@"; do
+
+    if [[ -z "$*" ]]; then
+        log error "$(missing_param "deploy_sanity" "COMPOSE_FILES")"
+        exit 1
+    fi
+
+    local services=()
+    for compose_file in "$@"; do
+    # yq keys returns:"- foo - bar" if you have yml with a foo: and bar: service definition
+    # so we use bash parameter expansion to replace all occurances of - with "$STACK_NAME"_ (eg: openhim_foo openhim_bar)
+        local compose_services=$(yq '.services | keys' $compose_file)
+        compose_services=${compose_services//- /"$STACK_NAME"_}
+        for service in ${compose_services[@]}; do
+            # only append unique service to services
+            if [[ ! ${services[*]} =~ $service ]]; then
+                services+=($service)
+            fi
+        done
+    done
+
+    for service_name in ${services[@]}; do
         docker::await_service_status "$service_name" "Running"
     done
 }
@@ -441,53 +457,59 @@ docker::scale_services_up() {
 # Checks if the external networks exist and tries create it if not
 #
 # Arguments:
-# - $1 : path to the docker compose file with the network definitions
+# - $@ : path to the docker compose files with the possible network definitions
 #
 docker::ensure_external_networks_existence() {
-    if [[ -z "$1" ]]; then
+    if [[ -z "$*" ]]; then
         log error "$(missing_param "ensure_external_networks_existence")"
         exit 1
     fi
 
-    local -r network_keys=$(yq '.networks | keys' $1)
-    local -r networks=(${network_keys//- /})
-    if [[ "${networks[*]}" != "null" ]]; then
-        for network_name in "${networks[@]}"; do
-        # check if the property external is both present and set to true for the current network
-        # then pull the necessary properties to create the network
-        if [[ $(name=$network_name yq '.networks.[env(name)] | select(has("external")) | .external' $1) == true ]]; then
-            local name=$(name=$network_name yq '.networks.[env(name)] | .name' $1)
-            if [[ $name == "null" ]]; then
-                name=$network_name
-            fi
-            
-            # network with the name already exists so no need to create it
-            if docker network ls | awk '{print $2}' | grep -q -w "$name"; then
-                continue
-            fi
-
-            local driver=$(name=$network_name yq '.networks.[env(name)] | .driver' $1)
-            if [[ $driver == "null" ]]; then
-                driver="overlay"
-            fi
-
-            local attachable=""
-            if [[ $(name=$network_name yq '.networks.[env(name)] | .attachable' $1) == true ]]; then
-                attachable="--attachable"
-            fi
-
-            log info "Waiting to create external network $name ..."
-            try \
-                "docker network create --scope=swarm \
-                -d $driver \
-                $attachable \
-                $name" \
-                throw \
-                "Failed to create network $name"
-            overwrite "Waiting to create external network $name ... Done"
+    for compose_file in "$@"; do
+        if [[ $(yq '.networks' $compose_file) == "null" ]]; then
+            continue
         fi
-        done
-    fi
+        
+        local network_keys=$(yq '.networks | keys' $compose_file)
+        local networks=(${network_keys//- /})
+        if [[ "${networks[*]}" != "null" ]]; then
+            for network_name in "${networks[@]}"; do
+                # check if the property external is both present and set to true for the current network
+                # then pull the necessary properties to create the network
+                if [[ $(name=$network_name yq '.networks.[env(name)] | select(has("external")) | .external' $compose_file) == true ]]; then
+                    local name=$(name=$network_name yq '.networks.[env(name)] | .name' $compose_file)
+                    if [[ $name == "null" ]]; then
+                        name=$network_name
+                    fi
+                    
+                    # network with the name already exists so no need to create it
+                    if docker network ls | awk '{print $2}' | grep -q -w "$name"; then
+                        continue
+                    fi
+
+                    local driver=$(name=$network_name yq '.networks.[env(name)] | .driver' $compose_file)
+                    if [[ $driver == "null" ]]; then
+                        driver="overlay"
+                    fi
+
+                    local attachable=""
+                    if [[ $(name=$network_name yq '.networks.[env(name)] | .attachable' $compose_file) == true ]]; then
+                        attachable="--attachable"
+                    fi
+
+                    log info "Waiting to create external network $name ..."
+                    try \
+                        "docker network create --scope=swarm \
+                        -d $driver \
+                        $attachable \
+                        $name" \
+                        throw \
+                        "Failed to create network $name"
+                    overwrite "Waiting to create external network $name ... Done"
+                fi
+            done
+        fi
+    done
 }
 
 # Tries to remove the networks provided
