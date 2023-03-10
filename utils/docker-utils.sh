@@ -32,14 +32,16 @@ docker::get_service_unique_errors() {
 #
 # Arguments:
 # - $1 : service name (eg. analytics-datastore-elastic-search)
+# - $2 : stack name that the service falls under (eg. elastic)
 #
 docker::await_container_startup() {
-    local -r SERVICE_NAME=${1:?$(missing_param "await_container_startup")}
+    local -r SERVICE_NAME=${1:?$(missing_param "await_container_startup", "SERVICE_NAME")}
+    local -r STACK_NAME=${2:?$(missing_param "await_container_startup", "STACK_NAME")}
 
     log info "Waiting for ${SERVICE_NAME} to start up..."
     local start_time
     start_time=$(date +%s)
-    until [[ -n $(docker service ls -qf name=instant_"${SERVICE_NAME}") ]]; do
+    until [[ -n $(docker service ls -qf name="${STACK_NAME}"_"${SERVICE_NAME}") ]]; do
         config::timeout_check "${start_time}" "${SERVICE_NAME} to start"
         sleep 1
     done
@@ -51,25 +53,27 @@ docker::await_container_startup() {
 # Arguments:
 # - $1 : service name (eg. analytics-datastore-elastic-search)
 # - $2 : service status (eg. running)
+# - $3 : stack name that the service falls under (eg. elastic)
 #
 docker::await_service_status() {
     local -r SERVICE_NAME=${1:?$(missing_param "await_service_status" "SERVICE_NAME")}
     local -r SERVICE_STATUS=${2:?$(missing_param "await_service_status" "SERVICE_STATUS")}
+    local -r STACK_NAME=${3:?$(missing_param "await_service_status" "STACK_NAME")}
     local -r start_time=$(date +%s)
     local error_message=()
 
-    log info "Waiting for ${SERVICE_NAME} to be ${SERVICE_STATUS}..."
-    until [[ $(docker::get_current_service_status "${SERVICE_NAME}") == *"${SERVICE_STATUS}"* ]]; do
-        config::timeout_check "${start_time}" "${SERVICE_NAME} to start"
+    log info "Waiting for ${STACK_NAME}_${SERVICE_NAME} to be ${SERVICE_STATUS}..."
+    until [[ $(docker::get_current_service_status ${STACK_NAME}_${SERVICE_NAME}) == *"${SERVICE_STATUS}"* ]]; do
+        config::timeout_check "${start_time}" "${STACK_NAME}_${SERVICE_NAME} to start"
         sleep 1
 
         # Get unique error messages using sort -u
-        new_error_message=($(docker::get_service_unique_errors "$SERVICE_NAME"))
+        new_error_message=($(docker::get_service_unique_errors ${STACK_NAME}_$SERVICE_NAME))
         if [[ -n ${new_error_message[*]} ]]; then
             # To prevent logging the same error
             if [[ "${error_message[*]}" != "${new_error_message[*]}" ]]; then
                 error_message=(${new_error_message[*]})
-                log error "Deploy error in service $SERVICE_NAME: ${error_message[*]}"
+                log error "Deploy error in service ${STACK_NAME}_$SERVICE_NAME: ${error_message[*]}"
             fi
 
             # To exit in case the error is not having the image
@@ -79,38 +83,42 @@ docker::await_service_status() {
             fi
         fi
     done
-    overwrite "Waiting for ${SERVICE_NAME} to be ${SERVICE_STATUS}... Done"
+    overwrite "Waiting for ${STACK_NAME}_${SERVICE_NAME} to be ${SERVICE_STATUS}... Done"
 }
 
 # Waits for a container to be destroyed
 #
 # Arguments:
 # - $1 : service name (eg. analytics-datastore-elastic-search)
+# - $2 : stack name that the service container falls under (eg. elastic)
 #
 docker::await_container_destroy() {
-    local -r SERVICE_NAME=${1:?$(missing_param "await_container_destroy")}
+    local -r SERVICE_NAME=${1:?$(missing_param "await_container_destroy", "SERVICE_NAME")}
+    local -r STACK_NAME=${2:?$(missing_param "await_container_destroy", "STACK_NAME")}
 
-    log info "Waiting for ${SERVICE_NAME} to be destroyed..."
+    log info "Waiting for ${STACK_NAME}_${SERVICE_NAME} to be destroyed..."
     local start_time
     start_time=$(date +%s)
-    until [[ -z $(docker ps -qlf name="instant_${SERVICE_NAME}") ]]; do
+    until [[ -z $(docker ps -qlf name="${STACK_NAME}_${SERVICE_NAME}") ]]; do
         config::timeout_check "${start_time}" "${SERVICE_NAME} to be destroyed"
         sleep 1
     done
-    overwrite "Waiting for ${SERVICE_NAME} to be destroyed... Done"
+    overwrite "Waiting for ${STACK_NAME}_${SERVICE_NAME} to be destroyed... Done"
 }
 
 # Waits for a service to be destroyed
 #
 # Arguments:
 # - $1 : service name (eg. analytics-datastore-elastic-search)
+# - $2 : stack name that the service falls under (eg. elastic)
 #
 docker::await_service_destroy() {
-    local -r SERVICE_NAME=${1:?$(missing_param "await_service_destroy")}
+    local -r SERVICE_NAME=${1:?$(missing_param "await_service_destroy", "SERVICE_NAME")}
+    local -r STACK_NAME=${2:?$(missing_param "await_service_destroy", "STACK_NAME")}
     local start_time
     start_time=$(date +%s)
 
-    while docker service ls | grep -q "\s${SERVICE_NAME}\s"; do
+    while docker service ls | grep -q "\s${STACK_NAME}_${SERVICE_NAME}\s"; do
         config::timeout_check "${start_time}" "${SERVICE_NAME} to be destroyed"
         sleep 1
     done
@@ -368,7 +376,7 @@ docker::deploy_sanity() {
     # yq keys returns:"- foo - bar" if you have yml with a foo: and bar: service definition
     # so we use bash parameter expansion to replace all occurances of - with "$STACK_NAME"_ (eg: openhim_foo openhim_bar)
         local compose_services=$(yq '.services | keys' $compose_file)
-        compose_services=${compose_services//- /"$STACK_NAME"_}
+        compose_services=${compose_services//- /}
         for service in ${compose_services[@]}; do
             # only append unique service to services
             if [[ ! ${services[*]} =~ $service ]]; then
@@ -378,63 +386,27 @@ docker::deploy_sanity() {
     done
 
     for service_name in ${services[@]}; do
-        docker::await_service_status "$service_name" "Running"
+        docker::await_service_status "$service_name" "Running" $STACK_NAME
     done
-}
-
-# Does multiple service ready checks in one function
-#
-# Arguments:
-# - $1 : service name (eg. analytics-datastore-elastic-search)
-#
-docker::await_service_ready() {
-    local -r SERVICE_NAME=${1:?$(missing_param "await_service_ready")}
-
-    docker::await_container_startup "$SERVICE_NAME"
-    docker::await_service_status "$SERVICE_NAME" "Running"
-    config::await_network_join instant_"$SERVICE_NAME"
 }
 
 # Scales down services
 #
 # Arguments:
 # - $1 : stack name that the services falls under
+# - $2 : replicas number (eg. 0 (to scale down) or 1 (to scale up) or 2 (to scale up more))
 #
-docker::scale_services_down() {
-    local -r STACK_NAME="${1:?$(missing_param "scale_services_down" "STACK_NAME")}"
+docker::scale_services() {
+    local -r STACK_NAME="${1:?$(missing_param "scale_services" "STACK_NAME")}"
+    local -r REPLICAS="${2:?$(missing_param "scale_services" "REPLICAS")}"
     local services=($(docker stack services $STACK_NAME | awk '{print $2}' | tail -n +2))
     for service_name in "${services[@]}"; do
-        log info "Waiting for $service_name to scale down ..."
+        log info "Waiting for $service_name to scale to $REPLICAS ..."
         try \
-            "docker service scale $service_name=0" \
+            "docker service scale $service_name=$REPLICAS" \
             catch \
-            "Failed to scale down $service_name"
-        overwrite "Waiting for $service_name to scale down ... Done"
-    done
-}
-
-# Scales up services
-#
-# Arguments:
-# - $1 : replicas number (eg. 1)
-# - $@ : service names list (eg. analytics-datastore-elastic-search)
-#
-docker::scale_services_up() {
-    local -r REPLICAS="${1:?$(missing_param "scale_services_up" "REPLICAS")}"
-    # Use shift to be able to get the array of services
-    shift
-    if [[ -z "$*" ]]; then
-        log error "$(missing_param "scale_services_up" "SERVICES_NAME")"
-        exit 1
-    fi
-
-    for service_name in "${@}"; do
-        log info "Waiting for $service_name to scale up ..."
-        try \
-            "docker service scale instant_$service_name=$REPLICAS" \
-            catch \
-            "Failed to scale up $service_name"
-        overwrite "Waiting for $service_name to scale up ... Done"
+            "Failed to scale $service_name to $REPLICAS"
+        overwrite "Waiting for $service_name to scale to $REPLICAS ... Done"
     done
 }
 

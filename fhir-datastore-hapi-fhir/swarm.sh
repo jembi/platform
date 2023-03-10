@@ -90,7 +90,7 @@ main() {
   elif [[ "${ACTION}" == "down" ]]; then
     log info "Scaling down package"
 
-    docker::scale_services_down "$STACK"
+    docker::scale_services "$STACK" 0
   elif [[ "${ACTION}" == "destroy" ]]; then
     log info "Destroying package"
     destroy_package
