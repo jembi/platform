@@ -170,15 +170,12 @@ docker::stack_destroy() {
 # Tries to remove volumes and retries until it works with a timeout
 #
 # Arguments:
-# - $1 : (optional) stack name that the service falls under (requires the prefix stack=, eg. stack=openhim) (defaults to instant)
+# - $1 : stack name that the service falls under (eg. openhim)
 # - $@ : volumes names (eg. es-data psql-1)
 #
 docker::try_remove_volume() {
-    local STACK_NAME="instant"
-    if [[ $1 == stack=* ]]; then
-        STACK_NAME=${1#stack=}
-        shift
-    fi
+    local -r STACK_NAME=${1:?$(missing_param "try_remove_volume")}
+    shift
 
     if [[ -z "$*" ]]; then
         log error "$(missing_param "try_remove_volume")"

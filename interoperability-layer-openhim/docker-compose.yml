@@ -4,9 +4,9 @@ services:
   openhim-core:
     image: jembi/openhim-core:7
     networks:
+      proxy:
       public:
       private:
-      proxy:
     environment:
       - mongo_url=${OPENHIM_MONGO_URL}
       - mongo_atnaUrl=${OPENHIM_MONGO_ATNAURL}
@@ -58,4 +58,5 @@ networks:
     external: true
   public:
     name: openhim_public
+    external: true
   private:

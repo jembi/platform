@@ -3,6 +3,8 @@ version: '3.9'
 services:
   kafdrop:
     image: obsidiandynamics/kafdrop:3.27.0
+    networks:
+      private:
     environment:
       KAFKA_BROKERCONNECT: 'kafka:9092'
       JVM_OPTS: '-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify'
@@ -18,6 +20,8 @@ services:
 
   kafka-minion:
     image: quay.io/cloudhut/kminion:master
+    networks:
+      private:
     hostname: kafka-minion
     environment:
       KAFKA_BROKERS: kafka:9092
@@ -32,3 +36,6 @@ services:
       labels:
         - prometheus-job-service=kafka
         - prometheus-address=kafka-minion:8080
+
+networks:
+  private:

@@ -26,7 +26,6 @@ function init_vars() {
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
   readonly STACK
-  readonly EXTERNAL_NETWORKS
 }
 
 # shellcheck disable=SC1091
@@ -85,7 +84,7 @@ function initialize_package() {
 function destroy_package() {
   docker::stack_destroy "$STACK"
 
-  docker::try_remove_volume "stack=$STACK" "openhim-mongo-01" "openhim-mongo-01-config"
+  docker::try_remove_volume "$STACK" "openhim-mongo-01" "openhim-mongo-01-config"
 
   docker::try_remove_network "proxy_public"
 

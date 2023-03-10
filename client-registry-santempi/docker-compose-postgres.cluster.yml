@@ -25,6 +25,8 @@ services:
       placement:
         constraints:
           - "node.labels.name==node-2"
+    networks:
+      private:
 
   santempi-psql-3:
     image: bitnami/postgresql-repmgr:14
@@ -44,6 +46,8 @@ services:
       placement:
         constraints:
           - "node.labels.name==node-3"
+    networks:
+      private:
 
 volumes:
   santempi-psql-2-data:

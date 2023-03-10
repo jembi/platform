@@ -4,9 +4,7 @@ declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare ZOOKEEPER_SERVICES=()
-declare UTILS_SERVICES=()
-declare SERVICE_NAMES=()
+declare STACK="kafka"
 
 function init_vars() {
   ACTION=$1
@@ -18,36 +16,15 @@ function init_vars() {
   )
 
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
-
-  ZOOKEEPER_SERVICES=(
-    "zookeeper-1"
-  )
-
-  UTILS_SERVICES=(
-    "kafdrop"
-    "kafka-minion"
-  )
-
-  if [[ "${CLUSTERED_MODE}" == "true" ]]; then
-    ZOOKEEPER_SERVICES=(
-      "${ZOOKEEPER_SERVICES[@]}"
-      "zookeeper-2"
-      "zookeeper-3"
-    )
+  if [[ -n $STACK_NAME ]]; then
+    STACK=$STACK_NAME
   fi
-
-  SERVICE_NAMES=(
-    "${ZOOKEEPER_SERVICES[@]}"
-    "${UTILS_SERVICES[@]}"
-    "kafka"
-  )
 
   readonly ACTION
   readonly MODE
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
-  readonly ZOOKEEPER_SERVICES
-  readonly SERVICE_NAMES
+  readonly STACK
 }
 
 # shellcheck disable=SC1091
@@ -79,34 +56,31 @@ function initialize_package() {
   (
     log info "Deploy Zookeeper"
 
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.kafka-zoo.yml" "$kafka_zoo_cluster_compose_filename"
-    docker::deploy_sanity "${ZOOKEEPER_SERVICES[@]}"
+    docker::deploy_service "$STACK" "${COMPOSE_FILE_PATH}" "docker-compose.kafka-zoo.yml" "$kafka_zoo_cluster_compose_filename"
 
     log info "Deploy Kafka"
 
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.kafka.yml" "$kafka_cluster_compose_filename" "$kafka_dev_compose_filename"
-    docker::deploy_sanity "kafka"
-    config::await_service_reachable "kafka" "Connected"
+    docker::deploy_service "$STACK" "${COMPOSE_FILE_PATH}" "docker-compose.kafka.yml" "$kafka_cluster_compose_filename" "$kafka_dev_compose_filename"
+    config::await_service_reachable "kafka" "$STACK" "Connected"
 
     log info "Deploy the other services dependent of Kafka"
 
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.kafka-utils.yml" "$kafka_utils_dev_compose_filename"
-    docker::deploy_sanity "${UTILS_SERVICES[@]}"
+    docker::deploy_service "$STACK" "${COMPOSE_FILE_PATH}" "docker-compose.kafka-utils.yml" "$kafka_utils_dev_compose_filename"
   ) || {
     log error "Failed to deploy package"
     exit 1
   }
 
   log info "Await Kafka to be running and responding"
-  config::await_service_running "kafka" "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml "${KAFKA_INSTANCES}"
+  config::await_service_running "kafka" "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml "${KAFKA_INSTANCES}" "$STACK"
 
-  docker::deploy_config_importer "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "message-bus-kafka-config-importer" "kafka"
+  docker::deploy_config_importer "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "message-bus-kafka-config-importer" "kafka" "$STACK"
 }
 
 function destroy_package() {
-  docker::service_destroy "${SERVICE_NAMES[@]}" "message-bus-kafka-config-importer"
+  docker::stack_destroy "$STACK"
 
-  docker::try_remove_volume zookeeper-1-volume kafka-volume
+  docker::try_remove_volume $STACK zookeeper-1-volume kafka-volume
 
   if [[ "$CLUSTERED_MODE" == "true" ]]; then
     log warn "Volumes are only deleted on the host on which the command is run. Cluster volumes on other nodes are not deleted"
@@ -130,7 +104,7 @@ main() {
   elif [[ "${ACTION}" == "down" ]]; then
     log info "Scaling down package"
 
-    docker::scale_services_down "${SERVICE_NAMES[@]}"
+    docker::scale_services_down "$STACK"
   elif [[ "${ACTION}" == "destroy" ]]; then
     log info "Destroying package"
     destroy_package

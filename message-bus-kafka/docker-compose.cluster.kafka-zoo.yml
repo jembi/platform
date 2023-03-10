@@ -23,6 +23,8 @@ services:
       - ALLOW_ANONYMOUS_LOGIN=yes
       - ZOO_SERVER_ID=2
       - ZOO_SERVERS=zookeeper-1:2888:3888,0.0.0.0:2888:3888,zookeeper-3:2888:3888
+    networks:
+      private:
     volumes:
       - zookeeper-2-volume:/bitnami/zookeeper
     deploy:
@@ -43,6 +45,8 @@ services:
       - ALLOW_ANONYMOUS_LOGIN=yes
       - ZOO_SERVER_ID=3
       - ZOO_SERVERS=zookeeper-1:2888:3888,zookeeper-2:2888:3888,0.0.0.0:2888:3888
+    networks:
+      private:
     volumes:
       - zookeeper-3-volume:/bitnami/zookeeper
     deploy:

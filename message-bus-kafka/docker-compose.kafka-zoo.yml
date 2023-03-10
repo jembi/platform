@@ -3,6 +3,8 @@ version: '3.9'
 services:
   zookeeper-1:
     image: bitnami/zookeeper:3.7.0
+    networks:
+      private:
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
     volumes:
@@ -18,3 +20,6 @@ services:
 
 volumes:
   zookeeper-1-volume:
+
+networks:
+  private:

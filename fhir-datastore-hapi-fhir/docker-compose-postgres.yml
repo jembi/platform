@@ -26,15 +26,14 @@ services:
           cpus: ${HF_POSTGRES_CPU_RESERVE}
           memory: ${HF_POSTGRES_MEMORY_RESERVE}
     networks:
-      default:
-      pg_backup_net: {}
+      private:
+      pg_backup_net:
 
 volumes:
   hapi-postgres-1-data:
 
 networks:
-  default:
-    name: instant_default
+  private:
   pg_backup_net:
     name: pg_backup
     driver: overlay
