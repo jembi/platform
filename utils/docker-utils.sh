@@ -281,7 +281,9 @@ docker::deploy_service() {
     fi
 
     for optional_config in "${@:4}"; do
-        docker_compose_param="$docker_compose_param -c ${DOCKER_COMPOSE_PATH}/$optional_config"
+        if [[ -n $optional_config ]]; then
+            docker_compose_param="$docker_compose_param -c ${DOCKER_COMPOSE_PATH}/$optional_config"
+        fi
     done
 
     docker::ensure_external_networks_existence "$DOCKER_COMPOSE_PATH/$DOCKER_COMPOSE_FILE" ${docker_compose_param//-c /}
@@ -312,13 +314,13 @@ docker::deploy_service() {
 # - $1 : docker compose path (eg. /instant/monitoring/importer/docker-compose.config.yml)
 # - $2 : services name (eg. clickhouse-config-importer)
 # - $3 : config label (eg. clickhouse kibana)
-# - $4 : (optional) stack name that the service falls under (defaults to 'instant')
+# - $4 : stack name that the service falls under
 #
 docker::deploy_config_importer() {
     local -r CONFIG_COMPOSE_PATH="${1:?$(missing_param "deploy_config_importer" "CONFIG_COMPOSE_PATH")}"
     local -r SERVICE_NAME="${2:?$(missing_param "deploy_config_importer" "SERVICE_NAME")}"
     local -r CONFIG_LABEL="${3:?$(missing_param "deploy_config_importer" "CONFIG_LABEL")}"
-    local -r STACK_NAME="${4:-"instant"}"
+    local -r STACK_NAME="${4:?$(missing_param "deploy_config_importer" "STACK_NAME")}"
 
     log info "Waiting for config importer $SERVICE_NAME to start ..."
     (
