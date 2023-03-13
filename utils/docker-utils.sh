@@ -89,12 +89,12 @@ docker::await_service_status() {
 # Waits for a container to be destroyed
 #
 # Arguments:
-# - $1 : service name (eg. analytics-datastore-elastic-search)
-# - $2 : stack name that the service container falls under (eg. elastic)
+# - $1 : stack name that the service container falls under (eg. elastic)
+# - $2 : service name (eg. analytics-datastore-elastic-search)
 #
 docker::await_container_destroy() {
-    local -r SERVICE_NAME=${1:?$(missing_param "await_container_destroy", "SERVICE_NAME")}
-    local -r STACK_NAME=${2:?$(missing_param "await_container_destroy", "STACK_NAME")}
+    local -r STACK_NAME=${1:?$(missing_param "await_container_destroy", "STACK_NAME")}
+    local -r SERVICE_NAME=${2:?$(missing_param "await_container_destroy", "SERVICE_NAME")}
 
     log info "Waiting for ${STACK_NAME}_${SERVICE_NAME} to be destroyed..."
     local start_time
@@ -131,22 +131,27 @@ docker::await_service_destroy() {
 # NB: Global services can't be scale down
 #
 # Arguments:
+# - $1 : stack name that the services fall under (eg. elasticsearch)
 # - $@ : service names list (eg. analytics-datastore-elastic-search)
 #
 docker::service_destroy() {
+    local -r STACK_NAME=${1:?$(missing_param "service_destroy")}
+    shift
+
     if [[ -z "$*" ]]; then
-        log error "$(missing_param "await_service_destroy")"
+        log error "$(missing_param "service_destroy")"
         exit 1
     fi
 
     for service_name in "$@"; do
-        log info "Waiting for service $service_name to be removed ... "
-        if [[ -n $(docker service ls -qf name=instant_"${service_name}") ]]; then
-            if [[ $(docker service ls --format "{{.Mode}}" -f name=instant_"${service_name}") != "global" ]]; then
-                try "docker service scale instant_${service_name}=0" catch "Failed to scale down ${service_name}"
+        local service="${STACK_NAME}"_$service_name
+        log info "Waiting for service $service to be removed ... "
+        if [[ -n $(docker service ls -qf name=$service) ]]; then
+            if [[ $(docker service ls --format "{{.Mode}}" -f name=$service) != "global" ]]; then
+                try "docker service scale $service=0" catch "Failed to scale down ${service_name}"
             fi
-            try "docker service rm instant_${service_name}" catch "Failed to remove service ${service_name}"
-            docker::await_service_destroy "${service_name}"
+            try "docker service rm $service" catch "Failed to remove service ${service_name}"
+            docker::await_service_destroy "$service_name" "$STACK_NAME"
         fi
         overwrite "Waiting for service $service_name to be removed ... Done"
     done
@@ -266,6 +271,7 @@ docker::check_images_existence() {
 # - $2 : docker compose path (eg. /instant/monitoring)
 # - $3 : docker compose file (eg. docker-compose.yml or docker-compose.cluster.yml)
 # - $@ : (optional) list of docker compose files (eg. docker-compose.cluster.yml docker-compose.dev.yml)
+# - $@:4:n : (optional) a marker 'defer-sanity' used to defer deploy::sanity to the caller, can appear anywhere in the optional list 
 #
 docker::deploy_service() {
     local -r STACK_NAME="${1:?$(missing_param "deploy_service" "STACK_NAME")}"
@@ -285,9 +291,14 @@ docker::deploy_service() {
         config::set_config_digests "${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE"
     fi
 
+    local defer_sanity=false
     for optional_config in "${@:4}"; do
         if [[ -n $optional_config ]]; then
-            docker_compose_param="$docker_compose_param -c ${DOCKER_COMPOSE_PATH}/$optional_config"
+            if [[ $optional_config == "defer-sanity" ]]; then
+                defer_sanity=true
+            else
+                docker_compose_param="$docker_compose_param -c ${DOCKER_COMPOSE_PATH}/$optional_config"
+            fi
         fi
     done
 
@@ -309,7 +320,9 @@ docker::deploy_service() {
         done
     fi
 
-    docker::deploy_sanity "$STACK_NAME" "$DOCKER_COMPOSE_PATH/$DOCKER_COMPOSE_FILE" ${docker_compose_param//-c /}
+    if [[ $defer_sanity != true ]]; then
+        docker::deploy_sanity "$STACK_NAME" "$DOCKER_COMPOSE_PATH/$DOCKER_COMPOSE_FILE" ${docker_compose_param//-c /}
+    fi
 }
 
 # Deploys a config importer

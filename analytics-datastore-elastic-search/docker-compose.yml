@@ -38,6 +38,13 @@ services:
     volumes:
       - es-data:/usr/share/elasticsearch/data
       - /backups:/backups/elasticsearch
+    networks:
+      private:
 
 volumes:
   es-data:
+
+networks:
+  private:
+    name: elk_private
+    external: true

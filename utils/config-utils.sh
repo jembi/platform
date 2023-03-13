@@ -248,8 +248,8 @@ config::await_service_removed() {
 #
 config::await_network_join() {
     local -r SERVICE_NAME="${1:?$(missing_param "await_network_join", "SERVICE_NAME")}"
-    local -r STACK_NAME="${1:?$(missing_param "await_network_join", "STACK_NAME")}"
-    local -r NETWORK_NAME="${1:?$(missing_param "await_network_join", "NETWORK_NAME")}"
+    local -r STACK_NAME="${2:?$(missing_param "await_network_join", "STACK_NAME")}"
+    local -r NETWORK_NAME="${3:?$(missing_param "await_network_join", "NETWORK_NAME")}"
     local start_time=$(date +%s)
     local exit_time=30
     local warning_time=10
