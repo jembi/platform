@@ -5,7 +5,7 @@ services:
     image: bitnami/kafka:3.1.0
     hostname: kafka
     networks:
-      mpi:
+      public:
       private:
     environment:
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper-1:2181
@@ -27,7 +27,7 @@ volumes:
   kafka-volume:
 
 networks:
-  mpi:
-    name: mpi_public
+  public:
+    name: kafka_public
     external: true
   private:

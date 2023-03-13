@@ -5,6 +5,7 @@ services:
     image: jembi/mpi-mediator:v1.1.0
     networks:
       openhim:
+      kafka:
       public:
       private:
     environment:
@@ -35,6 +36,9 @@ services:
 networks:
   openhim:
     name: openhim_public
+    external: true
+  kafka:
+    name: kafka_public
     external: true
   public:
     name: mpi_public
