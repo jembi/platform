@@ -239,35 +239,6 @@ config::await_service_removed() {
     log info "Service $SERVICE_NAME successfully removed"
 }
 
-# Waits for the provided service to join the network
-#
-# Arguments:
-# $1 : service name (eg. analytics-datastore-elastic-search)
-# $2 : stack name that the service falls under (eg. elk)
-# $3 : network name that the service should join (eg. elk_public)
-#
-config::await_network_join() {
-    local -r SERVICE_NAME="${1:?$(missing_param "await_network_join", "SERVICE_NAME")}"
-    local -r STACK_NAME="${2:?$(missing_param "await_network_join", "STACK_NAME")}"
-    local -r NETWORK_NAME="${3:?$(missing_param "await_network_join", "NETWORK_NAME")}"
-    local start_time=$(date +%s)
-    local exit_time=30
-    local warning_time=10
-
-    log info "Waiting for ${STACK_NAME}_${SERVICE_NAME} to join network..."
-
-    # TODO: do a better regex/string matching check to ensure that we don't accidentally
-    # check for services with append to this service name, e.g., if we're looking for
-    # instant_analytics-datastore-elastic-search and we have instant_analytics-datastore-elastic-search-helper
-    # we could get a false-positive
-    until [[ $(docker network inspect -v $NETWORK_NAME -f "{{.Services}}") == *"${STACK_NAME}_${SERVICE_NAME}"* ]]; do
-        config::timeout_check "$start_time" "${STACK_NAME}_${SERVICE_NAME} to join the network" $exit_time $warning_time
-        sleep 1
-    done
-
-    overwrite "Waiting for ${STACK_NAME}_${SERVICE_NAME} to join network... Done"
-}
-
 # Generates configs for a service from a folder and adds them to a temp docker-compose file
 #
 # Arguments:

@@ -39,12 +39,14 @@ services:
       - es-data:/usr/share/elasticsearch/data
       - /backups:/backups/elasticsearch
     networks:
+      public:
       private:
 
 volumes:
   es-data:
 
 networks:
-  private:
-    name: elk_private
+  public:
+    name: elastic_public
     external: true
+  private:

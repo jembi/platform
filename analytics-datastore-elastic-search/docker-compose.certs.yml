@@ -47,5 +47,3 @@ configs:
 
 networks:
   private:
-    name: elk_private
-    external: true

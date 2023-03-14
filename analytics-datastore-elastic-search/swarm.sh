@@ -17,10 +17,6 @@ function init_vars() {
 
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-  if [[ -n $STACK_NAME ]]; then
-    STACK=$STACK_NAME
-  fi
-
   readonly ACTION
   readonly MODE
   readonly COMPOSE_FILE_PATH
@@ -148,8 +144,6 @@ function initialize_package() {
     exit 1
   }
 
-  config::await_network_join "$ES_LEADER_NODE" $STACK "elk_private"
-
   docker::deploy_config_importer "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "elastic-search-config-importer" "elasticsearch" $STACK
 }
 
@@ -163,7 +157,7 @@ function destroy_package() {
     docker::try_remove_volume "$STACK" es-data
   fi
 
-  docker::prune_configs "elasticsearch"
+    docker::prune_configs "elasticsearch"
 }
 
 main() {

@@ -21,14 +21,26 @@ services:
     configs:
       - target: /usr/share/kibana/config/kibana.yml
         source: ${KIBANA_YML_CONFIG}
+    networks:
+      proxy:
+      elastic:
+      private:
+
 configs:
   kibana-kibana.yml:
     file: ./kibana.yml
     name: kibana-kibana.yml-${kibana_kibana_yml_DIGEST:?err}
-    labels: 
-      name: kibana
   kibana-kibana-cluster.yml:
     file: ./kibana.cluster.yml
     name: kibana-kibana-cluster.yml-${kibana_kibana_cluster_yml_DIGEST:?err}
     labels: 
       name: kibana
+
+networks:
+  proxy:
+    name: proxy_public
+    external: true
+  elastic:
+    name: elastic_public
+    external: true
+  private:

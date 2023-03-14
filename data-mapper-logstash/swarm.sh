@@ -4,8 +4,8 @@ declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare SERVICE_NAMES=()
 declare LOGSTASH_DEV_MOUNT_COMPOSE_FILENAME=""
+declare STACK="logstash"
 
 function init_vars() {
   ACTION=$1
@@ -18,8 +18,6 @@ function init_vars() {
 
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-  SERVICE_NAMES=("data-mapper-logstash")
-
   if [[ "${CLUSTERED_MODE}" == "true" ]]; then
     export LOGSTASH_YML_CONFIG="logstash-logstash.cluster.yml"
   else
@@ -30,7 +28,7 @@ function init_vars() {
   readonly MODE
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
-  readonly SERVICE_NAMES
+  readonly STACK
 }
 
 # shellcheck disable=SC1091
@@ -82,8 +80,7 @@ function initialize_package() {
   (
     dev_mount_logstash
 
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$logstash_dev_compose_filename" "$LOGSTASH_DEV_MOUNT_COMPOSE_FILENAME" "$logstash_temp_compose_filename"
-    docker::deploy_sanity "${SERVICE_NAMES}"
+    docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$logstash_dev_compose_filename" "$LOGSTASH_DEV_MOUNT_COMPOSE_FILENAME" "$logstash_temp_compose_filename"
   ) || {
     log error "Failed to deploy package"
     exit 1
@@ -91,10 +88,10 @@ function initialize_package() {
 }
 
 function destroy_package() {
-  docker::service_destroy "$SERVICE_NAMES" "clickhouse-config-importer"
+  docker::stack_destroy $STACK
 
-  docker::try_remove_volume logstash-data
-
+  docker::try_remove_volume $STACK logstash-data
+  
   docker::prune_configs "logstash"
 }
 
@@ -113,7 +110,7 @@ main() {
   elif [[ "${ACTION}" == "down" ]]; then
     log info "Scaling down package"
 
-    docker::scale_services_down "${SERVICE_NAMES}"
+    docker::scale_services "${SERVICE_NAMES}" 0
   elif [[ "${ACTION}" == "destroy" ]]; then
     log info "Destroying package"
     destroy_package
