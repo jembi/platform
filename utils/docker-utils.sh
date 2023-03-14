@@ -196,7 +196,7 @@ docker::try_remove_volume() {
     fi
 
     for volume_name in "$@"; do
-        if ! docker volume ls | grep -q "\s${STACK_NAME}_${volume_name}$"; then
+        if ! docker volume ls | grep -q -w "${STACK_NAME}_${volume_name}"; then
             log warn "Tried to remove volume ${volume_name} but it doesn't exist on this node"
         else
             log info "Waiting for volume ${volume_name} to be removed..."
