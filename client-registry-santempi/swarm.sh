@@ -17,10 +17,6 @@ function init_vars() {
 
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-  if [[ -n $STACK_NAME ]]; then
-    STACK=$STACK_NAME
-  fi
-
   readonly ACTION
   readonly MODE
   readonly COMPOSE_FILE_PATH
