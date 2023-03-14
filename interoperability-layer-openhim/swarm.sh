@@ -73,7 +73,7 @@ function initialize_package() {
     }
 
   if [[ "${ACTION}" == "init" ]]; then
-    docker::deploy_config_importer "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "interoperability-layer-openhim-config-importer" "openhim" "$STACK"
+    docker::deploy_config_importer $STACK "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "interoperability-layer-openhim-config-importer" "openhim"
   fi
 }
 

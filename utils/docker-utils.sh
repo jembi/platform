@@ -31,12 +31,12 @@ docker::get_service_unique_errors() {
 # Waits for a container to be up
 #
 # Arguments:
-# - $1 : service name (eg. analytics-datastore-elastic-search)
-# - $2 : stack name that the service falls under (eg. elastic)
+# - $1 : stack name that the service falls under (eg. elastic)
+# - $2 : service name (eg. analytics-datastore-elastic-search)
 #
 docker::await_container_startup() {
-    local -r SERVICE_NAME=${1:?$(missing_param "await_container_startup", "SERVICE_NAME")}
-    local -r STACK_NAME=${2:?$(missing_param "await_container_startup", "STACK_NAME")}
+    local -r STACK_NAME=${1:?$(missing_param "await_container_startup", "STACK_NAME")}
+    local -r SERVICE_NAME=${2:?$(missing_param "await_container_startup", "SERVICE_NAME")}
 
     log info "Waiting for ${SERVICE_NAME} to start up..."
     local start_time
@@ -51,14 +51,14 @@ docker::await_container_startup() {
 # Waits for a container to be up
 #
 # Arguments:
-# - $1 : service name (eg. analytics-datastore-elastic-search)
-# - $2 : service status (eg. running)
-# - $3 : stack name that the service falls under (eg. elastic)
+# - $1 : stack name that the service falls under (eg. elastic)
+# - $2 : service name (eg. analytics-datastore-elastic-search)
+# - $3 : service status (eg. running)
 #
 docker::await_service_status() {
-    local -r SERVICE_NAME=${1:?$(missing_param "await_service_status" "SERVICE_NAME")}
-    local -r SERVICE_STATUS=${2:?$(missing_param "await_service_status" "SERVICE_STATUS")}
-    local -r STACK_NAME=${3:?$(missing_param "await_service_status" "STACK_NAME")}
+    local -r STACK_NAME=${1:?$(missing_param "await_service_status" "STACK_NAME")}
+    local -r SERVICE_NAME=${2:?$(missing_param "await_service_status" "SERVICE_NAME")}
+    local -r SERVICE_STATUS=${3:?$(missing_param "await_service_status" "SERVICE_STATUS")}
     local -r start_time=$(date +%s)
     local error_message=()
 
@@ -329,16 +329,16 @@ docker::deploy_service() {
 # Sets the config digests, deploys the config importer, removes it and removes the stale configs
 #
 # Arguments:
-# - $1 : docker compose path (eg. /instant/monitoring/importer/docker-compose.config.yml)
-# - $2 : services name (eg. clickhouse-config-importer)
-# - $3 : config label (eg. clickhouse kibana)
-# - $4 : stack name that the service falls under
+# - $1 : stack name that the service falls under
+# - $2 : docker compose path (eg. /instant/monitoring/importer/docker-compose.config.yml)
+# - $3 : services name (eg. clickhouse-config-importer)
+# - $4 : config label (eg. clickhouse kibana)
 #
 docker::deploy_config_importer() {
-    local -r CONFIG_COMPOSE_PATH="${1:?$(missing_param "deploy_config_importer" "CONFIG_COMPOSE_PATH")}"
-    local -r SERVICE_NAME="${2:?$(missing_param "deploy_config_importer" "SERVICE_NAME")}"
-    local -r CONFIG_LABEL="${3:?$(missing_param "deploy_config_importer" "CONFIG_LABEL")}"
-    local -r STACK_NAME="${4:?$(missing_param "deploy_config_importer" "STACK_NAME")}"
+    local -r STACK_NAME="${1:?$(missing_param "deploy_config_importer" "STACK_NAME")}"
+    local -r CONFIG_COMPOSE_PATH="${2:?$(missing_param "deploy_config_importer" "CONFIG_COMPOSE_PATH")}"
+    local -r SERVICE_NAME="${3:?$(missing_param "deploy_config_importer" "SERVICE_NAME")}"
+    local -r CONFIG_LABEL="${4:?$(missing_param "deploy_config_importer" "CONFIG_LABEL")}"
 
     log info "Waiting for config importer $SERVICE_NAME to start ..."
     (
@@ -356,8 +356,8 @@ docker::deploy_config_importer() {
 
         log info "Waiting to give core config importer time to run before cleaning up service"
 
-        config::remove_config_importer "$SERVICE_NAME" "$STACK_NAME"
-        config::await_service_removed "$SERVICE_NAME" "$STACK_NAME"
+        config::remove_config_importer "$STACK_NAME" "$SERVICE_NAME"
+        config::await_service_removed "$STACK_NAME" "$SERVICE_NAME"
 
         log info "Removing stale configs..."
         config::remove_stale_service_configs "$CONFIG_COMPOSE_PATH" "$CONFIG_LABEL"
@@ -399,7 +399,7 @@ docker::deploy_sanity() {
     done
 
     for service_name in ${services[@]}; do
-        docker::await_service_status "$service_name" "Running" $STACK_NAME
+        docker::await_service_status $STACK_NAME "$service_name" "Running"
     done
 }
 

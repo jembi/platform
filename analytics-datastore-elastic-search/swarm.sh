@@ -58,8 +58,8 @@ function create_certs() {
     throw \
     "Creating certificates failed"
 
-  docker::await_container_startup create_certs $STACK
-  docker::await_service_status create_certs Complete $STACK
+  docker::await_container_startup $STACK create_certs
+  docker::await_service_status $STACK create_certs Complete
 
   log info "Creating cert helper..."
   try \
@@ -134,7 +134,7 @@ function initialize_package() {
 
     log info "Waiting for elasticsearch to start before automatically setting built-in passwords"
 
-    docker::await_service_status "$ES_LEADER_NODE" "$container_status" $STACK
+    docker::await_service_status $STACK "$ES_LEADER_NODE" "$container_status"
     install_expect
     set_elasticsearch_passwords "$ES_LEADER_NODE"
 
@@ -144,7 +144,7 @@ function initialize_package() {
     exit 1
   }
 
-  docker::deploy_config_importer "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "elastic-search-config-importer" "elasticsearch" $STACK
+  docker::deploy_config_importer $STACK "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "elastic-search-config-importer" "elasticsearch"
 }
 
 function destroy_package() {

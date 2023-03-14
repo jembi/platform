@@ -186,14 +186,14 @@ config::await_service_running() {
 # A function which removes a config importing service on successful completion, and exits with an error otherwise
 #
 # Arguments:
-# - $1 : the name of the config importer
-# - $2 : stack name that the service falls under (eg. openhim)
+# - $1 : stack name that the service falls under (eg. openhim)
+# - $2 : the name of the config importer
 # - $3 : (optional) the timeout time for the config importer to run, defaults to 300 seconds
 # - $4 : (optional) elapsed time to throw a warning, defaults to 60 seconds
 #
 config::remove_config_importer() {
-    local -r CONFIG_IMPORTER_SERVICE_NAME="${1:?$(missing_param "remove_config_importer" "CONFIG_IMPORTER_SERVICE_NAME")}"
-    local -r STACK_NAME="${2:?$(missing_param "remove_config_importer" "STACK_NAME")}"
+    local -r STACK_NAME="${1:?$(missing_param "remove_config_importer" "STACK_NAME")}"
+    local -r CONFIG_IMPORTER_SERVICE_NAME="${2:?$(missing_param "remove_config_importer" "CONFIG_IMPORTER_SERVICE_NAME")}"
     local -r exit_time="${3:-}"
     local -r warning_time="${4:-}"
     local -r start_time=$(date +%s)
@@ -224,12 +224,12 @@ config::remove_config_importer() {
 # Waits for the provided service to be removed
 #
 # Arguments:
-# - $1 : service name (eg. analytics-datastore-elastic-search)
-# - $2 : stack name that the service falls under (eg. openhim)
+# - $1 : stack name that the service falls under (eg. openhim)
+# - $2 : service name (eg. analytics-datastore-elastic-search)
 #
 config::await_service_removed() {
-    local -r SERVICE_NAME="${1:?$(missing_param "await_service_removed", "SERVICE_NAME")}"
-    local -r STACK_NAME="${2:?$(missing_param "await_service_removed", "STACK_NAME")}"
+    local -r STACK_NAME="${1:?$(missing_param "await_service_removed", "STACK_NAME")}"
+    local -r SERVICE_NAME="${2:?$(missing_param "await_service_removed", "SERVICE_NAME")}"
     local start_time=$(date +%s)
 
     until [[ -z $(docker stack ps $STACK_NAME -qf name="${STACK_NAME}_${SERVICE_NAME}" 2>/dev/null) ]]; do
