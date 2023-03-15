@@ -26,6 +26,9 @@
     "KC_GRAFANA_ROOT_URL": "http://localhost:3000",
     "KC_JEMPI_CLIENT_ID": "jempi-oauth",
     "KC_JEMPI_CLIENT_SECRET": "Tbe3llP5OJIlqUjz7K1wPp8YDAdCOEMn",
-    "KC_JEMPI_ROOT_URL": "http://localhost:3000"
+    "KC_JEMPI_ROOT_URL": "http://localhost:3000",
+    "KC_SUPERSET_CLIENT_ID": "superset-oauth",
+    "KC_SUPERSET_CLIENT_SECRET": "g0J7oLbX69dL3CS8HVjRYlhRYVsPoDbQ",
+    "KC_SUPERSET_ROOT_URL": "http://localhost:8089"
   }
 }
