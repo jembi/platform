@@ -23,6 +23,9 @@ services:
         source: clickhouse_remote_servers.xml
       - target: /etc/clickhouse-server/config.d/use_keeper.xml
         source: clickhouse_use_keeper.xml
+    networks:
+      public:
+      private:
 
   analytics-datastore-clickhouse-02:
     image: clickhouse/clickhouse-server
@@ -46,6 +49,9 @@ services:
         source: clickhouse_remote_servers.xml
       - target: /etc/clickhouse-server/config.d/use_keeper.xml
         source: clickhouse_use_keeper.xml
+    networks:
+      public:
+      private:
 
   analytics-datastore-clickhouse-03:
     image: clickhouse/clickhouse-server
@@ -69,6 +75,9 @@ services:
         source: clickhouse_remote_servers.xml
       - target: /etc/clickhouse-server/config.d/use_keeper.xml
         source: clickhouse_use_keeper.xml
+    networks:
+      public:
+      private:
 
   analytics-datastore-clickhouse-04:
     image: clickhouse/clickhouse-server
@@ -86,6 +95,9 @@ services:
         source: clickhouse_remote_servers.xml
       - target: /etc/clickhouse-server/config.d/use_keeper.xml
         source: clickhouse_use_keeper.xml
+    networks:
+      public:
+      private:
 
 volumes:
   clickhouse-data-01:
@@ -144,3 +156,9 @@ configs:
     name: use_keeper.xml-${use_keeper_xml_DIGEST:?err}
     labels: 
       name: clickhouse
+
+networks:
+  public:
+    name: clickhouse_public
+    external: true
+  private:

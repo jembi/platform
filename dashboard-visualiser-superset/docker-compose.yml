@@ -16,6 +16,9 @@ services:
     configs:
       - source: superset_config.py
         target: /app/pythonpath/superset_config.py
+    networks:
+      clickhouse:
+      private:
 
 configs:
   superset_config.py:
@@ -28,3 +31,9 @@ volumes:
   superset_home:
   superset:
   superset-frontend:
+
+networks:
+  clickhouse:
+    name: clickhouse_public
+    external: true
+  private:

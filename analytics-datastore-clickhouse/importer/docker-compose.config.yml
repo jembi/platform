@@ -15,6 +15,8 @@ services:
         target: /clickhouseConfig.js
       - source: config-importer-clickhouseTables.js
         target: /clickhouseTables.js
+    networks:
+      private:
     command: sh -c "cd / && npm i clickhouse && node /clickhouseConfig.js"
 
 configs:
@@ -28,3 +30,6 @@ configs:
     name: config-importer-clickhouseTables.js-${config_importer_clickhouseTables_js_DIGEST:?err}
     labels:
       name: clickhouse
+
+networks:
+  private:

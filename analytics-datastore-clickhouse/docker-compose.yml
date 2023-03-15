@@ -7,6 +7,15 @@ services:
       noFile: 262144
     volumes:
       - clickhouse-data:/var/lib/clickhouse/
+    networks:
+      public:
+      private:
 
 volumes:
   clickhouse-data:
+
+networks:
+  public:
+    name: clickhouse_public
+    external: true
+  private:

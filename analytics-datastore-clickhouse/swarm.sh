@@ -5,7 +5,7 @@ declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
 declare NODE_MODE_PREFIX=""
-declare SERVICE_NAMES=()
+declare STACK="clickhouse"
 
 function init_vars() {
   ACTION=$1
@@ -20,16 +20,6 @@ function init_vars() {
 
   if [[ "${CLUSTERED_MODE}" == "true" ]]; then
     NODE_MODE_PREFIX=".cluster"
-    for i in {1..4}; do
-      SERVICE_NAMES=(
-        "${SERVICE_NAMES[@]}"
-        "analytics-datastore-clickhouse-0$i"
-      )
-    done
-  else
-    SERVICE_NAMES=(
-      "analytics-datastore-clickhouse"
-    )
   fi
 
   readonly ACTION
@@ -37,7 +27,7 @@ function init_vars() {
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
   readonly NODE_MODE_PREFIX
-  readonly SERVICE_NAMES
+  readonly STACK
 }
 
 # shellcheck disable=SC1091
@@ -56,24 +46,23 @@ function initialize_package() {
   fi
 
   (
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose$NODE_MODE_PREFIX.yml" "$clickhouse_dev_compose_filename"
-    docker::deploy_sanity "${SERVICE_NAMES[@]}"
+    docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose$NODE_MODE_PREFIX.yml" "$clickhouse_dev_compose_filename"
   ) || {
     log error "Failed to deploy package"
     exit 1
   }
 
-  docker::deploy_config_importer "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "clickhouse-config-importer" "clickhouse"
+  docker::deploy_config_importer $STACK "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "clickhouse-config-importer" "clickhouse"
 }
 
 function destroy_package() {
-  docker::service_destroy "${SERVICE_NAMES[@]}" "clickhouse-config-importer"
+  docker::stack_destroy $STACK
 
   if [[ "$CLUSTERED_MODE" == "true" ]]; then
-    docker::try_remove_volume clickhouse-data-01 clickhouse-data-04
+    docker::try_remove_volume $STACK clickhouse-data-01 clickhouse-data-04
     log warn "Volumes are only deleted on the host on which the command is run. Cluster volumes on other nodes are not deleted"
   else
-    docker::try_remove_volume clickhouse-data
+    docker::try_remove_volume $STACK clickhouse-data
   fi
 
   docker::prune_configs "clickhouse"
@@ -94,7 +83,7 @@ main() {
   elif [[ "${ACTION}" == "down" ]]; then
     log info "Scaling down package"
 
-    docker::scale_services_down "${SERVICE_NAMES[@]}"
+    docker::scale_services $STACK 0
   elif [[ "${ACTION}" == "destroy" ]]; then
     log info "Destroying package"
 

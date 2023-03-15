@@ -11,6 +11,9 @@ services:
     configs:
       - target: /app/src/data/fhir-mapping.json
         source: fhir-mapping.json
+    networks:
+      clickhouse:
+      kafka:
 
 configs:
   fhir-mapping.json:
@@ -18,3 +21,11 @@ configs:
     name: fhir-mapping.json-${fhir_mapping_json_DIGEST:?err}
     labels:
       name: kafka-mapper-consumer
+
+networks:
+  clickhouse:
+    name: clickhouse_public
+    external: true
+  kafka:
+    name: kafka_public
+    external: true
