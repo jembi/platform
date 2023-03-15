@@ -33,9 +33,9 @@
 # ---------------------------KEYCLOACK ----------------------------
 import os
 
-SUPERSET_ENABLE_KC_SSO = os.getenv('SUPERSET_ENABLE_KC_SSO')
+KC_SUPERSET_SSO_ENABLED = os.getenv('KC_SUPERSET_SSO_ENABLED')
 
-if SUPERSET_ENABLE_KC_SSO == "true":
+if KC_SUPERSET_SSO_ENABLED == "true":
     OIDC_OPENID_REALM = os.getenv('KC_REALM_NAME')
     AUTH_USER_REGISTRATION_ROLE = os.getenv('AUTH_USER_REGISTRATION_ROLE')
     KC_REALM_NAME = os.getenv('KC_REALM_NAME')

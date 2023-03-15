@@ -13,7 +13,7 @@
     "SUPERSET_PASSWORD": "admin",
     "SUPERSET_CONFIG_FILE": "superset-export.zip",
     "SUPERSET_SSL": "false",
-    "SUPERSET_ENABLE_KC_SSO": "true",
+    "KC_SUPERSET_SSO_ENABLED": "true",
     "KC_SUPERSET_CLIENT_ID": "superset-oauth",
     "KC_SUPERSET_CLIENT_SECRET": "g0J7oLbX69dL3CS8HVjRYlhRYVsPoDbQ",
     "KC_REALM_NAME": "platform-realm",

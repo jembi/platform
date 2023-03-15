@@ -4,7 +4,7 @@ services:
   dashboard-visualiser-superset:
     image: jembi/superset:latest
     environment:
-      SUPERSET_ENABLE_KC_SSO: ${SUPERSET_ENABLE_KC_SSO}
+      KC_SUPERSET_SSO_ENABLED: ${KC_SUPERSET_SSO_ENABLED}
       KC_SUPERSET_CLIENT_ID: ${KC_SUPERSET_CLIENT_ID}
       KC_SUPERSET_CLIENT_SECRET: ${KC_SUPERSET_CLIENT_SECRET}
       KC_REALM_NAME: ${KC_REALM_NAME}
