@@ -18,6 +18,7 @@ services:
         target: /app/pythonpath/superset_config.py
     networks:
       clickhouse:
+      keycloak:
       private:
 
 configs:
@@ -35,5 +36,8 @@ volumes:
 networks:
   clickhouse:
     name: clickhouse_public
+    external: true
+  keycloak:
+    name: keycloak_public
     external: true
   private:

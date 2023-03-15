@@ -5,6 +5,7 @@ services:
     image: jembi/openhim-core:7
     networks:
       proxy:
+      keycloak:
       public:
       private:
     environment:
@@ -27,9 +28,10 @@ services:
   openhim-console:
     image: jembi/openhim-console:1.14.4
     networks:
+      proxy:
+      keycloak:
       public:
       private:
-      proxy:
     configs:
       - source: console-default.json
         target: /usr/share/nginx/html/config/default.json
@@ -55,6 +57,9 @@ configs:
 networks:
   proxy:
     name: proxy_public
+    external: true
+  keycloak:
+    name: keycloak_public
     external: true
   public:
     name: openhim_public

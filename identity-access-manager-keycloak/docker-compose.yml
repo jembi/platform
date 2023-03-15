@@ -39,6 +39,9 @@ services:
     deploy:
       placement:
         max_replicas_per_node: 1
+    networks:
+      public:
+      private:
 
 configs:
   realm.json:
@@ -46,3 +49,9 @@ configs:
     name: realm.json-${realm_json_DIGEST:?err}
     labels:
       name: keycloak
+
+networks:
+  public:
+    name: keycloak_public
+    external: true
+  private:

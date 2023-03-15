@@ -36,7 +36,7 @@ services:
           cpus: ${KC_POSTGRES_CPU_RESERVE}
           memory: ${KC_POSTGRES_MEMORY_RESERVE}
     networks:
-      default:
+      private:
       keycloak_backup_net: {}
 
 
@@ -67,7 +67,7 @@ services:
           cpus: ${KC_POSTGRES_CPU_RESERVE}
           memory: ${KC_POSTGRES_MEMORY_RESERVE}
     networks:
-      default:
+      private:
       keycloak_backup_net: {}
 
 volumes:
