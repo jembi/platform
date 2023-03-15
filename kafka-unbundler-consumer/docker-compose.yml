@@ -6,3 +6,10 @@ services:
     environment:
       KAFKA_HOST: ${KAFKA_HOST}
       KAFKA_PORT: ${KAFKA_PORT}
+    networks:
+      kafka:
+
+networks:
+  kafka:
+    name: kafka_public
+    external: true

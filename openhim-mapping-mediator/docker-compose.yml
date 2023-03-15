@@ -9,3 +9,14 @@ services:
       OPENHIM_URL: ${OPENHIM_URL}
       OPENHIM_USERNAME: ${OPENHIM_USERNAME}
       OPENHIM_PASSWORD: ${OPENHIM_PASSWORD}
+    networks:
+      openhim:
+      mongo:
+
+networks:
+  openhim:
+    name: openhim_public
+    external: true
+  mongo:
+    name: mongo_backup
+    external: true

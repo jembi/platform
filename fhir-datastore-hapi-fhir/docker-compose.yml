@@ -5,6 +5,7 @@ services:
     image: jembi/hapi:v5.7.0-wget
     networks:
       mpi:
+      public:
       private:
     environment:
       - spring.datasource.url=jdbc:postgresql://${POSTGRES_REPLICA_SET}/hapi?targetServerType=primary
@@ -38,5 +39,8 @@ services:
 networks:
   mpi:
     name: mpi_public
+    external: true
+  public:
+    name: hapi-fhir_public
     external: true
   private:
