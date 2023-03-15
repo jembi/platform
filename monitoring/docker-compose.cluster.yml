@@ -28,6 +28,8 @@ services:
       - '--web.console.libraries=/etc/prometheus/console_libraries'
       - '--web.console.templates=/etc/prometheus/consoles'
       - '--web.enable-lifecycle'
+    networks:
+      private:
 
   minio-01:
     deploy:
@@ -62,6 +64,8 @@ services:
         constraints:
           - "node.labels.name==node-1"
       replicas: 1
+    networks:
+      private:
 
   minio-03:
     image: quay.io/minio/minio:RELEASE.2022-10-24T18-35-07Z
@@ -90,6 +94,8 @@ services:
         constraints:
           - "node.labels.name==node-2"
       replicas: 1
+    networks:
+      private:
 
   minio-04:
     image: quay.io/minio/minio:RELEASE.2022-10-24T18-35-07Z
@@ -118,13 +124,8 @@ services:
         constraints:
           - "node.labels.name==node-3"
       replicas: 1
-
-configs:
-  prometheus.yml:
-    file: ./prometheus/prometheus.yml
-    name: prometheus.yml-${prometheus_yml_DIGEST:?err}
-    labels:
-      name: prometheus
+    networks:
+      private:
 
 volumes:
   prometheus_data_backup:

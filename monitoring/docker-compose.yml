@@ -51,6 +51,9 @@ services:
         source: kminion-topic_rev1.json
       - target: /etc/grafana/provisioning/dashboards/containers/logging-universal-dashboard_rev1.json
         source: logging-universal-dashboard_rev1.json
+    networks:
+      keycloak:
+      private:
 
   prometheus:
     image: prom/prometheus:v2.38.0
@@ -67,6 +70,9 @@ services:
       - '--web.console.libraries=/etc/prometheus/console_libraries'
       - '--web.console.templates=/etc/prometheus/consoles'
       - '--web.enable-lifecycle'
+    networks:
+      public:
+      private:
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.45.0
@@ -79,6 +85,8 @@ services:
       - /dev/disk/:/dev/disk:ro
     deploy:
       mode: global
+    networks:
+      private:
 
   node-exporter:
     image: quay.io/prometheus/node-exporter:v1.3.1
@@ -89,6 +97,8 @@ services:
       - '/:/host:ro,rslave'
     deploy:
       mode: global
+    networks:
+      private:
 
   loki:
     image: grafana/loki:2.6.1
@@ -105,6 +115,8 @@ services:
       labels:
         - prometheus-job-service=loki
         - prometheus-address=loki:3100
+    networks:
+      private:
 
   promtail:
     image: grafana/promtail:2.6.1
@@ -117,6 +129,8 @@ services:
     command: -config.file=/etc/promtail/promtail-config.yml
     deploy:
       mode: global
+    networks:
+      private:
 
   minio-01:
     image: quay.io/minio/minio:RELEASE.2022-10-24T18-35-07Z
@@ -142,6 +156,8 @@ services:
       - minio-01-data2:/data2
     deploy:
       replicas: 1
+    networks:
+      private:
 
 configs:
   grafana.ini:
@@ -211,3 +227,12 @@ volumes:
   loki-data:
   minio-01-data1:
   minio-01-data2:
+
+networks:
+  keycloak:
+    name: keycloak_public
+    external: true
+  public:
+    name: prometheus_public
+    external: true
+  private:

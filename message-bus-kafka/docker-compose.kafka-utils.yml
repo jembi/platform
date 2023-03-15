@@ -21,6 +21,7 @@ services:
   kafka-minion:
     image: quay.io/cloudhut/kminion:master
     networks:
+      prometheus:
       private:
     hostname: kafka-minion
     environment:
@@ -38,4 +39,7 @@ services:
         - prometheus-address=kafka-minion:8080
 
 networks:
+  prometheus:
+    name: prometheus_public
+    external: true
   private:
