@@ -300,26 +300,6 @@ config::generate_service_configs() {
     done
 }
 
-# Removes nginx configs for destroyed services
-#
-# Arguments:
-# - $@ : a list of configs to remove
-#
-config::remove_service_nginx_config() {
-    local configs=("$@")
-    local config_rm_command=""
-    local config_rm_list=""
-    for config in "${configs[@]}"; do
-        if [[ -n $(docker config ls -qf name="$config") ]]; then
-            config_rm_command="$config_rm_command --config-rm $config"
-            config_rm_list="$config_rm_list $config"
-        fi
-    done
-
-    try "docker service update $config_rm_command instant_reverse-proxy-nginx" catch "Error updating nginx service"
-    try "docker config rm $config_rm_list" catch "Failed to remove configs"
-}
-
 # Replaces all environment variables in a file with the environment variable value
 #
 # Arguments:
