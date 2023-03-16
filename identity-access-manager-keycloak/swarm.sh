@@ -55,10 +55,13 @@ function append_client_config() {
   local -r CLIENT_ID_ENV_NAME="${2:?$(missing_param "append_client_config" "CLIENT_ID_ENV_NAME")}"
   local -r CLIENT_ROLES_ENV_NAME="${3:?$(missing_param "append_client_config" "CLIENT_ROLES_ENV_NAME")}"
 
+  # Comma separate env var and quote the values
+  IFS=',' read -r -a client_roles_array <<<"$CLIENT_ROLES_ENV_NAME"
+  client_roles_quoted=$(jq --compact-output --null-input '$ARGS.positional' --args -- "${client_roles_array[@]}")
   # Append clients configs
   yq ".clients += [load(\"${COMPOSE_FILE_PATH}/config/$CONFIG_NAME.json\")]" "${COMPOSE_FILE_PATH}/config/realm.json" >tmp.json
   # Append clients roles
-  jq ".users[0].clientRoles += {\"$CLIENT_ID_ENV_NAME\": [$CLIENT_ROLES_ENV_NAME]}" tmp.json >"${COMPOSE_FILE_PATH}/config/realm.json"
+  jq ".users[0].clientRoles += {\"$CLIENT_ID_ENV_NAME\": ${client_roles_quoted[*]}}" tmp.json >"${COMPOSE_FILE_PATH}/config/realm.json"
   rm -f tmp.json
 }
 
