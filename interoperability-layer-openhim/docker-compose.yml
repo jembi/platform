@@ -4,7 +4,7 @@ services:
   openhim-core:
     image: jembi/openhim-core:7
     networks:
-      proxy:
+      reverse-proxy:
       keycloak:
       public:
       private:
@@ -28,7 +28,7 @@ services:
   openhim-console:
     image: jembi/openhim-console:1.14.4
     networks:
-      proxy:
+      reverse-proxy:
       keycloak:
       public:
       private:
@@ -55,8 +55,8 @@ configs:
       name: openhim
 
 networks:
-  proxy:
-    name: proxy_public
+  reverse-proxy:
+    name: reverse-proxy_public
     external: true
   keycloak:
     name: keycloak_public

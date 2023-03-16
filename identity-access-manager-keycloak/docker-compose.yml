@@ -40,6 +40,7 @@ services:
       placement:
         max_replicas_per_node: 1
     networks:
+      reverse-proxy:
       public:
       private:
 
@@ -51,6 +52,9 @@ configs:
       name: keycloak
 
 networks:
+  reverse-proxy:
+    name: reverse-proxy_public
+    external: true
   public:
     name: keycloak_public
     external: true

@@ -36,7 +36,7 @@ services:
     volumes:
       - jsreport-data:/jsreport
     networks:
-      proxy:
+      reverse-proxy:
       elastic:
       private:
 
@@ -44,8 +44,8 @@ volumes:
   jsreport-data:
 
 networks:
-  proxy:
-    name: proxy_public
+  reverse-proxy:
+    name: reverse-proxy_public
     external: true
   elastic:
     name: elastic_public

@@ -22,7 +22,7 @@ services:
       - target: /usr/share/kibana/config/kibana.yml
         source: ${KIBANA_YML_CONFIG}
     networks:
-      proxy:
+      reverse-proxy:
       elastic:
       private:
 
@@ -37,8 +37,8 @@ configs:
       name: kibana
 
 networks:
-  proxy:
-    name: proxy_public
+  reverse-proxy:
+    name: reverse-proxy_public
     external: true
   elastic:
     name: elastic_public

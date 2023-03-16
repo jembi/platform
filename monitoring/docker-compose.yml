@@ -53,6 +53,7 @@ services:
         source: logging-universal-dashboard_rev1.json
     networks:
       keycloak:
+      reverse-proxy:
       private:
 
   prometheus:
@@ -231,6 +232,9 @@ volumes:
 networks:
   keycloak:
     name: keycloak_public
+    external: true
+  reverse-proxy:
+    name: reverse-proxy_public
     external: true
   public:
     name: prometheus_public
