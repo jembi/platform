@@ -285,12 +285,6 @@ docker::deploy_service() {
         docker::check_images_existence "${images[@]}"
     fi
 
-    # Check for need to set config digests
-    local -r files=($(yq '.configs."*.*".file' "${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE"))
-    if [[ "${files[*]}" != "null" ]]; then
-        config::set_config_digests "${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE"
-    fi
-
     local defer_sanity=false
     for optional_config in "${@:4}"; do
         if [[ -n $optional_config ]]; then
@@ -302,6 +296,7 @@ docker::deploy_service() {
         fi
     done
 
+    docker::prepare_config_digests "$DOCKER_COMPOSE_PATH/$DOCKER_COMPOSE_FILE" ${docker_compose_param//-c /}
     docker::ensure_external_networks_existence "$DOCKER_COMPOSE_PATH/$DOCKER_COMPOSE_FILE" ${docker_compose_param//-c /}
 
     try "docker stack deploy \
@@ -312,13 +307,7 @@ docker::deploy_service() {
         throw \
         "Wrong configuration in ${DOCKER_COMPOSE_PATH}/$DOCKER_COMPOSE_FILE or in the other supplied compose files"
 
-    # Remove stale configs according to the labels in the compose file
-    local -r label_names=($(yq '.configs."*.*".labels.name' "${DOCKER_COMPOSE_PATH}/${DOCKER_COMPOSE_FILE}" | sort -u))
-    if [[ "${label_names[*]}" != "null" ]]; then
-        for label_name in "${label_names[@]}"; do
-            config::remove_stale_service_configs "$COMPOSE_FILE_PATH/$DOCKER_COMPOSE_FILE" "${label_name}"
-        done
-    fi
+    docker::cleanup_stale_configs "$DOCKER_COMPOSE_PATH/$DOCKER_COMPOSE_FILE" ${docker_compose_param//-c /}
 
     if [[ $defer_sanity != true ]]; then
         docker::deploy_sanity "$STACK_NAME" "$DOCKER_COMPOSE_PATH/$DOCKER_COMPOSE_FILE" ${docker_compose_param//-c /}
@@ -372,7 +361,7 @@ docker::deploy_config_importer() {
 #
 # Arguments:
 # - $1 : stack name that the services falls under
-# - $@ : the list of compose files with the service definitions
+# - $@ : fully qualified path to the compose file(s) with service definitions (eg. /instant/interoperability-layer-openhim/docker-compose.yml)
 #
 docker::deploy_sanity() {
     local -r STACK_NAME="${1:?$(missing_param "deploy_sanity" "STACK_NAME")}"
@@ -387,7 +376,7 @@ docker::deploy_sanity() {
     local services=()
     for compose_file in "$@"; do
     # yq keys returns:"- foo - bar" if you have yml with a foo: and bar: service definition
-    # so we use bash parameter expansion to replace all occurances of - with "$STACK_NAME"_ (eg: openhim_foo openhim_bar)
+    # so we use bash parameter expansion to remove all occurances of -
         local compose_services=$(yq '.services | keys' $compose_file)
         compose_services=${compose_services//- /}
         for service in ${compose_services[@]}; do
@@ -426,7 +415,7 @@ docker::scale_services() {
 # Checks if the external networks exist and tries create it if not
 #
 # Arguments:
-# - $@ : path to the docker compose files with the possible network definitions
+# - $@ : fully qualified path to the docker compose file(s) with the possible network definitions (eg. /instant/interoperability-layer-openhim/docker-compose.yml)
 #
 docker::ensure_external_networks_existence() {
     if [[ -z "$*" ]]; then
@@ -511,5 +500,48 @@ docker::try_remove_network() {
             "Failed to remove network $network_name"
         overwrite "Trying to remove network $network_name ... Done"
 
+    done
+}
+
+# Checks the compose file(s) passed in for the existance of a config.file definition to pass to config::set_config_digests
+#
+# Arguments:
+# - $@ : fully qualified path to the compose file(s) to check (eg. /instant/interoperability-layer-openhim/docker-compose.yml)
+#
+docker::prepare_config_digests()
+{
+    if [[ -z "$*" ]]; then
+        log error "$(missing_param "prepare_config_digests")"
+        exit 1
+    fi
+
+    for compose_file in "$@"; do
+        local files=($(yq '.configs."*.*".file' "$compose_file"))
+        if [[ "${files[*]}" != "null" ]]; then
+            config::set_config_digests "$compose_file"
+        fi
+    done
+}
+
+# Checks the compose file(s) passed in for the existance of a config.lables.name definition to pass to config::remove_stale_service_configs
+# To ensure that the service has the most up to date config digest
+#
+# Arguments:
+# - $@ : fully qualified path to the compose file(s) to check (eg. /instant/interoperability-layer-openhim/docker-compose.yml)
+#
+docker::cleanup_stale_configs()
+{
+    if [[ -z "$*" ]]; then
+        log error "$(missing_param "cleanup_stale_configs")"
+        exit 1
+    fi
+
+    for compose_file in "$@"; do
+        local label_names=($(yq '.configs."*.*".labels.name' "$compose_file" | sort -u))
+        if [[ "${label_names[*]}" != "null" ]]; then
+            for label_name in "${label_names[@]}"; do
+                config::remove_stale_service_configs "$compose_file" "${label_name}"
+            done
+        fi
     done
 }
