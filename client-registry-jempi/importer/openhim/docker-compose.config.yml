@@ -18,6 +18,9 @@ services:
         target: /openhimConfig.js
       - source: openhim-config-importer-openhim-import.json
         target: /openhim-import.json
+    networks:
+      openhim:
+      default:
 
 configs:
   openhim-config-importer-openhimConfig.js:
@@ -31,3 +34,8 @@ configs:
     labels:
       name: openhim
 
+networks:
+  openhim:
+    name: openhim_public
+    external: true
+  default:
