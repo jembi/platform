@@ -375,9 +375,10 @@ docker::deploy_sanity() {
 
     local services=()
     for compose_file in "$@"; do
-    # yq keys returns:"- foo - bar" if you have yml with a foo: and bar: service definition
-    # so we use bash parameter expansion to remove all occurances of -
-        local compose_services=$(yq '.services | keys' $compose_file)
+    # yq 'keys' returns:"- foo - bar" if you have yml with a foo: and bar: service definition
+    # which is why we remove the "- " before looping
+    # it will also return '#' as a key if you have a comment, so we clean them with ' ... comments="" ' first
+        local compose_services=$(yq '... comments="" | .services | keys' $compose_file)
         compose_services=${compose_services//- /}
         for service in ${compose_services[@]}; do
             # only append unique service to services
@@ -428,7 +429,7 @@ docker::ensure_external_networks_existence() {
             continue
         fi
         
-        local network_keys=$(yq '.networks | keys' $compose_file)
+        local network_keys=$(yq '... comments="" | .networks | keys' $compose_file)
         local networks=(${network_keys//- /})
         if [[ "${networks[*]}" != "null" ]]; then
             for network_name in "${networks[@]}"; do
