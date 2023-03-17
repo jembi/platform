@@ -23,12 +23,16 @@ function init_vars() {
     "kafdrop"
     "kafka-minion"
   )
-
   KAFKA_SERVICES=(
     "kafka-01"
-    "kafka-02"
-    "kafka-03"
   )
+  if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+    KAFKA_SERVICES=(
+      "${KAFKA_SERVICES[@]}"
+      "kafka-02"
+      "kafka-03"
+    )
+  fi
 
   SERVICE_NAMES=(
     "${UTILS_SERVICES[@]}"
@@ -94,7 +98,7 @@ function initialize_package() {
 function destroy_package() {
   docker::service_destroy "${SERVICE_NAMES[@]}" "message-bus-kafka-config-importer"
 
-  docker::try_remove_volume kafka-01-data kafka-02-data kafka-03-data
+  docker::try_remove_volume kafka-01-data
 
   if [[ "$CLUSTERED_MODE" == "true" ]]; then
     log warn "Volumes are only deleted on the host on which the command is run. Cluster volumes on other nodes are not deleted"

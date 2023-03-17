@@ -8,8 +8,6 @@ Feature: Client Registry JeMPI?
     And The service "openhim-core" should be started with 1 replica
     And The service "openhim-console" should be started with 1 replica
     And The service "kafka-01" should be started with 1 replica
-    And The service "kafka-02" should be started with 1 replica
-    And The service "kafka-03" should be started with 1 replica
     And The service "kafdrop" should be started with 1 replica
     And The service "jempi-ratel" should be started with 1 replica
     And The service "jempi-alpha-01" should be started with 1 replica
@@ -29,8 +27,6 @@ Feature: Client Registry JeMPI?
     When I launch the platform with params
     Then The service "client-registry-jempi" should be removed
     And The service "kafka-01" should be removed
-    And The service "kafka-02" should be removed
-    And The service "kafka-03" should be removed
     And The service "kafdrop" should be removed
     And The service "jempi-ratel" should be removed
     And The service "jempi-alpha-01" should be removed
