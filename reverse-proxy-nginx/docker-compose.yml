@@ -22,4 +22,3 @@ networks:
   public:
     name: reverse-proxy_public
     external: true
-    attachable: true

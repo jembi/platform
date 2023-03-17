@@ -29,6 +29,7 @@ environment = RENEWAL_EMAIL=${RENEWAL_EMAIL}
 environment = STAGING=${STAGING}
 environment = DOMAIN_NAME=${DOMAIN_NAME}
 environment = SUBDOMAINS=${SUBDOMAINS}
+environment = STACK_NAME=${STACK_NAME}
 delete = true
 ```
 
