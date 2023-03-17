@@ -132,7 +132,7 @@ function destroy_package() {
     try "docker network rm ${nginx_network[*]}" catch "Failed to remove nginx networks"
   fi
 
-  docker::try_remove_volume $STACK renew-certbot-conf data-certbot-conf dummy-data-certbot-conf
+  docker::remove_volume renew-certbot-conf data-certbot-conf dummy-data-certbot-conf
 
   docker::prune_configs "nginx"
 }

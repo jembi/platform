@@ -180,11 +180,11 @@ docker::stack_destroy() {
     overwrite "Waiting for stack $STACK_NAME to be removed ... Done"
 }
 
-# Tries to remove volumes and retries until it works with a timeout
+# Appends the stack name to the volume to pass to remove_volume to remove
 #
 # Arguments:
 # - $1 : stack name that the service falls under (eg. openhim)
-# - $@ : volumes names (eg. es-data psql-1)
+# - $@ : list of volume names to remove (eg. es-data psql-1)
 #
 docker::try_remove_volume() {
     local -r STACK_NAME=${1:?$(missing_param "try_remove_volume")}
@@ -195,18 +195,39 @@ docker::try_remove_volume() {
         exit 1
     fi
 
+    local volumes=()
     for volume_name in "$@"; do
-        if ! docker volume ls | grep -q -w "${STACK_NAME}_${volume_name}"; then
-            log warn "Tried to remove volume ${volume_name} but it doesn't exist on this node"
+        volumes+=("${STACK_NAME}_$volume_name")
+    done
+
+    docker::remove_volume $volumes
+}
+
+# Tries to remove all volumes passed in and retries until it works with a timeout
+# Is mainly used by try_remove_volume to remove volumes defined in compose-files
+# However it can be used to remove volumes that are defined outside the compose-file (eg. reverse-proxy-nginx letsencrypt/certbot volumes)
+#
+# Arguments:
+# - $@ : list of volume names (eg. es-data psql-1)
+#
+docker::remove_volume() {
+    if [[ -z "$*" ]]; then
+        log error "$(missing_param "remove_volume")"
+        exit 1
+    fi
+
+    for volume_name in "$@"; do
+        if ! docker volume ls | grep -q -w "$volume_name"; then
+            log warn "Tried to remove volume $volume_name but it doesn't exist on this node"
         else
-            log info "Waiting for volume ${volume_name} to be removed..."
+            log info "Waiting for volume $volume_name to be removed..."
             local start_time
             start_time=$(date +%s)
-            until [[ -n "$(docker volume rm "${STACK_NAME}"_"${volume_name}" 2>/dev/null)" ]]; do
-                config::timeout_check "${start_time}" "${volume_name} to be removed" "60" "10"
+            until [[ -n "$(docker volume rm $volume_name 2>/dev/null)" ]]; do
+                config::timeout_check "${start_time}" "$volume_name to be removed" "60" "10"
                 sleep 1
             done
-            overwrite "Waiting for volume ${volume_name} to be removed... Done"
+            overwrite "Waiting for volume $volume_name to be removed... Done"
         fi
     done
 }
