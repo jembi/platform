@@ -90,7 +90,7 @@ function initialize_package() {
   }
 
   log info "Await Kafdrop to be running and responding"
-  config::await_service_running "kafdrop" "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml 1
+  config::await_service_running "kafdrop" "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml "${KAFDROP_INSTANCES}"
 
   docker::deploy_config_importer "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "message-bus-kafka-config-importer" "kafka"
 }
