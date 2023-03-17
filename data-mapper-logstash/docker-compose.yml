@@ -14,7 +14,7 @@ services:
       ES_ELASTIC: ${ES_ELASTIC}
       LS_JAVA_OPTS: ${LS_JAVA_OPTS}
       # Kafka as an input (required in the implementations)
-      KAKFA_HOSTS: ${KAKFA_HOSTS}
+      KAFKA_HOSTS: ${KAFKA_HOSTS}
     volumes:
       - logstash-data:/usr/share/logstash/data
     deploy:

@@ -26,7 +26,7 @@
     "MPI_HOST": "santedb-mpi",
     "MPI_PORT": 8080,
     "MPI_AUTH_ENABLED": "true",
-    "KAKFA_HOSTS": "kafka-01:9092",
+    "KAFKA_HOSTS": "kafka-01:9092",
     "KAFKA_BUNDLE_TOPIC": "2xx",
     "KAFKA_ASYNC_BUNDLE_TOPIC": "2xx-async",
     "KAFKA_ERROR_TOPIC": "errors",

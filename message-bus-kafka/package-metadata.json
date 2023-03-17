@@ -6,7 +6,7 @@
   "type": "infrastructure",
   "dependencies": [],
   "environmentVariables": {
-    "KAKFA_HOSTS": "kafka-01:9092",
+    "KAFKA_HOSTS": "kafka-01:9092",
     "KAFKA_CPU_LIMIT": "0",
     "KAFKA_CPU_RESERVE": "0.05",
     "KAFKA_MEMORY_LIMIT": "3G",
