@@ -36,6 +36,7 @@ import os
 KC_SUPERSET_SSO_ENABLED = os.getenv('KC_SUPERSET_SSO_ENABLED')
 
 if KC_SUPERSET_SSO_ENABLED == "true":
+    SECRET_KEY = os.getenv('SUPERSET_SECRET_KEY')
     OIDC_OPENID_REALM = os.getenv('KC_REALM_NAME')
     AUTH_USER_REGISTRATION_ROLE = os.getenv('AUTH_USER_REGISTRATION_ROLE')
     KC_REALM_NAME = os.getenv('KC_REALM_NAME')
@@ -45,6 +46,7 @@ if KC_SUPERSET_SSO_ENABLED == "true":
     from flask_appbuilder.security.manager import AUTH_OID, AUTH_REMOTE_USER, AUTH_DB, AUTH_LDAP, AUTH_OAUTH
 
     AUTH_TYPE = AUTH_OID
+    SECRET_KEY: SECRET_KEY
     OIDC_CLIENT_SECRETS = '/app/pythonpath/client_secret.json'
     OIDC_ID_TOKEN_COOKIE_SECURE = False
     OIDC_REQUIRE_VERIFIED_EMAIL = False
