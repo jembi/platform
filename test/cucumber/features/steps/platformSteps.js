@@ -58,7 +58,7 @@ Then('There should be {int} config(s)', async function (numConfigs) {
 Then('The service {string} should have healthy containers', async function (serviceName) {
   const containers = await docker.listContainers();
   const serviceContainers = containers.filter(
-    (container) => container.Labels['com.docker.swarm.service.name'] === `instant_${serviceName}`
+    (container) => container.Labels['com.docker.swarm.service.name'] === serviceName
   );
   expect(serviceContainers).to.be.array();
   serviceContainers.should.all.satisfy((serviceContainer) => serviceContainer.Status.includes('healthy'));
@@ -66,7 +66,7 @@ Then('The service {string} should have healthy containers', async function (serv
 
 Then('The volume {string} should be created', async function (volumeName) {
   const volumes = await docker.listVolumes({
-    filters: { name: [`instant_${volumeName}`] },
+    filters: { name: [volumeName] },
   });
 
   expect(volumes.Volumes).to.be.array();
@@ -82,7 +82,7 @@ Then('The service {string} should be removed', async function (serviceName) {
 
 Then('The volume {string} should be removed', async function (volumeName) {
   const volumes = await docker.listVolumes({
-    filters: { name: [`instant_${volumeName}`] },
+    filters: { name: [volumeName] },
   });
 
   expect(volumes.Volumes).to.be.array();

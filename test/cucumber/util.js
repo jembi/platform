@@ -22,14 +22,15 @@ async function checkServiceReplicasNumber(serviceName, expectedReplicas) {
   let timePassed = 0;
   while (serviceCurrentReplicas !== expectedReplicas) {
     const { stdout, stderr } = await execPromise(
-      `docker service ls --filter name=instant_${serviceName} --format "{{.Replicas}}"`
+      `docker service ls --format "{{.Name}}:{{.Replicas}}"`
     );
     if (stderr) {
       throw new Error(`Error on checking ${serviceName} replicas`, stderr);
     }
 
     timePassed = Date.now() - timeNow;
-    serviceCurrentReplicas = stdout.split('/')[0];
+    const serviceStatus = stdout.split('\n').find((line) => line.includes(serviceName))
+    serviceCurrentReplicas = serviceStatus.split(':')[1].split('/')[0]
     if (serviceCurrentReplicas === expectedReplicas || timePassed >= 5 * 60 * 1000) {
       return serviceCurrentReplicas;
     }
@@ -43,9 +44,11 @@ async function checkServiceStatus(serviceName) {
   let serviceStatuses = '';
   let timeNow = Date.now();
   let timePassedWithRunningStatus = 0;
+  const services = await docker.listServices();
+  const serviceNames = services.map((service) => service.Spec.Name);
   while (!serviceStatuses.includes('Running') || timePassedWithRunningStatus < 5 * 1000) {
     const { stdout, stderr } = await execPromise(
-      `docker service ps instant_${serviceName} --format "{{.CurrentState}}"`
+      `docker service ps ${serviceNames.find(name => name.includes(serviceName))} --format "{{.CurrentState}}"`
     );
     if (stderr) {
       throw new Error(`Error on checking ${serviceName} status`, stderr);
@@ -63,10 +66,9 @@ async function checkServiceStatus(serviceName) {
 }
 
 const filterServicesWithExactName = async (serviceName) => {
-  const services = await docker.listServices({
-    filters: { name: [`instant_${serviceName}`] },
-  });
-  return services.filter((e) => e.Spec.Name === `instant_${serviceName}`);
+  const services = await docker.listServices();
+  const serviceNames = services.map((service) => service.Spec.Name.substring(service.Spec.Name.indexOf('_') + 1));
+  return serviceNames.filter((e) => e === serviceName);
 };
 
 module.exports = {
