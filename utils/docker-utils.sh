@@ -200,7 +200,7 @@ docker::try_remove_volume() {
         volumes+=("${STACK_NAME}_$volume_name")
     done
 
-    docker::remove_volume $volumes
+    docker::remove_volume ${volumes[@]}
 }
 
 # Tries to remove all volumes passed in and retries until it works with a timeout
@@ -217,7 +217,7 @@ docker::remove_volume() {
     fi
 
     for volume_name in "$@"; do
-        if ! docker volume ls | grep -q -w "$volume_name"; then
+        if [[ -z $(docker volume ls --filter name=$volume_name$ --format {{.Name}}) ]]; then
             log warn "Tried to remove volume $volume_name but it doesn't exist on this node"
         else
             log info "Waiting for volume $volume_name to be removed..."
@@ -504,7 +504,7 @@ docker::try_remove_network() {
     fi
 
     for network_name in "$@"; do
-        if ! docker network ls | grep -q -w "$network_name"; then
+        if [[ -z $(docker network ls --filter name=$network_name --format {{.Name}}) ]]; then
             log warn "Tried to remove network $network_name but it doesn't exist on this node"
             continue
         fi
