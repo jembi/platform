@@ -39,6 +39,8 @@ function initialize_package() {
 function destroy_package() {
   docker::stack_destroy $STACK
 
+  docker::try_remove_network "clickhouse_public"
+
   docker::prune_configs "kafka-mapper-consumer"
 }
 

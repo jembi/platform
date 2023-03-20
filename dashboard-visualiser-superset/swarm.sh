@@ -56,6 +56,8 @@ function destroy_package() {
 
   docker::try_remove_volume $STACK superset superset-frontend superset_home
 
+  docker::try_remove_network "keycloak_public" "reverse-proxy_public"
+
   docker::prune_configs "superset"
 }
 

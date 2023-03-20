@@ -134,6 +134,8 @@ function destroy_package() {
 
   docker::remove_volume renew-certbot-conf data-certbot-conf dummy-data-certbot-conf
 
+  docker::try_remove_network "reverse-proxy_public"
+
   docker::prune_configs "nginx"
 }
 

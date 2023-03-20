@@ -157,7 +157,9 @@ function destroy_package() {
     docker::try_remove_volume "$STACK" es-data
   fi
 
-    docker::prune_configs "elasticsearch"
+  docker::try_remove_network "elastic_public"
+
+  docker::prune_configs "elasticsearch"
 }
 
 main() {

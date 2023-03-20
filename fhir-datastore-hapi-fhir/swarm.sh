@@ -68,6 +68,8 @@ function destroy_package() {
     log warn "Volumes are only deleted on the host on which the command is run. Postgres volumes on other nodes are not deleted"
   fi
 
+  docker::try_remove_network "hapi-fhir_public" "mpi_public"
+
   docker::prune_configs "hapi-fhir"
 }
 

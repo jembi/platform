@@ -92,6 +92,8 @@ function destroy_package() {
 
   docker::try_remove_volume $STACK logstash-data
   
+  docker::try_remove_network "kafka_public"
+
   docker::prune_configs "logstash"
 }
 

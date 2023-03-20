@@ -70,6 +70,8 @@ function initialize_package() {
 function destroy_package() {
   docker::stack_destroy $STACK
 
+  docker::try_remove_network "reverse-proxy_public"
+
   docker::prune_configs "kibana"
 }
 
