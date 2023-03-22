@@ -6,7 +6,6 @@ from flask_appbuilder.security.views import AuthOIDView
 from flask_login import login_user
 from urllib.parse import quote
 from flask_appbuilder.views import ModelView, SimpleFormView, expose
-import logging
 import urllib.parse
 
 class OIDCSecurityManager(SupersetSecurityManager):
