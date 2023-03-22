@@ -14,7 +14,7 @@
     "SUPERSET_CONFIG_FILE": "superset-export.zip",
     "SUPERSET_SSL": "false",
     "SUPERSET_SECRET_KEY": "87SLdhp3Z/4+eiVCh8zg4kyYSsAKMH0glBS+VBJoEiGghTByAKC/qwVw",
-    "KC_SUPERSET_SSO_ENABLED": "true",
+    "KC_SUPERSET_SSO_ENABLED": "false",
     "KC_SUPERSET_CLIENT_ID": "superset-oauth",
     "KC_SUPERSET_CLIENT_SECRET": "g0J7oLbX69dL3CS8HVjRYlhRYVsPoDbQ",
     "KC_REALM_NAME": "platform-realm",
