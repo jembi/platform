@@ -56,11 +56,13 @@ function import_sources() {
 }
 
 function initialize_package() {
+  local kafka_dev_compose_filename=""
   local kafka_cluster_compose_filename=""
   local kafka_utils_dev_compose_filename=""
 
   if [[ "${MODE}" == "dev" ]]; then
     log info "Running package in DEV mode"
+    kafka_dev_compose_filename="docker-compose.dev.kafka.yml"
     kafka_utils_dev_compose_filename="docker-compose.dev.kafka-utils.yml"
   else
     log info "Running package in PROD mode"
@@ -73,7 +75,7 @@ function initialize_package() {
   (
     log info "Deploy Kafka"
 
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.kafka.yml" "$kafka_cluster_compose_filename"
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.kafka.yml" "$kafka_cluster_compose_filename" "$kafka_dev_compose_filename"
     docker::deploy_sanity "${KAFKA_SERVICES[@]}"
 
     for service_name in "${KAFKA_SERVICES[@]}"; do
