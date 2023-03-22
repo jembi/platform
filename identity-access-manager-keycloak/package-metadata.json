@@ -21,14 +21,20 @@
     "KC_POSTGRESQL_PASSWORD": "instant101",
     "KC_POSTGRESQL_USERNAME": "admin",
     "KC_POSTGRESQL_DATABASE": "keycloak",
+    "KC_GRAFANA_SSO_ENABLED": "false",
     "KC_GRAFANA_CLIENT_ID": "grafana-oauth",
     "KC_GRAFANA_CLIENT_SECRET": "CV14QfwnpYFj1IH5dK5lScPNCYAIYP1c",
     "KC_GRAFANA_ROOT_URL": "http://localhost:3000",
+    "KC_GRAFANA_CLIENT_ROLES": "admin,editor,viewer",
+    "KC_JEMPI_SSO_ENABLED": "false",
     "KC_JEMPI_CLIENT_ID": "jempi-oauth",
     "KC_JEMPI_CLIENT_SECRET": "Tbe3llP5OJIlqUjz7K1wPp8YDAdCOEMn",
     "KC_JEMPI_ROOT_URL": "http://localhost:3000",
+    "KC_JEMPI_CLIENT_ROLES": "admin",
+    "KC_SUPERSET_SSO_ENABLED": "false",
     "KC_SUPERSET_CLIENT_ID": "superset-oauth",
     "KC_SUPERSET_CLIENT_SECRET": "g0J7oLbX69dL3CS8HVjRYlhRYVsPoDbQ",
-    "KC_SUPERSET_ROOT_URL": "http://localhost:8089"
+    "KC_SUPERSET_ROOT_URL": "http://localhost:8089",
+    "KC_SUPERSET_CLIENT_ROLES": "admin"
   }
 }
