@@ -1,0 +1,18 @@
+version: '3.9'
+
+services:
+  kafka-01:
+    ports:
+      - target: 9092
+        published: 9092
+        mode: host
+  kafka-02:
+    ports:
+      - target: 9092
+        published: 9093
+        mode: host
+  kafka-03:
+    ports:
+      - target: 9092
+        published: 9094
+        mode: host

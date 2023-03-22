@@ -4,6 +4,7 @@ declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
+declare NODE_MODE_PREFIX=""
 declare UTILS_SERVICES=()
 declare KAFKA_SERVICES=()
 declare SERVICE_NAMES=()
@@ -27,6 +28,7 @@ function init_vars() {
     "kafka-01"
   )
   if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+    NODE_MODE_PREFIX=".cluster"
     KAFKA_SERVICES=(
       "${KAFKA_SERVICES[@]}"
       "kafka-02"
@@ -62,7 +64,7 @@ function initialize_package() {
 
   if [[ "${MODE}" == "dev" ]]; then
     log info "Running package in DEV mode"
-    kafka_dev_compose_filename="docker-compose.dev.kafka.yml"
+    kafka_dev_compose_filename="docker-compose.dev$NODE_MODE_PREFIX.kafka.yml"
     kafka_utils_dev_compose_filename="docker-compose.dev.kafka-utils.yml"
   else
     log info "Running package in PROD mode"
