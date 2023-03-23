@@ -75,6 +75,9 @@ function append_config_sso_enabled() {
   if [[ "${KC_JEMPI_SSO_ENABLED}" == "true" ]]; then
     append_client_config "jempi" "$KC_JEMPI_CLIENT_ID" "$KC_JEMPI_CLIENT_ROLES"
   fi
+  if [[ "${KC_OPENHIM_SSO_ENABLED}" == "true" ]]; then
+    append_client_config "openhim" "$KC_OPENHIM_CLIENT_ID" "$KC_OPENHIM_CLIENT_ROLES"
+  fi
 }
 
 function initialize_package() {
