@@ -27,6 +27,7 @@ services:
           memory: ${HF_POSTGRES_MEMORY_RESERVE}
     networks:
       private:
+      hapi-fhir-postgres:
       pg_backup_net:
 
 volumes:
@@ -34,6 +35,9 @@ volumes:
 
 networks:
   private:
+  hapi-fhir-postgres:
+    name: hapi-fhir_postgres_public
+    external: true
   pg_backup_net:
     name: pg_backup
     driver: overlay
