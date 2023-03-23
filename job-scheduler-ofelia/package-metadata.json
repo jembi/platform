@@ -11,6 +11,6 @@
     "DOMAIN_NAME": "localhost",
     "SUBDOMAINS": "",
     "OPENHIM_MONGO_URL": "mongodb://mongo-1:27017/openhim",
-    "STACK_NAME": "reverse-proxy"
+    "REVERSE_PROXY_STACK_NAME": "reverse-proxy"
   }
 }
