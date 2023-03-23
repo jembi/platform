@@ -28,6 +28,7 @@ services:
           memory: ${OPENHIM_MONGO_MEMORY_RESERVE}
     networks:
       private:
+      openhim-mongo:
       mongo_backup_net:
 
   mongo-3:
@@ -50,6 +51,7 @@ services:
           memory: ${OPENHIM_MONGO_MEMORY_RESERVE}
     networks:
       private:
+      openhim-mongo:
       mongo_backup_net:
 
 volumes:

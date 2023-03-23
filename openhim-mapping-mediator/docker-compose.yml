@@ -18,5 +18,5 @@ networks:
     name: openhim_public
     external: true
   mongo:
-    name: mongo_backup
+    name: openhim_mongo_public
     external: true

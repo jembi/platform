@@ -17,6 +17,7 @@ services:
           memory: ${OPENHIM_MONGO_MEMORY_RESERVE}
     networks:
       private:
+      openhim-mongo:
       mongo_backup_net:
 
 volumes:
@@ -25,6 +26,9 @@ volumes:
 
 networks:
   private:
+  openhim-mongo:
+    name: openhim_mongo_public
+    external: true
   mongo_backup_net:
     name: mongo_backup
     driver: overlay
