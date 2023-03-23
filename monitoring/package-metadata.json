@@ -12,7 +12,7 @@
     "GF_SMTP_HOST": "localhost:25",
     "GF_SMTP_USER": "",
     "GF_SMTP_PASSWORD": "",
-    "KC_SSO_ENABLED": "false",
+    "KC_GRAFANA_SSO_ENABLED": "false",
     "KC_REALM_NAME": "platform-realm",
     "KC_FRONTEND_URL": "http://localhost:9088",
     "KC_API_URL": "http://identity-access-manager-keycloak:8080",

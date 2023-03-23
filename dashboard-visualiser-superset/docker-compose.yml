@@ -3,24 +3,45 @@ version: '3.9'
 services:
   dashboard-visualiser-superset:
     image: jembi/superset:latest
+    environment:
+      KC_SUPERSET_SSO_ENABLED: ${KC_SUPERSET_SSO_ENABLED}
+      KC_SUPERSET_CLIENT_ID: ${KC_SUPERSET_CLIENT_ID}
+      KC_SUPERSET_CLIENT_SECRET: ${KC_SUPERSET_CLIENT_SECRET}
+      KC_REALM_NAME: ${KC_REALM_NAME}
+      KC_FRONTEND_URL: ${KC_FRONTEND_URL}
+      KC_API_URL: ${KC_API_URL}
+      SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY}
+      AUTH_USER_REGISTRATION_ROLE: ${AUTH_USER_REGISTRATION_ROLE}
+      SUPERSET_SERVER_ROOT_URL: ${SUPERSET_SERVER_ROOT_URL}
     volumes:
       - superset_home:/app/superset_home
       - superset:/app/superset
       - superset-frontend:/app/superset-frontend
-    command: sh -c "superset fab create-admin \
-      --username ${SUPERSET_USERNAME} \
-      --firstname ${SUPERSET_FIRSTNAME}  \
-      --lastname ${SUPERSET_LASTNAME} \
-      --email ${SUPERSET_EMAIL} \
-      --password ${SUPERSET_PASSWORD} && superset db upgrade && superset init && cd /usr/bin && ./run-server.sh"
+    command: sh -c "superset fab create-admin \ --username ${SUPERSET_USERNAME} \ --firstname ${SUPERSET_FIRSTNAME}  \ --lastname ${SUPERSET_LASTNAME} \ --email ${SUPERSET_EMAIL} \ --password ${SUPERSET_PASSWORD} && superset db upgrade && superset init && cd /usr/bin && ./run-server.sh"
     configs:
       - source: superset_config.py
         target: /app/pythonpath/superset_config.py
+      - source: client_secret.json
+        target: /usr/bin/pythonpath/client_secret.json
+      - source: client_secret.json
+        target: /app/pythonpath/client_secret.json
+      - source: keycloack_security_manager.py
+        target: /app/pythonpath/keycloack_security_manager.py
 
 configs:
   superset_config.py:
     file: ./config/superset_config.py
     name: superset_config.py-${superset_config_py_DIGEST:?err}
+    labels:
+      name: superset
+  client_secret.json:
+    file: ./config/client_secret.json
+    name: client_secret.json-${client_secret_json_DIGEST:?err}
+    labels:
+      name: superset
+  keycloack_security_manager.py:
+    file: ./config/keycloack_security_manager.py
+    name: keycloack_security_manager.py-${keycloack_security_manager_py_DIGEST:?err}
     labels:
       name: superset
 
