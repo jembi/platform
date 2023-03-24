@@ -10,6 +10,7 @@ services:
       KC_API_URL: ${KC_API_URL}
       KC_JEMPI_ROOT_URL: ${KC_JEMPI_ROOT_URL}
       JEMPI_SESSION_SECRET: ${JEMPI_SESSION_SECRET}
+      kafka.bootstrap.servers: ${KAFKA_HOSTS}
     deploy:
       replicas: 1
       resources:
