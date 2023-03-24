@@ -43,6 +43,9 @@ function initialize_package() {
     log info "Running package in PROD mode"
   fi
 
+  # Replace env vars
+  envsubst <"${COMPOSE_FILE_PATH}/config/client_secret_env.json" >"${COMPOSE_FILE_PATH}/config/client_secret.json"
+
   (
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$superset_dev_compose_filename"
     docker::deploy_sanity "${SERVICE_NAMES}"
