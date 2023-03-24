@@ -28,6 +28,11 @@ function init_vars() {
       "${DGRAPH_SERVICES[@]}"
       "jempi-alpha-0$i"
     )
+
+    VOLUME_NAMES=(
+      "${VOLUME_NAMES[@]}"
+      "jempi-alpha-0$i-data"
+    )
   done
 
   COMBINED_SERVICES=(

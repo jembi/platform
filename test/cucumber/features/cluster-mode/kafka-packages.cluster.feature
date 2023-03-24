@@ -10,7 +10,7 @@ Feature: Kafka and its dependent packages?
     And The service "kafdrop" should be started with 1 replica
     And The service "kafka-minion" should be started with 1 replica
     And The service "message-bus-kafka-config-importer" should be removed
-    And There should be 6 services
+    And There should be 5 services
 
   Scenario: Destroy Kafka and its dependent packages
     Given I use parameters "package destroy -n=message-bus-kafka --dev --env-file=.env.cluster"
