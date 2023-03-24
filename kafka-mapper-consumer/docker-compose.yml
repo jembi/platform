@@ -1,9 +1,8 @@
 version: '3.9'
 
 services:
-# TODO: update version once new mapper-consumer is released
   kafka-mapper-consumer:
-    image: jembi/kafka-mapper-consumer
+    image: jembi/kafka-mapper-consumer:0.0.3
     environment:
       KAFKA_HOST: ${KAFKA_HOST}
       KAFKA_PORT: ${KAFKA_PORT}
