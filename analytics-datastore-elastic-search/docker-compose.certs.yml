@@ -32,8 +32,6 @@ services:
     configs:
       - target: /usr/share/elasticsearch/config/certs/instances.yml
         source: instances.yml
-    networks:
-      private:
 
 volumes:
   certgen:
@@ -44,6 +42,3 @@ configs:
     name: instances.yml
     labels:
       name: elasticsearch
-
-networks:
-  private:

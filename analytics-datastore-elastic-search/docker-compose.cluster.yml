@@ -50,7 +50,6 @@ services:
       - /backups:/backups/elasticsearch
     networks:
       public:
-      private:
 
   analytics-datastore-elastic-search-02:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.13.0
@@ -101,7 +100,6 @@ services:
       - /backups:/backups/elasticsearch
     networks:
       public:
-      private:
 
   analytics-datastore-elastic-search-03:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.13.0
@@ -152,7 +150,6 @@ services:
       - /backups:/backups/elasticsearch
     networks:
       public:
-      private:
 
 volumes:
   es01-data:
@@ -164,4 +161,3 @@ networks:
   public:
     name: elastic_public
     external: true
-  private:

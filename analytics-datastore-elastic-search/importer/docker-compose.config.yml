@@ -21,7 +21,7 @@ services:
       - target: /fhir-enrich-reports.json
         source: fhir-enrich-reports.json
     networks:
-      private:
+      public:
 
 configs:
   fhir-enrich-reports.json:
@@ -31,4 +31,6 @@ configs:
       name: elasticsearch
 
 networks:
-  private:
+  public:
+    name: elastic_public
+    external: true

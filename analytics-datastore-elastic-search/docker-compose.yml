@@ -40,7 +40,6 @@ services:
       - /backups:/backups/elasticsearch
     networks:
       public:
-      private:
 
 volumes:
   es-data:
@@ -49,4 +48,3 @@ networks:
   public:
     name: elastic_public
     external: true
-  private:
