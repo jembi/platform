@@ -22,6 +22,7 @@ services:
     networks:
       hapi-fhir:
       kafka:
+      openhim:
 
 networks:
   hapi-fhir:
@@ -29,4 +30,7 @@ networks:
     external: true
   kafka:
     name: kafka_public
+    external: true
+  openhim:
+    name: openhim_public
     external: true
