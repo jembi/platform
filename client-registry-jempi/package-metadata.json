@@ -6,6 +6,7 @@
   "version": "0.0.1",
   "dependencies": ["interoperability-layer-openhim", "message-bus-kafka"],
   "environmentVariables": {
+    "KAFKA_HOSTS": "kafka-01:9092",
     "JEMPI_ZERO_01_MEMORY_LIMIT": "3G",
     "JEMPI_ZERO_01_MEMORY_RESERVE": "500M",
     "JEMPI_ALPHA_01_MEMORY_LIMIT": "3G",
