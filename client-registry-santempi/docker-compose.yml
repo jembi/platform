@@ -5,6 +5,7 @@ services:
     image: santesuite/santedb-mpi:2.2.3
     networks:
       mpi:
+      public-db:
       private:
     environment:
       - SDB_FEATURE=LOG;DATA_POLICY;AUDIT_REPO;ADO;PUBSUB_ADO;RAMCACHE;SEC;SWAGGER;OPENID;FHIR;HL7;HDSI;AMI;BIS;MDM;MATCHING;ADO_FTS
@@ -35,5 +36,8 @@ volumes:
 networks:
   mpi:
     name: mpi_public
+    external: true
+  public-db:
+    name: santedb_public
     external: true
   private:
