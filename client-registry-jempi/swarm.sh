@@ -4,7 +4,6 @@ declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare KAFKA_SERVICES=()
 declare DGRAPH_SERVICES=()
 declare COMBINED_SERVICES=()
 declare SERVICE_NAMES=()
@@ -25,17 +24,13 @@ function init_vars() {
   VOLUME_NAMES=("jempi-zero-01-data")
 
   for i in {1..3}; do
-    KAFKA_SERVICES=(
-      "${KAFKA_SERVICES[@]}"
-      "jempi-kafka-0$i"
-    )
     DGRAPH_SERVICES=(
       "${DGRAPH_SERVICES[@]}"
       "jempi-alpha-0$i"
     )
+
     VOLUME_NAMES=(
       "${VOLUME_NAMES[@]}"
-      "jempi-kafka-0$i-data"
       "jempi-alpha-0$i-data"
     )
   done
@@ -50,10 +45,8 @@ function init_vars() {
   )
 
   SERVICE_NAMES=(
-    "${KAFKA_SERVICES[@]}"
     "${DGRAPH_SERVICES[@]}"
     "${COMBINED_SERVICES[@]}"
-    "jempi-kafdrop"
     "jempi-zero-01"
     "jempi-api"
   )
@@ -62,7 +55,6 @@ function init_vars() {
   readonly MODE
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
-  readonly KAFKA_SERVICES
   readonly DGRAPH_SERVICES
   readonly COMBINED_SERVICES
   readonly SERVICE_NAMES
@@ -77,7 +69,6 @@ function import_sources() {
 }
 
 function initialize_package() {
-  local kafdrop_dev_compose_param=""
   local dgraph_dev_compose_param=""
   local dgraph_zero_dev_compose_param=""
   local combined_dev_compose_param=""
@@ -87,7 +78,6 @@ function initialize_package() {
 
   if [[ "$MODE" == "dev" ]]; then
     log info "Running package in DEV mode"
-    kafdrop_dev_compose_param="docker-compose.kafdrop-dev.yml"
     dgraph_dev_compose_param="docker-compose.dgraph-dev.yml"
     dgraph_zero_dev_compose_param="docker-compose.dgraph-zero-dev.yml"
     combined_dev_compose_param="docker-compose.combined-dev.yml"
@@ -102,14 +92,7 @@ function initialize_package() {
   fi
 
   (
-    log info "Deploy Kafka"
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.kafka.yml"
-    docker::deploy_sanity "${KAFKA_SERVICES[@]}"
-
-    log info "Deploy Kafdrop"
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.kafdrop.yml" "$kafdrop_dev_compose_param"
-    docker::deploy_sanity "jempi-kafdrop"
-
+    log info "Importing JeMPI Kafka topics"
     docker::deploy_config_importer "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "jempi-kafka-config-importer" "jempi-kafka"
 
     log info "Deploy Dgraph"
