@@ -20,3 +20,16 @@ jobs:
         if: always()
         with:
           sarif_file: 'trivy-results.sarif'
+
+      - name: Run trivy vulnerability scanner for the OpenHIM console image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: jembi/openhim-console:1.14.4
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+        
+      - name: Upload Trivy scan results to Github Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
