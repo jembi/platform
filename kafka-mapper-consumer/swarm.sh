@@ -3,7 +3,7 @@
 declare ACTION=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare STACK="clickhouse-mapper"
+declare STACK="kafka-mapper"
 
 function init_vars() {
   ACTION=$1
