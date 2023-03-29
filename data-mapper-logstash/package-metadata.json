@@ -14,6 +14,7 @@
     "LOGSTASH_MEMORY_LIMIT": "3G",
     "LOGSTASH_MEMORY_RESERVE": "500M",
     "ES_ELASTIC": "dev_password_only",
-    "ES_HOSTS": "\"analytics-datastore-elastic-search:9200\""
+    "ES_HOSTS": "\"analytics-datastore-elastic-search:9200\"",
+    "KAFKA_HOSTS": "kafka-01:9092"
   }
 }

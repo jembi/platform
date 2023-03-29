@@ -6,7 +6,7 @@ services:
     networks:
       private:
     environment:
-      KAFKA_BROKERCONNECT: 'kafka:9092'
+      KAFKA_BROKERCONNECT: ${KAFKA_HOSTS}
       JVM_OPTS: '-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify'
       CMD_ARGS: '--server.port=9013 --management.server.port=9013'
     deploy:
@@ -25,7 +25,7 @@ services:
       private:
     hostname: kafka-minion
     environment:
-      KAFKA_BROKERS: kafka:9092
+      KAFKA_BROKERS: ${KAFKA_HOSTS}
     deploy:
       resources:
         limits:

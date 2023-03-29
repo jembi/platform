@@ -23,7 +23,6 @@ function init_vars() {
   for i in {1..3}; do
     VOLUME_NAMES=(
       "${VOLUME_NAMES[@]}"
-      "jempi-kafka-0$i-data"
       "jempi-alpha-0$i-data"
     )
   done
@@ -44,7 +43,6 @@ function import_sources() {
 }
 
 function initialize_package() {
-  local kafdrop_dev_compose_param=""
   local dgraph_dev_compose_param=""
   local dgraph_zero_dev_compose_param=""
   local combined_dev_compose_param=""
@@ -54,7 +52,6 @@ function initialize_package() {
 
   if [[ "$MODE" == "dev" ]]; then
     log info "Running package in DEV mode"
-    kafdrop_dev_compose_param="docker-compose.kafdrop-dev.yml"
     dgraph_dev_compose_param="docker-compose.dgraph-dev.yml"
     dgraph_zero_dev_compose_param="docker-compose.dgraph-zero-dev.yml"
     combined_dev_compose_param="docker-compose.combined-dev.yml"
@@ -69,12 +66,7 @@ function initialize_package() {
   fi
 
   (
-    log info "Deploy Kafka"
-    docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.kafka.yml"
-
-    log info "Deploy Kafdrop"
-    docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.kafdrop.yml" "$kafdrop_dev_compose_param"
-
+    log info "Importing JeMPI Kafka topics"
     docker::deploy_config_importer $STACK "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "jempi-kafka-config-importer" "jempi-kafka"
 
     log info "Deploy Dgraph"

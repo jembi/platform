@@ -23,6 +23,7 @@
     "test:cluster:keycloak": "cucumber-js 'features/cluster-mode/keycloak.cluster.feature'",
     "test:single:jsreport": "cucumber-js 'features/single-mode/jsreport.feature'",
     "test:single:superset": "cucumber-js 'features/single-mode/superset.feature'",
+    "test:single:jempi": "cucumber-js 'features/single-mode/jempi.feature'",
     "test:single:mpi-mediator": "cucumber-js 'features/single-mode/mpi-mediator.feature'",
     "test:single:monitoring": "cucumber-js 'features/single-mode/monitoring.feature'",
     "test:cluster:monitoring": "cucumber-js 'features/cluster-mode/monitoring.feature'"
