@@ -4,5 +4,5 @@ services:
   jempi-web:
     ports:
       - target: 3000
-        published: 3030
+        published: 3033
         mode: host

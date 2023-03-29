@@ -41,6 +41,7 @@
     "JEMPI_API_IMAGE_TAG": "0.1.1",
     "JEMPI_OPENHIM_PASSWORD": "instant101",
     "JEMPI_SESSION_SECRET": "c05ll3lesrinf39t7mc5h6un6r0c69lgfno69dsak3vabeqamouq4328cuaekros401ajdpkh60rrt",
+    "JEMPI_FILE_IMPORT_MAX_SIZE_BYTE": 128000000,
     "REACT_APP_JEMPI_BASE_URL": "http://jempi-api:50000/JeMPI",
     "REACT_APP_MOCK_BACKEND": "false",
     "JEMPI_WEB_VERSION": "latest",
@@ -52,6 +53,6 @@
     "KC_API_URL": "http://identity-access-manager-keycloak:8080",
     "KC_JEMPI_CLIENT_ID": "jempi-oauth",
     "KC_JEMPI_CLIENT_SECRET": "Tbe3llP5OJIlqUjz7K1wPp8YDAdCOEMn",
-    "KC_JEMPI_ROOT_URL": "http://localhost:3000"
+    "KC_JEMPI_ROOT_URL": "http://localhost:3033"
   }
 }
