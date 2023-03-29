@@ -158,6 +158,7 @@ services:
     deploy:
       replicas: 1
     networks:
+      reverse-proxy:
       private:
 
 configs:
