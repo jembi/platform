@@ -1,0 +1,8 @@
+version: '3.9'
+
+services:
+  jempi-web:
+    ports:
+      - target: 3000
+        published: 3030
+        mode: host
