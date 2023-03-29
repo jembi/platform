@@ -6,7 +6,7 @@ on:
 
 jobs:
   scan-images:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Run trivy vulnerability scanner for the OpenHIM core image
         uses: aquasecurity/trivy-action@master
