@@ -40,8 +40,6 @@ function initialize_package() {
 function destroy_package() {
   docker::stack_destroy $STACK
 
-  docker::try_remove_network "openhim_public"
-
   docker::prune_configs "kafka-mapper-consumer"
 }
 

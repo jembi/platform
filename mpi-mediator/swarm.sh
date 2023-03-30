@@ -52,8 +52,6 @@ function initialize_package() {
 function destroy_package() {
   docker::stack_destroy "$STACK"
 
-  docker::try_remove_network "mpi_public"
-
   docker::prune_configs "mpi-mediator"
 }
 

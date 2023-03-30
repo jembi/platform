@@ -82,8 +82,6 @@ function destroy_package() {
 
   docker::try_remove_volume "$STACK" "openhim-mongo-01" "openhim-mongo-01-config"
 
-  docker::try_remove_network "reverse-proxy_public" "keycloak_public" "openhim_public" "openhim_mongo_public"
-
   if [[ "${CLUSTERED_MODE}" == "true" ]]; then
     log warn "Volumes are only deleted on the host on which the command is run. Mongo volumes on other nodes are not deleted"
   fi

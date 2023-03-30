@@ -74,8 +74,6 @@ function destroy_package() {
     log warn "Volumes are only deleted on the host on which the command is run. Monitoring volumes on other nodes are not deleted"
   fi
 
-  docker::try_remove_network "keycloak_public" "reverse-proxy_public" "prometheus_public"
-
   docker::prune_configs "grafana" "prometheus" "promtail" "loki"
 }
 

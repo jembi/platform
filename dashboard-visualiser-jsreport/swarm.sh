@@ -82,8 +82,6 @@ function destroy_package() {
 
   docker::try_remove_volume $STACK "jsreport-data"
 
-  docker::try_remove_network "reverse-proxy_public"
-
   docker::prune_configs "jsreport"
 }
 

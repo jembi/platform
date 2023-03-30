@@ -65,8 +65,6 @@ function destroy_package() {
     docker::try_remove_volume $STACK clickhouse-data
   fi
 
-  docker::try_remove_network "clickhouse_public"
-
   docker::prune_configs "clickhouse"
 }
 
