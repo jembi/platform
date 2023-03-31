@@ -3,7 +3,6 @@
 declare ACTION=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare SERVICE_NAMES=()
 declare STACK="kafka-unbundler"
 
 function init_vars() {
