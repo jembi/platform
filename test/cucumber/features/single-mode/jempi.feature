@@ -21,6 +21,7 @@ Feature: Client Registry JeMPI?
     And The service "jempi-linker" should be started with 1 replica
     And The service "jempi-zero-01" should be started with 1 replica
     And The service "jempi-api" should be started with 1 replica
+    And The service "jempi-web" should be started with 1 replica
 
   Scenario: Destroy Client Registry JeMPI
     Given I use parameters "package destroy -n=message-bus-kafka,interoperability-layer-openhim,client-registry-jempi --dev --env-file=.env.local"
@@ -40,6 +41,7 @@ Feature: Client Registry JeMPI?
     And The service "jempi-linker" should be removed
     And The service "jempi-zero-01" should be removed
     And The service "jempi-api" should be removed
+    And The service "jempi-web" should be removed
     And The service "mongo-1" should be removed
     And The service "openhim-core" should be removed
     And The service "openhim-console" should be removed
