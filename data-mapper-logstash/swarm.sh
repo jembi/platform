@@ -90,8 +90,6 @@ function initialize_package() {
 function destroy_package() {
   docker::stack_destroy $STACK
 
-  docker::try_remove_volume $STACK logstash-data
-  
   docker::prune_configs "logstash"
 }
 

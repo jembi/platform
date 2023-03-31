@@ -52,17 +52,16 @@ function initialize_package() {
     exit 1
   }
 
-  docker::deploy_config_importer $STACK "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "clickhouse-config-importer" "clickhouse"
+  if [[ "${ACTION}" == "init" ]]; then
+    docker::deploy_config_importer $STACK "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "clickhouse-config-importer" "clickhouse"
+  fi
 }
 
 function destroy_package() {
   docker::stack_destroy $STACK
 
   if [[ "$CLUSTERED_MODE" == "true" ]]; then
-    docker::try_remove_volume $STACK clickhouse-data-01 clickhouse-data-04
     log warn "Volumes are only deleted on the host on which the command is run. Cluster volumes on other nodes are not deleted"
-  else
-    docker::try_remove_volume $STACK clickhouse-data
   fi
 
   docker::prune_configs "clickhouse"

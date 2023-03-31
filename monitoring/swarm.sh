@@ -66,11 +66,8 @@ function scale_services_down() {
 function destroy_package() {
   docker::stack_destroy $STACK
 
-  docker::try_remove_volume $STACK prometheus-data grafana-data minio-01-data1 minio-01-data2 prometheus_data_backup loki-data
-
   if [[ $CLUSTERED_MODE == "true" ]]; then
     sleep 5
-    docker::try_remove_volume minio-02-data1 minio-02-data2
     log warn "Volumes are only deleted on the host on which the command is run. Monitoring volumes on other nodes are not deleted"
   fi
 

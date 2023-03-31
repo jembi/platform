@@ -73,7 +73,7 @@ function create_certs() {
   docker::service_destroy $STACK create_certs
   docker::await_container_destroy $STACK create_certs
   docker::await_container_destroy $STACK es-cert-helper
-  docker::try_remove_volume $STACK certgen
+  try "docker volume rm ${STACK}_certgen" catch "Failed to remove volume ${STACK}_certgen"
 }
 
 function add_docker_configs() {
@@ -151,10 +151,7 @@ function destroy_package() {
   docker::stack_destroy "$STACK"
 
   if [[ "$CLUSTERED_MODE" == "true" ]]; then
-    docker::try_remove_volume "$STACK" es01-data certs
     log warn "Volumes are only deleted on the host on which the command is run. Cluster volumes on other nodes are not deleted"
-  else
-    docker::try_remove_volume "$STACK" es-data
   fi
 
   docker::prune_configs "elasticsearch"

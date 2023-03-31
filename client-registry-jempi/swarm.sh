@@ -4,7 +4,6 @@ declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare VOLUME_NAMES=()
 declare STACK="jempi"
 
 function init_vars() {
@@ -18,20 +17,10 @@ function init_vars() {
 
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-  VOLUME_NAMES=("jempi-zero-01-data")
-
-  for i in {1..3}; do
-    VOLUME_NAMES=(
-      "${VOLUME_NAMES[@]}"
-      "jempi-alpha-0$i-data"
-    )
-  done
-
   readonly ACTION
   readonly MODE
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
-  readonly VOLUME_NAMES
   readonly STACK
 }
 
@@ -101,8 +90,6 @@ function initialize_package() {
 
 function destroy_package() {
   docker::stack_destroy $STACK
-
-  docker::try_remove_volume $STACK "${VOLUME_NAMES[@]}"
 
   if [[ "${CLUSTERED_MODE}" == "true" ]]; then
     log warn "Volumes are only deleted on the host on which the command is run. Postgres volumes on other nodes are not deleted"

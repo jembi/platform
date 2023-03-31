@@ -80,8 +80,6 @@ function initialize_package() {
 function destroy_package() {
   docker::stack_destroy "$STACK"
 
-  docker::try_remove_volume "$STACK" "openhim-mongo-01" "openhim-mongo-01-config"
-
   if [[ "${CLUSTERED_MODE}" == "true" ]]; then
     log warn "Volumes are only deleted on the host on which the command is run. Mongo volumes on other nodes are not deleted"
   fi

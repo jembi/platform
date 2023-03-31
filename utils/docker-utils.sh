@@ -182,58 +182,44 @@ docker::stack_destroy() {
     log info "Pruning networks ... "
     try "docker network prune -f" catch "Failed to prune networks"
     overwrite "Pruning networks ... done"
+
+    docker::prune_volumes
 }
 
-# Appends the stack name to the volume to pass to remove_volume to remove
+# Loops through all current services and builds up a dictionary of volume names currently in use
+# (this also considers downed services, as you don't want to prune volumes for downed services)
+# It then loops through all volumes and removes any that do not have a service definition attached to it
 #
-# Arguments:
-# - $1 : stack name that the service falls under (eg. openhim)
-# - $@ : list of volume names to remove (eg. es-data psql-1)
-#
-docker::try_remove_volume() {
-    local -r STACK_NAME=${1:?$(missing_param "try_remove_volume")}
-    shift
+docker::prune_volumes() {
+    # Create an associative array to act as the dictionary to hold service volume names
+    # Need to add instant, which the gocli uses but is not defined as a service
+    declare -A referenced_volumes=(['instant']=true)
 
-    if [[ -z "$*" ]]; then
-        log error "$(missing_param "try_remove_volume")"
-        exit 1
-    fi
+    log info "Pruning volumes ... "
 
-    local volumes=()
-    for volume_name in "$@"; do
-        volumes+=("${STACK_NAME}_$volume_name")
+    for service in $(docker service ls -q); do
+        for volume in $(docker service inspect $service --format '{{range .Spec.TaskTemplate.ContainerSpec.Mounts}}{{println .Source}}{{end}}'); do
+            referenced_volumes[$volume]=true
+        done
     done
 
-    docker::remove_volume ${volumes[@]}
-}
-
-# Tries to remove all volumes passed in and retries until it works with a timeout
-# Is mainly used by try_remove_volume to remove volumes defined in compose-files
-# However it can be used to remove volumes that are defined outside the compose-file (eg. reverse-proxy-nginx letsencrypt/certbot volumes)
-#
-# Arguments:
-# - $@ : list of volume names (eg. es-data psql-1)
-#
-docker::remove_volume() {
-    if [[ -z "$*" ]]; then
-        log error "$(missing_param "remove_volume")"
-        exit 1
-    fi
-
-    for volume_name in "$@"; do
-        if [[ -z $(docker volume ls --filter name=^$volume_name$ --format {{.Name}}) ]]; then
-            log warn "Tried to remove volume $volume_name but it doesn't exist on this node"
-        else
-            log info "Waiting for volume $volume_name to be removed..."
-            local start_time
-            start_time=$(date +%s)
-            until [[ -n "$(docker volume rm $volume_name 2>/dev/null)" ]]; do
-                config::timeout_check "${start_time}" "$volume_name to be removed" "60" "10"
-                sleep 1
-            done
-            overwrite "Waiting for volume $volume_name to be removed... Done"
+    for volume in $(docker volume ls --format {{.Name}}); do
+        # Check to see if the key (which is the volume name) exists
+        if [[ -v referenced_volumes[$volume] ]]; then
+            continue
         fi
+
+        log info "Waiting for volume $volume to be removed..."
+        local start_time
+        start_time=$(date +%s)
+        until [[ -n "$(docker volume rm $volume 2>/dev/null)" ]]; do
+            config::timeout_check "${start_time}" "$volume to be removed" "60" "10"
+            sleep 1
+        done
+        overwrite "Waiting for volume $volume to be removed... Done"
     done
+
+    overwrite "Pruning volumes ... done"
 }
 
 # Prunes configs based on a label

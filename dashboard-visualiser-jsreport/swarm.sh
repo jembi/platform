@@ -80,8 +80,6 @@ function initialize_package() {
 function destroy_package() {
   docker::stack_destroy $STACK
 
-  docker::try_remove_volume $STACK "jsreport-data"
-
   docker::prune_configs "jsreport"
 }
 

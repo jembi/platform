@@ -89,8 +89,6 @@ function initialize_package() {
 function destroy_package() {
   docker::stack_destroy $STACK
 
-  docker::try_remove_volume $STACK keycloak-postgres-1-data
-
   if [[ "${CLUSTERED_MODE}" == "true" ]]; then
     log warn "Volumes are only deleted on the host on which the command is run. Postgres volumes on other nodes are not deleted"
   fi
