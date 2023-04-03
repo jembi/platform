@@ -6,7 +6,7 @@ services:
     networks:
       mpi:
       public:
-      private:
+      default:
     environment:
       - spring.datasource.url=jdbc:postgresql://${POSTGRES_REPLICA_SET}/hapi?targetServerType=primary
       - spring.datasource.username=admin
@@ -43,4 +43,4 @@ networks:
   public:
     name: hapi-fhir_public
     external: true
-  private:
+  default:

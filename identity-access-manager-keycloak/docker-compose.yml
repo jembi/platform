@@ -45,7 +45,7 @@ services:
     networks:
       reverse-proxy:
       public:
-      private:
+      default:
 
 configs:
   realm.json:
@@ -61,4 +61,4 @@ networks:
   public:
     name: keycloak_public
     external: true
-  private:
+  default:

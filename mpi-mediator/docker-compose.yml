@@ -7,7 +7,7 @@ services:
       openhim:
       kafka:
       public:
-      private:
+      default:
     environment:
       OPENHIM_USERNAME: ${OPENHIM_USERNAME}
       OPENHIM_PASSWORD: ${OPENHIM_PASSWORD}
@@ -43,4 +43,4 @@ networks:
   public:
     name: mpi_public
     external: true
-  private:
+  default:

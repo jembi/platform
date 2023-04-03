@@ -31,7 +31,7 @@ services:
         condition: on-failure
     networks:
       public:
-      private:
+      default:
 
 
 volumes:
@@ -42,4 +42,4 @@ networks:
   public:
     name: kafka_public
     external: true
-  private:
+  default:

@@ -31,7 +31,7 @@ services:
       clickhouse:
       keycloak:
       reverse-proxy:
-      private:
+      default:
 
 
 configs:
@@ -67,4 +67,4 @@ networks:
   reverse-proxy:
     name: reverse-proxy_public
     external: true
-  private:
+  default:

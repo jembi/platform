@@ -20,8 +20,6 @@ services:
     configs:
       - source: kibana-export.ndjson
         target: /kibana-export.ndjson
-    networks:
-      private:
 
 configs:
   kibana-export.ndjson:
@@ -29,6 +27,3 @@ configs:
     name: kibana-export.ndjson-${kibana_export_ndjson_DIGEST:?err}
     labels:
       name: kibana
-
-networks:
-  private:

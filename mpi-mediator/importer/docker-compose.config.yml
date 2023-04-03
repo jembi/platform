@@ -5,8 +5,8 @@ services:
   mpi-mediator-config-importer:
     image: node:erbium-alpine
     networks:
-      private:
       openhim:
+      default:
     environment:
       OPENHIM_CORE_SERVICE_NAME: 'openhim-core'
       OPENHIM_MEDIATOR_API_PORT: 8080
@@ -38,7 +38,7 @@ configs:
       name: mpi-mediator
 
 networks:
-  private:
   openhim:
     name: openhim_public
     external: true
+  default:

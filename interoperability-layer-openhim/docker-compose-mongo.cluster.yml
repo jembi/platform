@@ -27,7 +27,7 @@ services:
           cpus: ${OPENHIM_MONGO_CPU_RESERVE}
           memory: ${OPENHIM_MONGO_MEMORY_RESERVE}
     networks:
-      private:
+      default:
       openhim-mongo:
       mongo_backup_net:
 
@@ -50,7 +50,7 @@ services:
           cpus: ${OPENHIM_MONGO_CPU_RESERVE}
           memory: ${OPENHIM_MONGO_MEMORY_RESERVE}
     networks:
-      private:
+      default:
       openhim-mongo:
       mongo_backup_net:
 

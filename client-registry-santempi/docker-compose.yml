@@ -7,7 +7,7 @@ services:
       mpi:
       public:
       reverse-proxy:
-      private:
+      default:
     environment:
       - SDB_FEATURE=LOG;DATA_POLICY;AUDIT_REPO;ADO;PUBSUB_ADO;RAMCACHE;SEC;SWAGGER;OPENID;FHIR;HL7;HDSI;AMI;BIS;MDM;MATCHING;ADO_FTS
       - SDB_MATCHING_MODE=WEIGHTED
@@ -28,7 +28,7 @@ services:
   santedb-www:
     image: santesuite/santedb-www:2.2.1.10
     networks:
-      private:
+      default:
       reverse-proxy:
 
 # Sante's Match configuration is stored in the container. This will prevent the matching rules of the client registry from being lost. A docker config cannot be used for this case as the settings can be changed on Sante's UI.
@@ -45,4 +45,4 @@ networks:
   reverse-proxy:
     name: reverse-proxy_public
     external: true
-  private:
+  default:

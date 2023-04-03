@@ -5,7 +5,7 @@ services:
     image: obsidiandynamics/kafdrop:3.27.0
     networks:
       public:
-      private:
+      default:
     environment:
       KAFKA_BROKERCONNECT: ${KAFKA_HOSTS}
       JVM_OPTS: '-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify'
@@ -23,7 +23,7 @@ services:
     image: quay.io/cloudhut/kminion:master
     networks:
       prometheus:
-      private:
+      default:
     hostname: kafka-minion
     environment:
       KAFKA_BROKERS: ${KAFKA_HOSTS}
@@ -46,4 +46,4 @@ networks:
   public:
     name: kafka_public
     external: true
-  private:
+  default:

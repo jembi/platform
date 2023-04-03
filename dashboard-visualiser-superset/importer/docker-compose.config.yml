@@ -18,8 +18,6 @@ services:
         target: /supersetConfig.js
       - source: config-importer-superset-export.zip
         target: /superset-export.zip
-    networks:
-      private:
     command: sh -c "cd / && npm i axios form-data && node /supersetConfig.js"
 
 configs:
@@ -33,6 +31,3 @@ configs:
     name: config-importer-superset-export.zip-${config_importer_superset_export_zip_DIGEST:?err}
     labels:
       name: superset
-
-networks:
-  private:

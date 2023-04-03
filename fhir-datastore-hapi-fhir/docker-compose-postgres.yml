@@ -26,7 +26,7 @@ services:
           cpus: ${HF_POSTGRES_CPU_RESERVE}
           memory: ${HF_POSTGRES_MEMORY_RESERVE}
     networks:
-      private:
+      default:
       hapi-fhir-postgres:
       pg_backup_net:
 
@@ -34,7 +34,7 @@ volumes:
   hapi-postgres-1-data:
 
 networks:
-  private:
+  default:
   hapi-fhir-postgres:
     name: hapi-fhir_postgres_public
     external: true

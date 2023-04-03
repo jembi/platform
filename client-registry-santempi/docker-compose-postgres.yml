@@ -3,8 +3,6 @@ version: '3.9'
 services:
   santempi-psql-1:
     image: bitnami/postgresql-repmgr:14
-    networks:
-      private:
     environment:
       POSTGRESQL_PASSWORD: ${SANTEMPI_POSTGRESQL_PASSWORD}
       POSTGRESQL_USERNAME: ${SANTEMPI_POSTGRESQL_USERNAME}
@@ -22,6 +20,3 @@ services:
 
 volumes:
   santempi-psql-1-data:
-
-networks:
-  private:

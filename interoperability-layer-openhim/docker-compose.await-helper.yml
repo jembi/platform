@@ -8,8 +8,3 @@ services:
       restart_policy:
         condition: none
     command: '-k https://openhim-core:8080/heartbeat'
-    networks:
-      private:
-
-networks:
-  private:

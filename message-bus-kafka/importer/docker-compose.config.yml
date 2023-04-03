@@ -3,8 +3,6 @@ version: '3.9'
 services:
   message-bus-kafka-config-importer:
     image: jembi/instantohie-config-importer
-    networks:
-      private:
     deploy:
       restart_policy:
         condition: none
@@ -23,6 +21,3 @@ configs:
     name: kafka-config.js-${kafka_config_DIGEST:?err}
     labels:
       name: kafka
-
-networks:
-  private:

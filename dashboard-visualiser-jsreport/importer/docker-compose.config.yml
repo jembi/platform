@@ -19,8 +19,6 @@ services:
     configs:
       - source: JSR-export.jsrexport
         target: /export.jsrexport
-    networks:
-      private:
 
 configs:
   JSR-export.jsrexport:
@@ -28,6 +26,3 @@ configs:
     name: JSR-export.jsrexport-${JSR_export_jsrexport_DIGEST:?err}
     labels:
       name: jsreport
-
-networks:
-  private:

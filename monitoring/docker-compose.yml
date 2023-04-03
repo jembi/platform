@@ -54,7 +54,7 @@ services:
     networks:
       keycloak:
       reverse-proxy:
-      private:
+      default:
 
   prometheus:
     image: prom/prometheus:v2.38.0
@@ -73,7 +73,7 @@ services:
       - '--web.enable-lifecycle'
     networks:
       public:
-      private:
+      default:
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.45.0
@@ -86,8 +86,6 @@ services:
       - /dev/disk/:/dev/disk:ro
     deploy:
       mode: global
-    networks:
-      private:
 
   node-exporter:
     image: quay.io/prometheus/node-exporter:v1.3.1
@@ -98,8 +96,6 @@ services:
       - '/:/host:ro,rslave'
     deploy:
       mode: global
-    networks:
-      private:
 
   loki:
     image: grafana/loki:2.6.1
@@ -116,8 +112,6 @@ services:
       labels:
         - prometheus-job-service=loki
         - prometheus-address=loki:3100
-    networks:
-      private:
 
   promtail:
     image: grafana/promtail:2.6.1
@@ -130,8 +124,6 @@ services:
     command: -config.file=/etc/promtail/promtail-config.yml
     deploy:
       mode: global
-    networks:
-      private:
 
   minio-01:
     image: quay.io/minio/minio:RELEASE.2022-10-24T18-35-07Z
@@ -159,7 +151,7 @@ services:
       replicas: 1
     networks:
       reverse-proxy:
-      private:
+      default:
 
 configs:
   grafana.ini:
@@ -240,4 +232,4 @@ networks:
   public:
     name: prometheus_public
     external: true
-  private:
+  default:

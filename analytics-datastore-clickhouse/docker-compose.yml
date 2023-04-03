@@ -9,7 +9,7 @@ services:
       - clickhouse-data:/var/lib/clickhouse/
     networks:
       public:
-      private:
+      default:
 
 volumes:
   clickhouse-data:
@@ -18,4 +18,4 @@ networks:
   public:
     name: clickhouse_public
     external: true
-  private:
+  default:

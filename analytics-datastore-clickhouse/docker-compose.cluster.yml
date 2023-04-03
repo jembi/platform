@@ -25,7 +25,7 @@ services:
         source: clickhouse_use_keeper.xml
     networks:
       public:
-      private:
+      default:
 
   analytics-datastore-clickhouse-02:
     image: clickhouse/clickhouse-server
@@ -51,7 +51,7 @@ services:
         source: clickhouse_use_keeper.xml
     networks:
       public:
-      private:
+      default:
 
   analytics-datastore-clickhouse-03:
     image: clickhouse/clickhouse-server
@@ -77,7 +77,7 @@ services:
         source: clickhouse_use_keeper.xml
     networks:
       public:
-      private:
+      default:
 
   analytics-datastore-clickhouse-04:
     image: clickhouse/clickhouse-server
@@ -97,7 +97,7 @@ services:
         source: clickhouse_use_keeper.xml
     networks:
       public:
-      private:
+      default:
 
 volumes:
   clickhouse-data-01:
@@ -161,4 +161,4 @@ networks:
   public:
     name: clickhouse_public
     external: true
-  private:
+  default:

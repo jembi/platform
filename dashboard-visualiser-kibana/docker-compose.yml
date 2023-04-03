@@ -24,7 +24,7 @@ services:
     networks:
       reverse-proxy:
       elastic:
-      private:
+      default:
 
 configs:
   kibana-kibana.yml:
@@ -43,4 +43,4 @@ networks:
   elastic:
     name: elastic_public
     external: true
-  private:
+  default:
