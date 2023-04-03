@@ -18,3 +18,12 @@ services:
           memory: ${JEMPI_WEB_MEMORY_LIMIT}
         reservations:
           memory: ${JEMPI_WEB_MEMORY_RESERVE}
+    networks:
+      keycloak:
+      default:
+
+networks:
+  keycloak:
+    name: keycloak_public
+    external: true
+  default:
