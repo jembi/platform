@@ -10,11 +10,15 @@ Feature: Kafka and its dependent packages?
     And The service "message-bus-kafka-config-importer" should be removed
     And There should be 3 services
     And There should be 1 volumes
+    And There should be network
+      | kafka_public | kafka_private | prometheus_public |
 
   Scenario: Init Kafka Mapper Consumer
     Given I use parameters "package init -n=kafka-mapper-consumer --only --dev --env-file=.env.local"
     When I launch the platform with params
     Then The service "kafka-mapper-consumer" should be started with 1 replica
+    And There should be network
+      | clickhouse_public |
 
   Scenario: Init Message Bus Kafka
     Given I use parameters "package init -n=kafka-unbundler-consumer --only --dev --env-file=.env.local"
@@ -32,3 +36,5 @@ Feature: Kafka and its dependent packages?
     And There should be 0 service
     And There should be 0 volume
     And There should be 0 config
+    And There should not be network
+      | kafka_public | kafka_private | clickhouse_public | prometheus_public |
