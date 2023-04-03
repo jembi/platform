@@ -4,6 +4,7 @@ services:
   kafdrop:
     image: obsidiandynamics/kafdrop:3.27.0
     networks:
+      public:
       private:
     environment:
       KAFKA_BROKERCONNECT: ${KAFKA_HOSTS}
@@ -41,5 +42,8 @@ services:
 networks:
   prometheus:
     name: prometheus_public
+    external: true
+  public:
+    name: kafka_public
     external: true
   private:
