@@ -22,6 +22,8 @@ Feature: Client Registry JeMPI?
     And The service "jempi-zero-01" should be started with 1 replica
     And The service "jempi-api" should be started with 1 replica
     And The service "jempi-web" should be started with 1 replica
+    And There should be network
+      | keycloak_public |
 
   Scenario: Destroy Client Registry JeMPI
     Given I use parameters "package destroy -n=message-bus-kafka,interoperability-layer-openhim,client-registry-jempi --dev --env-file=.env.local"
@@ -48,3 +50,5 @@ Feature: Client Registry JeMPI?
     And There should be 0 service
     And There should be 0 volume
     And There should be 0 config
+    And There should not be network
+      | keycloak_public |

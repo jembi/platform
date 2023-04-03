@@ -8,6 +8,8 @@ Feature: Analytics Datastore Clickhouse?
     And The service "clickhouse-config-importer" should be removed
     And There should be 1 service
     And There should be 1 volume
+    And There should be network
+      | clickhouse_public | clickhouse_private |
 
   Scenario: Destroy Analytics Datastore Clickhouse
     Given I use parameters "package destroy -n=analytics-datastore-clickhouse --dev --env-file=.env.local"
@@ -16,3 +18,5 @@ Feature: Analytics Datastore Clickhouse?
     And There should be 0 service
     And There should be 0 volume
     And There should be 0 config
+    And There should not be network
+      | clickhouse_public | clickhouse_private |
