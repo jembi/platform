@@ -40,7 +40,7 @@ else
             DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":elk
         elif [[ $folder_name == *"kafka"* ]] || [[ $folder_name == *"monitoring"* ]]; then
             DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":kafka
-        elif [[ $folder_name == *"openhim"* ]] || [[ $folder_name == *"client-registry-jempi"* ]]; then
+        elif [[ $folder_name == *"openhim"* ]]; then
             DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":openhim
         elif [[ $folder_name == *"reverse-proxy"* ]]; then
             DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":nginx
@@ -58,6 +58,8 @@ else
             DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":jsreport
         elif [[ $folder_name == *"mpi-mediator"* ]] && [[ $NODE_MODE == "single" ]]; then
             DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":mpi-mediator
+        elif [[ $folder_name == *"jempi"* ]] && [[ $NODE_MODE == "single" ]]; then
+            DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":jempi
         fi
     done
 fi

@@ -7,10 +7,10 @@ services:
       restart_policy:
         condition: none
     environment:
-      KAFDROP_HOST: jempi-kafdrop
+      KAFDROP_HOST: kafdrop
       KAFDROP_PORT: 9013
       KAFKA_TOPICS: ${JEMPI_KAFKA_TOPICS}
-    command: sh -c "wait-on -t 60000 http-get://jempi-kafdrop:9013/topic && node /kafka.js && echo 'success';"
+    command: sh -c "wait-on -t 60000 http-get://kafdrop:9013/topic && node /kafka.js && echo 'success';"
     configs:
       - source: jempi-kafka.js
         target: /kafka.js
