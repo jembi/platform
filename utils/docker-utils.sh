@@ -139,7 +139,7 @@ docker::service_destroy() {
     shift
 
     if [[ -z "$*" ]]; then
-        log error "$(missing_param "service_destroy", "SERVICES")"
+        log error "$(missing_param "service_destroy", "[SERVICE_NAMES]")"
         exit 1
     fi
 
@@ -229,7 +229,7 @@ docker::prune_volumes() {
 #
 docker::prune_configs() {
     if [[ -z "$*" ]]; then
-        log error "$(missing_param "prune_configs")"
+        log error "$(missing_param "prune_configs", "[CONFIG_LABELS]")"
         exit 1
     fi
 
@@ -252,7 +252,7 @@ docker::prune_configs() {
 #
 docker::check_images_existence() {
     if [[ -z "$*" ]]; then
-        log error "$(missing_param "check_images_existence")"
+        log error "$(missing_param "check_images_existence", "[IMAGES]")"
         exit 1
     fi
 
@@ -380,7 +380,7 @@ docker::deploy_sanity() {
     shift
 
     if [[ -z "$*" ]]; then
-        log error "$(missing_param "deploy_sanity" "COMPOSE_FILES")"
+        log error "$(missing_param "deploy_sanity" "[COMPOSE_FILES]")"
         exit 1
     fi
 
@@ -431,7 +431,7 @@ docker::scale_services() {
 #
 docker::ensure_external_networks_existence() {
     if [[ -z "$*" ]]; then
-        log error "$(missing_param "ensure_external_networks_existence")"
+        log error "$(missing_param "ensure_external_networks_existence", "[COMPOSE_FILES]")"
         exit 1
     fi
 
@@ -490,7 +490,7 @@ docker::ensure_external_networks_existence() {
 docker::prepare_config_digests()
 {
     if [[ -z "$*" ]]; then
-        log error "$(missing_param "prepare_config_digests")"
+        log error "$(missing_param "prepare_config_digests", "[COMPOSE_FILES]")"
         exit 1
     fi
 
@@ -511,7 +511,7 @@ docker::prepare_config_digests()
 docker::cleanup_stale_configs()
 {
     if [[ -z "$*" ]]; then
-        log error "$(missing_param "cleanup_stale_configs")"
+        log error "$(missing_param "cleanup_stale_configs", "[COMPOSE_FILES]")"
         exit 1
     fi
 
