@@ -15,7 +15,7 @@ Feature: Monitoring package?
     And The service "grafana" should be connected to the networks
       | reverse-proxy_public | keycloak_public | monitoring_default |
     And The service "prometheus" should be connected to the networks
-      |  prometheus_public | monitoring_default |
+      | prometheus_public | monitoring_default |
     And The service "minio-01" should be connected to the networks
       | reverse-proxy_public | monitoring_default |
     And There should be 6 volumes

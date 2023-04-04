@@ -24,4 +24,4 @@ Feature: Identity Access Manager Keycloak?
     And There should be 0 volume
     And There should be 0 config
     And There should not be network
-      | keycloak_public | keycloak_backup |
+      | reverse-proxy_public | keycloak_public | keycloak_backup |

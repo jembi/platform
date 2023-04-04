@@ -5,9 +5,17 @@ Feature: Identity Access Manager Keycloak?
     Given I use parameters "package init -n=identity-access-manager-keycloak --dev --env-file=.env.cluster"
     When I launch the platform with params
     Then The service "keycloak-postgres-1" should be started with 1 replica
+    And The service "keycloak-postgres-1" should be connected to the networks
+      | keycloak_backup | keycloak_default |
     And The service "keycloak-postgres-2" should be started with 1 replica
+    And The service "keycloak-postgres-2" should be connected to the networks
+      | keycloak_backup | keycloak_default |
     And The service "keycloak-postgres-3" should be started with 1 replica
+    And The service "keycloak-postgres-3" should be connected to the networks
+      | keycloak_backup | keycloak_default |
     And The service "identity-access-manager-keycloak" should be started with 1 replicas
+    And The service "identity-access-manager-keycloak" should be connected to the networks
+      | reverse-proxy_public | keycloak_public | keycloak_default |
     And There should be 4 services
     And The service "identity-access-manager-keycloak" should have healthy containers
 
@@ -21,3 +29,5 @@ Feature: Identity Access Manager Keycloak?
     And There should be 0 service
     And There should be 0 volume
     And There should be 0 config
+    And There should not be network
+      | reverse-proxy_public | keycloak_public | keycloak_backup |
