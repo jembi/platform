@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   openhim-core:
-    image: jembi/openhim-core:7
+    image: jembi/openhim-core:v7.2.0
     environment:
       - mongo_url=${OPENHIM_MONGO_URL}
       - mongo_atnaUrl=${OPENHIM_MONGO_ATNAURL}
@@ -21,7 +21,7 @@ services:
           memory: ${OPENHIM_MEMORY_RESERVE}
 
   openhim-console:
-    image: jembi/openhim-console:1.14.4
+    image: jembi/openhim-console:v1.16.0
     configs:
       - source: console-default.json
         target: /usr/share/nginx/html/config/default.json
