@@ -135,11 +135,11 @@ docker::await_service_destroy() {
 # - $@ : service names list (eg. analytics-datastore-elastic-search)
 #
 docker::service_destroy() {
-    local -r STACK_NAME=${1:?$(missing_param "service_destroy")}
+    local -r STACK_NAME=${1:?$(missing_param "service_destroy", "STACK_NAME")}
     shift
 
     if [[ -z "$*" ]]; then
-        log error "$(missing_param "service_destroy")"
+        log error "$(missing_param "service_destroy", "SERVICES")"
         exit 1
     fi
 
@@ -404,7 +404,7 @@ docker::deploy_sanity() {
     done
 }
 
-# Scales down services
+# Scales services to the passed in replica count
 #
 # Arguments:
 # - $1 : stack name that the services falls under
@@ -424,7 +424,7 @@ docker::scale_services() {
     done
 }
 
-# Checks if the external networks exist and tries create it if not
+# Checks if the external networks exist and tries to create them if they do not
 #
 # Arguments:
 # - $@ : fully qualified path to the docker compose file(s) with the possible network definitions (eg. /instant/interoperability-layer-openhim/docker-compose.yml)
