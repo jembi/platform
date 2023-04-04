@@ -71,10 +71,23 @@ const filterServicesWithExactName = async (serviceName) => {
   return serviceNames.filter((e) => e === serviceName);
 };
 
+const mapServiceNetworkNames = async (serviceName) => {
+  const services = await docker.listServices();
+  const service = services.find((service) => service.Spec.Name.substring(service.Spec.Name.indexOf('_') + 1) === serviceName);
+  if (!service) throw new Error(`${serviceName} could not be found`);
+
+  const networks = await docker.listNetworks();
+  return networks.filter(
+    network => service.Spec.TaskTemplate.Networks.find(
+      serviceNetwork => serviceNetwork.Target === network.Id)
+    ).map(network => network.Name);
+};
+
 module.exports = {
   launchPlatformWithParams,
   checkServiceStatus,
   checkServiceReplicasNumber,
   filterServicesWithExactName,
+  mapServiceNetworkNames,
   docker,
 };

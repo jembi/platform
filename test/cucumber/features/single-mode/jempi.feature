@@ -13,17 +13,31 @@ Feature: Client Registry JeMPI?
     And The service "jempi-alpha-01" should be started with 1 replica
     And The service "jempi-alpha-02" should be started with 1 replica
     And The service "jempi-alpha-03" should be started with 1 replica
-    And The service "jempi-async-receiver" should be started with 1 replica
-    And The service "jempi-sync-receiver" should be started with 1 replica
-    And The service "jempi-pre-processor" should be started with 1 replica
-    And The service "jempi-controller" should be started with 1 replica
-    And The service "jempi-em-calculator" should be started with 1 replica
-    And The service "jempi-linker" should be started with 1 replica
     And The service "jempi-zero-01" should be started with 1 replica
+    And The service "jempi-async-receiver" should be started with 1 replica
+    And The service "jempi-async-receiver" should be connected to the networks
+      | kafka_public | jempi_default |
+    And The service "jempi-sync-receiver" should be started with 1 replica
+    And The service "jempi-sync-receiver" should be connected to the networks
+      | kafka_public | jempi_default |
+    And The service "jempi-pre-processor" should be started with 1 replica
+    And The service "jempi-pre-processor" should be connected to the networks
+      | kafka_public | jempi_default |
+    And The service "jempi-controller" should be started with 1 replica
+    And The service "jempi-controller" should be connected to the networks
+      | kafka_public | jempi_default |
+    And The service "jempi-em-calculator" should be started with 1 replica
+    And The service "jempi-em-calculator" should be connected to the networks
+      | kafka_public | jempi_default |
+    And The service "jempi-linker" should be started with 1 replica
+    And The service "jempi-linker" should be connected to the networks
+      | kafka_public | jempi_default |
     And The service "jempi-api" should be started with 1 replica
+    And The service "jempi-linker" should be connected to the networks
+      | kafka_public | keycloak_public | jempi_default |
     And The service "jempi-web" should be started with 1 replica
-    And There should be network
-      | keycloak_public |
+    And The service "jempi-web" should be connected to the networks
+      | reverse-proxy_public | keycloak_public | jempi_default |
 
   Scenario: Destroy Client Registry JeMPI
     Given I use parameters "package destroy -n=message-bus-kafka,interoperability-layer-openhim,client-registry-jempi --dev --env-file=.env.local"
@@ -51,4 +65,4 @@ Feature: Client Registry JeMPI?
     And There should be 0 volume
     And There should be 0 config
     And There should not be network
-      | keycloak_public |
+      | keycloak_public | reverse-proxy_public | kafka_public |

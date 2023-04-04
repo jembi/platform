@@ -14,6 +14,7 @@ const {
   checkServiceStatus,
   checkServiceReplicasNumber,
   filterServicesWithExactName,
+  mapServiceNetworkNames,
   docker,
 } = require("../../util");
 
@@ -61,19 +62,11 @@ Then("There should be {int} volume(s)", async function (numVolumes) {
   expect(volumes.Volumes).to.have.lengthOf(numVolumes);
 });
 
-Then("There should be network(s)", async function (networks) {
-  const dockerNetworks = await docker.listNetworks();
-  const nets = dockerNetworks.map((net) => net.Name);
-  for (const network of networks.rawTable[0]) {
-    expect(nets.includes(network)).to.be.true;
-  }
-});
-
 Then("There should not be network(s)", async function (networks) {
   const dockerNetworks = await docker.listNetworks();
-  const nets = dockerNetworks.map((net) => net.Name);
+  const networkNames = dockerNetworks.map((net) => net.Name);
   for (const network of networks.rawTable[0]) {
-    expect(nets.includes(network)).to.be.false;
+    expect(networkNames.includes(network)).to.be.false;
   }
 });
 
@@ -121,4 +114,11 @@ Then("The volume {string} should be removed", async function (volumeName) {
 
   expect(volumes.Volumes).to.be.array();
   expect(volumes.Volumes).to.be.empty;
+});
+
+Then("The service {string} should be connected to the networks", async (serviceName, networkNames) => {
+  const attachedNetworks = await mapServiceNetworkNames(serviceName);
+  for (const networkName of networkNames.rawTable[0]) {
+    expect(attachedNetworks.includes(networkName)).to.be.true;
+  }
 });

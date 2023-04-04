@@ -7,6 +7,8 @@ Feature: Dashboard Visualiser Superset?
     Then The service "dashboard-visualiser-superset" should be started with 1 replica
     And The service "superset-config-importer" should be removed
     And The service "ddashboard-visualiser-superset" should have healthy containers
+    And The service "dashboard-visualiser-superset" should be connected to the networks
+      | reverse-proxy_public | clickhouse_public | keycloak_public | superset_default |
     And There should be 1 service
     And There should be 3 volumes
 
@@ -17,3 +19,5 @@ Feature: Dashboard Visualiser Superset?
     And There should be 0 service
     And There should be 0 volume
     And There should be 0 config
+    And There should not be network
+      | reverse-proxy_public | clickhouse_public | keycloak_public | superset_default |

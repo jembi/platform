@@ -5,11 +5,11 @@ Feature: Analytics Datastore Clickhouse?
     Given I use parameters "package init -n=analytics-datastore-clickhouse --dev --env-file=.env.local"
     When I launch the platform with params
     Then The service "analytics-datastore-clickhouse" should be started with 1 replica
+    And The service "analytics-datastore-clickhouse" should be connected to the networks
+      | clickhouse_public | clickhouse_private |
     And The service "clickhouse-config-importer" should be removed
     And There should be 1 service
     And There should be 1 volume
-    And There should be network
-      | clickhouse_public | clickhouse_private |
 
   Scenario: Destroy Analytics Datastore Clickhouse
     Given I use parameters "package destroy -n=analytics-datastore-clickhouse --dev --env-file=.env.local"
