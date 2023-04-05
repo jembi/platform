@@ -33,7 +33,6 @@ services:
       reverse-proxy:
       default:
 
-
 configs:
   superset_config.py:
     file: ./config/superset_config.py
@@ -55,7 +54,6 @@ volumes:
   superset_home:
   superset:
   superset-frontend:
-
 
 networks:
   clickhouse:
