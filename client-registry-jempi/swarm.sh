@@ -49,6 +49,7 @@ function init_vars() {
     "${COMBINED_SERVICES[@]}"
     "jempi-zero-01"
     "jempi-api"
+    "jempi-web"
   )
 
   readonly ACTION
@@ -73,6 +74,7 @@ function initialize_package() {
   local dgraph_zero_dev_compose_param=""
   local combined_dev_compose_param=""
   local api_dev_compose_param=""
+  local web_dev_compose_param=""
   local dgraph_cluster_compose_param=""
   local dgraph_zero_cluster_compose_param=""
 
@@ -82,6 +84,7 @@ function initialize_package() {
     dgraph_zero_dev_compose_param="docker-compose.dgraph-zero-dev.yml"
     combined_dev_compose_param="docker-compose.combined-dev.yml"
     api_dev_compose_param="docker-compose.api-dev.yml"
+    web_dev_compose_param="docker-compose.web-dev.yml"
   else
     log info "Running package in PROD mode"
   fi
@@ -109,6 +112,10 @@ function initialize_package() {
     log info "Deploy JeMPI API"
     docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.api.yml" "$api_dev_compose_param"
     docker::deploy_sanity "jempi-api"
+
+    log info "Deploy JeMPI WEB"
+    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.web.yml" "$web_dev_compose_param"
+    docker::deploy_sanity "jempi-web"
 
     log info "Register openHIM channels"
     if docker service ps -q instant_openhim-core &>/dev/null; then

@@ -1,0 +1,20 @@
+version: '3.9'
+
+services:
+  jempi-web:
+    image: jembi/jempi-web:${JEMPI_WEB_VERSION}
+    environment:
+      REACT_APP_JEMPI_BASE_URL: ${REACT_APP_JEMPI_BASE_URL}
+      REACT_APP_MOCK_BACKEND: ${REACT_APP_MOCK_BACKEND}
+      KC_FRONTEND_URL: ${KC_FRONTEND_URL}
+      KC_REALM_NAME: ${KC_REALM_NAME}
+      KC_JEMPI_CLIENT_ID: ${KC_JEMPI_CLIENT_ID}
+    deploy:
+      replicas: ${JEMPI_WEB_INSTANCES}
+      placement:
+        max_replicas_per_node: 1
+      resources:
+        limits:
+          memory: ${JEMPI_WEB_MEMORY_LIMIT}
+        reservations:
+          memory: ${JEMPI_WEB_MEMORY_RESERVE}
