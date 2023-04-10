@@ -73,7 +73,7 @@ services:
         reservations:
           memory: ${JEMPI_LINKER_MEMORY_RESERVE}
 
-  postgresql:
+  jempi-postgresql:
     image: bitnami/postgresql:15.2.0
     environment:
       POSTGRESQL_USERNAME: ${POSTGRESQL_USERNAME}
