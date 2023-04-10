@@ -140,7 +140,7 @@ function destroy_package() {
     log warn "Volumes are only deleted on the host on which the command is run. Postgres volumes on other nodes are not deleted"
   fi
 
-  docker::prune_configs "jempi-kafka"
+  docker::prune_configs "jempi"
 }
 
 main() {
