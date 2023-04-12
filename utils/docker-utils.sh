@@ -170,8 +170,7 @@ docker::stack_destroy() {
         throw \
         "Failed to remove $STACK_NAME"
 
-    local start_time
-    start_time=$(date +%s)
+    local start_time=$(date +%s)
     while [[ -n "$(docker stack ps $STACK_NAME 2>/dev/null)" ]] ; do
         config::timeout_check "${start_time}" "${STACK_NAME} to be destroyed"
         sleep 1
@@ -210,9 +209,9 @@ docker::prune_volumes() {
         fi
 
         log info "Waiting for volume $volume to be removed..."
-        local start_time
-        start_time=$(date +%s)
-        until [[ -n "$(docker volume rm $volume 2>/dev/null)" ]]; do
+        local start_time=$(date +%s)
+        until [[ -z "$(docker volume ls -q --filter name=^$volume$ 2>/dev/null)" ]]; do
+            docker volume rm $volume >/dev/null 2>&1
             config::timeout_check "${start_time}" "$volume to be removed" "60" "10"
             sleep 1
         done

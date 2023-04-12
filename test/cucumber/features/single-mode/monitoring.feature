@@ -21,7 +21,7 @@ Feature: Monitoring package?
     And There should be 6 volumes
 
   Scenario: Destroy Monitoring package
-    Given I use parameters "package destroy -n=monitoring --dev --env-file=.env.cluster"
+    Given I use parameters "package destroy -n=monitoring --dev --env-file=.env.local"
     When I launch the platform with params
     Then The service "grafana" should be removed
     And The service "prometheus" should be removed
