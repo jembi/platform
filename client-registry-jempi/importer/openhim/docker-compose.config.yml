@@ -7,8 +7,6 @@ services:
       restart_policy:
         condition: none
     environment:
-      OPENHIM_CORE_SERVICE_NAME: openhim-core
-      OPENHIM_MEDIATOR_API_PORT: 8080
       OPENHIM_API_USERNAME: root@openhim.org
       OPENHIM_API_PASSWORD: ${JEMPI_OPENHIM_PASSWORD}
       NODE_TLS_REJECT_UNAUTHORIZED: 0
