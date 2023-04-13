@@ -42,6 +42,7 @@ function init_vars() {
     "jempi-controller"
     "jempi-em-calculator"
     "jempi-linker"
+    "jempi-postgresql"
   )
 
   SERVICE_NAMES=(

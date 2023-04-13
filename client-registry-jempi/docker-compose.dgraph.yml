@@ -3,6 +3,7 @@ version: '3.9'
 services:
   jempi-alpha-01:
     image: dgraph/dgraph:v22.0.0
+    hostname: alpha-01
     volumes:
       - jempi-alpha-01-data:/dgraph
     deploy:
@@ -18,6 +19,7 @@ services:
 
   jempi-alpha-02:
     image: dgraph/dgraph:v22.0.0
+    hostname: alpha-02
     volumes:
       - jempi-alpha-02-data:/dgraph
     deploy:
@@ -33,6 +35,7 @@ services:
 
   jempi-alpha-03:
     image: dgraph/dgraph:v22.0.0
+    hostname: alpha-03
     volumes:
       - jempi-alpha-03-data:/dgraph
     deploy:
