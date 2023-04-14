@@ -11,6 +11,7 @@ services:
       KC_JEMPI_ROOT_URL: ${KC_JEMPI_ROOT_URL}
       JEMPI_SESSION_SECRET: ${JEMPI_SESSION_SECRET}
       kafka.bootstrap.servers: ${KAFKA_HOSTS}
+      JEMPI_FILE_IMPORT_MAX_SIZE_BYTE: ${JEMPI_FILE_IMPORT_MAX_SIZE_BYTE}
     deploy:
       replicas: 1
       resources:
@@ -18,3 +19,16 @@ services:
           memory: ${JEMPI_API_MEMORY_LIMIT}
         reservations:
           memory: ${JEMPI_API_MEMORY_RESERVE}
+    networks:
+      keycloak:
+      kafka:
+      default:
+
+networks:
+  keycloak:
+    name: keycloak_public
+    external: true
+  kafka:
+    name: kafka_public
+    external: true
+  default:

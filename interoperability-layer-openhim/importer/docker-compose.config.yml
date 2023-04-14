@@ -5,8 +5,6 @@ services:
   interoperability-layer-openhim-config-importer:
     image: node:erbium-alpine
     environment:
-      OPENHIM_CORE_SERVICE_NAME: 'openhim-core'
-      OPENHIM_MEDIATOR_API_PORT: 8080
       OPENHIM_API_USERNAME: 'root@openhim.org'
       OPENHIM_API_PASSWORD: 'openhim-password'
       # Reject unauthorised is only needed if the OpenHIM's SSL is not setup

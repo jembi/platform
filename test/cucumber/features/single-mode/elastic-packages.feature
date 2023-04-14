@@ -11,6 +11,10 @@ Feature: Analytics Datastore Elasticsearch - Dashboard Visualiser Kibana - Data 
     And The service "dashboard-visualiser-kibana" should have healthy containers
     And The service "elastic-search-config-importer" should be removed
     And The service "kibana-config-importer" should be removed
+    And The service "dashboard-visualiser-kibana" should be connected to the networks
+      | reverse-proxy_public | elastic_public | kibana_default |
+    And The service "analytics-datastore-elastic-search" should be connected to the networks
+      | elastic_public |      
     And There should be 1 volume
 
   Scenario: Init Data Mapper Logstash
@@ -19,6 +23,8 @@ Feature: Analytics Datastore Elasticsearch - Dashboard Visualiser Kibana - Data 
     And The service "data-mapper-logstash" should be started with 1 replica
     And There should be 3 services
     And The service "data-mapper-logstash" should have healthy containers
+    And The service "data-mapper-logstash" should be connected to the networks
+      | kafka_public | elastic_public |  
     And There should be 2 volumes
 
   Scenario: Destroy ELK stack
@@ -30,3 +36,5 @@ Feature: Analytics Datastore Elasticsearch - Dashboard Visualiser Kibana - Data 
     And There should be 0 service
     And There should be 0 volume
     And There should be 0 config
+    And There should not be network
+      | elastic_public | kafka_public | reverse-proxy_public |

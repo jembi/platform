@@ -37,6 +37,7 @@ services:
           memory: ${HF_POSTGRES_MEMORY_RESERVE}
     networks:
       default:
+      hapi-fhir-postgres:
       pg_backup_net: {}
 
 
@@ -68,6 +69,7 @@ services:
           memory: ${HF_POSTGRES_MEMORY_RESERVE}
     networks:
       default:
+      hapi-fhir-postgres:
       pg_backup_net: {}
 
 

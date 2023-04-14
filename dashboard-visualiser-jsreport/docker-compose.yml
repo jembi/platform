@@ -35,6 +35,19 @@ services:
       ES_HOSTS: ${ES_HOSTS}
     volumes:
       - jsreport-data:/jsreport
+    networks:
+      reverse-proxy:
+      elastic:
+      default:
 
 volumes:
   jsreport-data:
+
+networks:
+  reverse-proxy:
+    name: reverse-proxy_public
+    external: true
+  elastic:
+    name: elastic_public
+    external: true
+  default:
