@@ -31,7 +31,7 @@ services:
       GF_AUTH_GENERIC_OAUTH_API_URL: "${KC_API_URL}/realms/${KC_REALM_NAME}/protocol/openid-connect/userinfo"
       GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH: "contains(roles[*], 'admin') && 'Admin' || contains(roles[*], 'editor') && 'Editor' || 'Viewer'"
       GF_SERVER_DOMAIN: ${GF_SERVER_DOMAIN}
-      GF_SERVER_ROOT_URL: ${GF_SERVER_ROOT_URL}
+      GF_SERVER_ROOT_URL: ${KC_GRAFANA_ROOT_URL}
     configs:
       - target: /etc/grafana/grafana.ini
         source: grafana.ini

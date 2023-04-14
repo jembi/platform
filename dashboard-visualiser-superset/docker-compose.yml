@@ -12,7 +12,7 @@ services:
       KC_API_URL: ${KC_API_URL}
       SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY}
       AUTH_USER_REGISTRATION_ROLE: ${AUTH_USER_REGISTRATION_ROLE}
-      SUPERSET_SERVER_ROOT_URL: ${SUPERSET_SERVER_ROOT_URL}
+      SUPERSET_SERVER_ROOT_URL: ${KC_SUPERSET_ROOT_URL}
     volumes:
       - superset_home:/app/superset_home
       - superset:/app/superset

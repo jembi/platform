@@ -57,8 +57,8 @@ function import_sources() {
 }
 
 function prepare_console_config() {
-  # Set host in OpenHIM console config
-  sed -i "s/localhost/${OPENHIM_CORE_MEDIATOR_HOSTNAME}/g; s/8080/${OPENHIM_MEDIATOR_API_PORT}/g" /instant/interoperability-layer-openhim/importer/volume/default.json
+  # Replace env vars
+  envsubst <"${COMPOSE_FILE_PATH}/importer/volume/default-env.json" >"${COMPOSE_FILE_PATH}/importer/volume/default.json"
 }
 
 function initialize_package() {
