@@ -4,9 +4,7 @@ declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare MONGO_SERVICES=()
-declare SERVICE_NAMES=()
-declare OPENHIM_SERVICES=()
+declare STACK="openhim"
 
 function init_vars() {
   ACTION=$1
@@ -19,34 +17,11 @@ function init_vars() {
 
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-  OPENHIM_SERVICES=(
-    "openhim-core"
-    "openhim-console"
-  )
-
-  MONGO_SERVICES=(
-    "mongo-1"
-  )
-  if [[ "${CLUSTERED_MODE}" == "true" ]]; then
-    for i in {2..3}; do
-      MONGO_SERVICES=(
-        "${MONGO_SERVICES[@]}"
-        "mongo-$i"
-      )
-    done
-  fi
-
-  SERVICE_NAMES=(
-    "${MONGO_SERVICES[@]}"
-    "${OPENHIM_SERVICES[@]}"
-  )
-
   readonly ACTION
   readonly MODE
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
-  readonly MONGO_SERVICES
-  readonly SERVICE_NAMES
+  readonly STACK
 }
 
 # shellcheck disable=SC1091
@@ -79,20 +54,18 @@ function initialize_package() {
   fi
 
   (
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose-mongo.yml" "$mongo_cluster_compose_filename" "$mongo_dev_compose_filename"
+    docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose-mongo.yml" "$mongo_cluster_compose_filename" "$mongo_dev_compose_filename"
 
     if [[ "${CLUSTERED_MODE}" == "true" ]] && [[ "${ACTION}" == "init" ]]; then
-      try "${COMPOSE_FILE_PATH}/initiate-replica-set.sh" throw "Fatal: Initiate Mongo replica set failed"
+      try "${COMPOSE_FILE_PATH}/initiate-replica-set.sh $STACK" throw "Fatal: Initiate Mongo replica set failed"
     fi
-    docker::deploy_sanity "${MONGO_SERVICES[@]}"
 
     prepare_console_config
 
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$openhim_dev_compose_filename"
-    docker::deploy_sanity "${OPENHIM_SERVICES[@]}"
+    docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$openhim_dev_compose_filename"
 
     log info "Waiting OpenHIM Core to be running and responding"
-    config::await_service_running "openhim-core" "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml "${OPENHIM_CORE_INSTANCES}"
+    config::await_service_running "openhim-core" "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml "${OPENHIM_CORE_INSTANCES}" "$STACK"
   ) ||
     {
       log error "Failed to deploy package"
@@ -100,14 +73,12 @@ function initialize_package() {
     }
 
   if [[ "${ACTION}" == "init" ]]; then
-    docker::deploy_config_importer "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "interoperability-layer-openhim-config-importer" "openhim"
+    docker::deploy_config_importer $STACK "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "interoperability-layer-openhim-config-importer" "openhim"
   fi
 }
 
 function destroy_package() {
-  docker::service_destroy "${SERVICE_NAMES[@]}" "interoperability-layer-openhim-config-importer" "await-helper"
-
-  docker::try_remove_volume "openhim-mongo-01" "openhim-mongo-01-config"
+  docker::stack_destroy "$STACK"
 
   if [[ "${CLUSTERED_MODE}" == "true" ]]; then
     log warn "Volumes are only deleted on the host on which the command is run. Mongo volumes on other nodes are not deleted"
@@ -131,7 +102,7 @@ main() {
   elif [[ "${ACTION}" == "down" ]]; then
     log info "Scaling down package"
 
-    docker::scale_services_down "${SERVICE_NAMES[@]}"
+    docker::scale_services "$STACK" 0
   elif [[ "${ACTION}" == "destroy" ]]; then
     log info "Destroying package"
     destroy_package

@@ -7,6 +7,10 @@ Feature: Client Registry JeMPI?
     Then The service "santempi-psql-1" should be started with 1 replica
     And The service "santedb-www" should be started with 1 replica
     And The service "santedb-mpi" should be started with 1 replica
+    And The service "santedb-mpi" should be connected to the networks
+      | reverse-proxy_public | mpi_public | santedb_public | santempi_default |
+    And The service "santedb-www" should be connected to the networks
+      | reverse-proxy_public | santempi_default |
     And There should be 3 services
     And There should be 2 volumes
 
@@ -19,3 +23,5 @@ Feature: Client Registry JeMPI?
     And There should be 0 service
     And There should be 0 volume
     And There should be 0 config
+    And There should not be network
+      | reverse-proxy_public | mpi_public | santedb_public |

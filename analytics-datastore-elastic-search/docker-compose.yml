@@ -38,6 +38,13 @@ services:
     volumes:
       - es-data:/usr/share/elasticsearch/data
       - /backups:/backups/elasticsearch
+    networks:
+      public:
 
 volumes:
   es-data:
+
+networks:
+  public:
+    name: elastic_public
+    external: true

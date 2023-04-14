@@ -34,7 +34,6 @@ volumes:
 
 networks:
   default:
-    name: instant_default
   keycloak_backup_net:
     name: keycloak_backup
     driver: overlay

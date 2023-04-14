@@ -4,10 +4,12 @@ const fs = require("fs");
 const https = require("https");
 const path = require("path");
 
-const OPENHIM_CORE_SERVICE_NAME = process.env.OPENHIM_CORE_SERVICE_NAME;
-const OPENHIM_API_PASSWORD = process.env.OPENHIM_API_PASSWORD;
-const OPENHIM_MEDIATOR_API_PORT = process.env.OPENHIM_MEDIATOR_API_PORT;
-const OPENHIM_API_USERNAME = process.env.OPENHIM_API_USERNAME;
+const OPENHIM_CORE_SERVICE_NAME = 'openhim-core'
+const OPENHIM_MEDIATOR_API_PORT = 8080
+const OPENHIM_API_PASSWORD =
+  process.env.OPENHIM_API_PASSWORD || 'openhim-password'
+const OPENHIM_API_USERNAME =
+  process.env.OPENHIM_API_USERNAME || 'root@openhim.org'
 
 const authHeader = new Buffer.from(
   `${OPENHIM_API_USERNAME}:${OPENHIM_API_PASSWORD}`

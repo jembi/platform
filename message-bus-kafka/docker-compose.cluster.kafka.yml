@@ -40,6 +40,9 @@ services:
           memory: ${KAFKA_MEMORY_RESERVE}
       restart_policy:
         condition: on-failure
+    networks:
+      public:
+      default:
 
   kafka-03:
     image: bitnami/kafka:3.4.0
@@ -72,6 +75,9 @@ services:
           memory: ${KAFKA_MEMORY_RESERVE}
       restart_policy:
         condition: on-failure
+    networks:
+      public:
+      default:
 
 volumes:
   kafka-02-data:

@@ -1,4 +1,6 @@
 #!/bin/bash
+# - $1 : Stack name that the services are grouped under
+STACK_NAME="${1:-"instant"}"
 
 COMPOSE_FILE_PATH=$(
     cd "$(dirname "${BASH_SOURCE[0]}")" || exit
@@ -31,7 +33,7 @@ until [[ $running_instance_count -eq $MONGO_SET_COUNT ]]; do
     sleep 1
 
     running_instance_count=0
-    for i in $(docker service ls -f name=instant_mongo --format "{{.Replicas}}"); do
+    for i in $(docker service ls -f name=${STACK_NAME}_mongo --format "{{.Replicas}}"); do
         if [[ $i = "1/1" ]]; then
             running_instance_count=$((running_instance_count + 1))
         fi
@@ -41,7 +43,7 @@ done
 # Ensures that the replica sets are reachable
 reachable_instance_count=1
 until [[ $reachable_instance_count -eq $((MONGO_SET_COUNT + 1)) ]]; do
-    config::await_service_reachable "mongo-$reachable_instance_count" "waiting for connections on port"
+    config::await_service_reachable "mongo-$reachable_instance_count" $STACK_NAME "waiting for connections on port"
     reachable_instance_count=$((reachable_instance_count + 1))
 done
 
@@ -49,8 +51,8 @@ done
 # With docker swarm any manager can be the target but this bit of code only work if we target node-1 specifically.
 # Which is generally what we do, but if node-1 is down or we choose to target another node this won't work.
 container_name=""
-if [[ "$(docker ps -f name=instant_mongo-1 --format "{{.ID}}")" ]]; then
-    container_name="$(docker ps -f name=instant_mongo-1 --format "{{.ID}}")"
+if [[ "$(docker ps -f name=${STACK_NAME}_mongo-1 --format "{{.ID}}")" ]]; then
+    container_name="$(docker ps -f name=${STACK_NAME}_mongo-1 --format "{{.ID}}")"
 fi
 
 initiate_rep_set_response=$(docker exec -i "$container_name" mongo --eval "rs.initiate($config)")

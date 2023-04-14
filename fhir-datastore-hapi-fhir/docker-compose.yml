@@ -3,6 +3,10 @@ version: '3.9'
 services:
   hapi-fhir:
     image: jembi/hapi:v5.7.0-wget
+    networks:
+      mpi:
+      public:
+      default:
     environment:
       - spring.datasource.url=jdbc:postgresql://${POSTGRES_REPLICA_SET}/hapi?targetServerType=primary
       - spring.datasource.username=admin
@@ -31,3 +35,12 @@ services:
       timeout: 5s
       retries: 5
       start_period: 2m
+
+networks:
+  mpi:
+    name: mpi_public
+    external: true
+  public:
+    name: hapi-fhir_public
+    external: true
+  default:
