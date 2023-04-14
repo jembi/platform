@@ -19,7 +19,6 @@ for package in "${CHANGED_FILES[@]}"; do
     else
         IFS='/' read -r -a split_string <<<"$package"
         changed_packages["${split_string[0]}"]="true"
-
     fi
 done
 
@@ -51,6 +50,14 @@ else
             DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":sante
         elif [[ $folder_name == *"monitoring"* ]]; then
             DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":monitoring
+        elif [[ $folder_name == *"keycloak"* ]]; then
+            DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":keycloak
+        elif [[ $folder_name == *"superset"* ]] && [[ $NODE_MODE == "single" ]]; then
+            DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":superset
+        elif [[ $folder_name == *"jsreport"* ]] && [[ $NODE_MODE == "single" ]]; then
+            DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":jsreport
+        elif [[ $folder_name == *"mpi-mediator"* ]] && [[ $NODE_MODE == "single" ]]; then
+            DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":mpi-mediator
         elif [[ $folder_name == *"jempi"* ]] && [[ $NODE_MODE == "single" ]]; then
             DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":jempi
         fi

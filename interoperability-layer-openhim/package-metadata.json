@@ -24,6 +24,13 @@
     "OPENHIM_MONGO_MEMORY_LIMIT": "2G",
     "OPENHIM_MONGO_MEMORY_RESERVE": "500M",
     "OPENHIM_MONGO_URL": "mongodb://mongo-1:27017/openhim",
-    "OPENHIM_MONGO_ATNAURL": "mongodb://mongo-1:27017/openhim"
+    "OPENHIM_MONGO_ATNAURL": "mongodb://mongo-1:27017/openhim",
+    "KC_REALM_NAME": "platform-realm",
+    "KC_FRONTEND_URL": "http://localhost:9088",
+    "KC_OPENHIM_SSO_ENABLED": false,
+    "KC_OPENHIM_CLIENT_ID": "openhim-oauth",
+    "KC_OPENHIM_CLIENT_SECRET": "tZKfEbWf0Ka5HBNZwFrdSyQH2xT1sNMR",
+    "KC_OPENHIM_ROOT_URL": "http://localhost:9000",
+    "KC_REALM_FULL_URL": "http://localhost:9088/realms/platform-realm"
   }
 }
