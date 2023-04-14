@@ -797,8 +797,8 @@
       {
         "current": {
           "selected": false,
-          "text": "instant_prometheus-kafka-adapter",
-          "value": "instant_prometheus-kafka-adapter"
+          "text": "monitoring_prometheus-kafka-adapter",
+          "value": "monitoring_prometheus-kafka-adapter"
         },
         "datasource": {
           "type": "loki",

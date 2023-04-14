@@ -3,6 +3,11 @@ version: '3.9'
 services:
   openhim-core:
     image: jembi/openhim-core:7
+    networks:
+      reverse-proxy:
+      keycloak:
+      public:
+      default:
     environment:
       - mongo_url=${OPENHIM_MONGO_URL}
       - mongo_atnaUrl=${OPENHIM_MONGO_ATNAURL}
@@ -22,6 +27,11 @@ services:
 
   openhim-console:
     image: jembi/openhim-console:1.14.4
+    networks:
+      reverse-proxy:
+      keycloak:
+      public:
+      default:
     configs:
       - source: console-default.json
         target: /usr/share/nginx/html/config/default.json
@@ -43,3 +53,15 @@ configs:
     name: console.config-${console_config_DIGEST:?err}
     labels:
       name: openhim
+
+networks:
+  reverse-proxy:
+    name: reverse-proxy_public
+    external: true
+  keycloak:
+    name: keycloak_public
+    external: true
+  public:
+    name: openhim_public
+    external: true
+  default:

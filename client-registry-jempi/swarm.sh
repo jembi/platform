@@ -4,10 +4,7 @@ declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare DGRAPH_SERVICES=()
-declare COMBINED_SERVICES=()
-declare SERVICE_NAMES=()
-declare VOLUME_NAMES=()
+declare STACK="jempi"
 
 function init_vars() {
   ACTION=$1
@@ -20,46 +17,11 @@ function init_vars() {
 
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-  DGRAPH_SERVICES=("jempi-ratel")
-  VOLUME_NAMES=("jempi-zero-01-data")
-
-  for i in {1..3}; do
-    DGRAPH_SERVICES=(
-      "${DGRAPH_SERVICES[@]}"
-      "jempi-alpha-0$i"
-    )
-
-    VOLUME_NAMES=(
-      "${VOLUME_NAMES[@]}"
-      "jempi-alpha-0$i-data"
-    )
-  done
-
-  COMBINED_SERVICES=(
-    "jempi-async-receiver"
-    "jempi-sync-receiver"
-    "jempi-pre-processor"
-    "jempi-controller"
-    "jempi-em-calculator"
-    "jempi-linker"
-  )
-
-  SERVICE_NAMES=(
-    "${DGRAPH_SERVICES[@]}"
-    "${COMBINED_SERVICES[@]}"
-    "jempi-zero-01"
-    "jempi-api"
-    "jempi-web"
-  )
-
   readonly ACTION
   readonly MODE
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
-  readonly DGRAPH_SERVICES
-  readonly COMBINED_SERVICES
-  readonly SERVICE_NAMES
-  readonly VOLUME_NAMES
+  readonly STACK
 }
 
 # shellcheck disable=SC1091
@@ -96,30 +58,25 @@ function initialize_package() {
 
   (
     log info "Importing JeMPI Kafka topics"
-    docker::deploy_config_importer "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "jempi-kafka-config-importer" "jempi-kafka"
+    docker::deploy_config_importer $STACK "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "jempi-kafka-config-importer" "jempi-kafka"
 
     log info "Deploy Dgraph"
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.dgraph-zero.yml" "$dgraph_zero_dev_compose_param" "$dgraph_zero_cluster_compose_param"
-    docker::deploy_sanity "jempi-zero-01"
+    docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.dgraph-zero.yml" "$dgraph_zero_dev_compose_param" "$dgraph_zero_cluster_compose_param"
 
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.dgraph.yml" "$dgraph_dev_compose_param" "$dgraph_cluster_compose_param"
-    docker::deploy_sanity "${DGRAPH_SERVICES[@]}"
+    docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.dgraph.yml" "$dgraph_dev_compose_param" "$dgraph_cluster_compose_param"
 
     log info "Deploy other combined services"
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.combined.yml" "$combined_dev_compose_param"
-    docker::deploy_sanity "${COMBINED_SERVICES[@]}"
+    docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.combined.yml" "$combined_dev_compose_param"
 
     log info "Deploy JeMPI API"
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.api.yml" "$api_dev_compose_param"
-    docker::deploy_sanity "jempi-api"
+    docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.api.yml" "$api_dev_compose_param"
 
     log info "Deploy JeMPI WEB"
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.web.yml" "$web_dev_compose_param"
-    docker::deploy_sanity "jempi-web"
+    docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.web.yml" "$web_dev_compose_param"
 
     log info "Register openHIM channels"
-    if docker service ps -q instant_openhim-core &>/dev/null; then
-      docker::deploy_config_importer "$COMPOSE_FILE_PATH/importer/openhim/docker-compose.config.yml" "jempi-openhim-config-importer" "openhim"
+    if docker service ps -q openhim_openhim-core &>/dev/null; then
+      docker::deploy_config_importer $STACK "$COMPOSE_FILE_PATH/importer/openhim/docker-compose.config.yml" "jempi-openhim-config-importer" "openhim"
     else
       log warn "Service 'interoperability-layer-openhim' does not appear to be running... skipping configuring of async/sync JeMPI channels"
     fi
@@ -132,9 +89,7 @@ function initialize_package() {
 }
 
 function destroy_package() {
-  docker::service_destroy "${SERVICE_NAMES[@]}" "jempi-kafka-config-importer" "jempi-openhim-config-importer"
-
-  docker::try_remove_volume "${VOLUME_NAMES[@]}"
+  docker::stack_destroy $STACK
 
   if [[ "${CLUSTERED_MODE}" == "true" ]]; then
     log warn "Volumes are only deleted on the host on which the command is run. Postgres volumes on other nodes are not deleted"
@@ -158,7 +113,7 @@ main() {
   elif [[ "${ACTION}" == "down" ]]; then
     log info "Scaling down package"
 
-    docker::scale_services_down "${SERVICE_NAMES[@]}"
+    docker::scale_services $STACK 0
   elif [[ "${ACTION}" == "destroy" ]]; then
     log info "Destroying package"
 

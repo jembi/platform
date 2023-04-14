@@ -8,6 +8,10 @@ Feature: Identity Access Manager Keycloak?
     And The service "identity-access-manager-keycloak" should be started with 1 replica
     And There should be 2 services
     And The service "identity-access-manager-keycloak" should have healthy containers
+    And The service "identity-access-manager-keycloak" should be connected to the networks
+      | reverse-proxy_public | keycloak_public | keycloak_default |
+    And The service "keycloak-postgres-1" should be connected to the networks
+      | keycloak_backup | keycloak_default |
     And There should be 1 volume
 
   Scenario: Destroy Identity Access Manager Keycloak
@@ -19,3 +23,5 @@ Feature: Identity Access Manager Keycloak?
     And There should be 0 service
     And There should be 0 volume
     And There should be 0 config
+    And There should not be network
+      | reverse-proxy_public | keycloak_public | keycloak_backup |

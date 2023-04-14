@@ -3,7 +3,7 @@
 declare ACTION=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare SERVICE_NAMES=()
+declare STACK="ofelia"
 
 function init_vars() {
   ACTION=$1
@@ -15,12 +15,10 @@ function init_vars() {
 
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-  SERVICE_NAMES=("job-scheduler-ofelia")
-
   readonly ACTION
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
-  readonly SERVICE_NAMES
+  readonly STACK
 }
 
 # shellcheck disable=SC1091
@@ -34,8 +32,7 @@ function initialize_package() {
   (
     config::substitute_env_vars "${COMPOSE_FILE_PATH}"/config.ini
 
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml"
-    docker::deploy_sanity "${SERVICE_NAMES}"
+    docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.yml"
   ) || {
     log error "Failed to deploy package, does your .env file include all environment variables in your config.ini file?"
     exit 1
@@ -43,7 +40,7 @@ function initialize_package() {
 }
 
 function destroy_package() {
-  docker::service_destroy "$SERVICE_NAMES"
+  docker::stack_destroy $STACK
 
   docker::prune_configs "ofelia"
 }
@@ -62,12 +59,11 @@ main() {
     elif [[ "${ACTION}" == "down" ]]; then
       log info "Scaling down package"
 
-      docker::scale_services_down "$SERVICE_NAMES"
+      docker::scale_services $STACK 0
     elif [[ "${ACTION}" == "destroy" ]]; then
       log info "Destroying package"
 
       destroy_package
-
     else
       log error "Valid options are: init, up, down, or destroy"
     fi

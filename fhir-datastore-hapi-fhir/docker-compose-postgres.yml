@@ -27,14 +27,17 @@ services:
           memory: ${HF_POSTGRES_MEMORY_RESERVE}
     networks:
       default:
-      pg_backup_net: {}
+      hapi-fhir-postgres:
+      pg_backup_net:
 
 volumes:
   hapi-postgres-1-data:
 
 networks:
   default:
-    name: instant_default
+  hapi-fhir-postgres:
+    name: hapi-fhir_postgres_public
+    external: true
   pg_backup_net:
     name: pg_backup
     driver: overlay

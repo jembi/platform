@@ -4,10 +4,9 @@ declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
+declare STACK="kafka"
 declare NODE_MODE_PREFIX=""
-declare UTILS_SERVICES=()
 declare KAFKA_SERVICES=()
-declare SERVICE_NAMES=()
 
 function init_vars() {
   ACTION=$1
@@ -20,10 +19,6 @@ function init_vars() {
 
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-  UTILS_SERVICES=(
-    "kafdrop"
-    "kafka-minion"
-  )
   KAFKA_SERVICES=(
     "kafka-01"
   )
@@ -36,18 +31,12 @@ function init_vars() {
     )
   fi
 
-  SERVICE_NAMES=(
-    "${UTILS_SERVICES[@]}"
-    "${KAFKA_SERVICES[@]}"
-  )
-
   readonly ACTION
   readonly MODE
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
-  readonly UTILS_SERVICES
+  readonly STACK
   readonly KAFKA_SERVICES
-  readonly SERVICE_NAMES
 }
 
 # shellcheck disable=SC1091
@@ -77,32 +66,28 @@ function initialize_package() {
   (
     log info "Deploy Kafka"
 
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.kafka.yml" "$kafka_cluster_compose_filename" "$kafka_dev_compose_filename"
-    docker::deploy_sanity "${KAFKA_SERVICES[@]}"
+    docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.kafka.yml" "$kafka_cluster_compose_filename" "$kafka_dev_compose_filename"
 
     for service_name in "${KAFKA_SERVICES[@]}"; do
-      config::await_service_reachable "$service_name" "Kafka Server started"
+      config::await_service_reachable "$service_name" $STACK "Kafka Server started"
     done
 
     log info "Deploy the other services dependent of Kafka"
 
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.kafka-utils.yml" "$kafka_utils_dev_compose_filename"
-    docker::deploy_sanity "${UTILS_SERVICES[@]}"
+    docker::deploy_service "$STACK" "${COMPOSE_FILE_PATH}" "docker-compose.kafka-utils.yml" "$kafka_utils_dev_compose_filename"
   ) || {
     log error "Failed to deploy package"
     exit 1
   }
 
   log info "Await Kafdrop to be running and responding"
-  config::await_service_running "kafdrop" "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml "${KAFDROP_INSTANCES}"
+  config::await_service_running "kafdrop" "${COMPOSE_FILE_PATH}"/docker-compose.await-helper.yml "${KAFDROP_INSTANCES}" "$STACK"
 
-  docker::deploy_config_importer "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "message-bus-kafka-config-importer" "kafka"
+  docker::deploy_config_importer $STACK "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "message-bus-kafka-config-importer" "kafka"
 }
 
 function destroy_package() {
-  docker::service_destroy "${SERVICE_NAMES[@]}" "message-bus-kafka-config-importer"
-
-  docker::try_remove_volume kafka-01-data
+  docker::stack_destroy "$STACK"
 
   if [[ "$CLUSTERED_MODE" == "true" ]]; then
     log warn "Volumes are only deleted on the host on which the command is run. Cluster volumes on other nodes are not deleted"
@@ -126,7 +111,7 @@ main() {
   elif [[ "${ACTION}" == "down" ]]; then
     log info "Scaling down package"
 
-    docker::scale_services_down "${SERVICE_NAMES[@]}"
+    docker::scale_services "$STACK" 0
   elif [[ "${ACTION}" == "destroy" ]]; then
     log info "Destroying package"
     destroy_package

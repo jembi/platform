@@ -7,8 +7,6 @@ services:
       restart_policy:
         condition: none
     environment:
-      OPENHIM_CORE_SERVICE_NAME: openhim-core
-      OPENHIM_MEDIATOR_API_PORT: 8080
       OPENHIM_API_USERNAME: root@openhim.org
       OPENHIM_API_PASSWORD: ${JEMPI_OPENHIM_PASSWORD}
       NODE_TLS_REJECT_UNAUTHORIZED: 0
@@ -18,6 +16,9 @@ services:
         target: /openhimConfig.js
       - source: openhim-config-importer-openhim-import.json
         target: /openhim-import.json
+    networks:
+      openhim:
+      default:
 
 configs:
   openhim-config-importer-openhimConfig.js:
@@ -31,3 +32,8 @@ configs:
     labels:
       name: openhim
 
+networks:
+  openhim:
+    name: openhim_public
+    external: true
+  default:
