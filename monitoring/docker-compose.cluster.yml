@@ -28,6 +28,9 @@ services:
       - '--web.console.libraries=/etc/prometheus/console_libraries'
       - '--web.console.templates=/etc/prometheus/consoles'
       - '--web.enable-lifecycle'
+    networks:
+      public:
+      default:
 
   minio-01:
     deploy:
@@ -118,13 +121,6 @@ services:
         constraints:
           - "node.labels.name==node-3"
       replicas: 1
-
-configs:
-  prometheus.yml:
-    file: ./prometheus/prometheus.yml
-    name: prometheus.yml-${prometheus_yml_DIGEST:?err}
-    labels:
-      name: prometheus
 
 volumes:
   prometheus_data_backup:

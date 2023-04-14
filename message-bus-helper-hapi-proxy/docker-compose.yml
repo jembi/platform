@@ -19,3 +19,18 @@ services:
         reservations:
           cpus: ${HAPI_PROXY_CPU_RESERVE}
           memory: ${HAPI_PROXY_MEMORY_RESERVE}
+    networks:
+      hapi-fhir:
+      kafka:
+      openhim:
+
+networks:
+  hapi-fhir:
+    name: hapi-fhir_public
+    external: true
+  kafka:
+    name: kafka_public
+    external: true
+  openhim:
+    name: openhim_public
+    external: true

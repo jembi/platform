@@ -14,6 +14,10 @@ services:
     configs:
       - source: jempi-kafka.js
         target: /kafka.js
+    networks:
+      kafka:
+      default:
+
 
 configs:
   jempi-kafka.js:
@@ -21,3 +25,9 @@ configs:
     name: jempi-kafka-config.js-${jempi_kafka_config_DIGEST:?err}
     labels:
       name: jempi
+
+networks:
+  kafka:
+    name: kafka_public
+    external: true
+  defualt:

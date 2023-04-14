@@ -71,7 +71,7 @@ function update_nginx_dummy_certificates() {
           --network-add name=cert-renewal-network,alias=cert-renewal-network \
           --publish-add published=80,target=80 \
           --publish-add published=443,target=443 \
-          instant_$SERVICE_NAMES" \
+          ${STACK}_$SERVICE_NAMES" \
         throw \
         "Error updating $SERVICE_NAMES service"
 
@@ -117,9 +117,9 @@ function generate_real_certificates() {
 
 function update_nginx_real_certificates() {
     local curr_full_chain_name
-    curr_full_chain_name=$(docker service inspect instant_"$SERVICE_NAMES" --format "{{(index .Spec.TaskTemplate.ContainerSpec.Secrets 0).SecretName}}")
+    curr_full_chain_name=$(docker service inspect ${STACK}_"$SERVICE_NAMES" --format "{{(index .Spec.TaskTemplate.ContainerSpec.Secrets 0).SecretName}}")
     local curr_priv_key_name
-    curr_priv_key_name=$(docker service inspect instant_"$SERVICE_NAMES" --format "{{(index .Spec.TaskTemplate.ContainerSpec.Secrets 1).SecretName}}")
+    curr_priv_key_name=$(docker service inspect ${STACK}_"$SERVICE_NAMES" --format "{{(index .Spec.TaskTemplate.ContainerSpec.Secrets 1).SecretName}}")
 
     log info "Updating $SERVICE_NAMES service: adding secrets for generated certificates..."
     try "docker service update \
@@ -127,7 +127,7 @@ function update_nginx_real_certificates() {
           --secret-rm ${curr_priv_key_name} \
           --secret-add source=${NEWER_TIMESTAMP}-fullchain.pem,target=/run/secrets/fullchain.pem \
           --secret-add source=${NEWER_TIMESTAMP}-privkey.pem,target=/run/secrets/privkey.pem \
-          instant_$SERVICE_NAMES" \
+          ${STACK}_$SERVICE_NAMES" \
         throw \
         "Error updating $SERVICE_NAMES service"
     overwrite "Updating $SERVICE_NAMES service: adding secrets for generated certificates... Done"

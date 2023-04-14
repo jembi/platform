@@ -35,6 +35,8 @@ import os
 
 KC_SUPERSET_SSO_ENABLED = os.getenv('KC_SUPERSET_SSO_ENABLED')
 
+WTF_CSRF_ENABLED = False
+
 if KC_SUPERSET_SSO_ENABLED == "true":
     SECRET_KEY = os.getenv('SUPERSET_SECRET_KEY')
     OIDC_OPENID_REALM = os.getenv('KC_REALM_NAME')
@@ -50,7 +52,6 @@ if KC_SUPERSET_SSO_ENABLED == "true":
     OIDC_CLIENT_SECRETS = '/app/pythonpath/client_secret.json'
     OIDC_ID_TOKEN_COOKIE_SECURE = False
     OIDC_REQUIRE_VERIFIED_EMAIL = False
-    WTF_CSRF_ENABLED = False
     OIDC_OPENID_REALM: OIDC_OPENID_REALM
     OIDC_INTROSPECTION_AUTH_METHOD: 'client_secret_post'
     CUSTOM_SECURITY_MANAGER = OIDCSecurityManager

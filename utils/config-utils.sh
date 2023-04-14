@@ -143,119 +143,100 @@ config::timeout_check() {
 # - $1 : the service being awaited
 # - $2 : path to await-helper compose.yml file (eg. ~/projects/platform/dashboard-visualiser-jsreport/docker-compose.await-helper.yml)
 # - $3 : desired number of instances of the awaited-service
-# - $4 : (optional) the max time allowed to wait for a service's response, defaults to 300 seconds
-# - $5 : (optional) elapsed time to throw a warning, defaults to 60 seconds
+# - $4 : stack name that the service falls under (eg. openhim)
+# - $5 : (optional) the max time allowed to wait for a service's response, defaults to 300 seconds
+# - $6 : (optional) elapsed time to throw a warning, defaults to 60 seconds
 #
 config::await_service_running() {
     local -r SERVICE_NAME="${1:?$(missing_param "await_service_running" "SERVICE_NAME")}"
     local -r AWAIT_HELPER_FILE_PATH="${2:?$(missing_param "await_service_running" "AWAIT_HELPER_FILE_PATH")}"
     local -r SERVICE_INSTANCES="${3:?$(missing_param "await_service_running" "SERVICE_INSTANCES")}"
-    local -r exit_time="${4:-}"
-    local -r warning_time="${5:-}"
+    local -r STACK_NAME="${4:?$(missing_param "await_service_running" "STACK_NAME")}"
+    local -r exit_time="${5:-}"
+    local -r warning_time="${6:-}"
     local start_time
     start_time=$(date +%s)
 
-    docker service rm instant_await-helper &>/dev/null
+    docker service rm "$STACK_NAME"_await-helper &>/dev/null
 
-    try "docker stack deploy -c $AWAIT_HELPER_FILE_PATH instant" throw "Failed to deploy await helper"
-    until [[ $(docker service ls -f name=instant_"$SERVICE_NAME" --format "{{.Replicas}}") == *"$SERVICE_INSTANCES/$SERVICE_INSTANCES"* ]]; do
+    try "docker stack deploy -c $AWAIT_HELPER_FILE_PATH $STACK_NAME" throw "Failed to deploy await helper"
+    until [[ $(docker service ls -f name="$STACK_NAME"_"$SERVICE_NAME" --format "{{.Replicas}}") == *"$SERVICE_INSTANCES/$SERVICE_INSTANCES"* ]]; do
         config::timeout_check "$start_time" "$SERVICE_NAME to start" "$exit_time" "$warning_time"
         sleep 1
     done
 
     start_time=$(date +%s) # Reintialize for the second loop
     local await_helper_state
-    await_helper_state=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
+    await_helper_state=$(docker service ps "$STACK_NAME"_await-helper --format "{{.CurrentState}}")
     until [[ $await_helper_state == *"Complete"* ]]; do
         config::timeout_check "$start_time" "$SERVICE_NAME status check" "$exit_time" "$warning_time"
         sleep 1
 
-        await_helper_state=$(docker service ps instant_await-helper --format "{{.CurrentState}}")
+        await_helper_state=$(docker service ps "$STACK_NAME"_await-helper --format "{{.CurrentState}}")
         if [[ $await_helper_state == *"Failed"* ]] || [[ $await_helper_state == *"Rejected"* ]]; then
             log error "Fatal: Received error when trying to verify state of $SERVICE_NAME. Error:
-       $(docker service ps instant_await-helper --no-trunc --format '{{.Error}}')"
+       $(docker service ps "$STACK_NAME"_await-helper --no-trunc --format '{{.Error}}')"
             exit 1
         fi
     done
 
-    try "docker service rm instant_await-helper" catch "Failed to remove await-helper"
+    try "docker service rm "$STACK_NAME"_await-helper" catch "Failed to remove await-helper"
 }
 
 # A function which removes a config importing service on successful completion, and exits with an error otherwise
 #
 # Arguments:
-# - $1 : the name of the config importer
-# - $2 : (optional) the timeout time for the config importer to run, defaults to 300 seconds
-# - $3 : (optional) elapsed time to throw a warning, defaults to 60 seconds
+# - $1 : stack name that the service falls under (eg. openhim)
+# - $2 : the name of the config importer
+# - $3 : (optional) the timeout time for the config importer to run, defaults to 300 seconds
+# - $4 : (optional) elapsed time to throw a warning, defaults to 60 seconds
 #
 config::remove_config_importer() {
-    local -r CONFIG_IMPORTER_SERVICE_NAME="${1:?$(missing_param "remove_config_importer")}"
-    local -r exit_time="${2:-}"
-    local -r warning_time="${3:-}"
+    local -r STACK_NAME="${1:?$(missing_param "remove_config_importer" "STACK_NAME")}"
+    local -r CONFIG_IMPORTER_SERVICE_NAME="${2:?$(missing_param "remove_config_importer" "CONFIG_IMPORTER_SERVICE_NAME")}"
+    local -r exit_time="${3:-}"
+    local -r warning_time="${4:-}"
     local -r start_time=$(date +%s)
 
     local config_importer_state
 
-    if [[ -z $(docker service ps instant_"$CONFIG_IMPORTER_SERVICE_NAME") ]]; then
-        log info "instant_$CONFIG_IMPORTER_SERVICE_NAME service cannot be removed as it does not exist!"
+    if [[ -z $(docker service ps "$STACK_NAME"_"$CONFIG_IMPORTER_SERVICE_NAME") ]]; then
+        log info "${STACK_NAME}_$CONFIG_IMPORTER_SERVICE_NAME service cannot be removed as it does not exist!"
         exit 0
     fi
 
-    config_importer_state=$(docker service ps instant_"$CONFIG_IMPORTER_SERVICE_NAME" --format "{{.CurrentState}}")
+    config_importer_state=$(docker service ps "$STACK_NAME"_"$CONFIG_IMPORTER_SERVICE_NAME" --format "{{.CurrentState}}")
     until [[ $config_importer_state == *"Complete"* ]]; do
         config::timeout_check "$start_time" "$CONFIG_IMPORTER_SERVICE_NAME to run" "$exit_time" "$warning_time"
         sleep 1
 
-        config_importer_state=$(docker service ps instant_"$CONFIG_IMPORTER_SERVICE_NAME" --format "{{.CurrentState}}")
+        config_importer_state=$(docker service ps "$STACK_NAME"_"$CONFIG_IMPORTER_SERVICE_NAME" --format "{{.CurrentState}}")
         if [[ $config_importer_state == *"Failed"* ]] || [[ $config_importer_state == *"Rejected"* ]]; then
             log error "Fatal: $CONFIG_IMPORTER_SERVICE_NAME failed with error:
-       $(docker service ps instant_"$CONFIG_IMPORTER_SERVICE_NAME" --no-trunc --format '{{.Error}}')"
+       $(docker service ps ${STACK_NAME}_"$CONFIG_IMPORTER_SERVICE_NAME" --no-trunc --format '{{.Error}}')"
             exit 1
         fi
     done
 
-    try "docker service rm instant_$CONFIG_IMPORTER_SERVICE_NAME" catch "Failed to remove config importer"
+    try "docker service rm "$STACK_NAME"_$CONFIG_IMPORTER_SERVICE_NAME" catch "Failed to remove config importer"
 }
 
 # Waits for the provided service to be removed
 #
 # Arguments:
-# - $1 : service name (eg. instant_analytics-datastore-elastic-search)
+# - $1 : stack name that the service falls under (eg. openhim)
+# - $2 : service name (eg. analytics-datastore-elastic-search)
 #
 config::await_service_removed() {
-    local -r SERVICE_NAME="${1:?$(missing_param "await_service_removed")}"
+    local -r STACK_NAME="${1:?$(missing_param "await_service_removed", "STACK_NAME")}"
+    local -r SERVICE_NAME="${2:?$(missing_param "await_service_removed", "SERVICE_NAME")}"
     local start_time=$(date +%s)
 
-    until [[ -z $(docker stack ps instant -qf name="${SERVICE_NAME}" 2>/dev/null) ]]; do
+    until [[ -z $(docker stack ps $STACK_NAME -qf name="${STACK_NAME}_${SERVICE_NAME}" 2>/dev/null) ]]; do
         config::timeout_check "$start_time" "${SERVICE_NAME} to be removed"
         sleep 1
     done
     log info "Service $SERVICE_NAME successfully removed"
-}
-
-# Waits for the provided service to join the network
-#
-# Arguments:
-# $1 : service name (eg. instant_analytics-datastore-elastic-search)
-#
-config::await_network_join() {
-    local -r SERVICE_NAME="${1:?$(missing_param "await_network_join")}"
-    local start_time=$(date +%s)
-    local exit_time=30
-    local warning_time=10
-
-    log info "Waiting for ${SERVICE_NAME} to join network..."
-
-    # TODO: do a better regex/string matching check to ensure that we don't accidentally
-    # check for services with append to this service name, e.g., if we're looking for
-    # instant_analytics-datastore-elastic-search and we have instant_analytics-datastore-elastic-search-helper
-    # we could get a false-positive
-    until [[ $(docker network inspect -v instant_default -f "{{.Services}}") == *"${SERVICE_NAME}"* ]]; do
-        config::timeout_check "$start_time" "${SERVICE_NAME} to join the network" $exit_time $warning_time
-        sleep 1
-    done
-
-    overwrite "Waiting for ${SERVICE_NAME} to join network... Done"
 }
 
 # Generates configs for a service from a folder and adds them to a temp docker-compose file
@@ -317,26 +298,6 @@ config::generate_service_configs() {
 
         count=$((count + 1))
     done
-}
-
-# Removes nginx configs for destroyed services
-#
-# Arguments:
-# - $@ : a list of configs to remove
-#
-config::remove_service_nginx_config() {
-    local configs=("$@")
-    local config_rm_command=""
-    local config_rm_list=""
-    for config in "${configs[@]}"; do
-        if [[ -n $(docker config ls -qf name="$config") ]]; then
-            config_rm_command="$config_rm_command --config-rm $config"
-            config_rm_list="$config_rm_list $config"
-        fi
-    done
-
-    try "docker service update $config_rm_command instant_reverse-proxy-nginx" catch "Error updating nginx service"
-    try "docker config rm $config_rm_list" catch "Failed to remove configs"
 }
 
 # Replaces all environment variables in a file with the environment variable value
@@ -456,15 +417,17 @@ config::env_var_add() {
 #
 # Arguments:
 # $1 : service name (eg. analytics-datastore-elastic-search)
-# $2 : log string to be checked (eg. Starting)
+# $2 : stack name that the service falls under (eg. openhim)
+# $3 : log string to be checked (eg. Starting)
 #
 config::await_service_reachable() {
     local -r SERVICE_NAME=${1:?$(missing_param "await_service_reachable" "SERVICE_NAME")}
-    local -r LOG_MESSAGE=${2:?$(missing_param "await_service_reachable" "LOG_MESSAGE")}
+    local -r STACK_NAME=${2:?$(missing_param "await_service_reachable" "STACK_NAME")}
+    local -r LOG_MESSAGE=${3:?$(missing_param "await_service_reachable" "LOG_MESSAGE")}
     local -r start_time=$(date +%s)
 
-    until [[ $(docker service logs --tail all instant_"${SERVICE_NAME}" 2>/dev/null | grep -c "${LOG_MESSAGE}") -gt 0 ]]; do
-        config::timeout_check "$start_time" "$SERVICE_NAME to be reachable"
+    until [[ $(docker service logs --tail all "${STACK_NAME}"_"${SERVICE_NAME}" 2>/dev/null | grep -c "${LOG_MESSAGE}") -gt 0 ]]; do
+        config::timeout_check "$start_time" "${STACK_NAME}_$SERVICE_NAME to be reachable"
         sleep 1
     done
 }

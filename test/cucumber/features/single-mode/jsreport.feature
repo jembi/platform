@@ -7,6 +7,8 @@ Feature: Dashboard Visualiser Jsreport?
     Then The service "dashboard-visualiser-jsreport" should be started with 1 replica
     And There should be 1 service
     And The service "dashboard-visualiser-jsreport" should have healthy containers
+    And The service "dashboard-visualiser-jsreport" should be connected to the networks
+      | reverse-proxy_public | elastic_public | jsreport_default |
 
   Scenario: Destroy Dashboard Visualiser Jsreport
     Given I use parameters "package destroy -n=dashboard-visualiser-jsreport --only --dev --env-file=.env.local"
@@ -15,3 +17,5 @@ Feature: Dashboard Visualiser Jsreport?
     And There should be 0 service
     And There should be 0 volume
     And There should be 0 config
+    And There should not be network
+      | reverse-proxy_public | elastic_public |

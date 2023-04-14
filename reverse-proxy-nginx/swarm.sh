@@ -7,6 +7,7 @@ declare UTILS_PATH=""
 declare TIMESTAMP
 declare TIMESTAMPED_NGINX
 declare SERVICE_NAMES=()
+declare STACK="reverse-proxy"
 
 function init_vars() {
   ACTION=$1
@@ -31,6 +32,7 @@ function init_vars() {
   readonly TIMESTAMP
   readonly TIMESTAMPED_NGINX
   readonly SERVICE_NAMES
+  readonly STACK
 }
 
 # shellcheck disable=SC1091
@@ -59,7 +61,7 @@ function publish_insecure_ports() {
 
   log info "Updating ${SERVICE_NAMES} service with configured ports..."
   try \
-    "docker service update ${ports_array[*]} instant_${SERVICE_NAMES}" \
+    "docker service update ${ports_array[*]} ${STACK}_${SERVICE_NAMES}" \
     throw \
     "Error updating ${SERVICE_NAMES} service"
   overwrite "Updating ${SERVICE_NAMES} service with configured ports... Done"
@@ -73,7 +75,7 @@ function add_insecure_configs() {
 
   log info "Updating nginx service: adding config file..."
   try \
-    "docker service update --config-add source=${TIMESTAMPED_NGINX},target=/etc/nginx/nginx.conf instant_$SERVICE_NAMES" \
+    "docker service update --config-add source=${TIMESTAMPED_NGINX},target=/etc/nginx/nginx.conf ${STACK}_$SERVICE_NAMES" \
     throw \
     "Error updating ${SERVICE_NAMES} service"
   overwrite "Updating nginx service: adding config file... Done"
@@ -84,8 +86,7 @@ function deploy_nginx() {
 
   config::generate_service_configs "$SERVICE_NAMES" /etc/nginx/conf.d "${COMPOSE_FILE_PATH}/package-conf-${DEPLOY_TYPE}" "${COMPOSE_FILE_PATH}" "nginx"
 
-  docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "docker-compose.tmp.yml"
-  docker::deploy_sanity "${SERVICE_NAMES}"
+  docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.yml" "docker-compose.tmp.yml"
 }
 
 function initialize_package() {
@@ -119,7 +120,7 @@ function initialize_package() {
 }
 
 function destroy_package() {
-  docker::service_destroy "$SERVICE_NAMES"
+  docker::stack_destroy $STACK
 
   mapfile -t nginx_secrets < <(docker secret ls -qf label=name=nginx)
   if [[ "${#nginx_secrets[@]}" -ne 0 ]]; then
@@ -130,8 +131,6 @@ function destroy_package() {
   if [[ "${#nginx_network[@]}" -ne 0 ]]; then
     try "docker network rm ${nginx_network[*]}" catch "Failed to remove nginx networks"
   fi
-
-  docker::try_remove_volume renew-certbot-conf data-certbot-conf dummy-data-certbot-conf
 
   docker::prune_configs "nginx"
 }
@@ -152,7 +151,7 @@ main() {
   elif [[ "${ACTION}" == "down" ]]; then
     log info "Scaling down package"
 
-    docker::scale_services_down "${SERVICE_NAMES}"
+    docker::scale_services $STACK 0
   elif [[ "${ACTION}" == "destroy" ]]; then
     log info "Destroying package"
     destroy_package

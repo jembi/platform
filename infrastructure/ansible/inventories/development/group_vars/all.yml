@@ -32,6 +32,10 @@ sudoers:
     username: nourborgi
     state: present
     key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDWeAUsfxlWExXiusi8ue01BsfufAli2q7+1q/FNtFy8GAmmpAy1Prrzy0uM7pcVPV5X1yPlVsz6U11JqNco8foCv4Y4z8SJHLf3eJXseNrekZ9hVwUqoH9w3zmBdeKZ4+Srb3HF+NoNSVXiU+D9MdHl9aQEaNS6kH7rXq2R83eqsBwUIWnqWjo+TVgLUODDWQPuOEnyTtKs3EcRihfxal/3rW9POgHdwRm68ypLtPsYX4g7gagBjdE5gxasnGroNgiwQoAcQFVXqfQ9yZCckv29phZybOTk101YyND2k93HM44FwjiC1wesR8Ouy2hP7Zs07OgfK0c8UYW3wGnLGV90f9LuMzs8qrSaoaj1z06Qk5SlCsGUKrY5w3Kr6DcrttvZIjpLVLRAoubFHAYwXSMlK5QCQf710iHLIwxZhl7GoWmv/HyQFEcKS66Usn32k6bBgFhUDKgANy+Rgui3oizqo8K/eFrWU25LthbcDKOzpUof+lltWQOSHsandgTdrs= nour@rino
+  - name: arran.contractor@theknowledgeelephant.com
+    username: arran
+    state: present
+    key: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIB8edPB2Qhi0DGEgSTel4yNo9Wa68g4UtHYipaVfaMN8 arran@LAPTOP-2GA5K346
 
 docker_users:
   - name: bradford.sawadye@jembi.org
@@ -66,6 +70,10 @@ docker_users:
     username: nourborgi
     state: present
     key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDWeAUsfxlWExXiusi8ue01BsfufAli2q7+1q/FNtFy8GAmmpAy1Prrzy0uM7pcVPV5X1yPlVsz6U11JqNco8foCv4Y4z8SJHLf3eJXseNrekZ9hVwUqoH9w3zmBdeKZ4+Srb3HF+NoNSVXiU+D9MdHl9aQEaNS6kH7rXq2R83eqsBwUIWnqWjo+TVgLUODDWQPuOEnyTtKs3EcRihfxal/3rW9POgHdwRm68ypLtPsYX4g7gagBjdE5gxasnGroNgiwQoAcQFVXqfQ9yZCckv29phZybOTk101YyND2k93HM44FwjiC1wesR8Ouy2hP7Zs07OgfK0c8UYW3wGnLGV90f9LuMzs8qrSaoaj1z06Qk5SlCsGUKrY5w3Kr6DcrttvZIjpLVLRAoubFHAYwXSMlK5QCQf710iHLIwxZhl7GoWmv/HyQFEcKS66Usn32k6bBgFhUDKgANy+Rgui3oizqo8K/eFrWU25LthbcDKOzpUof+lltWQOSHsandgTdrs= nour@rino
+  - name: arran.contractor@theknowledgeelephant.com
+    username: arran
+    state: present
+    key: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIB8edPB2Qhi0DGEgSTel4yNo9Wa68g4UtHYipaVfaMN8 arran@LAPTOP-2GA5K346
 
 firewall_subnet_restriction: '10.1.10.0/16'
 

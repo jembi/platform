@@ -42,6 +42,10 @@ services:
     deploy:
       placement:
         max_replicas_per_node: 1
+    networks:
+      reverse-proxy:
+      public:
+      default:
 
 configs:
   realm.json:
@@ -49,3 +53,12 @@ configs:
     name: realm.json-${realm_json_DIGEST:?err}
     labels:
       name: keycloak
+
+networks:
+  reverse-proxy:
+    name: reverse-proxy_public
+    external: true
+  public:
+    name: keycloak_public
+    external: true
+  default:

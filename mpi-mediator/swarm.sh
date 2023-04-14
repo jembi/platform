@@ -4,7 +4,7 @@ declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare SERVICE_NAMES=()
+declare STACK="mpi"
 
 function init_vars() {
   ACTION=$1
@@ -17,13 +17,11 @@ function init_vars() {
 
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-  SERVICE_NAMES=("mpi-mediator")
-
   readonly ACTION
   readonly MODE
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
-  readonly SERVICE_NAMES
+  readonly STACK
 }
 
 # shellcheck disable=SC1091
@@ -43,17 +41,16 @@ function initialize_package() {
   fi
 
   (
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$mpi_mediator_dev_compose_filename"
-    docker::deploy_sanity "${SERVICE_NAMES}"
+    docker::deploy_service "$STACK" "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$mpi_mediator_dev_compose_filename"
   ) || {
     log error "Failed to deploy package"
     exit 1
   }
-  docker::deploy_config_importer "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "mpi-mediator-config-importer" "mpi-mediator"
+  docker::deploy_config_importer $STACK "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "mpi-mediator-config-importer" "mpi-mediator"
 }
 
 function destroy_package() {
-  docker::service_destroy "${SERVICE_NAMES}" "mpi-mediator-config-importer"
+  docker::stack_destroy "$STACK"
 
   docker::prune_configs "mpi-mediator"
 }
@@ -73,7 +70,7 @@ main() {
   elif [[ "${ACTION}" == "down" ]]; then
     log info "Scaling down package"
 
-    docker::scale_services_down "${SERVICE_NAMES}"
+    docker::scale_services "$STACK" 0
   elif [[ "${ACTION}" == "destroy" ]]; then
     log info "Destroying package"
     destroy_package

@@ -35,6 +35,9 @@ services:
         source: logstash-jvm.options
       - target: /usr/share/logstash/config/pipelines.yml
         source: logstash-pipelines.yml
+    networks:
+      kafka:
+      elastic:
 
 configs:
   logstash-log4j2.properties:
@@ -62,5 +65,14 @@ configs:
     name: logstash-pipelines.yml-${logstash_pipelines_yml_DIGEST:?err}
     labels:
       name: logstash
+
 volumes:
   logstash-data:
+
+networks:
+  kafka:
+    name: kafka_public
+    external: true
+  elastic:
+    name: elastic_public
+    external: true
