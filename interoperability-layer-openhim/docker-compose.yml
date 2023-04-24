@@ -13,6 +13,7 @@ services:
       - mongo_atnaUrl=${OPENHIM_MONGO_ATNAURL}
       - api_authenticationTypes=["token", "basic"]
       - authentication_enableCustomTokenAuthentication=true
+      - router_kafkaBrokers=${KAFKA_HOSTS}
     deploy:
       replicas: ${OPENHIM_CORE_INSTANCES}
       placement:
