@@ -18,3 +18,16 @@ services:
           memory: ${JEMPI_WEB_MEMORY_LIMIT}
         reservations:
           memory: ${JEMPI_WEB_MEMORY_RESERVE}
+    networks:
+      reverse-proxy:
+      keycloak:
+      default:
+
+networks:
+  reverse-proxy:
+    name: reverse-proxy_public
+    external: true
+  keycloak:
+    name: keycloak_public
+    external: true
+  default:

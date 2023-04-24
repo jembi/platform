@@ -20,6 +20,8 @@ services:
     configs:
       - target: /fhir-enrich-reports.json
         source: fhir-enrich-reports.json
+    networks:
+      public:
 
 configs:
   fhir-enrich-reports.json:
@@ -27,3 +29,8 @@ configs:
     name: fhir-enrich-reports.json-${fhir_enrich_reports_json_DIGEST:?err}
     labels:
       name: elasticsearch
+
+networks:
+  public:
+    name: elastic_public
+    external: true

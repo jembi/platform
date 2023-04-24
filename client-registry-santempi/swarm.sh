@@ -4,8 +4,7 @@ declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare POSTGRES_SERVICES=()
-declare SERVICE_NAMES=()
+declare STACK="santempi"
 
 function init_vars() {
   ACTION=$1
@@ -18,29 +17,11 @@ function init_vars() {
 
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-  POSTGRES_SERVICES=(
-    "santempi-psql-1"
-  )
-  if [[ "${CLUSTERED_MODE}" == "true" ]]; then
-    POSTGRES_SERVICES=(
-      "${POSTGRES_SERVICES[@]}"
-      "santempi-psql-2"
-      "santempi-psql-3"
-    )
-  fi
-
-  SERVICE_NAMES=(
-    "${POSTGRES_SERVICES[@]}"
-    "santedb-www"
-    "santedb-mpi"
-  )
-
   readonly ACTION
   readonly MODE
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
-  readonly POSTGRES_SERVICES
-  readonly SERVICE_NAMES
+  readonly STACK
 }
 
 # shellcheck disable=SC1091
@@ -68,11 +49,9 @@ function initialize_package() {
   fi
 
   (
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose-postgres.yml" "$postgres_cluster_compose_filename" "$postgres_dev_compose_filename"
-    docker::deploy_sanity "${POSTGRES_SERVICES[@]}"
+    docker::deploy_service "$STACK" "${COMPOSE_FILE_PATH}" "docker-compose-postgres.yml" "$postgres_cluster_compose_filename" "$postgres_dev_compose_filename"
 
-    docker::deploy_service "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$sante_mpi_dev_compose_filename"
-    docker::deploy_sanity "santedb-mpi" "santedb-www"
+    docker::deploy_service "$STACK" "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$sante_mpi_dev_compose_filename"
   ) ||
     {
       log error "Failed to deploy package"
@@ -81,9 +60,7 @@ function initialize_package() {
 }
 
 function destroy_package() {
-  docker::service_destroy "${SERVICE_NAMES[@]}"
-
-  docker::try_remove_volume santedb-data santempi-psql-1-data
+  docker::stack_destroy "$STACK"
 
   if [[ "${CLUSTERED_MODE}" == "true" ]]; then
     log warn "Volumes are only deleted on the host on which the command is run. Postgres volumes on other nodes are not deleted"
@@ -105,7 +82,7 @@ main() {
   elif [[ "${ACTION}" == "down" ]]; then
     log info "Scaling down package"
 
-    docker::scale_services_down "${SERVICE_NAMES[@]}"
+    docker::scale_services "$STACK" 0
   elif [[ "${ACTION}" == "destroy" ]]; then
     log info "Destroying package"
     destroy_package

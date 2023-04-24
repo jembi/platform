@@ -9,6 +9,12 @@ Feature: Openhim and its dependent packages?
     And The service "openhim-console" should be started with 1 replica
     And The service "await-helper" should be removed
     And The service "interoperability-layer-openhim-config-importer" should be removed
+    And The service "mongo-1" should be connected to the networks
+      | openhim_mongo_public | mongo_backup | openhim_default |
+    And The service "openhim-core" should be connected to the networks
+      | reverse-proxy_public | keycloak_public | openhim_public | openhim_default |
+    And The service "openhim-console" should be connected to the networks
+      | reverse-proxy_public | keycloak_public | openhim_public | openhim_default |  
     And There should be 3 services
     And There should be 2 volumes
 
@@ -17,6 +23,8 @@ Feature: Openhim and its dependent packages?
     When I launch the platform with params
     Then The service "openhim-mapping-mediator" should be started with 1 replica
     And There should be 4 services
+    And The service "openhim-mapping-mediator" should be connected to the networks
+      | openhim_mongo_public | openhim_public |
 
   Scenario: Destroy Openhim and its dependent packages
     Given I use parameters "package destroy -n=interoperability-layer-openhim,client-registry-jempi,openhim-mapping-mediator --only --dev --env-file=.env.local"
@@ -28,3 +36,5 @@ Feature: Openhim and its dependent packages?
     And There should be 0 service
     And There should be 0 volume
     And There should be 0 config
+    And There should not be network
+      | reverse-proxy_public | keycloak_public | openhim_public | openhim_mongo_public | mongo_backup |

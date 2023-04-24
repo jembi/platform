@@ -29,6 +29,17 @@ services:
           memory: ${KAFKA_MEMORY_RESERVE}
       restart_policy:
         condition: on-failure
+    networks:
+      public:
+      default:
+
 
 volumes:
   kafka-01-data:
+
+
+networks:
+  public:
+    name: kafka_public
+    external: true
+  default:

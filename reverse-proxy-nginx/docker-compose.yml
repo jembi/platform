@@ -4,6 +4,8 @@ services:
   # Proxies requests to internal services
   reverse-proxy-nginx:
     image: nginx:stable
+    networks:
+      public:
     deploy:
       replicas: ${REVERSE_PROXY_INSTANCES}
       placement:
@@ -15,3 +17,8 @@ services:
         reservations:
           cpus: ${NGINX_CPU_RESERVE}
           memory: ${NGINX_MEMORY_RESERVE}
+
+networks:
+  public:
+    name: reverse-proxy_public
+    external: true
