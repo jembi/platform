@@ -494,7 +494,7 @@ docker::join_network() {
     local -r SERVICE_NAME="${1:?$(missing_param "join_network" "SERVICE_NAME")}"
     local -r NETWORK_NAME="${2:?$(missing_param "join_network" "NETWORK_NAME")}"
     local network_id
-    network_id=$(docker network ls --filter name="$NETWORK_NAME" --format '{{.ID}}')
+    network_id=$(docker network ls --filter name="$NETWORK_NAME$" --format '{{.ID}}')
     if [[ -n "${network_id}" ]]; then
         if docker service inspect "$SERVICE_NAME" --format "{{.Spec.TaskTemplate.Networks}}" | grep -q "$network_id"; then
             log info "Service $SERVICE_NAME is already connected to network $NETWORK_NAME."
