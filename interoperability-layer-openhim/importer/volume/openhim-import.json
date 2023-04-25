@@ -1,26 +1,34 @@
 {
   "Users": [
     {
-      "groups": [
-        "admin"
-      ],
+      "provider": "token",
+      "groups": ["admin"],
       "firstname": "Super",
       "surname": "User",
       "email": "root@openhim.org",
-      "passwordAlgorithm": "sha512",
-      "passwordHash": "ea3824f17cf1379eb118a36bc7c8cf0f45712e2af7748567fca5313dec6fa66d61064e82a5e5cb88e998486ee3c7d0dac235bbeda8c341d6edc1c77406be2ab6",
-      "passwordSalt": "d4f622c0404f09bd959bfb263efa3452",
       "expiry": null,
       "locked": false,
       "token": null,
       "tokenType": null
     }
   ],
+  "Passports": [
+    {
+      "protocol": "local",
+      "email": "root@openhim.org",
+      "password": "$2a$10$qvja1lAaItmcZolkoKCPn.9EXY2b8s9dTlUFx36Q7ey0rieXXnxVC"
+    },
+    {
+      "protocol": "token",
+      "email": "root@openhim.org",
+      "passwordHash": "c5e14f0062bfac45bf20f0fcf0403e758a2233756e40e7b328e1f10dfef3d8ba57c2bf230ee9fd627956fbb4e57fab7e32efe108db76d515f1f61f6b853ffba3",
+      "passwordAlgorithm": "sha512",
+      "passwordSalt": "c5f2a9fd7907e1a1c6658841426e6f5d"
+    }
+  ],
   "Clients": [
     {
-      "roles": [
-        "instant"
-      ],
+      "roles": ["instant"],
       "customTokenID": "test",
       "clientID": "test",
       "name": "Test Client"
