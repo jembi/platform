@@ -1,4 +1,4 @@
-FROM openhie/package-base:0.9.1
+FROM openhie/package-base:2.1.3
 
 # Install yq
 RUN curl -L https://github.com/mikefarah/yq/releases/download/v4.23.1/yq_linux_amd64 -o /usr/bin/yq

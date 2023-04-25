@@ -35,6 +35,11 @@
     "KC_SUPERSET_CLIENT_ID": "superset-oauth",
     "KC_SUPERSET_CLIENT_SECRET": "g0J7oLbX69dL3CS8HVjRYlhRYVsPoDbQ",
     "KC_SUPERSET_ROOT_URL": "http://localhost:8089",
-    "KC_SUPERSET_CLIENT_ROLES": "admin"
+    "KC_SUPERSET_CLIENT_ROLES": "admin",
+    "KC_OPENHIM_SSO_ENABLED": "false",
+    "KC_OPENHIM_CLIENT_ID": "openhim-oauth",
+    "KC_OPENHIM_CLIENT_SECRET": "tZKfEbWf0Ka5HBNZwFrdSyQH2xT1sNMR",
+    "KC_OPENHIM_ROOT_URL": "http://localhost:9000",
+    "KC_OPENHIM_CLIENT_ROLES": "admin"
   }
 }
