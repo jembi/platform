@@ -486,6 +486,37 @@ docker::ensure_external_networks_existence() {
     done
 }
 
+# Joins a service to a network by updating the service spec to include the network.
+#
+# Note: Do not remove if not used in the Platform as this is mainly used by
+# custom packages that cannot overwrite the docker compose file to add the network connection required.
+#
+# Arguments:
+# - $1 : service name that needs to join the network (eg. analytics-datastore-elastic-search)
+# - $2 : network name to join (eg. elastic_public)
+#
+docker::join_network() {
+    local -r SERVICE_NAME="${1:?$(missing_param "join_network" "SERVICE_NAME")}"
+    local -r NETWORK_NAME="${2:?$(missing_param "join_network" "NETWORK_NAME")}"
+    local network_id
+    network_id=$(docker network ls --filter name="$NETWORK_NAME$" --format '{{.ID}}')
+    if [[ -n "${network_id}" ]]; then
+        if docker service inspect "$SERVICE_NAME" --format "{{.Spec.TaskTemplate.Networks}}" | grep -q "$network_id"; then
+            log info "Service $SERVICE_NAME is already connected to network $NETWORK_NAME."
+        else
+            log info "Waiting to join $SERVICE_NAME to external network $NETWORK_NAME ..."
+            try \
+                "docker service update  \
+              --network-add name=$NETWORK_NAME \
+              $SERVICE_NAME" \
+                throw \
+                "Failed to join network $NETWORK_NAME"
+        fi
+    else
+        log error "Network $NETWORK_NAME does not exist, cannot join $SERVICE_NAME to it ..."
+    fi
+}
+
 # Checks the compose file(s) passed in for the existance of a config.file definition to pass to config::set_config_digests
 #
 # Arguments:

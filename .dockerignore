@@ -15,6 +15,9 @@ node_modules/
 platform-linux
 platform.exe
 platform-macos
+instant-linux
+instant.exe
+instant-macos
 
 # Dockerfiles
 platform-test-harness/PackageTest.dockerfile
