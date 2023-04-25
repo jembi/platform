@@ -42,7 +42,7 @@
     "JEMPI_OPENHIM_PASSWORD": "instant101",
     "JEMPI_SESSION_SECRET": "c05ll3lesrinf39t7mc5h6un6r0c69lgfno69dsak3vabeqamouq4328cuaekros401ajdpkh60rrt",
     "JEMPI_FILE_IMPORT_MAX_SIZE_BYTE": 128000000,
-    "REACT_APP_JEMPI_BASE_URL": "http://jempi-api:50000/JeMPI",
+    "REACT_APP_JEMPI_BASE_URL": "http://localhost:50000/JeMPI",
     "REACT_APP_MOCK_BACKEND": "false",
     "JEMPI_WEB_VERSION": "latest",
     "JEMPI_WEB_INSTANCES": 1,
