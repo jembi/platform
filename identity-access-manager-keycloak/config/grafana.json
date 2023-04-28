@@ -24,6 +24,7 @@
   "protocol": "openid-connect",
   "attributes": {
     "oidc.ciba.grant.enabled": "false",
+    "post.logout.redirect.uris": "${KC_GRAFANA_ROOT_URL}/login",
     "client.secret.creation.time": "1672390081",
     "backchannel.logout.session.required": "true",
     "oauth2.device.authorization.grant.enabled": "false",
