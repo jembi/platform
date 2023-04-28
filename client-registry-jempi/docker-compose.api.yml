@@ -12,6 +12,8 @@ services:
       JEMPI_SESSION_SECRET: ${JEMPI_SESSION_SECRET}
       kafka.bootstrap.servers: ${KAFKA_HOSTS}
       JEMPI_FILE_IMPORT_MAX_SIZE_BYTE: ${JEMPI_FILE_IMPORT_MAX_SIZE_BYTE}
+      JEMPI_SESSION_SECURE: ${JEMPI_SESSION_SECURE}
+      DOMAIN_NAME: ${DOMAIN_NAME}
     deploy:
       replicas: 1
       resources:
@@ -24,6 +26,7 @@ services:
       keycloak:
       kafka:
       default:
+
 
 networks:
   reverse-proxy:
