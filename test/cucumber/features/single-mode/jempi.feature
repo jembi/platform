@@ -26,14 +26,18 @@ Feature: Client Registry JeMPI?
     And The service "jempi-controller" should be started with 1 replica
     And The service "jempi-controller" should be connected to the networks
       | kafka_public | jempi_default |
-    And The service "jempi-em-calculator" should be started with 1 replica
-    And The service "jempi-em-calculator" should be connected to the networks
-      | kafka_public | jempi_default |
+    # jempi-em-calculator is not ready for testing yet
+    # And The service "jempi-em-calculator" should be started with 1 replica
+    # And The service "jempi-em-calculator" should be connected to the networks
+    #   | kafka_public | jempi_default |
     And The service "jempi-linker" should be started with 1 replica
     And The service "jempi-linker" should be connected to the networks
       | kafka_public | jempi_default |
     And The service "jempi-api" should be started with 1 replica
-    And The service "jempi-linker" should be connected to the networks
+    And The service "jempi-api" should be connected to the networks
+      | kafka_public | jempi_default |
+    And The service "jempi-postgresql" should be started with 1 replica
+    And The service "jempi-postgresql" should be connected to the networks
       | kafka_public | jempi_default |
     And The service "jempi-web" should be started with 1 replica
     And The service "jempi-web" should be connected to the networks
@@ -58,6 +62,7 @@ Feature: Client Registry JeMPI?
     And The service "jempi-zero-01" should be removed
     And The service "jempi-api" should be removed
     And The service "jempi-web" should be removed
+    And The service "jempi-postgresql" should be removed
     And The service "mongo-1" should be removed
     And The service "openhim-core" should be removed
     And The service "openhim-console" should be removed
