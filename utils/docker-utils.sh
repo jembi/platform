@@ -209,7 +209,7 @@ docker::prune_volumes() {
         fi
 
         # Ignore volumes attached to a container but are not apart of a service definition
-        if [[ -n $(docker ps -a --filter volume=$volume) ]]; then
+        if [[ -n $(docker ps -a -q --filter volume=$volume) ]]; then
             continue
         fi
 
