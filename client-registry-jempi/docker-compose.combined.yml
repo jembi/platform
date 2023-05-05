@@ -93,7 +93,6 @@ services:
 
   jempi-postgresql:
     image: bitnami/postgresql:15.2.0
-    hostname: postgresql
     environment:
       POSTGRESQL_USERNAME: ${POSTGRESQL_USERNAME}
       POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
