@@ -210,6 +210,7 @@ docker::prune_volumes() {
 
         # Ignore volumes attached to a container but are not apart of a service definition
         local start_time=$(date +%s)
+        local shouldIgnore=true
         if [[ -n $(docker ps -a -q --filter volume=$volume) ]]; then
             local timeDiff=$(($(date +%s) - $start_time))
             until [[ $timeDiff -ge 10 ]]; do
@@ -217,9 +218,12 @@ docker::prune_volumes() {
                 if [[ -n $(docker ps -a -q --filter volume=$volume) ]]; then 
                     sleep 1
                 else
-                    continue
+                    shouldIgnore=false
                 fi
             done
+            if $shouldIgnore; then
+                continue
+            fi
         fi
 
         log info "Waiting for volume $volume to be removed..."
