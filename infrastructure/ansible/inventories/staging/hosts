@@ -1,7 +1,8 @@
 [leader]
-
+{ip_1} name=node-1
 
 [managers]
-
+{ip_2} name=node-2
+{ip_3} name=node-3
 
 [workers]
