@@ -29,7 +29,8 @@
     "backchannel.logout.session.required": "true",
     "oauth2.device.authorization.grant.enabled": "false",
     "display.on.consent.screen": "false",
-    "backchannel.logout.revoke.offline.tokens": "false"
+    "backchannel.logout.revoke.offline.tokens": "false",
+    "frontchannel.logout.url": "${KC_GRAFANA_ROOT_URL}/logout"
   },
   "authenticationFlowBindingOverrides": {},
   "fullScopeAllowed": true,
