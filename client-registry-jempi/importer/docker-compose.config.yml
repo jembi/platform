@@ -18,7 +18,6 @@ services:
       kafka:
       default:
 
-
 configs:
   jempi-kafka.js:
     file: ./kafka.js

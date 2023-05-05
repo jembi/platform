@@ -4,7 +4,11 @@
   "description": "A patient matching and deduplicater for the platform",
   "type": "infrastructure",
   "version": "0.0.1",
-  "dependencies": ["interoperability-layer-openhim", "message-bus-kafka"],
+  "dependencies": [
+    "interoperability-layer-openhim",
+    "message-bus-kafka",
+    "identity-access-manager-keycloak"
+  ],
   "environmentVariables": {
     "KAFKA_HOSTS": "kafka-01:9092",
     "JEMPI_ZERO_01_MEMORY_LIMIT": "3G",

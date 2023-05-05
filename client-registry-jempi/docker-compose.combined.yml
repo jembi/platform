@@ -113,6 +113,9 @@ services:
     configs:
       - target: /docker-entrypoint-initdb.d/jempi_psql_init_db.sql
         source: jempi_psql_init_db.sql
+    networks:
+      kafka:
+      default:
 
 volumes:
   jempi-psql-01-data:
