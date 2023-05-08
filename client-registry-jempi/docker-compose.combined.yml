@@ -91,8 +91,43 @@ services:
       kafka:
       default:
 
+  jempi-postgresql:
+    image: bitnami/postgresql:15.2.0
+    environment:
+      POSTGRESQL_USERNAME: ${POSTGRESQL_USERNAME}
+      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
+      ALLOW_EMPTY_PASSWORD: "yes"
+    deploy:
+      mode: replicated
+      replicas: 1
+      resources:
+        limits:
+          cpus: ${JEMPI_POSTGRES_CPU_LIMIT}
+          memory: ${JEMPI_POSTGRES_MEMORY_LIMIT}
+        reservations:
+          cpus: ${JEMPI_POSTGRES_CPU_RESERVE}
+          memory: ${JEMPI_POSTGRES_MEMORY_RESERVE}
+    volumes:
+      - "jempi-psql-01-data:/bitnami/postgresql"
+    configs:
+      - target: /docker-entrypoint-initdb.d/jempi_psql_init_db.sql
+        source: jempi_psql_init_db.sql
+    networks:
+      kafka:
+      default:
+
+volumes:
+  jempi-psql-01-data:
+
 networks:
   kafka:
     name: kafka_public
     external: true
   defualt:
+
+configs:
+  jempi_psql_init_db.sql:
+    file: ./importer/jempi_psql_init_db.sql
+    name: jempi_psql_init_db.sql-${jempi_psql_init_db_sql_DIGEST:?err}
+    labels:
+      name: jempi

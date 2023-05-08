@@ -23,7 +23,7 @@ configs:
     file: ./kafka.js
     name: jempi-kafka-config.js-${jempi_kafka_config_DIGEST:?err}
     labels:
-      name: jempi-kafka
+      name: jempi
 
 networks:
   kafka:
