@@ -24,6 +24,6 @@ services:
 
   jempi-postgresql:
     ports:
-      - published: 5432
-        target: 5435
+      - published: 5435
+        target: 5432
         mode: host
