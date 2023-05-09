@@ -1,0 +1,15 @@
+---
+- name: "install auditd"
+  apt:
+    name: auditd
+    state: latest
+
+- name: "fetch best practice Auditd config"
+  get_url:
+    url: https://raw.githubusercontent.com/Neo23x0/auditd/master/audit.rules
+    dest: /etc/audit/rules.d/audit.rules
+
+- name: "restart auditd service"
+  ansible.builtin.service:
+    name: auditd
+    state: restarted
