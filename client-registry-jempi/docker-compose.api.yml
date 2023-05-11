@@ -12,6 +12,9 @@ services:
       JEMPI_SESSION_SECRET: ${JEMPI_SESSION_SECRET}
       kafka.bootstrap.servers: ${KAFKA_HOSTS}
       JEMPI_FILE_IMPORT_MAX_SIZE_BYTE: ${JEMPI_FILE_IMPORT_MAX_SIZE_BYTE}
+      JEMPI_SESSION_SECURE: ${JEMPI_SESSION_SECURE}
+      JEMPI_SESSION_DOMAIN_NAME: ${DOMAIN_NAME}
+      postgres.server: jempi-postgresql
     deploy:
       replicas: 1
       resources:
@@ -20,11 +23,16 @@ services:
         reservations:
           memory: ${JEMPI_API_MEMORY_RESERVE}
     networks:
+      reverse-proxy:
       keycloak:
       kafka:
       default:
 
+
 networks:
+  reverse-proxy:
+    name: reverse-proxy_public
+    external: true
   keycloak:
     name: keycloak_public
     external: true
