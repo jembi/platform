@@ -6,9 +6,10 @@ services:
     environment:
       REACT_APP_JEMPI_BASE_URL: ${REACT_APP_JEMPI_BASE_URL}
       REACT_APP_MOCK_BACKEND: ${REACT_APP_MOCK_BACKEND}
-      KC_FRONTEND_URL: ${KC_FRONTEND_URL}
-      KC_REALM_NAME: ${KC_REALM_NAME}
-      KC_JEMPI_CLIENT_ID: ${KC_JEMPI_CLIENT_ID}
+      REACT_APP_KC_FRONTEND_URL: ${KC_FRONTEND_URL}
+      REACT_APP_KC_REALM_NAME: ${KC_REALM_NAME}
+      REACT_APP_KC_JEMPI_CLIENT_ID: ${KC_JEMPI_CLIENT_ID}
+    command: sh -c "yarn build && serve -s build"
     deploy:
       replicas: ${JEMPI_WEB_INSTANCES}
       placement:
@@ -22,6 +23,7 @@ services:
       reverse-proxy:
       keycloak:
       default:
+
 
 networks:
   reverse-proxy:
