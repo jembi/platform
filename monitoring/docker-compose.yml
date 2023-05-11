@@ -57,7 +57,6 @@ services:
       reverse-proxy:
       default:
 
-
   prometheus:
     image: prom/prometheus:v2.38.0
     user: root
@@ -76,7 +75,6 @@ services:
     networks:
       public:
       default:
-
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.45.0
@@ -156,7 +154,6 @@ services:
       reverse-proxy:
       default:
 
-
 configs:
   grafana.ini:
     file: ./grafana/grafana.ini
@@ -225,7 +222,6 @@ volumes:
   loki-data:
   minio-01-data1:
   minio-01-data2:
-
 
 networks:
   keycloak:
