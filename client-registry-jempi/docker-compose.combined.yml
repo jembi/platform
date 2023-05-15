@@ -6,7 +6,7 @@ services:
     environment:
       kafka.bootstrap.servers: ${KAFKA_HOSTS}
     deploy:
-      replicas: 1
+      replicas: ${JEMPI_COMBINED_INSTANCES}
       resources:
         limits:
           memory: ${JEMPI_ASYNC_RECEIVER_MEMORY_LIMIT}
@@ -21,7 +21,7 @@ services:
     environment:
       kafka.bootstrap.servers: ${KAFKA_HOSTS}
     deploy:
-      replicas: 1
+      replicas: ${JEMPI_COMBINED_INSTANCES}
       resources:
         limits:
           memory: ${JEMPI_SYNC_RECEIVER_MEMORY_LIMIT}
@@ -36,7 +36,7 @@ services:
     environment:
       kafka.bootstrap.servers: ${KAFKA_HOSTS}
     deploy:
-      replicas: 1
+      replicas: ${JEMPI_COMBINED_INSTANCES}
       resources:
         limits:
           memory: ${JEMPI_PRE_PROCESSOR_MEMORY_LIMIT}
@@ -51,7 +51,7 @@ services:
     environment:
       kafka.bootstrap.servers: ${KAFKA_HOSTS}
     deploy:
-      replicas: 1
+      replicas: ${JEMPI_COMBINED_INSTANCES}
       resources:
         limits:
           memory: ${JEMPI_CONTROLLER_MEMORY_LIMIT}
@@ -66,7 +66,7 @@ services:
     environment:
       kafka.bootstrap.servers: ${KAFKA_HOSTS}
     deploy:
-      replicas: 1
+      replicas: ${JEMPI_COMBINED_INSTANCES}
       resources:
         limits:
           memory: ${JEMPI_EM_CALCULATOR_MEMORY_LIMIT}
@@ -81,7 +81,7 @@ services:
     environment:
       kafka.bootstrap.servers: ${KAFKA_HOSTS}
     deploy:
-      replicas: 1
+      replicas: ${JEMPI_COMBINED_INSTANCES}
       resources:
         limits:
           memory: ${JEMPI_LINKER_MEMORY_LIMIT}
@@ -91,11 +91,16 @@ services:
       kafka:
       default:
 
-  jempi-postgresql:
-    image: bitnami/postgresql:15.2.0
+  jempi-postgresql-01:
+    image: bitnami/postgresql-repmgr:15.2.0
     environment:
       POSTGRESQL_USERNAME: ${POSTGRESQL_USERNAME}
       POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
+      REPMGR_PASSWORD: ${JEMPI_REPMGR_PASSWORD}
+      REPMGR_PRIMARY_HOST: ${JEMPI_REPMGR_PRIMARY_HOST}
+      REPMGR_PARTNER_NODES: ${JEMPI_REPMGR_PARTNER_NODES}
+      REPMGR_NODE_NAME: jempi-postgresql-01
+      REPMGR_NODE_NETWORK_NAME: jempi-postgresql-01
       ALLOW_EMPTY_PASSWORD: "yes"
     deploy:
       mode: replicated
@@ -112,10 +117,7 @@ services:
     configs:
       - target: /docker-entrypoint-initdb.d/jempi_psql_init_db.sql
         source: jempi_psql_init_db.sql
-    networks:
-      kafka:
-      default:
-
+  
 volumes:
   jempi-psql-01-data:
 
