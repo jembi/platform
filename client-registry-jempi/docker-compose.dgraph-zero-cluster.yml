@@ -42,7 +42,7 @@ services:
           memory: ${JEMPI_ZERO_MEMORY_RESERVE}
       restart_policy:
         condition: on-failure
-    command: dgraph zero --my=jempi-zero-03:5080 --replicas=3 --peer=jempi-zero-01:5080 --raft "idx=3"
+    command: dgraph zero --my=jempi-zero-03:5080 --replicas 3 --peer=jempi-zero-01:5080 --raft "idx=3"
 
 volumes:
   jempi-zero-02-data:
