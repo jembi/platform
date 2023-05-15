@@ -2,14 +2,7 @@ version: '3.9'
 
 services:
   kafka-01:
-    environment:
-      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,LOCAL://:19092
-      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,LOCAL:PLAINTEXT
-      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka-01:9092,LOCAL://localhost:19092
     ports:
       - target: 9092
         published: 9092
-        mode: host
-      - target: 19092
-        published: 19092
         mode: host
