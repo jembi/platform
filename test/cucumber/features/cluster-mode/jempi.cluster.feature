@@ -2,8 +2,8 @@ Feature: Client Registry JeMPI?
   Does the Client Registry JeMPI package work as expected
 
   Scenario: Init Client Registry JeMPI
-    Given I use parameters "package init -n=client-registry-jempi --dev --env-file=.env.cluster"
-        When I launch the platform with params
+    Given I use parameters "package up -n=client-registry-jempi --dev --env-file=.env.cluster"
+    When I launch the platform with params
     Then The service "mongo-1" should be started with 1 replica
     And The service "mongo-1" should be started with 1 replica
     And The service "mongo-1" should be started with 1 replica
