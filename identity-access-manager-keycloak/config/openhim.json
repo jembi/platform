@@ -29,7 +29,8 @@
     "post.logout.redirect.uris": "${KC_OPENHIM_ROOT_URL}",
     "display.on.consent.screen": "false",
     "oauth2.device.authorization.grant.enabled": "false",
-    "backchannel.logout.revoke.offline.tokens": "false"
+    "backchannel.logout.revoke.offline.tokens": "false",
+    "frontchannel.logout.url": "${KC_OPENHIM_ROOT_URL}/#!/logout"
   },
   "authenticationFlowBindingOverrides": {},
   "fullScopeAllowed": true,

@@ -32,6 +32,7 @@ services:
       GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH: "contains(roles[*], 'admin') && 'Admin' || contains(roles[*], 'editor') && 'Editor' || 'Viewer'"
       GF_SERVER_DOMAIN: ${GF_SERVER_DOMAIN}
       GF_SERVER_ROOT_URL: ${KC_GRAFANA_ROOT_URL}
+      GF_AUTH_SIGNOUT_REDIRECT_URL: "${KC_FRONTEND_URL}/realms/${KC_REALM_NAME}/protocol/openid-connect/logout?client_id=${KC_GRAFANA_CLIENT_ID}&post_logout_redirect_uri=${KC_GRAFANA_ROOT_URL}/login"
     configs:
       - target: /etc/grafana/grafana.ini
         source: grafana.ini
