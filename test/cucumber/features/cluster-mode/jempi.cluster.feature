@@ -25,23 +25,23 @@ Feature: Client Registry JeMPI?
     And The service "jempi-zero-01" should be started with 1 replica
     And The service "jempi-zero-02" should be started with 1 replica
     And The service "jempi-zero-03" should be started with 1 replica
-    And The service "jempi-async-receiver" should be started with 3 replica
+    And The service "jempi-async-receiver" should be started with 1 replica
     And The service "jempi-async-receiver" should be connected to the networks
       | kafka_public | jempi_default |
-    And The service "jempi-sync-receiver" should be started with 3 replica
+    And The service "jempi-sync-receiver" should be started with 1 replica
     And The service "jempi-sync-receiver" should be connected to the networks
       | kafka_public | jempi_default |
-    And The service "jempi-pre-processor" should be started with 3 replica
+    And The service "jempi-pre-processor" should be started with 1 replica
     And The service "jempi-pre-processor" should be connected to the networks
       | kafka_public | jempi_default |
-    And The service "jempi-controller" should be started with 3 replica
+    And The service "jempi-controller" should be started with 1 replica
     And The service "jempi-controller" should be connected to the networks
       | kafka_public | jempi_default |
     # jempi-em-calculator is not ready for testing yet
     # And The service "jempi-em-calculator" should be started with 3 replica
     # And The service "jempi-em-calculator" should be connected to the networks
     #   | kafka_public | jempi_default |
-    And The service "jempi-linker" should be started with 3 replica
+    And The service "jempi-linker" should be started with 1 replica
     And The service "jempi-linker" should be connected to the networks
       | kafka_public | jempi_default |
     And The service "jempi-api" should be started with 3 replica

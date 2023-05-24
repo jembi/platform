@@ -6,7 +6,7 @@ services:
     environment:
       kafka.bootstrap.servers: ${KAFKA_HOSTS}
     deploy:
-      replicas: ${JEMPI_COMBINED_INSTANCES}
+      replicas: ${JEMPI_ASYNC_RECEIVER_INSTANCE}
       resources:
         limits:
           memory: ${JEMPI_ASYNC_RECEIVER_MEMORY_LIMIT}
@@ -21,7 +21,7 @@ services:
     environment:
       kafka.bootstrap.servers: ${KAFKA_HOSTS}
     deploy:
-      replicas: ${JEMPI_COMBINED_INSTANCES}
+      replicas: ${JEMPI_SYNC_RECEIVER_INSTANCES}
       resources:
         limits:
           memory: ${JEMPI_SYNC_RECEIVER_MEMORY_LIMIT}
@@ -36,7 +36,7 @@ services:
     environment:
       kafka.bootstrap.servers: ${KAFKA_HOSTS}
     deploy:
-      replicas: ${JEMPI_COMBINED_INSTANCES}
+      replicas: ${JEMPI_PRE_PROCESSOR_INSTANCES}
       resources:
         limits:
           memory: ${JEMPI_PRE_PROCESSOR_MEMORY_LIMIT}
@@ -51,7 +51,7 @@ services:
     environment:
       kafka.bootstrap.servers: ${KAFKA_HOSTS}
     deploy:
-      replicas: ${JEMPI_COMBINED_INSTANCES}
+      replicas: ${JEMPI_CONTROLLER_INSTANCES}
       resources:
         limits:
           memory: ${JEMPI_CONTROLLER_MEMORY_LIMIT}
@@ -66,7 +66,7 @@ services:
     environment:
       kafka.bootstrap.servers: ${KAFKA_HOSTS}
     deploy:
-      replicas: ${JEMPI_COMBINED_INSTANCES}
+      replicas: ${JEMPI_EM_CALCULATOR_INSTANCES}
       resources:
         limits:
           memory: ${JEMPI_EM_CALCULATOR_MEMORY_LIMIT}
@@ -81,7 +81,7 @@ services:
     environment:
       kafka.bootstrap.servers: ${KAFKA_HOSTS}
     deploy:
-      replicas: ${JEMPI_COMBINED_INSTANCES}
+      replicas: ${JEMPI_LINKER_INSTANCES}
       resources:
         limits:
           memory: ${JEMPI_LINKER_MEMORY_LIMIT}
