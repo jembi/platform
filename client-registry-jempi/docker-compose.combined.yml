@@ -6,7 +6,7 @@ services:
     environment:
       kafka.bootstrap.servers: ${KAFKA_HOSTS}
     deploy:
-      replicas: ${JEMPI_ASYNC_RECEIVER_INSTANCE}
+      replicas: ${JEMPI_ASYNC_RECEIVER_INSTANCES}
       resources:
         limits:
           memory: ${JEMPI_ASYNC_RECEIVER_MEMORY_LIMIT}
