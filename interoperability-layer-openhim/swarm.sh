@@ -31,11 +31,6 @@ function import_sources() {
   source "${UTILS_PATH}/log.sh"
 }
 
-function prepare_console_config() {
-  # Replace env vars
-  envsubst <"${COMPOSE_FILE_PATH}/importer/volume/default-env.json" >"${COMPOSE_FILE_PATH}/importer/volume/default.json"
-}
-
 function initialize_package() {
   local mongo_cluster_compose_filename=""
   local mongo_dev_compose_filename=""
@@ -59,8 +54,6 @@ function initialize_package() {
     if [[ "${CLUSTERED_MODE}" == "true" ]] && [[ "${ACTION}" == "init" ]]; then
       try "${COMPOSE_FILE_PATH}/initiate-replica-set.sh $STACK" throw "Fatal: Initiate Mongo replica set failed"
     fi
-
-    prepare_console_config
 
     docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$openhim_dev_compose_filename"
 
