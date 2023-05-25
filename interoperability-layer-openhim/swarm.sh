@@ -31,11 +31,6 @@ function import_sources() {
   source "${UTILS_PATH}/log.sh"
 }
 
-function prepare_console_config() {
-  # Replace env vars
-  envsubst <"${COMPOSE_FILE_PATH}/importer/volume/default-env.json" >"${COMPOSE_FILE_PATH}/importer/volume/default.json"
-}
-
 function initialize_package() {
   local mongo_cluster_compose_filename=""
   local mongo_dev_compose_filename=""
@@ -62,8 +57,6 @@ function initialize_package() {
       try "docker exec -i $(docker ps -q -f name=openhim_mongo-1) mongo --eval \"rs.initiate()\"" throw "Could not initiate replica set for the single mongo instance. Some services use \
       mongo event listeners which only work with a replica set"
     fi
-
-    prepare_console_config
 
     docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$openhim_dev_compose_filename"
 
