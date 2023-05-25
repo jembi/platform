@@ -1,6 +1,7 @@
 # Table of contents
 
-* [Getting Started](README.md)
+* [About](README.md)
+* [Getting Started](<README (1).md>)
 * [Packages](packages/README.md)
   * [Interoperability Layer Openhim](packages/interoperability-layer-openhim/README.md)
     * [Local Development](packages/interoperability-layer-openhim/local-development.md)

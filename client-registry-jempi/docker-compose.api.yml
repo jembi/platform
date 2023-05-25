@@ -14,9 +14,9 @@ services:
       JEMPI_FILE_IMPORT_MAX_SIZE_BYTE: ${JEMPI_FILE_IMPORT_MAX_SIZE_BYTE}
       JEMPI_SESSION_SECURE: ${JEMPI_SESSION_SECURE}
       JEMPI_SESSION_DOMAIN_NAME: ${DOMAIN_NAME}
-      postgres.server: jempi-postgresql
+      postgres.server: ${JEMPI_REPMGR_PARTNER_NODES}
     deploy:
-      replicas: 1
+      replicas: ${JEMPI_API_INSTANCES}
       resources:
         limits:
           memory: ${JEMPI_API_MEMORY_LIMIT}

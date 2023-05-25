@@ -24,7 +24,6 @@ services:
       keycloak:
       default:
 
-
 networks:
   reverse-proxy:
     name: reverse-proxy_public

@@ -9,14 +9,12 @@ services:
       replicas: 1
       resources:
         limits:
-          memory: ${JEMPI_ZERO_01_MEMORY_LIMIT}
+          memory: ${JEMPI_ZERO_MEMORY_LIMIT}
         reservations:
-          memory: ${JEMPI_ZERO_01_MEMORY_RESERVE}
+          memory: ${JEMPI_ZERO_MEMORY_RESERVE}
       restart_policy:
         condition: on-failure
     command: dgraph zero --my=jempi-zero-01:5080 --replicas 1
 
 volumes:
   jempi-zero-01-data:
-
-
