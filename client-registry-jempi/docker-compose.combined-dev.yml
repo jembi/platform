@@ -22,7 +22,7 @@ services:
         protocol: tcp
         mode: host
 
-  jempi-postgresql:
+  jempi-postgresql-01:
     ports:
       - published: 5435
         target: 5432

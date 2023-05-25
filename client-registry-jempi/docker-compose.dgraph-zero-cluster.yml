@@ -6,3 +6,44 @@ services:
       placement:
         constraints:
           - node.labels.name == node-1
+    command: dgraph zero --my=jempi-zero-01:5080 --replicas 3 --bindall --raft "idx=1"
+  
+  jempi-zero-02:
+    image: dgraph/dgraph:v22.0.0
+    volumes:
+      - jempi-zero-02-data:/dgraph
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.name == node-2
+      resources:
+        limits:
+          memory: ${JEMPI_ZERO_MEMORY_LIMIT}
+        reservations:
+          memory: ${JEMPI_ZERO_MEMORY_RESERVE}
+      restart_policy:
+        condition: on-failure
+    command: dgraph zero --my=jempi-zero-02:5080 --replicas 3 --peer=jempi-zero-01:5080 --raft "idx=2"
+
+  jempi-zero-03:
+    image: dgraph/dgraph:v22.0.0
+    volumes:
+      - jempi-zero-03-data:/dgraph
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.name == node-3
+      resources:
+        limits:
+          memory: ${JEMPI_ZERO_MEMORY_LIMIT}
+        reservations:
+          memory: ${JEMPI_ZERO_MEMORY_RESERVE}
+      restart_policy:
+        condition: on-failure
+    command: dgraph zero --my=jempi-zero-03:5080 --replicas 3 --peer=jempi-zero-01:5080 --raft "idx=3"
+
+volumes:
+  jempi-zero-02-data:
+  jempi-zero-03-data:
