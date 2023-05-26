@@ -21,7 +21,7 @@ The following tools are needed to run/deploy platform:
 2. Download the [Instant OpenHIE 2 binary](https://jembi.gitbook.io/instant-v2/getting-started). Once you are able to execute the instant executable, return here.
 3. Create the logging directory using `mkdir -p /tmp/logs/`
 4. Download the latest Jembi Platform config file which configures Instant OpenHIE 2 to use Jembi Platform packages: `wget https://raw.githubusercontent.com/jembi/platform/main/config.yaml`
-5. Download the latest environment variable file, which set configuration options for Jembi Platofrm packages: `wget https://raw.githubusercontent.com/jembi/platform/main/.env.local`
+5. Download the latest environment variable file, which sets configuration options for Jembi Platform packages: `wget https://raw.githubusercontent.com/jembi/platform/main/.env.local`
 6. Launch some Jembi Platform packages, e.g. `./instant package init --name interoperability-layer-openhim --name message-bus-kafka --env-file .env.local --dev` This launches the OpenHIM and Kafka packages in dev mode (which exposes service ports for development purposes) using the config supplied in the env var file.
 
 Next, you might want to browse the packages available in Jembi Platform. Each package's documentation lists the variables used to configure them. For more information on how to start stop and destroy packages using the command line, see the [Instant OpenHIE 2 CLI docs](https://jembi.gitbook.io/instant-v2/cli).
