@@ -6,28 +6,22 @@ description: What you need to start using Platform.
 
 ## Software Requirements
 
-The following tools are needed to run/deploy the stack:
+The following tools are needed to run/deploy platform:
 
-* [Git CLI](https://git-scm.com/book/en/v2/Getting-Started-The-Command-Line)
-* [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install) (for windows users)&#x20;
 * [Docker](https://docs.docker.com/engine/install/)
 
-You will need first to clone the project on your machine.
-
 {% hint style="info" %}
-* If you're a _**Windows**_** user,** you should limit the amount of RAM/CPU that will be used by WSL, for more details please check the following link: [Limiting memory usage in WSL2](https://www.aleksandrhovhannisyan.com/blog/limiting-memory-usage-in-wsl-2/).
-* You should run the following command to initialize docker swarm on your machine: `docker swarm init.`
+* If you're a _**Windows**_** user**, you must use WSL2 to be able to run the platform.
+* You should limit the amount of RAM/CPU that will be used by WSL, for more details please check the following link: [Limiting memory usage in WSL2](https://www.aleksandrhovhannisyan.com/blog/limiting-memory-usage-in-wsl-2/).
 {% endhint %}
 
-## Tech Prerequisites
+## Quick Start
 
-* [Docker-Swarm](https://docs.docker.com/engine/swarm/swarm-tutorial/create-swarm/) (example of a version used: v20.10.18)
-* [Terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli) (for remote deploys only, example of a version used: v1.2.9)
-* [Ansible](https://docs.ansible.com/ansible/latest/installation\_guide/intro\_installation.html) (for remote deploys only, example of a version used: v2.9.6)
+1. Once Docker is installed initialise Docker Swarm: `docker swarm init`
+2. Download the [Instant OpenHIE 2 binary](https://jembi.gitbook.io/instant-v2/getting-started). Once you are able to execute the instant executable, return here.
+3. Create the logging directory using `mkdir -p /tmp/logs/`
+4. Download the latest Jembi Platform config file which configures Instant OpenHIE 2 to use Jembi Platform packages: `wget https://raw.githubusercontent.com/jembi/platform/main/config.yaml`
+5. Download the latest environment variable file, which set configuration options for Jembi Platofrm packages: `wget https://raw.githubusercontent.com/jembi/platform/main/.env.local`
+6. Launch some Jembi Platform packages, e.g. `./instant package init --name interoperability-layer-openhim --name message-bus-kafka --env-file .env.local --dev` This launches the OpenHIM and Kafka packages in dev mode (which exposes service ports for development purposes) using the config supplied in the env var file.
 
-## Quick Start for Devs
-
-1. From the project root directory, run the `get-cli.sh [linux|windows|macos]` script to download the [platform-cli](http://localhost:5000/o/lTiMw1wKTVQEjepxV4ou/s/TwrbQZir3ZdvejunAFia/) executable.
-2. Create the logging directory using `sudo mkdir -p /tmp/logs/`.
-3. Run the `build-image.sh` script to build the Jembi Platform docker image
-4. Run the project using the [platform-cli executable](http://localhost:5000/o/lTiMw1wKTVQEjepxV4ou/s/TwrbQZir3ZdvejunAFia/). Refer to the [platform-cli docs](http://localhost:5000/o/lTiMw1wKTVQEjepxV4ou/s/TwrbQZir3ZdvejunAFia/) on usage tips.
+Next, you might want to browse the packages available in Jembi Platform. Each package's documentation lists the variables used to configure them. For more information on how to start stop and destroy packages using the command line, see the [Instant OpenHIE 2 CLI docs](https://jembi.gitbook.io/instant-v2/cli).
