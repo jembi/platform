@@ -31,7 +31,7 @@ services:
           memory: ${OPENHIM_MEMORY_RESERVE}
 
   openhim-console:
-    image: jembi/openhim-console:v1.16.2
+    image: jembi/openhim-console:v1.17.0
     environment:
       OPENHIM_CORE_MEDIATOR_HOSTNAME: ${OPENHIM_CORE_MEDIATOR_HOSTNAME}
       OPENHIM_MEDIATOR_API_PORT: ${OPENHIM_MEDIATOR_API_PORT}
@@ -44,9 +44,6 @@ services:
       keycloak:
       public:
       default:
-    configs:
-      - source: console-default.json
-        target: /usr/share/nginx/html/config/default.json
     deploy:
       replicas: ${OPENHIM_CONSOLE_INSTANCES}
       placement:
@@ -58,13 +55,6 @@ services:
         reservations:
           cpus: ${OPENHIM_CONSOLE_CPU_RESERVE}
           memory: ${OPENHIM_CONSOLE_MEMORY_RESERVE}
-
-configs:
-  console-default.json:
-    file: ./importer/volume/default.json
-    name: console.config-${console_config_DIGEST:?err}
-    labels:
-      name: openhim
 
 networks:
   reverse-proxy:
