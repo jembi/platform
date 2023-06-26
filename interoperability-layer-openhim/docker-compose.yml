@@ -4,6 +4,8 @@ services:
   openhim-core:
     image: jembi/openhim-core:v8.0.1
     networks:
+      kafka:
+      hapi-fhir:
       reverse-proxy:
       keycloak:
       public:
@@ -57,6 +59,12 @@ services:
           memory: ${OPENHIM_CONSOLE_MEMORY_RESERVE}
 
 networks:
+  kafka:
+    name: kafka_public
+    external: true
+  hapi-fhir:
+    name: hapi-fhir_public
+    external: true
   reverse-proxy:
     name: reverse-proxy_public
     external: true
