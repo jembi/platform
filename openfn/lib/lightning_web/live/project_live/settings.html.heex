@@ -1,0 +1,238 @@
+<LayoutComponents.page_content>
+  <:header>
+    <LayoutComponents.header socket={@socket} current_user={@current_user}>
+      <:title><%= @page_title %></:title>
+    </LayoutComponents.header>
+  </:header>
+  <LayoutComponents.centered>
+    <div class=" relative flex">
+      <div class="pr-4 pt-0 sticky top-0 self-start rounded-md">
+        <div class="flex-none">
+          <LightningWeb.Components.Common.tab_bar
+            orientation="vertical"
+            id={@project.id}
+            default_hash="project"
+          >
+            <LightningWeb.Components.Common.tab_item
+              orientation="vertical"
+              hash="project"
+            >
+              <Heroicons.clipboard class="h-5 w-5 inline-block mr-2 align-middle" />
+              <span class="inline-block align-middle">Project</span>
+            </LightningWeb.Components.Common.tab_item>
+            <LightningWeb.Components.Common.tab_item
+              orientation="vertical"
+              hash="credentials"
+            >
+              <Heroicons.key class="h-5 w-5 inline-block mr-2" />
+              <span class="inline-block align-middle">Credentials</span>
+            </LightningWeb.Components.Common.tab_item>
+            <LightningWeb.Components.Common.tab_item
+              orientation="vertical"
+              hash="collaboration"
+            >
+              <Heroicons.users class="h-5 w-5 inline-block mr-2" />
+              <span class="inline-block align-middle">Collaboration</span>
+            </LightningWeb.Components.Common.tab_item>
+          </LightningWeb.Components.Common.tab_bar>
+        </div>
+      </div>
+
+      <div class="flex-1 flex flex-col h-full w-full border-separate border-spacing-y-4 text-left text-sm text-gray-500 dark:text-gray-400">
+        <LightningWeb.Components.Common.panel_content for_hash="project">
+          <div id="project-settings-#" class="bg-white p-4 rounded-md">
+            <div>
+              <h6 class="font-medium text-black">Project details</h6>
+              <small class="block my-1 text-xs text-gray-600">
+                Projects are isolated workspaces that contain workflows, accessible to certain users.
+              </small>
+            </div>
+            <.form
+              :let={f}
+              for={@project_changeset}
+              id="project-settings-form"
+              phx-change="validate"
+              phx-submit="save"
+            >
+              <div class="hidden sm:block" aria-hidden="true">
+                <div class="py-2"></div>
+              </div>
+              <div class="grid grid-cols gap-6">
+                <div class="md:col-span-2">
+                  <LightningWeb.Components.Form.text_field
+                    form={f}
+                    disabled={!@can_edit_project_name}
+                    label="Project name"
+                    field={:name}
+                  />
+                </div>
+              </div>
+              <div class="hidden sm:block" aria-hidden="true">
+                <div class="py-3"></div>
+              </div>
+              <div class="grid grid-cols gap-6">
+                <div class="md:col-span-2">
+                  <LightningWeb.Components.Form.text_area
+                    classes="mt-1 focus:ring-primary-500 focus:border-primary-500 block w-full shadow-sm sm:text-sm border-secondary-300 rounded-md"
+                    form={f}
+                    disabled={!@can_edit_project_description}
+                    label="Project description"
+                    id={:description}
+                  />
+                  <small class="mt-2 block text-xs text-gray-600">
+                    A short description of a project [max 240 characters]
+                  </small>
+                </div>
+              </div>
+              <div class="hidden sm:block" aria-hidden="true">
+                <div class="py-4"></div>
+              </div>
+              <div class="grid grid-cols gap-6">
+                <div class="md:col-span-2">
+                  <LightningWeb.Components.Form.submit_button
+                    disabled={
+                      !(@project_changeset.valid? and @can_edit_project_name and
+                          @can_edit_project_description)
+                    }
+                    phx-disable-with="Saving"
+                  >
+                    Save
+                  </LightningWeb.Components.Form.submit_button>
+                </div>
+              </div>
+            </.form>
+          </div>
+          <%= if @can_delete_project do %>
+            <div class="hidden sm:block" aria-hidden="true">
+              <div class="py-2"></div>
+            </div>
+            <div id="project-settings-#" class="bg-white p-4 rounded-md">
+              <div>
+                <h6 class="font-medium text-black">The danger zone</h6>
+                <small class="block my-1 text-xs text-gray-600">
+                  Deleting your project is irreversible
+                </small>
+                <div class="hidden sm:block" aria-hidden="true">
+                  <div class="py-2"></div>
+                </div>
+                <.link navigate={
+                  Routes.project_project_settings_path(
+                    @socket,
+                    :delete,
+                    @project.id
+                  )
+                }>
+                  <button
+                    type="button"
+                    class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-danger-500 hover:bg-danger-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-danger-500"
+                  >
+                    Delete project
+                  </button>
+                </.link>
+              </div>
+            </div>
+          <% end %>
+
+          <%= if @live_action == :delete and @can_delete_project do %>
+            <.live_component
+              module={LightningWeb.Components.ProjectDeletionModal}
+              id={@project.id}
+              project={@project}
+              save_return_to={~p"/"}
+              cancel_return_to={~p"/projects/#{@project.id}/settings"}
+            />
+          <% end %>
+        </LightningWeb.Components.Common.panel_content>
+        <LightningWeb.Components.Common.panel_content for_hash="credentials">
+          <div>
+            <h6 class="font-medium text-black">Project credentials</h6>
+            <small class="block my-1 text-xs text-gray-600">
+              View and edit credentials that are currently accesible for use in this project.
+            </small>
+          </div>
+          <div class="hidden sm:block" aria-hidden="true">
+            <div class="py-2"></div>
+          </div>
+          <.table id="credentials">
+            <.tr>
+              <.th>Name</.th>
+              <.th>Type</.th>
+              <.th>Owner</.th>
+              <.th>Production</.th>
+              <.th>Actions</.th>
+            </.tr>
+
+            <%= for credential <- @credentials do %>
+              <.tr id={"credential-#{credential.id}"}>
+                <.td><%= credential.name %></.td>
+                <.td><%= credential.schema %></.td>
+                <.td><%= credential.user.email %></.td>
+                <.td>
+                  <%= if credential.production do %>
+                    <div class="flex">
+                      <Heroicons.exclamation_triangle class="w-5 h-5 text-secondary-500" />
+                      &nbsp;Production
+                    </div>
+                  <% end %>
+                </.td>
+                <.td>
+                  <%= if credential.user_id == @current_user.id do %>
+                    <span>
+                      <.link navigate={
+                        Routes.credential_edit_path(@socket, :edit, credential)
+                      }>
+                        Edit
+                      </.link>
+                    </span>
+                  <% end %>
+                </.td>
+              </.tr>
+            <% end %>
+          </.table>
+        </LightningWeb.Components.Common.panel_content>
+        <LightningWeb.Components.Common.panel_content for_hash="collaboration">
+          <div>
+            <h6 class="font-medium text-black">Project collaboration</h6>
+            <small class="block my-1 text-xs text-gray-600">
+              View collaborators and manage alert settings for this project.
+            </small>
+          </div>
+          <div class="hidden sm:block" aria-hidden="true">
+            <div class="py-2"></div>
+          </div>
+          <.table id="collaborators">
+            <.tr>
+              <.th>Collaborator</.th>
+              <.th>Role</.th>
+              <.th>Failure Alert</.th>
+              <.th>Digest</.th>
+            </.tr>
+
+            <%= for project_user <- @project_users do %>
+              <.tr id={"project_user-#{project_user.id}"}>
+                <.td>
+                  <.user project_user={project_user} />
+                </.td>
+                <.td>
+                  <.role project_user={project_user} />
+                </.td>
+                <.td>
+                  <.failure_alert
+                    current_user={@current_user}
+                    project_user={project_user}
+                  />
+                </.td>
+                <.td>
+                  <.digest
+                    current_user={@current_user}
+                    project_user={project_user}
+                  />
+                </.td>
+              </.tr>
+            <% end %>
+          </.table>
+        </LightningWeb.Components.Common.panel_content>
+      </div>
+    </div>
+  </LayoutComponents.centered>
+</LayoutComponents.page_content>

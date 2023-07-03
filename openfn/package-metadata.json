@@ -1,0 +1,9 @@
+{
+  "id": "openfn",
+  "name": "openfn",
+  "description": "A package to be used with the platform",
+  "type": "infrastructure",
+  "version": "0.0.1",
+  "dependencies": [],
+  "environmentVariables": {}
+}

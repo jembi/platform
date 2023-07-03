@@ -1,0 +1,54 @@
+<main class="h-screen w-screen">
+  <div class="flex flex-row h-full">
+    <div class="flex-none w-48 bg-primary-800 text-white h-full">
+      <div class="flex flex-col h-full">
+        <div class="w-full h-20 bg-primary-900 flex items-center justify-center mb-4">
+          <img
+            class="h-10 w-10"
+            src={Routes.static_path(@socket || @conn, "/images/logo-white.svg")}
+            alt="OpenFn"
+          />
+        </div>
+        <Settings.menu_item
+          to={Routes.project_index_path(@socket, :index)}
+          active={@active_menu_item == :projects}
+        >
+          <Heroicons.building_library class="h-5 w-5 inline-block mr-2" />
+          <span class="inline-block align-middle">Projects</span>
+        </Settings.menu_item>
+        <Settings.menu_item
+          to={Routes.user_index_path(@socket, :index)}
+          active={@active_menu_item == :users}
+        >
+          <Heroicons.user_group class="h-5 w-5 inline-block mr-2" />
+          <span class="inline-block align-middle">Users</span>
+        </Settings.menu_item>
+        <Settings.menu_item
+          to={Routes.auth_providers_index_path(@socket, :edit)}
+          active={@active_menu_item == :authentication}
+        >
+          <Heroicons.key class="h-5 w-5 inline-block mr-2" />
+          <span class="inline-block align-middle">Authentication</span>
+        </Settings.menu_item>
+        <Settings.menu_item
+          to={Routes.audit_index_path(@socket, :index)}
+          active={@active_menu_item == :audit}
+        >
+          <Heroicons.archive_box class="h-5 w-5 inline-block mr-2" />
+          <span class="inline-block align-middle">Audit</span>
+        </Settings.menu_item>
+        <div class="grow"></div>
+        <Settings.menu_item to={Routes.dashboard_index_path(@socket, :index)}>
+          <Icon.left class="h-5 w-5 inline-block mr-2" />
+          <span class="inline-block align-middle">Back</span>
+        </Settings.menu_item>
+        <LightningWeb.Components.Common.version_chip />
+      </div>
+    </div>
+    <div class="flex-auto">
+      <.live_info_block flash={@flash} />
+      <.live_error_block flash={@flash} />
+      <%= @inner_content %>
+    </div>
+  </div>
+</main>
