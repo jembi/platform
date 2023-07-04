@@ -1,0 +1,9 @@
+{
+  "id": "dashboard-visualiser-dhis2",
+  "name": "dashboard-visualiser-dhis2",
+  "description": "Flexible information system for data capture, management, validation, analytics and visualization.",
+  "type": "infrastructure",
+  "version": "0.0.1",
+  "dependencies": [],
+  "environmentVariables": {}
+}

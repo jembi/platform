@@ -1,0 +1,5 @@
+version: '3.9'
+
+services:
+  dashboard-visualiser-dhis2:
+    image: dhis2/core:2.38.4.2
