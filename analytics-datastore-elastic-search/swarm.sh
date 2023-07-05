@@ -78,7 +78,7 @@ function create_certs() {
 
 function add_docker_configs() {
   local -r TIMESTAMP="$(date "+%Y%m%d%H%M%S")"
-  local -r path_config_certs="/usr/share/elasticsearch/config/certs/"
+  local -r path_config_certs="/usr/share/elasticsearch/config/certs"
 
   log info "Creating configs..."
 

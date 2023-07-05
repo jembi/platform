@@ -22,6 +22,9 @@
     "HF_POSTGRES_MEMORY_RESERVE": "500M",
     "HF_POSTGRESQL_PASSWORD": "instant101",
     "HF_POSTGRESQL_USERNAME": "admin",
-    "HF_POSTGRESQL_DATABASE": "hapi"
+    "HF_POSTGRESQL_DATABASE": "hapi",
+    "HF_PGPOOL_NODES": "0:postgres-1:5432,1:postgres-2:5432,2:postgres-3:5432",
+    "HF_PGPOOL_USERNAME": "pgadmin",
+    "HF_PGPOOL_PASSWORD": "dev_password_only"
   }
 }
