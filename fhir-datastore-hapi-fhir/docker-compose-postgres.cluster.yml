@@ -78,6 +78,13 @@ services:
     deploy:
       placement:
         max_replicas_per_node: 1
+      resources:
+        limits:
+          cpus: ${HF_PGPOOL_CPU_LIMIT}
+          memory: ${HF_PGPOOL_MEMORY_LIMIT}
+        reservations:
+          cpus: ${HF_PGPOOL_CPU_RESERVE}
+          memory: ${HF_PGPOOL_MEMORY_RESERVE}
     configs:
       - target: /config/custom_pgpool.conf
         source: pgpool.conf
@@ -103,6 +110,13 @@ services:
     deploy:
       placement:
         max_replicas_per_node: 1
+      resources:
+        limits:
+          cpus: ${HF_PGPOOL_CPU_LIMIT}
+          memory: ${HF_PGPOOL_MEMORY_LIMIT}
+        reservations:
+          cpus: ${HF_PGPOOL_CPU_RESERVE}
+          memory: ${HF_PGPOOL_MEMORY_RESERVE}
     configs:
       - target: /config/custom_pgpool.conf
         source: pgpool.conf
@@ -128,6 +142,13 @@ services:
     deploy:
       placement:
         max_replicas_per_node: 1
+      resources:
+        limits:
+          cpus: ${HF_PGPOOL_CPU_LIMIT}
+          memory: ${HF_PGPOOL_MEMORY_LIMIT}
+        reservations:
+          cpus: ${HF_PGPOOL_CPU_RESERVE}
+          memory: ${HF_PGPOOL_MEMORY_RESERVE}
     configs:
       - target: /config/custom_pgpool.conf
         source: pgpool.conf
