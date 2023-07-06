@@ -1,5 +1,58 @@
-version: '3.9'
+version: "3.9"
 
 services:
-  dashboard-visualiser-dhis2:
-    image: dhis2/core:2.38.4.2
+  db:
+    image: ghcr.io/baosystems/postgis:12-3.3
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: dhis
+      POSTGRES_DB: dhis
+      POSTGRES_PASSWORD: &postgres_password dhis
+      PGPASSWORD: *postgres_password
+    networks:
+      dhis-postgres:
+    healthcheck:
+      test: ["CMD-SHELL", "psql --no-password --quiet --username $$POSTGRES_USER postgres://127.0.0.1/$$POSTGRES_DB -p 5432 --command \"SELECT 'ok'\" > /dev/null"]
+      start_period: 120s
+      interval: 1s
+      timeout: 3s
+      retries: 5
+
+  web:
+    image: "dhis2/core:2.38.4.2"
+    ports:
+      - "8080:8080"
+    environment:
+      JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n \
+                -Dlog4j2.configurationFile=/opt/dhis2/log4j2.xml
+                -Dcom.sun.management.jmxremote \
+                -Dcom.sun.management.jmxremote.local.only=false \
+                -Dcom.sun.management.jmxremote.authenticate=false \
+                -Dcom.sun.management.jmxremote.ssl=false"
+    configs:
+      - target: /opt/dhis2/dhis.conf
+        source: dhis2-dhis.conf
+      - target: /opt/dhis2/log4j2.xml
+        source: dhis2-log4j2.xml
+    networks:
+      dhis-public:
+      dhis-postgres:
+    depends_on:
+      - db
+
+configs:
+  dhis2-dhis.conf:
+    file: ./dhis.conf
+    name: dhis.conf-${dhis2_dhis_conf_DIGEST:?err}
+  dhis2-log4j2.xml:
+    file: ./log4j2.xml
+    name: log4j2.xml-${dhis2_log4j2_xml_DIGEST:?err}
+
+networks:
+  dhis-public:
+    name: dhis2-public
+    external: true
+  dhis-postgres:
+    name: dhis-postgres
+    external: false

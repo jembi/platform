@@ -5,5 +5,15 @@
   "type": "infrastructure",
   "version": "0.0.1",
   "dependencies": [],
-  "environmentVariables": {}
+  "environmentVariables": {
+    "DHIS2_CONFIG": "dhis.conf",
+    "DHIS2_INSTANCES": "1",
+    "DHIS2_POSTGRES_PASSWORD": "postgres",
+    "DHIS2_POSTGRESQL_PASSWORD": "DHIS2DB123",
+    "POSTGRESQL_DATABASE": "dhis2",
+    "POSTGRESQL_USERNAME": "postgres",
+    "DHIS2_POSTGRESQL_USERNAME": "dhis2db",
+    "DHIS2_REPMGR_PRIMARY_HOST": "dhis2-psql-1",
+    "DHIS2_REPMGR_PARTNER_NODES": "dhis2-psql-1"
+  }
 }
