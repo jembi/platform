@@ -8,12 +8,17 @@
   "environmentVariables": {
     "DHIS2_CONFIG": "dhis.conf",
     "DHIS2_INSTANCES": "1",
-    "DHIS2_POSTGRES_PASSWORD": "postgres",
-    "DHIS2_POSTGRESQL_PASSWORD": "DHIS2DB123",
-    "POSTGRESQL_DATABASE": "dhis2",
-    "POSTGRESQL_USERNAME": "postgres",
-    "DHIS2_POSTGRESQL_USERNAME": "dhis2db",
-    "DHIS2_REPMGR_PRIMARY_HOST": "dhis2-psql-1",
-    "DHIS2_REPMGR_PARTNER_NODES": "dhis2-psql-1"
+    "REPMGR_PRIMARY_HOST": "dhis-postgres-1",
+    "REPMGR_PARTNER_NODES": "dhis-postgres-1",
+    "REPMGR_PASSWORD": "instant101",
+    "POSTGRES_REPLICA_SET": "dhis-postgres-1:5432",
+    "DHIS_POSTGRESQL_POSTGRES_PASSWORD": "postgres",
+    "DHIS_POSTGRES_CPU_LIMIT": "0",
+    "DHIS_POSTGRES_CPU_RESERVE": "0.05",
+    "DHIS_POSTGRES_MEMORY_LIMIT": "3G",
+    "DHIS_POSTGRES_MEMORY_RESERVE": "500M",
+    "DHIS_POSTGRESQL_PASSWORD": "instant101",
+    "DHIS_POSTGRESQL_USERNAME": "postgres",
+    "DHIS_POSTGRESQL_DATABASE": "dhis"
   }
 }
