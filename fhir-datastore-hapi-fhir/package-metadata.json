@@ -27,7 +27,7 @@
     "HF_PGPOOL_USERNAME": "pgadmin",
     "HF_PGPOOL_PASSWORD": "dev_password_only",
     "HF_PGPOOL_CPU_LIMIT": "0",
-    "HF_PGPOOL_MEMORY_LIMIT": "250M",
+    "HF_PGPOOL_MEMORY_LIMIT": "500M",
     "HF_PGPOOL_CPU_RESERVE": "0.05",
     "HF_PGPOOL_MEMORY_RESERVE": "50M"
   }
