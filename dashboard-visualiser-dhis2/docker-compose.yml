@@ -1,6 +1,17 @@
 version: "3.9"
 
 services:
+  db-dump:
+    image: busybox # busybox wget version does not have --no-clobber, so we need to do the [ -f ] test
+    command: sh -c '[ -f dump.sql.gz ] && echo "dump.sql.gz exists" || wget --output-document dump.sql.gz $$DHIS2_DB_DUMP_URL' # only download file if it does not exist
+    environment:
+      DHIS2_DB_DUMP_URL: "${DHIS2_DB_DUMP_URL:-https://databases.dhis2.org/sierra-leone/dev/dhis2-db-sierra-leone.sql.gz}"
+    working_dir: /opt/dump
+    networks:
+      dhis-postgres:
+    volumes:
+      - db-dump:/opt/dump
+
   db:
     image: ghcr.io/baosystems/postgis:12-3.3
     ports:
@@ -10,6 +21,8 @@ services:
       POSTGRES_DB: dhis
       POSTGRES_PASSWORD: &postgres_password dhis
       PGPASSWORD: *postgres_password
+    volumes:
+      - db-dump:/docker-entrypoint-initdb.d/
     networks:
       dhis-postgres:
     healthcheck:
@@ -18,6 +31,8 @@ services:
       interval: 1s
       timeout: 3s
       retries: 5
+    depends_on:
+      - db-dump
 
   web:
     image: "dhis2/core:2.38.4.2"
@@ -56,3 +71,6 @@ networks:
   dhis-postgres:
     name: dhis-postgres
     external: false
+
+volumes:
+  db-dump:
