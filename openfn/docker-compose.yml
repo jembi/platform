@@ -1,22 +1,4 @@
-x-lightning:
-  &default-app
-  build:
-    dockerfile: Dockerfile-dev
-    context: "."
-    target: "${MIX_ENV:-dev}"
-    args:
-      - "MIX_ENV=${MIX_ENV:-dev}"
-      - "NODE_ENV=${NODE_ENV:-development}"
-  depends_on:
-    - "postgres"
-  env_file:
-    - ".env"
-  restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
-  stop_grace_period: "3s"
-  tty: ${TTY:-false}
-  volumes:
-    - "${LIGHTNING_VOLUME:-./priv/static:/app/priv/static}"
-
+version: '3.9'
 services:
   postgres:
     deploy:
@@ -26,15 +8,25 @@ services:
           memory: "${DOCKER_POSTGRES_MEMORY:-0}"
     env_file:
       - ".env"
+    environment:
+      POSTGRES_DB: "lightning_dev"
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_HOST: postgres
     image: "postgres:14.2-alpine"
-    restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
     stop_grace_period: "3s"
-    volumes:
-      - "postgres:/var/lib/postgresql/data"
+    # volumes:
+    #    - ./database_dump.sql:/docker-entrypoint-initdb.d/10-db_dump.sql
 
   web:
-    <<: *default-app
+  
     image: openfn/lightning
+    depends_on:
+      - "postgres"
+    env_file:
+      - ".env"
+    # volumes:
+    #   - "${LIGHTNING_VOLUME:-./priv/static:/app/priv/static}"
     deploy:
       resources:
         limits:
@@ -46,8 +38,12 @@ services:
       timeout: "3s"
       start_period: "5s"
       retries: 3
+    environment:
+      - DISABLE_DB_SSL=true
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/lightning_dev
     ports:
+      # - "${LIGHTNING_EXTERNAL_PORT:-127.0.0.1:${PORT}}:${URL_PORT}"
       - 4000:4000
 
 volumes:
-  postgres:
+  postgres: {}

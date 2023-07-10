@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="superset-export">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/dashboard-visualiser-superset/importer/config/superset-export.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

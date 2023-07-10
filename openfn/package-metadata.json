@@ -5,5 +5,8 @@
   "type": "infrastructure",
   "version": "0.0.1",
   "dependencies": [],
-  "environmentVariables": {}
+  "environmentVariables": {
+    "SECRET_KEY_BASE": "please_generate_a_more_secure_unique_secret_value_for_your_project",
+    "PRIMARY_ENCRYPTION_KEY": "0bJ9w+hn4ebQrsCaWXuA9JY49fP9kbHmywGd5K7k+/s="
+  }
 }

@@ -3,6 +3,6 @@ version: '3.9'
 services:
   openfn:
     ports:
-      - target: 8080
-        published: 8081
+      - target: 4000
+        published: 4000
         mode: host
