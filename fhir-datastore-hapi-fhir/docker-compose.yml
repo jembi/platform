@@ -30,10 +30,10 @@ services:
           cpus: ${HAPI_FHIR_CPU_RESERVE}
           memory: ${HAPI_FHIR_MEMORY_RESERVE}
     healthcheck:
-      test: /bin/wget --no-verbose --tries=1 --spider http://localhost:8080
+      test: /bin/wget --no-verbose --tries=1 --spider http://localhost:8080/fhir/Organization?identifier=urn:healthcheck
       interval: 30s
-      timeout: 5s
-      retries: 5
+      timeout: 30s
+      retries: 2
       start_period: 2m
 
 networks:
