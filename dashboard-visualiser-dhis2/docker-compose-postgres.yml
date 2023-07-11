@@ -15,7 +15,7 @@ services:
       REPMGR_PARTNER_NODES: ${REPMGR_PARTNER_NODES}
       POSTGRESQL_POSTGRES_PASSWORD: ${DHIS_POSTGRESQL_POSTGRES_PASSWORD}
     volumes:
-      - "hapi-postgres-1-data:/bitnami/postgresql"
+      - "dhis-postgres-1-data:/bitnami/postgresql"
     deploy:
       replicas: 1
       resources:
@@ -31,7 +31,7 @@ services:
       pg_backup_net:
 
 volumes:
-  hapi-postgres-1-data:
+  dhis-postgres-1-data:
 
 networks:
   default:
