@@ -1,10 +1,8 @@
 version: "3.9"
 
 services:
-  web:
+  dashboard-visualiser-dhis2:
     image: "dhis2/core:2.38.4.3"
-    ports:
-      - "8080:8080"
     environment:
       JAVA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n \
                 -Dlog4j2.configurationFile=/opt/dhis2/log4j2.xml
@@ -27,9 +25,13 @@ configs:
   dhis2-dhis.conf:
     file: ./dhis.conf
     name: dhis.conf-${dhis2_dhis_conf_DIGEST:?err}
+    labels: 
+      name: dhis
   dhis2-log4j2.xml:
     file: ./log4j2.xml
     name: log4j2.xml-${dhis2_log4j2_xml_DIGEST:?err}
+    labels: 
+      name: dhis
 
 networks:
   dhis-public:
