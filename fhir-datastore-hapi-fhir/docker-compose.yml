@@ -16,9 +16,9 @@ services:
       - spring.datasource.validation-query=select 1
       - spring.datasource.hikari.maximumPoolSize=1000
       - spring.datasource.hikari.minimumIdle=10
-      - spring.datasource.hikari.idleTimeout=00000
-      - spring.datasource.hikari.connectionTimeout=600000
-      - spring.datasource.hikari.leakDetectionThreshold=500000
+      - spring.datasource.hikari.idleTimeout=30000
+      - spring.datasource.hikari.connectionTimeout=800000
+      - spring.datasource.hikari.leakDetectionThreshold=900000
       - spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQL95Dialect
       - hapi.fhir.allow_external_references=true
       - hapi.fhir.bulk_export_enabled=true
