@@ -9,17 +9,17 @@ Feature: Fhir Datastore HAPI-FHIR?
       | hapi-fhir_postgres_public | hapi-fhir_default | pg_backup |
     And The service "postgres-2" should be started with 1 replica
     And The service "postgres-2" should be connected to the networks
-      | hapi-fhir_default |
+      | hapi-fhir_default | pg_backup |
     And The service "postgres-3" should be started with 1 replica
     And The service "postgres-3" should be connected to the networks
-      | hapi-fhir_default |
+      | hapi-fhir_default | pg_backup |
         And The service "postgres-3" should be started with 1 replica
     And The service "pgpool-1" should be connected to the networks
-      | hapi-fhir_default| pg_backup |
+      | hapi-fhir_default |
     And The service "pgpool-2" should be connected to the networks
-      | hapi-fhir_default| pg_backup |
+      | hapi-fhir_default |
     And The service "pgpool-3" should be connected to the networks
-      | hapi-fhir_default| pg_backup |
+      | hapi-fhir_default |
     And The service "hapi-fhir" should be started with 3 replicas
     And The service "hapi-fhir" should be connected to the networks
       | mpi_public | hapi-fhir_public | hapi-fhir_default |
