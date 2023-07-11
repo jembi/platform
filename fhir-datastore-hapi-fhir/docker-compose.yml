@@ -8,7 +8,7 @@ services:
       public:
       default:
     environment:
-      - spring.datasource.url=jdbc:postgresql://${POSTGRES_REPLICA_SET}/hapi?targetServerType=primary
+      - spring.datasource.url=jdbc:postgresql://${HAPI_DB_SET}/hapi?targetServerType=primary
       - spring.datasource.username=${HF_POSTGRESQL_USERNAME}
       - spring.datasource.password=${HF_POSTGRESQL_PASSWORD}
       - spring.datasource.driverClassName=org.postgresql.Driver

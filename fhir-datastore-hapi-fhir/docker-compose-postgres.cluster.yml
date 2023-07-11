@@ -38,8 +38,6 @@ services:
           memory: ${HF_POSTGRES_MEMORY_RESERVE}
     networks:
       default:
-      hapi-fhir-postgres:
-      pg_backup_net: {}
 
   postgres-3:
     image: bitnami/postgresql-repmgr:14
@@ -70,8 +68,6 @@ services:
           memory: ${HF_POSTGRES_MEMORY_RESERVE}
     networks:
       default:
-      hapi-fhir-postgres:
-      pg_backup_net: {}
 
   pgpool-1:
     image: bitnami/pgpool:4.4.3
@@ -106,6 +102,7 @@ services:
       PGPOOL_USER_CONF_FILE: "/config/custom_pgpool.conf"
     networks:
       default:
+      pg_backup_net:
 
   pgpool-2:
     image: bitnami/pgpool:4.4.3
@@ -140,6 +137,7 @@ services:
       PGPOOL_USER_CONF_FILE: "/config/custom_pgpool.conf"
     networks:
       default:
+      pg_backup_net:
 
   pgpool-3:
     image: bitnami/pgpool:4.4.3
@@ -174,6 +172,7 @@ services:
       PGPOOL_USER_CONF_FILE: "/config/custom_pgpool.conf"
     networks:
       default:
+      pg_backup_net:
 
 configs:
   pgpool.conf:
