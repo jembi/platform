@@ -10,6 +10,17 @@ services:
                 -Dcom.sun.management.jmxremote.local.only=false \
                 -Dcom.sun.management.jmxremote.authenticate=false \
                 -Dcom.sun.management.jmxremote.ssl=false"
+    deploy:
+      replicas: ${DHIS_INSTANCES}
+      placement:
+        max_replicas_per_node: 1
+      resources:
+        limits:
+          cpus: ${DHIS_CPU_LIMIT}
+          memory: ${DHIS_MEMORY_LIMIT}
+        reservations:
+          cpus: ${DHIS_CPU_RESERVE}
+          memory: ${DHIS_MEMORY_RESERVE}
     configs:
       - target: /opt/dhis2/dhis.conf
         source: dhis2-dhis.conf
