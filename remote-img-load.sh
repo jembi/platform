@@ -21,5 +21,5 @@ fi
 
 ./build-image.sh "$TAG_NAME"
 echo "Transfering image to ${HOST} ..."
-docker save jembi/platform:latest | bzip2 | ssh "${USER}@${HOST}" docker load
+docker save jembi/platform:$TAG_NAME | bzip2 | ssh "${USER}@${HOST}" docker load
 echo "Image transfered"
