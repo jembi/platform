@@ -27,7 +27,9 @@
     "test:cluster:jempi": "cucumber-js 'features/cluster-mode/jempi.cluster.feature'",
     "test:single:mpi-mediator": "cucumber-js 'features/single-mode/mpi-mediator.feature'",
     "test:single:monitoring": "cucumber-js 'features/single-mode/monitoring.feature'",
-    "test:cluster:monitoring": "cucumber-js 'features/cluster-mode/monitoring.feature'"
+    "test:cluster:monitoring": "cucumber-js 'features/cluster-mode/monitoring.feature'",
+    "test:single:dashboard-visualiser-dhis2": "cucumber-js 'features/single-mode/dashboard-visualiser-dhis2.feature'",
+    "test:cluster:dashboard-visualiser-dhis2": "cucumber-js 'features/cluster-mode/dashboard-visualiser-dhis2.feature'"
   },
   "devDependencies": {
     "@cucumber/cucumber": "8.5.0",
