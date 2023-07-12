@@ -1,0 +1,24 @@
+{
+  "id": "dashboard-visualiser-dhis2",
+  "name": "dashboard-visualiser-dhis2",
+  "description": "Flexible information system for data capture, management, validation, analytics and visualization.",
+  "type": "infrastructure",
+  "version": "0.0.1",
+  "dependencies": [],
+  "environmentVariables": {
+    "DHIS2_CONFIG": "dhis.conf",
+    "DHIS2_INSTANCES": "1",
+    "REPMGR_PRIMARY_HOST": "dhis-postgres-1",
+    "REPMGR_PARTNER_NODES": "dhis-postgres-1",
+    "REPMGR_PASSWORD": "instant101",
+    "POSTGRES_REPLICA_SET": "dhis-postgres-1:5432",
+    "DHIS_POSTGRESQL_POSTGRES_PASSWORD": "postgres",
+    "DHIS_POSTGRES_CPU_LIMIT": "0",
+    "DHIS_POSTGRES_CPU_RESERVE": "0.05",
+    "DHIS_POSTGRES_MEMORY_LIMIT": "3G",
+    "DHIS_POSTGRES_MEMORY_RESERVE": "500M",
+    "DHIS_POSTGRESQL_PASSWORD": "instant101",
+    "DHIS_POSTGRESQL_USERNAME": "postgres",
+    "DHIS_POSTGRESQL_DATABASE": "dhis"
+  }
+}
