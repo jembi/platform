@@ -21,6 +21,7 @@ services:
       REPMGR_NODE_NAME: postgres-2
       REPMGR_PRIMARY_HOST: ${REPMGR_PRIMARY_HOST}
       REPMGR_PARTNER_NODES: ${REPMGR_PARTNER_NODES}
+      POSTGRESQL_POSTGRES_PASSWORD: ${HAPI_POSTGRES_PASSWORD}
     volumes:
       - 'hapi-postgres-2-data:/bitnami/postgresql'
     deploy:
@@ -37,9 +38,7 @@ services:
           memory: ${HF_POSTGRES_MEMORY_RESERVE}
     networks:
       default:
-      hapi-fhir-postgres:
-      pg_backup_net: {}
-
+      pg_backup_net:
 
   postgres-3:
     image: bitnami/postgresql-repmgr:14
@@ -53,6 +52,7 @@ services:
       REPMGR_NODE_NAME: postgres-3
       REPMGR_PRIMARY_HOST: ${REPMGR_PRIMARY_HOST}
       REPMGR_PARTNER_NODES: ${REPMGR_PARTNER_NODES}
+      POSTGRESQL_POSTGRES_PASSWORD: ${HAPI_POSTGRES_PASSWORD}
     volumes:
       - 'hapi-postgres-3-data:/bitnami/postgresql'
     deploy:
@@ -69,9 +69,131 @@ services:
           memory: ${HF_POSTGRES_MEMORY_RESERVE}
     networks:
       default:
-      hapi-fhir-postgres:
-      pg_backup_net: {}
+      pg_backup_net:
 
+  pgpool-1:
+    image: bitnami/pgpool:4.4.3
+    deploy:
+      placement:
+        max_replicas_per_node: 1
+      resources:
+        limits:
+          cpus: ${HF_PGPOOL_CPU_LIMIT}
+          memory: ${HF_PGPOOL_MEMORY_LIMIT}
+        reservations:
+          cpus: ${HF_PGPOOL_CPU_RESERVE}
+          memory: ${HF_PGPOOL_MEMORY_RESERVE}
+    configs:
+      - target: /config/custom_pgpool.conf
+        source: pgpool.conf
+      - target: /opt/bitnami/pgpool/conf/pgpool_node_id
+        source: pgpool_node_id0.conf
+    environment:
+      PGPOOL_BACKEND_NODES: ${HF_PGPOOL_NODES}
+      PGPOOL_BACKEND_APPLICATION_NAMES: ${REPMGR_PARTNER_NODES}
+      PGPOOL_SR_CHECK_USER: postgres
+      PGPOOL_SR_CHECK_PASSWORD: ${HAPI_POSTGRES_PASSWORD}
+      PGPOOL_POSTGRES_USERNAME: postgres
+      PGPOOL_POSTGRES_PASSWORD: ${HAPI_POSTGRES_PASSWORD}
+      PGPOOL_ADMIN_USERNAME: ${HF_PGPOOL_USERNAME}
+      PGPOOL_ADMIN_PASSWORD: ${HF_PGPOOL_PASSWORD}
+      PGPOOL_POSTGRES_CUSTOM_USERS: ${HF_POSTGRESQL_USERNAME}
+      PGPOOL_POSTGRES_CUSTOM_PASSWORDS: ${HF_POSTGRESQL_PASSWORD}
+      PGPOOL_ENABLE_LOAD_BALANCING: "no"
+      PGPOOL_AUTO_FAILBACK: "yes"
+      PGPOOL_USER_CONF_FILE: "/config/custom_pgpool.conf"
+    networks:
+      default:
+
+  pgpool-2:
+    image: bitnami/pgpool:4.4.3
+    deploy:
+      placement:
+        max_replicas_per_node: 1
+      resources:
+        limits:
+          cpus: ${HF_PGPOOL_CPU_LIMIT}
+          memory: ${HF_PGPOOL_MEMORY_LIMIT}
+        reservations:
+          cpus: ${HF_PGPOOL_CPU_RESERVE}
+          memory: ${HF_PGPOOL_MEMORY_RESERVE}
+    configs:
+      - target: /config/custom_pgpool.conf
+        source: pgpool.conf
+      - target: /opt/bitnami/pgpool/conf/pgpool_node_id
+        source: pgpool_node_id1.conf
+    environment:
+      PGPOOL_BACKEND_NODES: ${HF_PGPOOL_NODES}
+      PGPOOL_BACKEND_APPLICATION_NAMES: ${REPMGR_PARTNER_NODES}
+      PGPOOL_SR_CHECK_USER: postgres
+      PGPOOL_SR_CHECK_PASSWORD: ${HAPI_POSTGRES_PASSWORD}
+      PGPOOL_POSTGRES_USERNAME: postgres
+      PGPOOL_POSTGRES_PASSWORD: ${HAPI_POSTGRES_PASSWORD}
+      PGPOOL_ADMIN_USERNAME: ${HF_PGPOOL_USERNAME}
+      PGPOOL_ADMIN_PASSWORD: ${HF_PGPOOL_PASSWORD}
+      PGPOOL_POSTGRES_CUSTOM_USERS: ${HF_POSTGRESQL_USERNAME}
+      PGPOOL_POSTGRES_CUSTOM_PASSWORDS: ${HF_POSTGRESQL_PASSWORD}
+      PGPOOL_ENABLE_LOAD_BALANCING: "no"
+      PGPOOL_AUTO_FAILBACK: "yes"
+      PGPOOL_USER_CONF_FILE: "/config/custom_pgpool.conf"
+    networks:
+      default:
+
+  pgpool-3:
+    image: bitnami/pgpool:4.4.3
+    deploy:
+      placement:
+        max_replicas_per_node: 1
+      resources:
+        limits:
+          cpus: ${HF_PGPOOL_CPU_LIMIT}
+          memory: ${HF_PGPOOL_MEMORY_LIMIT}
+        reservations:
+          cpus: ${HF_PGPOOL_CPU_RESERVE}
+          memory: ${HF_PGPOOL_MEMORY_RESERVE}
+    configs:
+      - target: /config/custom_pgpool.conf
+        source: pgpool.conf
+      - target: /opt/bitnami/pgpool/conf/pgpool_node_id
+        source: pgpool_node_id2.conf
+    environment:
+      PGPOOL_BACKEND_NODES: ${HF_PGPOOL_NODES}
+      PGPOOL_BACKEND_APPLICATION_NAMES: ${REPMGR_PARTNER_NODES}
+      PGPOOL_SR_CHECK_USER: postgres
+      PGPOOL_SR_CHECK_PASSWORD: ${HAPI_POSTGRES_PASSWORD}
+      PGPOOL_POSTGRES_USERNAME: postgres
+      PGPOOL_POSTGRES_PASSWORD: ${HAPI_POSTGRES_PASSWORD}
+      PGPOOL_ADMIN_USERNAME: ${HF_PGPOOL_USERNAME}
+      PGPOOL_ADMIN_PASSWORD: ${HF_PGPOOL_PASSWORD}
+      PGPOOL_POSTGRES_CUSTOM_USERS: ${HF_POSTGRESQL_USERNAME}
+      PGPOOL_POSTGRES_CUSTOM_PASSWORDS: ${HF_POSTGRESQL_PASSWORD}
+      PGPOOL_ENABLE_LOAD_BALANCING: "no"
+      PGPOOL_AUTO_FAILBACK: "yes"
+      PGPOOL_USER_CONF_FILE: "/config/custom_pgpool.conf"
+    networks:
+      default:
+
+configs:
+  pgpool.conf:
+    name: pgpool_conf-${pgpool_conf_DIGEST:?err}
+    file: ./config/custom_pgpool.conf
+    labels:
+      name: hapi-fhir
+  pgpool_node_id0.conf:
+    name: pgpool_node_id0-${pgpool_node_id0_DIGEST:?err}
+    file: ./config/pgpool_node_id0
+    labels:
+      name: hapi-fhir
+  pgpool_node_id1.conf:
+    name: pgpool_node_id1-${pgpool_node_id1_DIGEST:?err}
+    file: ./config/pgpool_node_id1
+    labels:
+      name: hapi-fhir
+  pgpool_node_id2.conf:
+    name: pgpool_node_id2-${pgpool_node_id2_DIGEST:?err}
+    file: ./config/pgpool_node_id2
+    labels:
+      name: hapi-fhir
 
 volumes:
   hapi-postgres-2-data:
