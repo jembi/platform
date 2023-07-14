@@ -17,15 +17,10 @@ function init_vars() {
 
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-  # SERVICE_NAMES=(
-  #   "openfn"
-  # )
-
   readonly ACTION
   readonly MODE
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
-  # readonly SERVICE_NAMES
   readonly STACK
 }
 
@@ -36,17 +31,25 @@ function import_sources() {
 }
 
 function initialize_package() {
+  local postgres_cluster_compose_filename=""
+  local postgres_dev_compose_filename=""
   local package_dev_compose_filename=""
   if [[ "${MODE}" == "dev" ]]; then
     log info "Running package in DEV mode"
+    postgres_dev_compose_filename="docker-compose-postgres.dev.yml"
     package_dev_compose_filename="docker-compose.dev.yml"
   else
     log info "Running package in PROD mode"
   fi
 
+  if [ "${CLUSTERED_MODE}" == "true" ]; then
+    postgres_cluster_compose_filename="docker-compose-postgres.cluster.yml"
+    # Set postgres connection string
+    sed -i "s/@openfn-postgres-1/openfn-postgres-1,openfn-postgres-2,openfn-postgres-3/g" /instant/openfn/docker-compose.yml
+  fi
+
   (
-    # docker::deploy_service "${COMPOSE_FILE_PATH}" "$package_dev_compose_filename"
-    # docker::deploy_sanity "${SERVICE_NAMES[@]}"
+    docker::deploy_service "$STACK" "${COMPOSE_FILE_PATH}" "docker-compose-postgres.yml" "$postgres_cluster_compose_filename" "$postgres_dev_compose_filename"
     docker::deploy_service "$STACK" "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$package_dev_compose_filename"
   ) || {
     log error "Failed to deploy package"
@@ -55,8 +58,9 @@ function initialize_package() {
 }
 
 function destroy_package() {
-  # docker::service_destroy "${SERVICE_NAMES[@]}"
   docker::stack_destroy "$STACK"
+
+  docker::prune_configs "openfn"
 }
 
 main() {
