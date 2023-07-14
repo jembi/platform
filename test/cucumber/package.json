@@ -27,7 +27,9 @@
     "test:cluster:jempi": "cucumber-js 'features/cluster-mode/jempi.cluster.feature'",
     "test:single:mpi-mediator": "cucumber-js 'features/single-mode/mpi-mediator.feature'",
     "test:single:monitoring": "cucumber-js 'features/single-mode/monitoring.feature'",
-    "test:cluster:monitoring": "cucumber-js 'features/cluster-mode/monitoring.feature'"
+    "test:cluster:monitoring": "cucumber-js 'features/cluster-mode/monitoring.feature'",
+    "test:single:openfn": "cucumber-js 'features/single-mode/openfn.feature'",
+    "test:cluster:openfn": "cucumber-js 'features/cluster-mode/openfn.feature'"
   },
   "devDependencies": {
     "@cucumber/cucumber": "8.5.0",
