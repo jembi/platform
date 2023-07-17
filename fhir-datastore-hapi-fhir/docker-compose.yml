@@ -13,6 +13,10 @@ services:
       - spring.datasource.password=${HF_POSTGRESQL_PASSWORD}
       - spring.datasource.driverClassName=org.postgresql.Driver
       - spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQL95Dialect
+      - spring.datasource.hikari.maximumPoolSize=250
+      - spring.datasource.hikari.minimumIdle=20
+      - spring.datasource.hikari.connectionTimeout=60000
+      - spring.datasource.hikari.idleTimeout=600000
       - hapi.fhir.allow_external_references=true
       - hapi.fhir.bulk_export_enabled=true
       - hapi.fhir.enable_repository_validating_interceptor=true
