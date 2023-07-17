@@ -12,6 +12,13 @@ services:
       - spring.datasource.username=${HF_POSTGRESQL_USERNAME}
       - spring.datasource.password=${HF_POSTGRESQL_PASSWORD}
       - spring.datasource.driverClassName=org.postgresql.Driver
+      - spring.datasource.test-on-borrow=true
+      - spring.datasource.validation-query=select 1
+      - spring.datasource.hikari.maximumPoolSize=500
+      - spring.datasource.hikari.minimumIdle=10
+      - spring.datasource.hikari.idleTimeout=600000
+      - spring.datasource.hikari.connectionTimeout=600000
+      - spring.datasource.hikari.leakDetectionThreshold=600000
       - spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQL95Dialect
       - spring.datasource.hikari.maximumPoolSize=250
       - spring.datasource.hikari.minimumIdle=20
