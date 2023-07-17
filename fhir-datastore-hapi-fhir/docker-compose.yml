@@ -20,8 +20,8 @@ services:
       - hapi.fhir.allow_external_references=true
       - hapi.fhir.bulk_export_enabled=true
       - hapi.fhir.enable_repository_validating_interceptor=true
-      - JAVA_TOOL_OPTIONS=-Xmx2g
-      - CATALINA_OPTS=-Xmx2g
+      - JAVA_TOOL_OPTIONS=${HF_JAVA_OPTS}
+      - CATALINA_OPTS=${HF_JAVA_OPTS}
     deploy:
       replicas: ${HAPI_FHIR_INSTANCES}
       placement:
