@@ -25,7 +25,7 @@ services:
     deploy:
       replicas: ${HAPI_FHIR_INSTANCES}
       placement:
-        max_replicas_per_node: 1
+        max_replicas_per_node: ${HAPI_FHIR_MAX_REPLICAS_PER_NODE}
       resources:
         limits:
           cpus: ${HAPI_FHIR_CPU_LIMIT}
