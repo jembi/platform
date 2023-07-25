@@ -31,10 +31,11 @@ elif [[ "${!changed_packages[*]}" == *"features/cluster-mode"* ]] && [[ $NODE_MO
 elif [[ "${!changed_packages[*]}" == *"infrastructure"* ]]; then
     DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE"
 else
+    # This ensures that the openhim and its mediators' tests are run only once when the openhim and its mediators have all been modified
+    openhimRan="false"
+
     for folder_name in "${!changed_packages[@]}"; do
         echo "$folder_name was changed"
-        # This ensures that the openhim and its mediators' tests are run only once when the openhim and its mediators have all been modified
-        openhimRan="false"
 
         if [[ $folder_name == *"clickhouse"* ]]; then
             DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":clickhouse
