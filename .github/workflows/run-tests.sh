@@ -42,7 +42,7 @@ else
             DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":elk
         elif [[ $folder_name == *"kafka"* ]] || [[ $folder_name == *"monitoring"* ]]; then
             DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":kafka
-        elif [[ $folder_name == *"openhim"* ]] && [[ $openhimRan == "false"]]; then
+        elif [[ $folder_name == *"openhim"* ]] && [[ $openhimRan == "false" ]]; then
             openhimRan="true"
             DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":openhim
         elif [[ $folder_name == *"reverse-proxy"* ]]; then
