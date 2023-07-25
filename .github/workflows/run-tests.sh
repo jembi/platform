@@ -33,6 +33,8 @@ elif [[ "${!changed_packages[*]}" == *"infrastructure"* ]]; then
 else
     for folder_name in "${!changed_packages[@]}"; do
         echo "$folder_name was changed"
+        # This ensures that the openhim and its mediators' tests are run only once when the openhim and its mediators have all been modified
+        openhimRan="false"
 
         if [[ $folder_name == *"clickhouse"* ]]; then
             DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":clickhouse
@@ -40,7 +42,8 @@ else
             DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":elk
         elif [[ $folder_name == *"kafka"* ]] || [[ $folder_name == *"monitoring"* ]]; then
             DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":kafka
-        elif [[ $folder_name == *"openhim"* ]]; then
+        elif [[ $folder_name == *"openhim"* ]] && [[ $openhimRan == "false"]]; then
+            openhimRan="true"
             DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":openhim
         elif [[ $folder_name == *"reverse-proxy"* ]]; then
             DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":nginx
