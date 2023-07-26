@@ -27,3 +27,5 @@ networks:
   kafka:
     name: kafka_public
     external: true
+  public:
+    name: openhim_mapping_mediator
