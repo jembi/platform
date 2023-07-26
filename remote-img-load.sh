@@ -19,10 +19,6 @@ if [ "$CONFIG_TAG" != "null" ]; then
     fi
   fi
 fi
- echo $TAG_NAME
- echo $HOST
- echo $USER
- 
 ./build-image.sh "$TAG_NAME"
 echo "Transfering image to ${HOST} ..."
 docker save jembi/platform:"$TAG_NAME" | bzip2 | ssh "${USER}@${HOST}" docker load
