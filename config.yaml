@@ -1,5 +1,9 @@
 projectName: platform
+<<<<<<< HEAD
 image: jembi/platform:openfn
+=======
+image: jembi/platform:2.3.2
+>>>>>>> b31a3b1b41edfaad9b1c86dccd04ffc4cef43b45
 logPath: /tmp/logs
 
 packages:
