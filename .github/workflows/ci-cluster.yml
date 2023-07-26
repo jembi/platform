@@ -93,8 +93,6 @@ jobs:
       - run: ssh-keyscan -H ${{ github.run_id }}.jembi.cloud >> ~/.ssh/known_hosts
       - run: ./remote-img-load.sh ${{ github.run_id }}.jembi.cloud
       - run: sed -i 's/domain/${{ github.run_id }}.jembi.cloud/g' .env.cluster
-      - run: >- 
-          sed -i 's/^image: jembi\/platform:.*$/image: jembi\/platform:${{ github.run_id }}.jembi.cloud/' config.yaml
       - name: Install dependencies
         working-directory: ./test/cucumber
         run: yarn
