@@ -40,8 +40,14 @@ networks:
     name: openhim_mapping_mediator_public
     external: true
   dhis:
-    name: dhis_public
+    name: dhis2-public
     external: true
   openfn-postgres:
     name: openfn_postgres_public
+    external: true
+  openhim:
+    name: openhim_public
+    external: true
+  mongo:
+    name: openhim_mongo_public
     external: true

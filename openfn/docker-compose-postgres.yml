@@ -42,7 +42,7 @@ networks:
     name: openfn_postgres_public
     external: true
   pg_backup_net:
-    name: pg_backup
+    name: pg_backup_openfn
     driver: overlay
     attachable: true
 

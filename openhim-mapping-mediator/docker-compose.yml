@@ -9,6 +9,11 @@ services:
       OPENHIM_URL: ${OPENHIM_URL}
       OPENHIM_USERNAME: ${OPENHIM_USERNAME}
       OPENHIM_PASSWORD: ${OPENHIM_PASSWORD}
+      brokers: "localhost:9092"
+      clientId: "mapping-mediator"
+      requestTimeout: 60000
+      connectionTimeout: 60000
+      groupId: "mapping-mediator"
     networks:
       openhim:
       mongo:
