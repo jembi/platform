@@ -51,8 +51,8 @@ done
 # With docker swarm any manager can be the target but this bit of code only work if we target node-1 specifically.
 # Which is generally what we do, but if node-1 is down or we choose to target another node this won't work.
 container_name=""
-if [[ "$(docker ps -f name=${STACK_NAME}_mongo-1 --format "{{.ID}}")" ]]; then
-    container_name="$(docker ps -f name=${STACK_NAME}_mongo-1 --format "{{.ID}}")"
+if [[ "$(docker ps -f name=${STACK_NAME}_mongo --format "{{.ID}}")" ]]; then
+    container_name="$(docker ps -f name=${STACK_NAME}_mongo --format "{{.ID}}")"
 fi
 
 initiate_rep_set_response=$(docker exec -i "$container_name" mongo --eval "rs.initiate($config)")

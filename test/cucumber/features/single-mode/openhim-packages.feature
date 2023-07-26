@@ -27,7 +27,7 @@ Feature: Openhim and its dependent packages?
       | openhim_mongo_public | openhim_public |
 
   Scenario: Destroy Openhim and its dependent packages
-    Given I use parameters "package destroy -n=interoperability-layer-openhim,client-registry-jempi,openhim-mapping-mediator --only --dev --env-file=.env.local"
+    Given I use parameters "package destroy -n=interoperability-layer-openhim,openhim-mapping-mediator --only --dev --env-file=.env.local"
     When I launch the platform with params
     Then The service "mongo-1" should be removed
     And The service "openhim-core" should be removed
