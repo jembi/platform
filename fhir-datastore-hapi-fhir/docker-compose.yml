@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   hapi-fhir:
-    image: jembi/hapi:v5.7.0-wget
+    image: jembi/hapi:v6.0.1-wget
     networks:
       mpi:
       public:
