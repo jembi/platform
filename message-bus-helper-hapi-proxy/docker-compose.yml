@@ -8,6 +8,7 @@ services:
       HAPI_SERVER_URL: ${HAPI_SERVER_URL}
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_HOSTS}
       HAPI_SERVER_VALIDATE_FORMAT: ${HAPI_SERVER_VALIDATE_FORMAT}
+      JAVA_OPTS: "-XX:MaxRAMPercentage=90"
     deploy:
       placement:
         max_replicas_per_node: 1
