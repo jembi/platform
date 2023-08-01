@@ -1,0 +1,9 @@
+{
+  "id": "openhim-auth-service",
+  "name": "openhim-auth-service",
+  "description": "Auth service for OpenHIM",
+  "type": "infrastructure",
+  "version": "0.0.1",
+  "dependencies": [],
+  "environmentVariables": {}
+}

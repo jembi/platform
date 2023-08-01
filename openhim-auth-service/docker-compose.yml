@@ -1,0 +1,12 @@
+version: '3.9'
+
+services:
+  openhim-auth-service:
+    image: jembi/openhim-auth-service:1.0
+    networks:
+      public:
+
+networks:
+  public:
+    name: openhim_public
+    external: true
