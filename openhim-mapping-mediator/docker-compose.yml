@@ -16,6 +16,7 @@ services:
       openhim:
       mongo:
       kafka:
+      backend:
 
 networks:
   openhim:
@@ -26,6 +27,9 @@ networks:
     external: true
   kafka:
     name: kafka_public
+    external: true
+  backend:
+    name: backend
     external: true
   public:
     name: openhim_mapping_mediator

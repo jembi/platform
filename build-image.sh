@@ -1,3 +1,3 @@
 #!/bin/bash
-TAG_NAME=${1:-latest}
+TAG_NAME=hack
 docker build -t jembi/platform:"$TAG_NAME" .
