@@ -1,0 +1,25 @@
+{
+  "name": "External Request - Patient",
+  "endpoint": {
+    "pattern": "/Patient"
+  },
+  "transformation": {
+    "input": "JSON",
+    "output": "JSON"
+  },
+  "kafkaConsumerTopic": "2xx",
+  "requests": {
+    "response": [
+      {
+        "id": "hapi-fhir",
+        "config": {
+          "method": "post",
+          "url": "http://openfn:4000/i/49987767-ea8e-4b15-b5ec-11f97ac383a0",
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        }
+      }
+    ]
+  }
+}
