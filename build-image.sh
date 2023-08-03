@@ -1,3 +1,3 @@
 #!/bin/bash
-TAG_NAME=hack
+TAG_NAME=openmrs
 docker build -t jembi/platform:"$TAG_NAME" .

@@ -1,5 +1,5 @@
 projectName: platform
-image: jembi/platform:hack
+image: jembi/platform:openmrs
 logPath: /tmp/logs
 
 packages:
