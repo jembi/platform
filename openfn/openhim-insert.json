@@ -1,0 +1,177 @@
+{
+  "Users": [
+    {
+      "firstname": "Super",
+      "surname": "User",
+      "email": "root@openhim.org",
+      "provider": "token",
+      "groups": [
+        "admin"
+      ],
+      "passwordAlgorithm": null,
+      "passwordHash": null,
+      "passwordSalt": null,
+      "expiry": null,
+      "locked": false,
+      "token": null,
+      "tokenType": null
+    }
+  ],
+  "Clients": [
+    {
+      "clientID": "test",
+      "name": "Test Client",
+      "roles": [
+        "instant"
+      ],
+      "customTokenID": "test"
+    }
+  ],
+  "Channels": [
+    {
+      "name": "Test-Endpoint",
+      "urlPattern": "^/endpoints.*$",
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE",
+        "PUT",
+        "OPTIONS",
+        "HEAD",
+        "TRACE",
+        "CONNECT",
+        "PATCH"
+      ],
+      "type": "http",
+      "tcpPort": null,
+      "tcpHost": null,
+      "pollingSchedule": null,
+      "requestBody": true,
+      "responseBody": true,
+      "allow": [],
+      "whitelist": [],
+      "authType": "public",
+      "routes": [
+        {
+          "name": "Generic Mapping Mediator",
+          "type": "http",
+          "status": "enabled",
+          "secured": false,
+          "host": "openhim-mapping-mediator",
+          "port": 3003,
+          "path": "",
+          "pathTransform": "",
+          "primary": true,
+          "username": "",
+          "password": "",
+          "forwardAuthHeader": false
+        }
+      ],
+      "matchContentTypes": [],
+      "matchContentRegex": null,
+      "matchContentXpath": null,
+      "matchContentJson": null,
+      "matchContentValue": null,
+      "properties": [],
+      "txViewAcl": [],
+      "txViewFullAcl": [],
+      "txRerunAcl": [],
+      "status": "enabled",
+      "rewriteUrls": false,
+      "addAutoRewriteRules": true,
+      "rewriteUrlsConfig": [],
+      "autoRetryEnabled": false,
+      "autoRetryPeriodMinutes": 60,
+      "updatedBy": {
+        "id": "64c96f02d44320e0d2d53179",
+        "name": "Super User"
+      },
+      "alerts": []
+    },
+    {
+      "name": "Patient Mapping",
+      "urlPattern": "^/Patient$",
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE",
+        "PUT",
+        "OPTIONS",
+        "HEAD",
+        "TRACE",
+        "CONNECT",
+        "PATCH"
+      ],
+      "type": "http",
+      "tcpPort": null,
+      "tcpHost": null,
+      "pollingSchedule": null,
+      "requestBody": true,
+      "responseBody": true,
+      "allow": [],
+      "whitelist": [],
+      "authType": "public",
+      "routes": [
+        {
+          "name": "Generic Mapping Mediator",
+          "type": "kafka",
+          "status": "enabled",
+          "secured": false,
+          "host": "localhost",
+          "port": 3003,
+          "path": "",
+          "pathTransform": "",
+          "primary": true,
+          "username": "",
+          "password": "",
+          "forwardAuthHeader": false,
+          "kafkaClientId": "test",
+          "kafkaTopic": "2xx"
+        }
+      ],
+      "matchContentTypes": [],
+      "matchContentRegex": null,
+      "matchContentXpath": null,
+      "matchContentJson": null,
+      "matchContentValue": null,
+      "properties": [],
+      "txViewAcl": [],
+      "txViewFullAcl": [],
+      "txRerunAcl": [],
+      "status": "enabled",
+      "rewriteUrls": false,
+      "addAutoRewriteRules": true,
+      "rewriteUrlsConfig": [],
+      "autoRetryEnabled": false,
+      "autoRetryPeriodMinutes": 60,
+      "updatedBy": {
+        "id": "64c96f02d44320e0d2d53179",
+        "name": "Super User"
+      },
+      "alerts": []
+    }
+  ],
+  "Mediators": [
+    {
+      "urn": "urn:mediator:generic_mapper",
+      "version": "3.1.0",
+      "name": "Mapping Mediator",
+      "description": "Generic OpenHIM Mapping Mediator",
+      "endpoints": [
+        {
+          "name": "Generic Mapping Mediator",
+          "type": "http",
+          "status": "enabled",
+          "host": "localhost",
+          "port": 3003,
+          "forwardAuthHeader": false
+        }
+      ],
+      "defaultChannelConfig": [],
+      "configDefs": [],
+      "_lastHeartbeat": "2023-08-11T08:23:51.315Z",
+      "_uptime": 804586.32656986
+    }
+  ],
+  "ContactGroups": []
+}
