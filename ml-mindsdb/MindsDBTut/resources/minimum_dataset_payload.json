@@ -1,0 +1,256 @@
+[
+  {
+    "resourceType": "Organization",
+    "tableMappings": [
+      {
+        "targetTable": "organization",
+        "columnMappings": [
+          {
+            "columnName": "facility_id",
+            "fhirPath": "Organization.id"
+          },
+          {
+            "columnName": "facility_name",
+            "fhirPath": "Organization.name"
+          },
+          {
+            "columnName": "facility_code",
+            "fhirPath": "Organization.identifier.where(system='http://test.org/identifier/hiv-organization').first().value"
+          },
+          {
+            "columnName": "country",
+            "fhirPath": "Organization.address.first().country"
+          },
+          {
+            "columnName": "country_state_province",
+            "fhirPath": "Organization.address.first().state"
+          },
+          {
+            "columnName": "district",
+            "fhirPath": "Organization.address.first().district"
+          },
+          {
+            "columnName": "city",
+            "fhirPath": "Organization.address.first().city"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "Patient",
+    "tableMappings": [
+      {
+        "targetTable": "patient",
+        "columnMappings": [
+          {
+            "columnName": "golden_id",
+            "fhirPath": "Patient.link.where(type='refer').other.reference.replace('Patient/', '')"
+          },
+          {
+            "columnName": "patient_gender",
+            "fhirPath": "Patient.gender"
+          },
+          {
+            "columnName": "patient_birthdate",
+            "fhirPath": "Patient.birthDate"
+          },
+          {
+            "columnName": "patient_district",
+            "fhirPath": "Patient.address.district"
+          },
+          {
+            "columnName": "patient_key_population",
+            "fhirPath": "Patient.extension.where(url='http://openhie.org/fhir/hiv-casereporting/StructureDefinition/key-population').first().valueCodeableConcept.coding.first().code"
+          },
+          {
+            "columnName": "facility_id",
+            "fhirPath": "Patient.managingOrganization.reference.replace('Organization/', '')"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "Encounter",
+    "tableMappings": [
+      {
+        "targetTable": "encounter",
+        "columnMappings": [
+          {
+            "columnName": "patient_id",
+            "fhirPath": "Encounter.subject.reference.replace('Patient/', '')"
+          },
+          {
+            "columnName": "meta_profile",
+            "fhirPath": "Encounter.meta.profile.first().replace('http://openhie.org/fhir/covid19-casereporting/StructureDefinition/', '')"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "Condition",
+    "tableMappings": [
+      {
+        "targetTable": "condition",
+        "plugin": "condition-plugin.ts",
+        "columnMappings": [
+          {
+            "columnName": "patient_id",
+            "fhirPath": "Condition.subject.reference.replace('Patient/', '')"
+          },
+          {
+            "columnName": "encounter_id",
+            "fhirPath": "Condition.encounter.reference.replace('Encounter/', '')"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "Specimen",
+    "tableMappings": [
+      {
+        "targetTable": "specimen",
+        "columnMappings": [
+          {
+            "columnName": "patient_id",
+            "fhirPath": "Specimen.subject.reference.replace('Patient/', '')"
+          },
+          {
+            "columnName": "date_sample_collected",
+            "fhirPath": "Specimen.collection.collectedDateTime"
+          },
+          {
+            "columnName": "meta_profile",
+            "fhirPath": "Specimen.meta.profile.first().replace('http://openhie.org/fhir/covid19-casereporting/StructureDefinition/', '')"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "ServiceRequest",
+    "tableMappings": [
+      {
+        "targetTable": "service_request",
+        "plugin": "service_request-plugin.ts",
+        "columnMappings": [
+          {
+            "columnName": "patient_id",
+            "fhirPath": "ServiceRequest.subject.reference.replace('Patient/', '')"
+          },
+          {
+            "columnName": "encounter_id",
+            "fhirPath": "ServiceRequest.encounter.reference.replace('Encounter/', '')"
+          },
+          {
+            "columnName": "specimen_id",
+            "fhirPath": "ServiceRequest.specimen.reference.replace('Specimen/', '')"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "Observation",
+    "tableMappings": [
+      {
+        "targetTable": "observation",
+        "plugin": "observation-plugin.ts",
+        "columnMappings": [
+          {
+            "columnName": "patient_id",
+            "fhirPath": "Observation.subject.reference.replace('Patient/', '')"
+          },
+          {
+            "columnName": "encounter_id",
+            "fhirPath": "Observation.encounter.reference.replace('Encounter/', '')"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "Immunization",
+    "tableMappings": [
+      {
+        "targetTable": "immunization",
+        "filter": "Immunization.meta.profile = 'http://openhie.org/fhir/covid19-casereporting/StructureDefinition/covid19-vaccination'",
+        "columnMappings": [
+          {
+            "columnName": "patient_id",
+            "fhirPath": "Immunization.patient.reference.replace('Patient/', '')"
+          },
+          {
+            "columnName": "encounter_id",
+            "fhirPath": "Immunization.encounter.reference.replace('Encounter/', '')"
+          },
+          {
+            "columnName": "vaccine_administered",
+            "fhirPath": "Immunization.vaccineCode.coding.first().code"
+          },
+          {
+            "columnName": "vaccine_dose",
+            "fhirPath": "Immunization.protocolApplied.first().doseNumberPositiveInt"
+          },
+          {
+            "columnName": "vaccine_series",
+            "fhirPath": "Immunization.protocolApplied.first().series"
+          },
+          {
+            "columnName": "vaccination_date",
+            "fhirPath": "Immunization.occurrenceDateTime"
+          },
+          {
+            "columnName": "source_of_information",
+            "fhirPath": "Immunization.reportOrigin.coding.first().code"
+          },
+          {
+            "columnName": "meta_profile",
+            "fhirPath": "Immunization.meta.profile.first().replace('http://openhie.org/fhir/covid19-casereporting/StructureDefinition/', '')"
+          }
+        ]
+      },
+      {
+        "targetTable": "immunization",
+        "filter": "Immunization.meta.profile = 'http://openhie.org/fhir/covid19-casereporting/StructureDefinition/covid19-assessment-vaccination'",
+        "columnMappings": [
+          {
+            "columnName": "patient_id",
+            "fhirPath": "Immunization.patient.reference.replace('Patient/', '')"
+          },
+          {
+            "columnName": "encounter_id",
+            "fhirPath": "Immunization.encounter.reference.replace('Encounter/', '')"
+          },
+          {
+            "columnName": "assessment_vaccine_administered",
+            "fhirPath": "Immunization.vaccineCode.coding.first().code"
+          },
+          {
+            "columnName": "assessment_vaccine_dose",
+            "fhirPath": "Immunization.protocolApplied.first().doseNumberPositiveInt"
+          },
+          {
+            "columnName": "assessment_vaccine_series",
+            "fhirPath": "Immunization.protocolApplied.first().series"
+          },
+          {
+            "columnName": "assessment_vaccination_date",
+            "fhirPath": "Immunization.occurrenceDateTime"
+          },
+          {
+            "columnName": "assessment_source_of_information",
+            "fhirPath": "Immunization.reportOrigin.coding.first().code"
+          },
+          {
+            "columnName": "meta_profile",
+            "fhirPath": "Immunization.meta.profile.first().replace('http://openhie.org/fhir/covid19-casereporting/StructureDefinition/', '')"
+          }
+        ]
+      }
+    ]
+  }
+]
