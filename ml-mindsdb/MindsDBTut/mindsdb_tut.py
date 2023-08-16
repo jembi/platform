@@ -15,7 +15,7 @@ def orchestrate():
     # remove_project(server)
     build_project(server)
     build_model(server, time_data)
-    retrieve_model(server, time_data)
+    # retrieve_model(server, time_data)
     # build_job(server)
     # view_job(server)
     plot_model(retrieve_model(server, time_data), time_data)

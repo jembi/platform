@@ -14,8 +14,8 @@ def assemble():
     train_size = 0.85
     split_idx = round(len(data) * train_size)
 
-    train = data.iloc[:split_idx]  # first 80% of data
-    test = data.iloc[split_idx:]  # remaining 20% of data
+    train = data.iloc[:split_idx]
+    test = data.iloc[split_idx:]
 
     build_model(train)
     load_model(data, train, test)

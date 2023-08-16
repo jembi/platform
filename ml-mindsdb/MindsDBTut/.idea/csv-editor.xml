@@ -45,6 +45,27 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/venv/resources/prophet_results.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/venv/resources/prophet_results_data.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/venv/resources/prophet_results_quad.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/venv/resources/results.csv">
           <value>
             <Attribute>

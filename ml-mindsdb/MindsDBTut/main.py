@@ -1,36 +1,36 @@
-import pandas as pd
 from time import time
 
 import logistic_arima_poc
 from another_arima_model import build_model_full
-from arima_model import project, show_model
-from arima_poc import assemble
-from generate_new_data import build_data
-from graph_results import graph
-from logistic_arima_poc import unite
+import arima_model
+import arima_poc
+import connect_clickhouse
+import generate_new_data
 import logistic_arima_poc
-from poly_arima_poc import rally
-from process import execute
-from mindsdb_tut import orchestrate
-from mindsdb_poc import organise
-from generate import generate
-from generate_time_series import time_series
-import matplotlib.pyplot as plt
+import logistic_arima_poc
+import poly_arima_poc
+import process_fhir
+import mindsdb_tut
+import mindsdb_poc
+import generate
+import generate_time_series
+import prophet_poc
 
 
 def main():
-    # show_model()
-    # graph()
-    # project()
-    # time_series()
-    # generate()
-    # execute()
-    # orchestrate()
-    # organise()
-    # assemble()
-    # unite()
-    rally()
-    # build_data()
+    # arima_model.show_model()
+    # arima_model.project()
+    # generate_time_series.time_series()
+    # generate.generate()
+    # process_fhir.execute()               # pulling data from FHIR resource
+    # mindsdb_tut.orchestrate()
+    # mindsdb_poc.organise()
+    # arima_poc.assemble()
+    # logistic_arima_poc.unite()
+    # poly_arima_poc.rally()
+    # generate_new_data.build_data()
+    connect_clickhouse.connect()
+    # prophet_poc.orchestrate()
 
 
 if __name__ == '__main__':
