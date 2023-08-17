@@ -91,11 +91,11 @@ def plot_results(new_data):
              label="Prediction")                                     # show predictions
     plt.plot(new_data['yearmonth'], new_data['poly_pred'],
              label="Polynomial Regression line")                     # show polynomial regression
-    plt.fill_between(new_data['yearmonth'],
-                     new_data['pred_upper'],
-                     new_data['pred_lower'],
-                     color='lightgray', alpha=0.7,
-                     label='Confidence Interval')
+    # plt.fill_between(new_data['yearmonth'],
+    #                  new_data['pred_upper'],
+    #                  new_data['pred_lower'],
+    #                  color='lightgray', alpha=0.7,
+    #                  label='Confidence Interval')
     plt.ylabel("Count")
     plt.xlabel("Year-Month")
     plt.title('Time Series Quad Data')
