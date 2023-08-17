@@ -51,11 +51,13 @@ function initialize_package() {
   (
     docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose-mongo.yml" "$mongo_cluster_compose_filename" "$mongo_dev_compose_filename"
 
-    if [[ "${CLUSTERED_MODE}" == "true" ]] && [[ "${ACTION}" == "init" ]]; then
-      try "${COMPOSE_FILE_PATH}/initiate-replica-set.sh $STACK" throw "Fatal: Initiate Mongo replica set failed"
-    else
-      try "docker exec -i $(docker ps -q -f name=openhim_mongo) mongo --eval \"rs.initiate()\"" throw "Could not initiate replica set for the single mongo instance. Some services use \
-      mongo event listeners which only work with a replica set"
+    if [[ "${ACTION}" == "init" ]]; then
+      if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+        try "${COMPOSE_FILE_PATH}/initiate-replica-set.sh $STACK" throw "Fatal: Initiate Mongo replica set failed"
+      else
+        try "docker exec -i $(docker ps -q -f name=openhim_mongo) mongo --eval \"rs.initiate()\"" throw "Could not initiate replica set for the single mongo instance. Some services use \
+        mongo event listeners which only work with a replica set"
+      fi
     fi
 
     docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$openhim_dev_compose_filename"
