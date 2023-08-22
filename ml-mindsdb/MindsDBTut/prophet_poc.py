@@ -4,8 +4,8 @@ from matplotlib import pyplot as plt
 from prophet import Prophet
 
 
-# file_name = 'time_series_quad.csv'
-file_name = 'time_series_data.csv'
+file_name = 'time_series_quad.csv'
+# file_name = 'time_series_data.csv'
 
 
 def orchestrate():
@@ -29,7 +29,6 @@ def import_data():
 def build_model(train):
     model = Prophet()
     model.fit(train)
-
     pred = model.make_future_dataframe(periods=308, freq='MS')
     forecast = model.predict(pred)
     forecast.to_csv('venv/resources/prophet_results.csv')

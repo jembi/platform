@@ -6,7 +6,8 @@ import matplotlib.dates as mdates
 
 
 def assemble():
-    data = pd.read_csv("venv/resources/time_series_quad.csv")[['yearmonth', 'count', 'class']]
+    # data = pd.read_csv("venv/resources/time_series_quad.csv")[['yearmonth', 'count', 'class']]
+    data = pd.read_csv("venv/resources/time_series_data.csv")[['yearmonth', 'count']]
     data['yearmonth'] = pd.to_datetime(data['yearmonth'], format='%Y-%m-%d')
     data = data[['yearmonth', 'count']].set_index('yearmonth')
     print(data)
@@ -23,9 +24,9 @@ def assemble():
 
 def build_model(train):
     model = auto_arima(train,
-                       start_p=2,           # how many previous values should be considered - Auto Regressive
-                       d=2,                 # number of times the data has been differenced to achieve stationarity - Integrated
-                       start_q=2,           # how many previous error terms should be considered - Moving Average
+                       start_p=1,           # how many previous values should be considered - Auto Regressive
+                       d=1,                 # number of times the data has been differenced to achieve stationarity - Integrated
+                       start_q=1,           # how many previous error terms should be considered - Moving Average
                        max_p=13,
                        max_d=13,
                        max_q=13,
@@ -42,7 +43,7 @@ def build_model(train):
 
     # print(model.summary())
     # model.plot_diagnostics().savefig('plot_diagnostics.png')
-    with open('time_quad_model_085.pkl', 'wb') as pkl:
+    with open('time_data_model_085.pkl', 'wb') as pkl:
         pickle.dump(model, pkl)
 
     return model
@@ -50,7 +51,7 @@ def build_model(train):
 
 def load_model(data, train, test, model=None):
     if model is None:
-        with open('time_quad_model.pkl', 'rb') as pkl:
+        with open('time_data_model_085.pkl', 'rb') as pkl:
             model = pickle.load(pkl)
     else:
         model = build_model(train)
@@ -68,11 +69,11 @@ def load_model(data, train, test, model=None):
     pred_df = pd.DataFrame(predictions)
     pred_df.to_csv("venv/resources/results_auto_arima.csv")
 
-    plt.plot(data, label="Test")
+    plt.plot(data[:-1], label="Test")
     plt.plot(pred_df, label="Prediction")
-    plt.fill_between(predictions.index[len(predictions) - 120:], lower_bound[len(predictions) - 120:],
-                     upper_bound[len(predictions) - 120:], color='lightgray', alpha=0.7,
-                     label='Confidence Interval')
+    # plt.fill_between(predictions.index[len(predictions) - 120:], lower_bound[len(predictions) - 120:],
+    #                  upper_bound[len(predictions) - 120:], color='lightgray', alpha=0.7,
+    #                  label='Confidence Interval')
 
     plt.ylabel("Count")
     plt.xlabel("Year-Month")

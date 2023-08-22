@@ -6,8 +6,10 @@ import pandas as pd
 
 
 model_name = 'poc_hiv_model_ori'
+# model_name = 'poc_hiv_model_quad'
 database_name = 'clickhouse_db'
 table_name = 'time_data'
+# table_name = 'time_quad'
 project_name = 'demo_poc'
 job_name = 'get_a_job_poc'
 
@@ -17,10 +19,11 @@ def organise():
     data = server.get_database(database_name).get_table(table_name)
     # connect_db(server)                # doesn't work yet, do via Browser UI
     # build_project(server)
-    # remove_model(server)
+    remove_model(server)
     build_poc(server, data)
     # query_poc(server, data)
     plot_model(server, data, query_poc(server, data))
+    model_details(server)
 
 
 def connect_db(server):
@@ -65,7 +68,9 @@ def build_poc(server, data):
         timeseries_options={
             'group': 'class',
             'order': 'yearmonth',
-            'horizon': 24
+            'horizon': 36,
+            'window': 12,
+            'model_name': 'auto'
         }
     )
     print("Create model \'{}\' executed".format(model_name))
@@ -122,6 +127,7 @@ def plot_model(server, data, results):
 
     time_data = time_data.sort_values('yearmonth')
     results = results.sort_values('yearmonth')
+    print(results)
 
     plt.plot(time_data["count"], label="Training data")
     # plt.plot(results["count_min"], label="Count_Min")
@@ -134,3 +140,12 @@ def plot_model(server, data, results):
     plt.legend()
     plt.savefig("results.png")
     plt.show()
+
+
+def model_details(server):
+    proj = server.get_project(project_name)
+    model = proj.get_model(model_name)
+
+    print(model.describe('info'))
+    print(model.describe('features'))
+    print(model.describe('model'))

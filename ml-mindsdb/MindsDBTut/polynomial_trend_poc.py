@@ -8,9 +8,12 @@ from dateutil.relativedelta import relativedelta
 import pickle
 
 
+# option = "quad"
+option = "data"
+
+
 def unite():
-    # data = pd.read_csv("venv/resources/time_series_data.csv")[['yearmonth', 'count', 'class']]
-    data = pd.read_csv("venv/resources/time_series_quad.csv")[['yearmonth', 'count', 'class']]
+    data = pd.read_csv("venv/resources/time_series_{}.csv".format(option))[['yearmonth', 'count']]
     data['yearmonth'] = pd.to_datetime(data['yearmonth'], format='%Y-%m-%d')
     data = adjust_date_column(data)
     model = build_regression(data)
@@ -22,7 +25,7 @@ def normalised_noise(data, model):
     noise = model.predict(poly.fit_transform(pd.DataFrame(data['months'])))
     data['poly_pred'] = noise
     data['res_noise'] = data['count'] - data['poly_pred']
-    data.to_csv("venv/resources/time_series_poly.csv")
+    data.to_csv("venv/resources/time_series_{}_poly.csv".format(option))
     return data
 
 
@@ -34,6 +37,7 @@ def build_regression(data):
     x_train_df, x_test_df = pd.DataFrame(x_train), pd.DataFrame(x_test)
 
     poly = PolynomialFeatures(2)
+    # poly = PolynomialFeatures(3)
     x_train_poly, x_test_poly = poly.fit_transform(x_train_df), poly.fit_transform(x_test_df)
 
     lin = LinearRegression()
@@ -44,18 +48,20 @@ def build_regression(data):
 
     x_axis = [num for num in range(637)]
     y_axis = [lin.intercept_ + lin.coef_[1]*num + lin.coef_[2]*num**2 for num in x_axis]
+    # y_axis = [lin.intercept_ + lin.coef_[1]*num + lin.coef_[2]*num**2 + lin.coef_[3]*num**3 for num in x_axis]
 
     pred = lin.predict(x_test_poly)
 
     print(lin.score(x_test_poly, pd.DataFrame(y_test)))
 
-    # plt.scatter(x_test, pred, label='Prediction')
-    # plt.scatter(x_test, y_test, label="Actual")
-    # plt.plot(x_axis, y_axis, label="Formula", color='red')
-    # plt.legend()
-    # plt.show()
+    plt.scatter(x_test, pred, label='Prediction')
+    plt.scatter(x_test, y_test, label="Actual")
+    plt.plot(data['count'], alpha=0.6, label="Full data")
+    plt.plot(x_axis, y_axis, label="Formula", color='red')
+    plt.legend()
+    plt.show()
 
-    pickle.dump(lin, open('venv/resources/polynomial_regression_model.sav', 'wb'))
+    pickle.dump(lin, open('venv/resources/polynomial_regression_model_{}.sav'.format(option), 'wb'))
 
     return lin
 

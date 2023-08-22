@@ -5,9 +5,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
-
-model_name = 'time_poly_model.pkl'
-poly_model = pickle.load(open('venv/resources/polynomial_regression_model.sav', 'rb'))
+# option = "quad"
+option = "data"
+model_name = 'poly_model.pkl'
+poly_model = pickle.load(open('venv/resources/polynomial_regression_model_{}.sav'.format(option), 'rb'))
 
 p, d, q = 2, 2, 2
 # p - how many previous values should be considered - Auto Regressive
@@ -16,13 +17,11 @@ p, d, q = 2, 2, 2
 
 
 def rally():
-    data = pd.read_csv("venv/resources/time_series_poly.csv")[['yearmonth', 'count', 'class', 'poly_pred', 'res_noise']]
+    data = pd.read_csv("venv/resources/time_series_{}_poly.csv".format(option))[['yearmonth', 'count', 'poly_pred', 'res_noise']]
     data['yearmonth'] = pd.to_datetime(data['yearmonth'], format='%Y-%m-%d')
     train_data = data[['yearmonth', 'res_noise']].set_index('yearmonth')
-    # data = data.set_index('yearmonth')
-    # print(data)
 
-    train_size = 0.85
+    train_size = 1
     split_idx = round(len(train_data) * train_size)
 
     train = train_data.iloc[:split_idx]
@@ -70,8 +69,15 @@ def load_model(data, train, test, model=None):
 
     # the start value is dependent on the output value of 'd'
     predictions, conf_int = model.predict_in_sample(start=d, end=672, return_conf_int=True)
-    # lower_bound = conf_int[:, 0]
-    # upper_bound = conf_int[:, 1]
+
+    ### PLOT NOISE GRAPH
+    plt.plot(data['yearmonth'][:-1], data['res_noise'][:-1], label="Residual noise")
+    plt.plot(predictions, label="Predict noise")
+    plt.legend()
+    plt.title("Graph showing Residual noise vs Predicted Noise")
+    plt.xlabel("Year-Month")
+    plt.ylabel("Noise")
+    plt.show()
 
     data = data.set_index('yearmonth')
     pred = pd.DataFrame(predictions, columns=['pred_noise'])
@@ -80,7 +86,7 @@ def load_model(data, train, test, model=None):
     pred['upper'] = [num[1] for num in conf_int]
 
     new_data = new_dataframe(data, pred)
-    new_data.to_csv("venv/resources/results_poly_auto_arima.csv")
+    new_data.to_csv("venv/resources/results_poly_arima_{}.csv".format(option))
     plot_results(new_data)
 
 
@@ -91,14 +97,14 @@ def plot_results(new_data):
              label="Prediction")                                     # show predictions
     plt.plot(new_data['yearmonth'], new_data['poly_pred'],
              label="Polynomial Regression line")                     # show polynomial regression
-    # plt.fill_between(new_data['yearmonth'],
-    #                  new_data['pred_upper'],
-    #                  new_data['pred_lower'],
-    #                  color='lightgray', alpha=0.7,
-    #                  label='Confidence Interval')
+    plt.fill_between(new_data['yearmonth'],
+                     new_data['pred_upper'],
+                     new_data['pred_lower'],
+                     color='lightgray', alpha=0.7,
+                     label='Confidence Interval')
     plt.ylabel("Count")
     plt.xlabel("Year-Month")
-    plt.title('Time Series Quad Data')
+    plt.title('Time Series Data - Polynomial & ARIMA Model')
 
     years_locator = mdates.YearLocator()
     years_formatter = mdates.DateFormatter('%Y')
@@ -123,12 +129,11 @@ def new_dataframe(data, pred):
         elif date in data.index and date not in pred.index:
             nd.append([date] + list(data.loc[date]) + [0, 0, 0])
         elif date not in data.index and date in pred.index:
-            nd.append([date, pd.NA, pd.NA, pd.NA, pd.NA] + list(pred.loc[date]))
+            nd.append([date, pd.NA, pd.NA, pd.NA] + list(pred.loc[date]))
         else:
             print("Oh no!")
     new_data = pd.DataFrame(nd,
-                            columns=['yearmonth', 'count', 'class', 'poly_pred', 'res_noise',
-                                     'pred_noise', 'lower', 'upper'])
+                            columns=['yearmonth', 'count', 'poly_pred', 'res_noise', 'pred_noise', 'lower', 'upper'])
     new_data['poly_pred'] = new_data['yearmonth'].apply(date_to_poly)
     new_data['count'].fillna(0, inplace=True)
     new_data['pred_count'] = [sum(cols) for cols in zip(new_data['poly_pred'], new_data['pred_noise'])]
