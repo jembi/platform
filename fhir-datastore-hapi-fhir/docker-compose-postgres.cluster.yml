@@ -75,7 +75,9 @@ services:
     image: bitnami/pgpool:4.4.3
     deploy:
       placement:
-        max_replicas_per_node: 1
+        constraints:
+          - "node.labels.name==node-1"
+      replicas: 1
       resources:
         limits:
           cpus: ${HF_PGPOOL_CPU_LIMIT}
@@ -109,7 +111,9 @@ services:
     image: bitnami/pgpool:4.4.3
     deploy:
       placement:
-        max_replicas_per_node: 1
+        constraints:
+          - "node.labels.name==node-2"
+      replicas: 1
       resources:
         limits:
           cpus: ${HF_PGPOOL_CPU_LIMIT}
@@ -143,7 +147,9 @@ services:
     image: bitnami/pgpool:4.4.3
     deploy:
       placement:
-        max_replicas_per_node: 1
+        constraints:
+          - "node.labels.name==node-3"
+      replicas: 1
       resources:
         limits:
           cpus: ${HF_PGPOOL_CPU_LIMIT}
