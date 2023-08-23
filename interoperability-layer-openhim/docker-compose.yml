@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   openhim-core:
-    image: jembi/openhim-core:v8.0.1
+    image: jembi/openhim-core:v8.1.1
     networks:
       kafka:
       hapi-fhir:
@@ -10,6 +10,7 @@ services:
       keycloak:
       public:
       default:
+      prometheus:
     environment:
       - mongo_url=${OPENHIM_MONGO_URL}
       - mongo_atnaUrl=${OPENHIM_MONGO_ATNAURL}
@@ -31,6 +32,10 @@ services:
         reservations:
           cpus: ${OPENHIM_CPU_RESERVE}
           memory: ${OPENHIM_MEMORY_RESERVE}
+      labels:
+        - prometheus-job-task=openhim
+        - prometheus-scheme=https
+        - prometheus-port=8080
 
   openhim-console:
     image: jembi/openhim-console:v1.18.2
@@ -73,5 +78,8 @@ networks:
     external: true
   public:
     name: openhim_public
+    external: true
+  prometheus:
+    name: prometheus_public
     external: true
   default:
