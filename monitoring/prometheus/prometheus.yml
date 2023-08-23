@@ -58,9 +58,11 @@ scrape_configs:
       # Use the prometheus-address Swarm label as the target address for swarm service.
       - source_labels: [__meta_dockerswarm_service_label_prometheus_address]
         target_label: __address__
+      # Use the prometheus-scheme label to set the connection scheme (http or https), defaults to http if no label is present
       - source_labels: [__meta_dockerswarm_service_label_prometheus_scheme]
         regex: (.+)
         target_label: __scheme__
+      # Use the prometheus-metrics-path label to set the metric url path, default to /metrics if no label is present
       - source_labels:
           [__meta_dockerswarm_service_label_prometheus_metrics_path]
         regex: (.+)
@@ -89,14 +91,17 @@ scrape_configs:
       # Use the prometheus-job Swarm label as Prometheus job label.
       - source_labels: [__meta_dockerswarm_service_label_prometheus_job_task]
         target_label: job
+      # Use the prometheus-scheme label to set the connection scheme (http or https), defaults to http if no label is present
       - source_labels: [__meta_dockerswarm_service_label_prometheus_scheme]
         regex: (.+)
         target_label: __scheme__
+      # Use the prometheus-port label to override the target ports, defaults to all exposed ports for the container if no label is present
       - source_labels:
           [__address__, __meta_dockerswarm_service_label_prometheus_port]
         regex: (.+):.+;(.+)
         replacement: $1:$2
         target_label: __address__
+      # Use the prometheus-metrics-path label to set the metric url path, default to /metrics if no label is present
       - source_labels:
           [__meta_dockerswarm_service_label_prometheus_metrics_path]
         regex: (.+)
