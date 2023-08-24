@@ -24,6 +24,9 @@ services:
       POSTGRESQL_POSTGRES_PASSWORD: ${HAPI_POSTGRES_PASSWORD}
     volumes:
       - 'hapi-postgres-2-data:/bitnami/postgresql'
+    configs:
+      - target: /bitnami/postgresql/conf/conf.d/custom_postgresql.conf
+        source: postgresql.conf
     deploy:
       placement:
         constraints:
@@ -55,6 +58,9 @@ services:
       POSTGRESQL_POSTGRES_PASSWORD: ${HAPI_POSTGRES_PASSWORD}
     volumes:
       - 'hapi-postgres-3-data:/bitnami/postgresql'
+    configs:
+      - target: /bitnami/postgresql/conf/conf.d/custom_postgresql.conf
+        source: postgresql.conf
     deploy:
       placement:
         constraints:

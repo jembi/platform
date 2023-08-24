@@ -16,6 +16,9 @@ services:
       POSTGRESQL_POSTGRES_PASSWORD: ${HAPI_POSTGRES_PASSWORD}
     volumes:
       - "hapi-postgres-1-data:/bitnami/postgresql"
+    configs:
+      - target: /bitnami/postgresql/conf/conf.d/custom_postgresql.conf
+        source: postgresql.conf
     deploy:
       replicas: 1
       resources:
@@ -32,6 +35,13 @@ services:
 
 volumes:
   hapi-postgres-1-data:
+
+configs:
+  postgresql.conf:
+    name: postgresql_conf-${postgresql_conf_DIGEST:?err}
+    file: ./config/custom_postgresql.conf
+    labels:
+      name: hapi-fhir
 
 networks:
   default:
