@@ -4,8 +4,8 @@ from matplotlib import pyplot as plt
 from prophet import Prophet
 
 
-file_name = 'time_series_quad.csv'
-# file_name = 'time_series_data.csv'
+# file_name = 'time_series_quad.csv'
+file_name = 'time_series_data.csv'
 
 
 def orchestrate():
@@ -13,8 +13,8 @@ def orchestrate():
     split = int(len(data) * 0.90)
     train = data.iloc[:split]
     test = data.iloc[split:]
-    # build_model(train)
-    plot_model(build_model(train), data)
+    build_complex_model(train)
+    plot_model(build_basic_model(train), data)
 
 
 def import_data():
@@ -26,10 +26,25 @@ def import_data():
     return df
 
 
-def build_model(train):
+def build_basic_model(train):
     model = Prophet()
     model.fit(train)
     pred = model.make_future_dataframe(periods=308, freq='MS')
+    forecast = model.predict(pred)
+    forecast.to_csv('venv/resources/prophet_results.csv')
+    return forecast
+
+
+def build_complex_model(train):
+    cap = 50
+    model = Prophet(
+        growth='logistic',
+        yearly_seasonality=False,
+    )
+    train['cap'] = cap
+    model.fit(train)
+    pred = model.make_future_dataframe(periods=308, freq='MS')
+    pred['cap'] = cap
     forecast = model.predict(pred)
     forecast.to_csv('venv/resources/prophet_results.csv')
     return forecast

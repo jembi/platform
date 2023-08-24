@@ -101,6 +101,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/venv/resources/time_series_data_poly.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/venv/resources/time_series_poly.csv">
           <value>
             <Attribute>
@@ -109,6 +116,13 @@
           </value>
         </entry>
         <entry key="/venv/resources/time_series_quad.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/venv/resources/time_series_quad_poly.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />

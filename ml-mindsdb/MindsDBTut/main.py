@@ -1,5 +1,6 @@
 from time import time
 
+import raar
 from another_arima_model import build_model_full
 import arima_model
 import arima_poc
@@ -26,8 +27,9 @@ def main():
     # polynomial_trend_poc.unite()          # calculate polynomial regression line - return intercept and coefficients
                                             # generate residual noise between poly trend and real data
     # poly_arima_poc.rally()                # calculate ARIMA model on residual noise - combine polynomial and arima
-    # prophet_poc.orchestrate()             # implement FB's timeseries forecasting model -> Prophet
-    connect_clickhouse.orchestrate()      # connect to ClickHouse server and push predicted data to DB
+    prophet_poc.orchestrate()             # implement FB's timeseries forecasting model -> Prophet
+    # connect_clickhouse.orchestrate()      # connect to ClickHouse server and push predicted data to it
+    # raar.show()
 
 
 if __name__ == '__main__':
