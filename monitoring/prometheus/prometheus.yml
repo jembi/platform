@@ -62,7 +62,7 @@ scrape_configs:
       - source_labels: [__meta_dockerswarm_service_label_prometheus_scheme]
         regex: (.+)
         target_label: __scheme__
-      # Use the prometheus-metrics-path label to set the metric url path, default to /metrics if no label is present
+      # Use the prometheus-metrics-path label to set the metric url path, defaults to /metrics if no label is present
       - source_labels:
           [__meta_dockerswarm_service_label_prometheus_metrics_path]
         regex: (.+)
@@ -101,7 +101,7 @@ scrape_configs:
         regex: (.+):.+;(.+)
         replacement: $1:$2
         target_label: __address__
-      # Use the prometheus-metrics-path label to set the metric url path, default to /metrics if no label is present
+      # Use the prometheus-metrics-path label to set the metric url path, defaults to /metrics if no label is present
       - source_labels:
           [__meta_dockerswarm_service_label_prometheus_metrics_path]
         regex: (.+)
