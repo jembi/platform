@@ -50,6 +50,10 @@ services:
         source: kminion-groups_rev1.json
       - target: /etc/grafana/provisioning/dashboards/applications/kminion-topic_rev1.json
         source: kminion-topic_rev1.json
+      - target: /etc/grafana/provisioning/dashboards/applications/openhim_nodejs_dashboard.json
+        source: openhim_nodejs_dashboard.json
+      - target: /etc/grafana/provisioning/dashboards/applications/openhim_transactions_dashboard.json
+        source: openhim_transactions_dashboard.json
       - target: /etc/grafana/provisioning/dashboards/containers/logging-universal-dashboard_rev1.json
         source: logging-universal-dashboard_rev1.json
     networks:
@@ -193,6 +197,16 @@ configs:
   kminion-topic_rev1.json:
     file: ./grafana/dashboards/applications/kminion-topic_rev1.json
     name: kminion-topic_rev1.json-${kminion_topic_rev1_json_DIGEST:?err}
+    labels:
+      name: grafana
+  openhim_nodejs_dashboard.json:
+    file: ./grafana/dashboards/applications/openhim_nodejs_dashboard.json
+    name: openhim_nodejs_dashboard.json-${openhim_nodejs_dashboard_json_DIGEST:?err}
+    labels:
+      name: grafana
+  openhim_transactions_dashboard.json:
+    file: ./grafana/dashboards/applications/openhim_transactions_dashboard.json
+    name: openhim_transactions_dashboard.json-${openhim_transactions_dashboard_json_DIGEST:?err}
     labels:
       name: grafana
   logging-universal-dashboard_rev1.json:
