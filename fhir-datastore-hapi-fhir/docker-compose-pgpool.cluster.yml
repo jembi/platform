@@ -34,8 +34,6 @@ services:
       PGPOOL_ENABLE_LOAD_BALANCING: "no"
       PGPOOL_AUTO_FAILBACK: "yes"
       PGPOOL_USER_CONF_FILE: "/config/custom_pgpool.conf"
-    networks:
-      default:
 
   pgpool-2:
     image: bitnami/pgpool:4.4.3
@@ -70,8 +68,6 @@ services:
       PGPOOL_ENABLE_LOAD_BALANCING: "no"
       PGPOOL_AUTO_FAILBACK: "yes"
       PGPOOL_USER_CONF_FILE: "/config/custom_pgpool.conf"
-    networks:
-      default:
 
   pgpool-3:
     image: bitnami/pgpool:4.4.3
@@ -106,8 +102,6 @@ services:
       PGPOOL_ENABLE_LOAD_BALANCING: "no"
       PGPOOL_AUTO_FAILBACK: "yes"
       PGPOOL_USER_CONF_FILE: "/config/custom_pgpool.conf"
-    networks:
-      default:
 
 configs:
   pgpool.conf:
