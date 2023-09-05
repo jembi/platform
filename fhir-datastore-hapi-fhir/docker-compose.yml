@@ -20,6 +20,7 @@ services:
       - hapi.fhir.allow_external_references=true
       - hapi.fhir.bulk_export_enabled=true
       - hapi.fhir.enable_repository_validating_interceptor=true
+      - hapi.fhir.fhir_version=${FHIR_VERSION}
       - JAVA_TOOL_OPTIONS=${HF_JAVA_OPTS}
       - CATALINA_OPTS=${HF_JAVA_OPTS}
     deploy:
