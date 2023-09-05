@@ -14,8 +14,13 @@ services:
       REPMGR_PRIMARY_HOST: ${REPMGR_PRIMARY_HOST}
       REPMGR_PARTNER_NODES: ${REPMGR_PARTNER_NODES}
       POSTGRESQL_POSTGRES_PASSWORD: ${HAPI_POSTGRES_PASSWORD}
+      REPMGR_FAILOVER: ${HF_POSTGRES_FAILOVER}
+      REPMGR_DEGRADED_MONITORING_TIMEOUT: ${HF_POSTGRES_DEGRADED_MONITORING_TIMEOUT}
     volumes:
       - "hapi-postgres-1-data:/bitnami/postgresql"
+    configs:
+      - target: /bitnami/postgresql/conf/conf.d/custom_postgresql.conf
+        source: postgresql.conf
     deploy:
       replicas: 1
       resources:
@@ -32,6 +37,13 @@ services:
 
 volumes:
   hapi-postgres-1-data:
+
+configs:
+  postgresql.conf:
+    name: postgresql_conf-${postgresql_conf_DIGEST:?err}
+    file: ./config/custom_postgresql.conf
+    labels:
+      name: hapi-fhir
 
 networks:
   default:
