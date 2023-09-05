@@ -4,14 +4,14 @@ global:
 scrape_configs:
   - job_name: "prometheus"
     static_configs:
-    - targets: ["prometheus:9090"]
+      - targets: ["prometheus:9090"]
 
   - job_name: "grafana"
     static_configs:
-    - targets: ["grafana:3000"]
+      - targets: ["grafana:3000"]
 
   # Create a job for Docker daemons.
-  - job_name: 'docker'
+  - job_name: "docker"
     dockerswarm_sd_configs:
       - host: unix:///var/run/docker.sock
         role: nodes
@@ -25,23 +25,25 @@ scrape_configs:
         target_label: instance
 
   # Create a job for reading metrics from nodes
-  - job_name: 'node-exporter'
+  - job_name: "node-exporter"
     dns_sd_configs:
-    - names:
-      - 'tasks.node-exporter'
-      type: 'A'
-      port: 9100
+      - names:
+          - "tasks.node-exporter"
+        type: "A"
+        port: 9100
 
   # Create a job for reading metrics from containers
-  - job_name: 'cadvisor'
+  - job_name: "cadvisor"
     dns_sd_configs:
-    - names:
-      - 'tasks.cadvisor'
-      type: 'A'
-      port: 8080
+      - names:
+          - "tasks.cadvisor"
+        type: "A"
+        port: 8080
 
   # Create a job for Docker Swarm services with particular labels (one target for the whole service, possibly multiple containers)
-  - job_name: 'dockerswarm-services'
+  - job_name: "dockerswarm-services"
+    tls_config:
+      insecure_skip_verify: true
     dockerswarm_sd_configs:
       - host: unix:///var/run/docker.sock
         role: services
@@ -56,9 +58,20 @@ scrape_configs:
       # Use the prometheus-address Swarm label as the target address for swarm service.
       - source_labels: [__meta_dockerswarm_service_label_prometheus_address]
         target_label: __address__
+      # Use the prometheus-scheme label to set the connection scheme (http or https), defaults to http if no label is present
+      - source_labels: [__meta_dockerswarm_service_label_prometheus_scheme]
+        regex: (.+)
+        target_label: __scheme__
+      # Use the prometheus-metrics-path label to set the metric url path, defaults to /metrics if no label is present
+      - source_labels:
+          [__meta_dockerswarm_service_label_prometheus_metrics_path]
+        regex: (.+)
+        target_label: __metrics_path__
 
   # Create a job for Docker Swarm container with particular labels (one target per container/task)
-  - job_name: 'dockerswarm-tasks'
+  - job_name: "dockerswarm-tasks"
+    tls_config:
+      insecure_skip_verify: true
     dockerswarm_sd_configs:
       - host: unix:///var/run/docker.sock
         role: tasks
@@ -71,6 +84,25 @@ scrape_configs:
       - source_labels: [__meta_dockerswarm_service_label_prometheus_job_task]
         regex: .+
         action: keep
+      # Only keep containers on the prometheus_public network.
+      - source_labels: [__meta_dockerswarm_network_name]
+        regex: prometheus_public
+        action: keep
       # Use the prometheus-job Swarm label as Prometheus job label.
       - source_labels: [__meta_dockerswarm_service_label_prometheus_job_task]
         target_label: job
+      # Use the prometheus-scheme label to set the connection scheme (http or https), defaults to http if no label is present
+      - source_labels: [__meta_dockerswarm_service_label_prometheus_scheme]
+        regex: (.+)
+        target_label: __scheme__
+      # Use the prometheus-port label to override the target ports, defaults to all exposed ports for the container if no label is present
+      - source_labels:
+          [__address__, __meta_dockerswarm_service_label_prometheus_port]
+        regex: (.+):.+;(.+)
+        replacement: $1:$2
+        target_label: __address__
+      # Use the prometheus-metrics-path label to set the metric url path, defaults to /metrics if no label is present
+      - source_labels:
+          [__meta_dockerswarm_service_label_prometheus_metrics_path]
+        regex: (.+)
+        target_label: __metrics_path__
