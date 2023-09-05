@@ -51,6 +51,10 @@ function initialize_package() {
   (
     docker::deploy_service "$STACK" "${COMPOSE_FILE_PATH}" "docker-compose-postgres.yml" "$postgres_cluster_compose_filename" "$postgres_dev_compose_filename"
 
+    if [[ "${CLUSTERED_MODE}" == "true" && "${HF_PGPOOL_ENABLED}" == "true" ]]; then
+      docker::deploy_service "$STACK" "${COMPOSE_FILE_PATH}" "docker-compose-pgpool.cluster.yml"
+    fi
+
     docker::deploy_service "$STACK" "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$hapi_fhir_dev_compose_filename"
   ) ||
     {

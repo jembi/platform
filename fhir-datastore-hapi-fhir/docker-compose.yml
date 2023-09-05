@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   hapi-fhir:
-    image: jembi/hapi:v6.0.1-wget
+    image: jembi/hapi:${HF_IMAGE_TAG}
     networks:
       mpi:
       public:
@@ -13,7 +13,7 @@ services:
       - spring.datasource.password=${HF_POSTGRESQL_PASSWORD}
       - spring.datasource.driverClassName=org.postgresql.Driver
       - spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQL95Dialect
-      - spring.datasource.hikari.maximumPoolSize=250
+      - spring.datasource.hikari.maximumPoolSize=${HF_MAX_POOL_SIZE}
       - spring.datasource.hikari.minimumIdle=20
       - spring.datasource.hikari.connectionTimeout=60000
       - spring.datasource.hikari.idleTimeout=600000
@@ -37,8 +37,8 @@ services:
     healthcheck:
       test: /bin/wget --no-verbose --tries=1 --spider http://localhost:8080/fhir/Organization?identifier=urn:healthcheck
       interval: 30s
-      timeout: 30s
-      retries: 2
+      timeout: 5s
+      retries: 5
       start_period: 2m
 
 networks:
