@@ -1,5 +1,5 @@
 projectName: platform
-image: jembi/platform:openmrs
+image: jembi/platform:rwanda
 logPath: /tmp/logs
 
 packages:

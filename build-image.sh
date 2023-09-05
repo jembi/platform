@@ -1,3 +1,3 @@
 #!/bin/bash
-TAG_NAME=openmrs
+TAG_NAME=rwanda
 docker build -t jembi/platform:"$TAG_NAME" .
