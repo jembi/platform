@@ -75,6 +75,12 @@
     "JEMPI_POSTGRES_MEMORY_LIMIT": "3G",
     "JEMPI_POSTGRES_MEMORY_RESERVE": "500M",
     "JEMPI_SESSION_SECURE": false,
-    "DOMAIN_NAME": ""
+    "DOMAIN_NAME": "",
+    "POSTGRESQL_PASSWORD": "postgres",
+    "KAFKA_APPLICATION_ID_API": "api-app-id",
+    "DGRAPH_HOSTS": "jempi-alpha-01,jempi-alpha-02,jempi-alpha-03",
+    "DGRAPH_PORTS": "9080,9081,9082",
+    "HTTP_SERVER_PORT": "50000",
+    "LOG4J2_LEVEL": "DEBUG"
   }
 }
