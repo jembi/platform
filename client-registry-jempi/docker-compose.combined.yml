@@ -4,7 +4,9 @@ services:
   jempi-async-receiver:
     image: jembi/jempi-async-receiver:${JEMPI_ASYNC_RECEIVER_IMAGE_TAG}
     environment:
-      kafka.bootstrap.servers: ${KAFKA_HOSTS}
+      LOG4J2_LEVEL: ${LOG4J2_LEVEL} 
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_HOSTS}
+      KAFKA_CLIENT_ID: ${KAFKA_CLIENT_ID_ASYNC}
     deploy:
       replicas: ${JEMPI_ASYNC_RECEIVER_INSTANCES}
       resources:
