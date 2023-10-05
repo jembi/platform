@@ -3,6 +3,6 @@ version: '3.9'
 services:
   openhim-auth-service:
     ports:
-      - target: 8089
+      - target: 8000
         published: 8089
         mode: host
