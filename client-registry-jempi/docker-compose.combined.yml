@@ -17,36 +17,6 @@ services:
     networks:
       kafka:
       default:
-  
-  jempi-sync-receiver:
-    image: jembi/jempi-sync-receiver:${JEMPI_SYNC_RECEIVER_IMAGE_TAG}
-    environment:
-      kafka.bootstrap.servers: ${KAFKA_HOSTS}
-    deploy:
-      replicas: ${JEMPI_SYNC_RECEIVER_INSTANCES}
-      resources:
-        limits:
-          memory: ${JEMPI_SYNC_RECEIVER_MEMORY_LIMIT}
-        reservations:
-          memory: ${JEMPI_SYNC_RECEIVER_MEMORY_RESERVE}
-    networks:
-      kafka:
-      default:
-
-  jempi-pre-processor:
-    image: jembi/jempi-pre-processor:${JEMPI_PRE_PROCESSOR_IMAGE_TAG}
-    environment:
-      kafka.bootstrap.servers: ${KAFKA_HOSTS}
-    deploy:
-      replicas: ${JEMPI_PRE_PROCESSOR_INSTANCES}
-      resources:
-        limits:
-          memory: ${JEMPI_PRE_PROCESSOR_MEMORY_LIMIT}
-        reservations:
-          memory: ${JEMPI_PRE_PROCESSOR_MEMORY_RESERVE}
-    networks:
-      kafka:
-      default:
 
   jempi-controller:
     image: jembi/jempi-controller:${JEMPI_CONTROLLER_IMAGE_TAG}
@@ -68,21 +38,6 @@ services:
           memory: ${JEMPI_CONTROLLER_MEMORY_LIMIT}
         reservations:
           memory: ${JEMPI_CONTROLLER_MEMORY_RESERVE}
-    networks:
-      kafka:
-      default:
-
-  jempi-em-calculator:
-    image: jembi/jempi-em-calculator:${JEMPI_EM_CALCULATOR_IMAGE_TAG}
-    environment:
-      kafka.bootstrap.servers: ${KAFKA_HOSTS}
-    deploy:
-      replicas: ${JEMPI_EM_CALCULATOR_INSTANCES}
-      resources:
-        limits:
-          memory: ${JEMPI_EM_CALCULATOR_MEMORY_LIMIT}
-        reservations:
-          memory: ${JEMPI_EM_CALCULATOR_MEMORY_RESERVE}
     networks:
       kafka:
       default:
