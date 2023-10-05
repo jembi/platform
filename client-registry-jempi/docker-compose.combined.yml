@@ -18,6 +18,23 @@ services:
       kafka:
       default:
 
+  jempi-etl:
+    image: jembi/jempi-etl:${JEMPI_ETL_IMAGE_TAG}
+    environment:
+      LOG4J2_LEVEL: ${LOG4J2_LEVEL} 
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_HOSTS}
+      KAFKA_APPLICATION_ID: ${KAFKA_APPLICATION_ID}
+    deploy:
+      replicas: ${JEMPI_ETL_INSTANCES}
+      resources:
+        limits:
+          memory: ${JEMPI_ETL_MEMORY_LIMIT}
+        reservations:
+          memory: ${JEMPI_ETL_MEMORY_RESERVE}
+    networks:
+      kafka:
+      default:
+
   jempi-controller:
     image: jembi/jempi-controller:${JEMPI_CONTROLLER_IMAGE_TAG}
     environment:
