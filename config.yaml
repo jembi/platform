@@ -1,5 +1,5 @@
 projectName: platform
-image: jembi/platform:rwanda
+image: jembi/platform:srilanka
 logPath: /tmp/logs
 
 packages:
