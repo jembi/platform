@@ -15,7 +15,7 @@ services:
         protocol: tcp
         mode: host
 
-  linker:
+  jempi-linker:
     ports:
       - published: 50010
         target: 50000

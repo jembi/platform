@@ -78,7 +78,7 @@ services:
       kafka:
       default:
 
-  linker:
+  jempi-linker:
     image: jembi/jempi-linker:${JEMPI_LINKER_IMAGE_TAG}
     environment:
       POSTGRESQL_USER: ${POSTGRESQL_USERNAME} 

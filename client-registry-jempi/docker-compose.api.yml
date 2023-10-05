@@ -13,6 +13,7 @@ services:
       DGRAPH_PORTS: ${DGRAPH_PORTS}
       HTTP_SERVER_PORT: ${HTTP_SERVER_PORT}
       LOG4J2_LEVEL: ${LOG4J2_LEVEL}
+      LINKER_HOST: ${LINKER_HOST}
     deploy:
       replicas: ${JEMPI_API_INSTANCES}
       resources:

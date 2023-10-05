@@ -4,11 +4,7 @@
   "description": "A patient matching and deduplicater for the platform",
   "type": "infrastructure",
   "version": "0.0.1",
-  "dependencies": [
-    "interoperability-layer-openhim",
-    "message-bus-kafka",
-    "identity-access-manager-keycloak"
-  ],
+  "dependencies": ["message-bus-kafka"],
   "environmentVariables": {
     "KAFKA_HOSTS": "kafka-01:9092",
     "JEMPI_ZERO_MEMORY_LIMIT": "3G",
@@ -90,6 +86,7 @@
     "KAFKA_CLIENT_ID_ASYNC": "client-id-syncrx",
     "KAFKA_APPLICATION_ID_ETL": "app-id-etl",
     "KAFKA_APPLICATION_ID_CTRL": "app-id-ctrl",
-    "KAFKA_CLIENT_ID_CTRL": "client-id-ctrl"
+    "KAFKA_CLIENT_ID_CTRL": "client-id-ctrl",
+    "LINKER_HOST": "jempi-linker:50000"
   }
 }
