@@ -87,6 +87,7 @@
     "KAFKA_APPLICATION_ID_ETL": "app-id-etl",
     "KAFKA_APPLICATION_ID_CTRL": "app-id-ctrl",
     "KAFKA_CLIENT_ID_CTRL": "client-id-ctrl",
-    "LINKER_HOST": "jempi-linker:50000"
+    "LINKER_HOST": "jempi-linker:50000",
+    "POSTGRESQL_HOST": "jempi-postgresql-01:5432"
   }
 }
