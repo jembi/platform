@@ -7,6 +7,8 @@ services:
       LOG4J2_LEVEL: ${LOG4J2_LEVEL} 
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_HOSTS}
       KAFKA_CLIENT_ID: ${KAFKA_CLIENT_ID_ASYNC}
+    volumes:
+      - "jempi-shared-data:/app/csv"
     deploy:
       replicas: ${JEMPI_ASYNC_RECEIVER_INSTANCES}
       resources:
@@ -23,7 +25,7 @@ services:
     environment:
       LOG4J2_LEVEL: ${LOG4J2_LEVEL} 
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_HOSTS}
-      KAFKA_APPLICATION_ID: ${KAFKA_APPLICATION_ID}
+      KAFKA_APPLICATION_ID: ${KAFKA_APPLICATION_ID_ETL}
     deploy:
       replicas: ${JEMPI_ETL_INSTANCES}
       resources:
@@ -115,6 +117,7 @@ services:
   
 volumes:
   jempi-psql-01-data:
+  jempi-shared-data:
 
 networks:
   kafka:
