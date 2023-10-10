@@ -1,8 +1,8 @@
 {
     "name": "Update Patient",
     "endpoint": {
-      "pattern": "/fhir/Patient/:patientId",
-      "method": "POST"
+      "pattern": "/fhir/update/Patient/:patientId",
+      "method": "PUT"
     },
     "transformation": {
       "input": "JSON",
@@ -21,7 +21,7 @@
     "requests": {
       "lookup": [
         {
-          "id": "jempi",
+          "id": "jempiUpdate",
           "forwardExistingRequestBody": true,
           "config": {
             "method": "post",

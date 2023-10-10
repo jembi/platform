@@ -12,7 +12,7 @@
     "active": true
   },
   "inputTransforms": {
-    "id": "lookupRequests.jempi.data.linkInfo.goldenUID"
+    "id": "lookupRequests.jempiRegister.data.linkInfo.goldenUID"
   },
   "inputMapping": {
     "requestBody.resourceType": "resourceType",
@@ -28,7 +28,7 @@
   "requests": {
     "lookup": [
       {
-        "id": "jempi",
+        "id": "jempiRegister",
         "forwardExistingRequestBody": true,
         "config": {
           "method": "post",
