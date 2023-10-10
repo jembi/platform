@@ -14,6 +14,8 @@ services:
       HTTP_SERVER_PORT: ${HTTP_SERVER_PORT}
       LOG4J2_LEVEL: ${LOG4J2_LEVEL}
       LINKER_HOST: ${LINKER_HOST}
+    volumes:
+      - "jempi-shared-data:/app/csv"
     deploy:
       replicas: ${JEMPI_API_INSTANCES}
       resources:
@@ -23,17 +25,15 @@ services:
           memory: ${JEMPI_API_MEMORY_RESERVE}
     networks:
       reverse-proxy:
-      keycloak:
       kafka:
       default:
 
+volumes:
+  jempi-shared-data: 
 
 networks:
   reverse-proxy:
     name: reverse-proxy_public
-    external: true
-  keycloak:
-    name: keycloak_public
     external: true
   kafka:
     name: kafka_public
