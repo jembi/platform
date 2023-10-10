@@ -10,7 +10,7 @@
     },
     "inputTransforms": {
       "familyName": "$exists(requestBody.name) and $exists(requestBody.name[0]) and $exists(requestBody.name[0].family) ? {'name': 'familyName', 'value': requestBody.name[0].family} : null",
-      "givenName": "$exists(requestBody.name) and $exists(requestBody.name[0]) and $exists(requestBody.name[0].given and $exists(requestBody.name[0].given[0]) ? {'name': 'givenName', 'value': requestBody.name[0].given[0]} : null",
+      "givenName": "$exists(requestBody.name) and $exists(requestBody.name[0]) and $exists(requestBody.name[0].given) and $exists(requestBody.name[0].given[0]) ? {'name': 'givenName', 'value': requestBody.name[0].given[0]} : null",
       "birthDate": "$exists(requestBody.birthDate) ? {'name': 'dob', 'value': requestBody.birthDate} : null",
       "gender": "$exists(requestBody.gender) ? {'name': 'gender', 'value': requestBody.gender} : null",
       "city": "$exists(requestBody.address) and $exists(requestBody.address[0]) and $exists(requestBody.address[0].city) ? {'name': 'city', 'value': requestBody.address[0].city} : null",
