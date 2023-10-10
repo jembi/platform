@@ -1,0 +1,63 @@
+version: '3.9'
+
+services:
+  mapping-mediator-config-importer:
+    image: jembi/instantohie-config-importer
+    deploy:
+      restart_policy:
+        condition: none
+    configs:
+      - source: mediator-config-metadata.js
+        target: /metadata.js
+      - source: mediator-config-register.json
+        target: /register.json
+      - source: mediator-config-register-response.json
+        target: /register-response.json
+      - source: mediator-config-update-response.json
+        target: /update-response.json
+      - source: mediator-config-update.json
+        target: /update.json
+      - source: mediator-config-search.json
+        target: /search.json
+    networks:
+      mapping-mediator:
+    # This command will only attempt to import the config when the uptime responds with a 2xx
+    command: sh -c "wait-on -t 60000 http-get://openhim-mapping-mediator:3003/uptime && node /metadata.js"
+
+configs:
+  mediator-config-metadata.js:
+    file: ./metadata.js
+    name: mediator-config-metadata.js-${mediator_config_metadata_js_DIGEST:?err}
+    labels:
+      name: jempi
+  mediator-config-register.json:
+    file: ./register.json
+    name: mediator-config-register.json-${mediator_config_register_json_DIGEST:?err}
+    labels:
+      name: jempi
+  mediator-config-register-response.json:
+    file: ./register-response.json
+    name: mediator-config-register-response.json-${mediator_config_register_response_json_DIGEST:?err}
+    labels:
+      name: jempi
+  mediator-config-update-response.json:
+    file: ./update-response.json
+    name: mediator-config-update-response.json-${mediator_config_update_response_json_DIGEST:?err}
+    labels:
+      name: jempi
+  mediator-config-update.json:
+    file: ./update.json
+    name: mediator-config-update.json-${mediator_config_update_json_DIGEST:?err}
+    labels:
+      name: jempi
+  mediator-config-search.json:
+    file: ./search.json
+    name: mediator-config-search.json-${mediator_config_search_json_DIGEST:?err}
+    labels:
+      name: jempi
+
+
+networks:
+  mapping-mediator:
+    name: openhim_mapping_mediator_public
+    external: true

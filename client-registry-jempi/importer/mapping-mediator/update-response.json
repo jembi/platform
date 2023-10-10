@@ -1,0 +1,46 @@
+{
+    "name": "Update Patient Response",
+    "endpoint": {
+      "pattern": "/update-patient-response/:patientId",
+      "method": "POST"
+    },
+    "transformation": {
+      "input": "JSON",
+      "output": "JSON"
+    },
+    "inputTransforms": {
+      "familyName": "$exists(requestBody.name) and $exists(requestBody.name[0]) and $exists(requestBody.name[0].family) ? {'name': 'familyName', 'value': requestBody.name[0].family} : null",
+      "givenName": "$exists(requestBody.name) and $exists(requestBody.name[0]) and $exists(requestBody.name[0].given) ? {'name': 'givenName', 'value': requestBody.name[0].given} : null",
+      "birthDate": "$exists(requestBody.birthDate) ? {'name': 'birthDate', 'value': requestBody.birthDate} : null",
+      "gender": "$exists(requestBody.gender) ? {'name': 'gender', 'value': requestBody.gender} : null",
+      "city": "$exists(requestBody.address) and $exists(requestBody.address[0]) and $exists(requestBody.address[0].city) ? {'name': 'city', 'value': requestBody.address[0].city} : null",
+      "phoneNumber": "$exists(requestBody.telecom) and $exists(requestBody.telecom[0]) and $exists(requestBody.telecom[0].value) ? {'name': 'phoneNumber', 'value': requestBody.telecom[0].value} : null",
+      "nationalId": "$exists(requestBody.identifier) and $exists(requestBody.identifier[0]) and $count($filter(requestBody.identifier, function($v) {$contains($v.system, 'NationalID')})) > 0 ? $filter(requestBody.identifier, function($v) {$contains($v.system, 'NationalID')})[0].value : null"
+    },
+    "inputMapping": {
+      "urlParams.patientId": "goldenId",
+      "transforms.familyName": "fields[]+",
+      "transforms.givenName": "fields[]+",
+      "transforms.birthDate": "fields[]+",
+      "transforms.gender": "fields[]+",
+      "transforms.city": "fields[]+",
+      "transforms.phoneNumber": "fields[]+",
+      "transforms.nationalId": "fields[]+"
+    },
+    "requests": {
+      "response": {
+        "id": "jempi",
+        "primary": true,
+        "config": {
+          "method": "patch",
+          "headers": {
+            "contentType": "application/json"
+          },
+          "url": "http://jempi_api:50000/JeMPI/cr-update-fields"
+        },
+        "extract": {
+          "JeMPIResponse": "$.body"
+        }
+      }
+    }
+  }
