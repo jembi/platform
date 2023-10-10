@@ -7,7 +7,7 @@ const path = require('path')
 const MEDIATOR_HOSTNAME = process.env.MEDIATOR_HOST_NAME || 'openhim-mapping-mediator'
 const MEDIATOR_API_PORT = process.env.MEDIATOR_API_PORT || 3003
 
-// Function for sending importing the configuration
+// Function for sending the configuration
 const sendRequest = async (data, method, endpointId) => {
   const url = endpointId
     ? `http://${MEDIATOR_HOSTNAME}:${MEDIATOR_API_PORT}/endpoints/${endpointId}`
