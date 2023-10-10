@@ -62,6 +62,9 @@ function initialize_package() {
     log info "Importing JeMPI Kafka topics"
     docker::deploy_config_importer $STACK "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "jempi-kafka-config-importer" "jempi-kafka"
 
+    log info "Importing mapping endpoints"
+    docker::deploy_config_importer $STACK "$COMPOSE_FILE_PATH/importer/mapping-mediator/docker-compose.config.yml" "mapping-mediator-config-importer" "jempi"
+
     log info "Deploy Dgraph"
     docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.dgraph-zero.yml" "$dgraph_zero_dev_compose_param" "$dgraph_zero_cluster_compose_param"
 
