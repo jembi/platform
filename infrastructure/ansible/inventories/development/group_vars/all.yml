@@ -8,22 +8,6 @@ sudoers:
     username: ryancrichton
     state: present
     key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCrGR7DPVKSIMjWO7m8vq6PFBJT8vmiiJRguePcuff8DUvUYmH/imAcvlcswZvnrlZgEtHLdleYKii4Fc/HcNwfoQOdxbdDbRamxhdSr+sHa4V97ziMi1+eXdJOItXjF9+ZyeFG0P2d8BH+6+X8NZ9q+3iM4iEg/08LqXyLU52rcRutmHo+3K0pZQETHOeiiIxBHzgtlDZIMclw12U5NU/f7W5+9jfDatLDhIO13x4iTeES0d5B5RivBtJoQb1y0glqgVtrCDuRgMk/p51Ravf7a8eFHgcVWYhcVqjakOviWMeHHnPI4IQSLK2yXGArsMurOQwoZ16r03Vse9mf3rmrLf30fD6cWdyRxgSkuWCDqJUvGQiGIJfybfsPLz/EPSvGjRx96DFPoqZ5meuLZW6bvQx5FjTLUU/G5KKvFujEkhL0WPTZO+XikIJVgvMp7DtgbOqRCDYcJM1F2oyccAnitmh0k43O2VkpKN8HYzVM1YAl7oxY4XdWbuAvZpNi7814WaM3/SCo5iKi39EbuQ0m8mDWloxroDtpc3RtY6gRWjx8exndpd6gD8yEKxSuzIwpdaWp1gGreCs+0/QPu4QjhQQuKPfrOKksJhaNF59i1Ww9RtRYW8R8wkgJYznxAKlyWDcYMc2PIvFPLLAvOD9JLouCBwjF3h07EFYZ+90wUw==
-  - name: michael.loosen@jembi.org
-    username: michaelloosen
-    state: present
-    key: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINGNVNlWwpQKVXPSngEOOdJjuCyVEQoBXv+nHqmcM6vW
-  - name: barry.dwyer@jembi.org
-    username: barrydwyer
-    state: absent
-    key: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICw4vvV33xxrTzxAiPoRhuwyWUzmgrP5NPo2n4bmKx7P
-  - name: mark.labuschagne@jembi.org
-    username: marklabuschagne
-    state: absent
-    key: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHa1ghm9JsRl6JDtWU8AV+U70jehqlWaXmpjRg3afqB4
-  - name: castello.govender@jembi.org
-    username: castellogovender
-    state: absent
-    key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDWl3Vc+v0fiuVBIVTDehGGUgZqfvn0JG2oNS7oMV9X2s3p8VwndKm6/oa5bOO4+sp9Z/8ychvo7S2MNXBRQAzTEXo5Oej5E/aZqaFzvpjgI79cnSidIHTzOUw0rUk2EwpSCpJVSXCjSjxGLbbLI35+KltLVoNXGmpNFq4Xi7XwT9aXIm5KQcbumV1NFRGPl+XiaRHioo37gFtub9XjODdQFfs9KGMS2oEuzzFFaXj5unUDZo+lZlEp67HHwq6EpDLR5xf7l96xBvMpQ/MS2pTxCoHVqXx3IDL5CXBBrgUKS8lUuhPPUJxPeARz4DuU7SmWxhNwTDspAEROQ8Rsq6M+kvdslFVeJ4O5M2Rs75mDTUCAkmZTixkTMuMmWqBuQT3zPA7d8Gf0YLhKfwgyH8y5YeJgpU01o2wbH6em/n2isI+pSIatdUFQAKuFdzJiawQJEB5UobKwN2tKVP8ImjrfN+q8nuqHZwTTGW0AaCrb985aQFTgMbYwQeR3mkBNOE0=
   - name: lumiere@symbionix.co
     username: lumieremondo
     state: present
@@ -36,6 +20,10 @@ sudoers:
     username: arran
     state: present
     key: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIB8edPB2Qhi0DGEgSTel4yNo9Wa68g4UtHYipaVfaMN8 arran@LAPTOP-2GA5K346
+  - name: matthew.erispe@jembi.org
+    username: matthewerispe
+    state: present
+    key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCwfQ8ypu5+4rGNfMeSzB+ADffE4qT/519AFVDTIWgV4FaJipsgHdYFTVnxkJHAiixTKAqEJ2SF1RJ2/pIH2hX5p2GNWhrXuOmnqiOZEByPSsqidSNS8aMCfIzt7UZ6XvIPhagZnEQ7NCA1BOuOqzWISIEKjSqA3MvfZ5kniis5J9cbTqkGB+pgW75fuQIxtmK7iCZbwuXOO735PzkKgeT/vfg4fTlbmOeikSNO6QaamGRZ+NJfprCIx5j5GKc970k6V9d4RcQltHojgWI7Wl2VRLsprm7Xy2keaTGXfjnCDwQ2cQRUgBqIoWyDoUzNqvDYXrEAfM19sNEICMx90fXaJeGrNbMg2jjWuyPacSnB0moDtECt4zd2svozGEWnVvdY8KDAWgMbTUlrufNOzh7hyrDMpaBSmSN9npyTpekM0kWlykfU++oEexXMi41b0cZLJc9ocPJCeKZ0fzpachHW35zsUh2E6OCgbXdDxNugVrG4ecz9nUqjJGyYhCX6mhz9VxpB46wEPQ/E2rTsnIfd+xMYoyLqLzCfKf/Z8CL8/Ifq7uDRxczRmo5sCrjByOdwyUGY+JoFQMc5OcEzfyepVmcwfuhuASBGAZOr1zM1ituqG614d7W+GDRHwCeAS8zUZKFdYvL5C4nOg+OxojqnC8zSGwN3ZcnMXHvvzKdQHw==
 
 docker_users:
   - name: bradford.sawadye@jembi.org
@@ -74,8 +62,12 @@ docker_users:
     username: arran
     state: present
     key: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIB8edPB2Qhi0DGEgSTel4yNo9Wa68g4UtHYipaVfaMN8 arran@LAPTOP-2GA5K346
+  - name: matthew.erispe@jembi.org
+    username: matthewerispe
+    state: present
+    key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCwfQ8ypu5+4rGNfMeSzB+ADffE4qT/519AFVDTIWgV4FaJipsgHdYFTVnxkJHAiixTKAqEJ2SF1RJ2/pIH2hX5p2GNWhrXuOmnqiOZEByPSsqidSNS8aMCfIzt7UZ6XvIPhagZnEQ7NCA1BOuOqzWISIEKjSqA3MvfZ5kniis5J9cbTqkGB+pgW75fuQIxtmK7iCZbwuXOO735PzkKgeT/vfg4fTlbmOeikSNO6QaamGRZ+NJfprCIx5j5GKc970k6V9d4RcQltHojgWI7Wl2VRLsprm7Xy2keaTGXfjnCDwQ2cQRUgBqIoWyDoUzNqvDYXrEAfM19sNEICMx90fXaJeGrNbMg2jjWuyPacSnB0moDtECt4zd2svozGEWnVvdY8KDAWgMbTUlrufNOzh7hyrDMpaBSmSN9npyTpekM0kWlykfU++oEexXMi41b0cZLJc9ocPJCeKZ0fzpachHW35zsUh2E6OCgbXdDxNugVrG4ecz9nUqjJGyYhCX6mhz9VxpB46wEPQ/E2rTsnIfd+xMYoyLqLzCfKf/Z8CL8/Ifq7uDRxczRmo5sCrjByOdwyUGY+JoFQMc5OcEzfyepVmcwfuhuASBGAZOr1zM1ituqG614d7W+GDRHwCeAS8zUZKFdYvL5C4nOg+OxojqnC8zSGwN3ZcnMXHvvzKdQHw==
 
-firewall_subnet_restriction: '10.1.10.0/16'
+firewall_subnet_restriction: "10.1.10.0/16"
 
 # docker_swarm_hostname_1: ip-172-31-36-41
 # docker_swarm_hostname_2: ip-172-31-35-12
@@ -85,9 +77,9 @@ firewall_subnet_restriction: '10.1.10.0/16'
 docker_username: ethiopiacdrbot
 docker_email: ryan+ethiopiacdrbot@jembi.org
 docker_password: !vault |
-          $ANSIBLE_VAULT;1.1;AES256
-          34323064326163323965306565316239366335633632633862333339323965633539376162623138
-          3166356333333635656337383236306535343164636632640a323031326166653339663162663763
-          39356130373863326163306139343332396262353036333532303530383363376237336138336136
-          3262303664386464380a613834373538376639373330363361396165333533343137613464653761
-          36383536633362653535343666333731333630383639613065393935346336613636
+  $ANSIBLE_VAULT;1.1;AES256
+  34323064326163323965306565316239366335633632633862333339323965633539376162623138
+  3166356333333635656337383236306535343164636632640a323031326166653339663162663763
+  39356130373863326163306139343332396262353036333532303530383363376237336138336136
+  3262303664386464380a613834373538376639373330363361396165333533343137613464653761
+  36383536633362653535343666333731333630383639613065393935346336613636
