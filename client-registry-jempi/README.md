@@ -159,3 +159,51 @@ PUT - http://localhost:3003/fhir/update/Patient/<PATIENT_GOLDEN_RECORD>
     ]
 }
 ```
+
+## Query all patients deterministic
+
+via the api (returns in JeMPI format)
+
+```sh
+POST http://localhost:50000/JeMPI/cr-find
+
+{
+  "operand": {
+    "fn": "eq",
+    "name": "givenName",
+    "value": "xxx"
+  },
+  "operands": [
+    {
+      "operator": "and",
+      "operand": {
+        "fn": "eq",
+        "name": "familyName",
+        "value": "yyy"
+      }
+    }
+  ]
+}
+```
+
+via the [mapping mediator](https://github.com/jembi/openhim-mediator-mapping) (in fhir format)
+
+```sh
+POST http://localhost:3003/fhir/Patients
+
+{
+    "resourceType": "Parameters",
+    "parameters": [
+        {
+            "name": "and",                              // matches to the operator (options are "and" and "or")
+            "valueCode": "familyName",                  // matches to the field name (options are "givenName", "familyName", "dob", "nationalId", "gender", "city" and "phoneNumber")
+            "valueString": "creexxxeead"                // matches to value of the field
+        },
+        {
+            "name": "and",
+            "valueCode": "city",
+            "valueString": "Indianapeeolis"
+        }
+    ]
+}
+```
