@@ -1,0 +1,69 @@
+{
+  "name": "Search Response Endpoint",
+  "endpoint": {
+    "pattern": "/search-response",
+    "method": "POST"
+  },
+  "transformation": {
+    "input": "JSON",
+    "output": "JSON"
+  },
+  "inputValidation": {
+    "type": "object",
+    "properties": {
+      "requestBody": {
+        "type": "object",
+        "properties": {
+          "parameters": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "valueCode": {
+                  "type": "string"
+                },
+                "valueString": {
+                  "type": "string"
+                }
+              },
+              "required": ["name", "valueCode", "valueString"]
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "parameters"
+        ]
+      }
+    }
+  },
+  "inputTransforms": {
+    "operands": "$append([], $map(requestBody.parameters, function($v) {{'operator': $v.name, 'operand': {'fn': 'eq', 'name': $v.valueCode, 'value': $v.valueString}}}))"
+  },
+  "constants": {
+    "operator": "or",
+    "function": "match",
+    "operandFunction": "eq"
+  },
+  "inputMapping": {
+    "transforms.operands": "operands",
+    "transforms.operands[0].operand": "operand"
+  },
+  "requests": {
+    "response": [
+      {
+        "id": "jempiSearchAllResponse",
+        "config": {
+          "method": "post",
+          "url": "http://jempi-api:50000/JeMPI/cr-find"
+        },
+        "extract": {
+          "JeMPIResponse": "$.body"
+        }
+      }
+    ]
+  }
+}
