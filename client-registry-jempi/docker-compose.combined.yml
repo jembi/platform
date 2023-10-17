@@ -4,7 +4,11 @@ services:
   jempi-async-receiver:
     image: jembi/jempi-async-receiver:${JEMPI_ASYNC_RECEIVER_IMAGE_TAG}
     environment:
-      kafka.bootstrap.servers: ${KAFKA_HOSTS}
+      LOG4J2_LEVEL: ${LOG4J2_LEVEL} 
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_HOSTS}
+      KAFKA_CLIENT_ID: ${KAFKA_CLIENT_ID_ASYNC}
+    volumes:
+      - "jempi-shared-data:/app/csv"
     deploy:
       replicas: ${JEMPI_ASYNC_RECEIVER_INSTANCES}
       resources:
@@ -16,32 +20,19 @@ services:
       kafka:
       default:
 
-  jempi-sync-receiver:
-    image: jembi/jempi-sync-receiver:${JEMPI_SYNC_RECEIVER_IMAGE_TAG}
+  jempi-etl:
+    image: jembi/jempi-etl:${JEMPI_ETL_IMAGE_TAG}
     environment:
-      kafka.bootstrap.servers: ${KAFKA_HOSTS}
+      LOG4J2_LEVEL: ${LOG4J2_LEVEL} 
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_HOSTS}
+      KAFKA_APPLICATION_ID: ${KAFKA_APPLICATION_ID_ETL}
     deploy:
-      replicas: ${JEMPI_SYNC_RECEIVER_INSTANCES}
+      replicas: ${JEMPI_ETL_INSTANCES}
       resources:
         limits:
-          memory: ${JEMPI_SYNC_RECEIVER_MEMORY_LIMIT}
+          memory: ${JEMPI_ETL_MEMORY_LIMIT}
         reservations:
-          memory: ${JEMPI_SYNC_RECEIVER_MEMORY_RESERVE}
-    networks:
-      kafka:
-      default:
-
-  jempi-pre-processor:
-    image: jembi/jempi-pre-processor:${JEMPI_PRE_PROCESSOR_IMAGE_TAG}
-    environment:
-      kafka.bootstrap.servers: ${KAFKA_HOSTS}
-    deploy:
-      replicas: ${JEMPI_PRE_PROCESSOR_INSTANCES}
-      resources:
-        limits:
-          memory: ${JEMPI_PRE_PROCESSOR_MEMORY_LIMIT}
-        reservations:
-          memory: ${JEMPI_PRE_PROCESSOR_MEMORY_RESERVE}
+          memory: ${JEMPI_ETL_MEMORY_RESERVE}
     networks:
       kafka:
       default:
@@ -49,7 +40,16 @@ services:
   jempi-controller:
     image: jembi/jempi-controller:${JEMPI_CONTROLLER_IMAGE_TAG}
     environment:
-      kafka.bootstrap.servers: ${KAFKA_HOSTS}
+      POSTGRESQL_USER: ${POSTGRESQL_USERNAME} 
+      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD} 
+      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
+      POSTGRESQL_HOST: ${POSTGRESQL_HOST}
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_HOSTS}
+      KAFKA_APPLICATION_ID: ${KAFKA_APPLICATION_ID_CTRL}
+      KAFKA_CLIENT_ID: ${KAFKA_CLIENT_ID_CTRL}
+      HTTP_SERVER_PORT: ${HTTP_SERVER_PORT}
+      LOG4J2_LEVEL: ${LOG4J2_LEVEL}
+      LINKER_HOST: ${LINKER_HOST}
     deploy:
       replicas: ${JEMPI_CONTROLLER_INSTANCES}
       resources:
@@ -61,25 +61,22 @@ services:
       kafka:
       default:
 
-  jempi-em-calculator:
-    image: jembi/jempi-em-calculator:${JEMPI_EM_CALCULATOR_IMAGE_TAG}
-    environment:
-      kafka.bootstrap.servers: ${KAFKA_HOSTS}
-    deploy:
-      replicas: ${JEMPI_EM_CALCULATOR_INSTANCES}
-      resources:
-        limits:
-          memory: ${JEMPI_EM_CALCULATOR_MEMORY_LIMIT}
-        reservations:
-          memory: ${JEMPI_EM_CALCULATOR_MEMORY_RESERVE}
-    networks:
-      kafka:
-      default:
-
   jempi-linker:
     image: jembi/jempi-linker:${JEMPI_LINKER_IMAGE_TAG}
     environment:
-      kafka.bootstrap.servers: ${KAFKA_HOSTS}
+      POSTGRESQL_USER: ${POSTGRESQL_USERNAME} 
+      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD} 
+      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_HOSTS}
+      KAFKA_APPLICATION_ID_INTERACTIONS: ${KAFKA_APPLICATION_ID_INTERACTIONS}
+      KAFKA_APPLICATION_ID_MU: ${KAFKA_APPLICATION_ID_MU}
+      KAFKA_CLIENT_ID_NOTIFICATIONS: ${KAFKA_CLIENT_ID_NOTIFICATIONS}
+      DGRAPH_HOSTS: ${DGRAPH_HOSTS}
+      DGRAPH_PORTS: ${DGRAPH_PORTS}
+      HTTP_SERVER_PORT: ${HTTP_SERVER_PORT}
+      LOG4J2_LEVEL: ${LOG4J2_LEVEL}
+      LINKER_MATCH_THRESHOLD: ${LINKER_MATCH_THRESHOLD}
+      LINKER_MATCH_THRESHOLD_MARGIN: ${LINKER_MATCH_THRESHOLD_MARGIN}
     deploy:
       replicas: ${JEMPI_LINKER_INSTANCES}
       resources:
@@ -120,6 +117,7 @@ services:
   
 volumes:
   jempi-psql-01-data:
+  jempi-shared-data:
 
 networks:
   kafka:

@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   openhim-mapping-mediator:
-    image: jembi/openhim-mediator-mapping:v3.2.0
+    image: jembi/openhim-mediator-mapping:v3.2.1
     environment:
       OPENHIM_REGISTER: ${OPENHIM_REGISTER}
       MONGO_URL: ${OPENHIM_MONGO_URL}
@@ -17,6 +17,7 @@ services:
       mongo:
       kafka:
       public:
+      hapi:
 
 networks:
   openhim:
@@ -30,4 +31,7 @@ networks:
     external: true
   public:
     name: openhim_mapping_mediator_public
+    external: true
+  hapi:
+    name: hapi-fhir_public
     external: true

@@ -1,0 +1,46 @@
+{
+  "name": "Register Patient",
+  "endpoint": {
+    "pattern": "/fhir/Patient",
+    "method": "POST"
+  },
+  "transformation": {
+    "input": "JSON",
+    "output": "JSON"
+  },
+  "constants": {
+    "active": true
+  },
+  "inputTransforms": {
+    "id": "lookupRequests.jempiRegister.data.linkInfo.goldenUID"
+  },
+  "inputMapping": {
+    "requestBody.resourceType": "resourceType",
+    "transforms.id": "id",
+    "requestBody.identifier": "identifier",
+    "constants.active": "active",
+    "requestBody.name": "name",
+    "requestBody.gender": "gender",
+    "requestBody.birthDate": "birthDate",
+    "requestBody.address": "address",
+    "requestBody.telecom": "telecom"
+  },
+  "requests": {
+    "lookup": [
+      {
+        "id": "jempiRegister",
+        "forwardExistingRequestBody": true,
+        "config": {
+          "method": "post",
+          "headers": {
+            "contentType": "application/fhir+json"
+          },
+          "url": "http://openhim-mapping-mediator:3003/register-response"
+        },
+        "extract": {
+          "JeMPIResponse": "$.body"
+        }
+      }
+    ]
+  }
+}
