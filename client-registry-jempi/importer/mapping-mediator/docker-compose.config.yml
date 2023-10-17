@@ -19,6 +19,10 @@ services:
         target: /update.json
       - source: mediator-config-search.json
         target: /search.json
+      - source: mediator-config-searchAll.json
+        target: /searchAll.json
+      - source: mediator-config-searchAllResponse.json
+        target: /searchAllResponse.json
     networks:
       mapping-mediator:
     # This command will only attempt to import the config when the uptime responds with a 2xx
@@ -55,7 +59,16 @@ configs:
     name: mediator-config-search.json-${mediator_config_search_json_DIGEST:?err}
     labels:
       name: jempi
-
+  mediator-config-searchAll.json:
+    file: ./searchAll.json
+    name: mediator-config-searchAll.json-${mediator_config_searchAll_json_DIGEST:?err}
+    labels:
+      name: jempi
+  mediator-config-searchAllResponse.json:
+    file: ./searchAllResponse.json
+    name: mediator-config-searchAllResponse.json-${mediator_config_searchAllResponse_json_DIGEST:?err}
+    labels:
+      name: jempi
 
 networks:
   mapping-mediator:
