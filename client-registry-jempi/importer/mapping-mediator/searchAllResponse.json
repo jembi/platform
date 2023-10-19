@@ -1,5 +1,5 @@
 {
-  "name": "Search Response Endpoint",
+  "name": "Search Response Endpoint deterministic",
   "endpoint": {
     "pattern": "/search-response",
     "method": "POST"

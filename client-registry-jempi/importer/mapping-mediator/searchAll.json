@@ -1,5 +1,5 @@
 {
-  "name": "Search Endpoint",
+  "name": "Search Endpoint deterministic",
   "endpoint": {
     "pattern": "/fhir/Patients",
     "method": "POST"
