@@ -35,7 +35,14 @@
           "headers": {
             "contentType": "application/fhir+json"
           },
-          "url": "http://openhim-mapping-mediator:3003/register-response"
+          "url": "http://openhim-mapping-mediator:3003/register-response",
+          "params": {
+            "query": {
+              "candidateThreshold": {
+                "path": "query.candidateThreshold"
+              }
+            }
+          }
         },
         "extract": {
           "JeMPIResponse": "$.body"
