@@ -14,7 +14,7 @@
   },
   "inputTransforms": {
     "total": "$count(lookupRequests.jempiSearchMatch.data.goldenRecords)",
-    "entry": "$map(lookupRequests.jempiSearchMatch.data.goldenRecords, function($v) {{'fullUrl': 'Patient/' & $v.goldenId, 'resource': {'resourceType': 'Patient','id': $v.goldenId,'name': {'given': [$v.demographicData.givenName],'family': $v.demographicData.familyName},'address': [{'city': $v.demographicData.city}],'birthDate': $v.demographicData.dob,'telecom': [{'value': $v.demographicData.phoneNumber,'system': 'phone'}],'identifier': [{'system': $v.sourceId.facility,'value': $v.sourceId.patient},{'system': 'NationalID','value': $v.demographicData.nationalId}],'gender': $v.demographicData.gender}}})"
+    "entry": "$map(lookupRequests.jempiSearchMatch.data.goldenRecords, function($v) {{'fullUrl': 'Patient/' & $v.goldenId, 'resource': {'resourceType': 'Patient','id': $v.goldenId,'name': {'given': [$v.demographicData.givenName],'family': $v.demographicData.familyName},'address': [{'city': $v.demographicData.city}],'birthDate': $v.demographicData.dob,'telecom': [{'value': $v.demographicData.phoneNumberMobile,'system': 'phone'}],'identifier': [{'system': $v.sourceId.facility,'value': $v.sourceId.patient},{'system': 'NationalID','value': $v.demographicData.nationalId}],'gender': $v.demographicData.gender}}})"
   },
   "inputMapping": {
     "constants.resourceType": "resourceType",

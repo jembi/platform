@@ -33,7 +33,7 @@ POST - http://localhost:50000/JeMPI/cr-register
         "familyName": "YYY",
         "gender": "female",
         "dob": "20000101",
-        "phoneNumber": "123456789",
+        "phoneNumberMobile": "123456789",
         "city": "Cape Town",
         "nationalId": "1234567890"
     }
@@ -196,7 +196,7 @@ POST http://localhost:3003/fhir/Patients
     "parameters": [
         {
             "name": "and",                              // matches to the operator (options are "and" and "or")
-            "valueCode": "familyName",                  // matches to the field name (options are "givenName", "familyName", "dob", "nationalId", "gender", "city" and "phoneNumber")
+            "valueCode": "familyName",                  // matches to the field name (options are "givenName", "familyName", "dob", "nationalId", "gender", "city" and "phoneNumberMobile")
             "valueString": "creexxxeead"                // matches to value of the field
         },
         {

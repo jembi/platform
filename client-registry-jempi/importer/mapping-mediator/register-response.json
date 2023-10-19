@@ -16,7 +16,7 @@
     "name": "$exists(requestBody.name) and $exists(requestBody.name[0]) and $exists(requestBody.name[0].given[0]) ? requestBody.name[0].given[0] : null",
     "familyName": "$exists(requestBody.name) and $exists(requestBody.name[0]) ? requestBody.name[0].family : null",
     "city": "$exists(requestBody.address) and $exists(requestBody.address[0]) ? requestBody.address[0].city : null",
-    "phoneNumber": "$exists(requestBody.telecom) and $exists(requestBody.telecom[0]) ? requestBody.telecom[0].value : null"
+    "phoneNumberMobile": "$exists(requestBody.telecom) and $exists(requestBody.telecom[0]) ? requestBody.telecom[0].value : null"
   },
   "inputMapping": {
     "transforms.candidateThreshold": "candidateThreshold",
@@ -27,7 +27,7 @@
     "requestBody.gender": "demographicData.gender",
     "requestBody.birthDate": "demographicData.dob",
     "transforms.city": "demographicData.city",
-    "transforms.phoneNumber": "demographicData.phoneNumber",
+    "transforms.phoneNumberMobile": "demographicData.phoneNumberMobile",
     "transforms.currentDate": "uniqueInteractionData.auxDateCreated"
   },
   "constants": {
