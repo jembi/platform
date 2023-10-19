@@ -10,6 +10,7 @@
   },
   "inputTransforms": {
     "currentDate": "$now()",
+    "candidateThreshold": "$exists(query.candidateThreshold) ? query.candidateThreshold : constants.candidateThreshold",
     "sourcePatient": "$exists(requestBody.identifier) and $exists(requestBody.identifier[0]) and $exists(requestBody.identifier[0].value) ? {'patient': requestBody.identifier[0].value, 'facility': requestBody.identifier[0].system} : null",
     "nationalId": "$exists(requestBody.identifier) and $exists(requestBody.identifier[0]) and $count($filter(requestBody.identifier, function($v) {$contains($v.system, 'NationalID')})) > 0 ? $filter(requestBody.identifier, function($v) {$contains($v.system, 'NationalID')})[0].value : null",
     "name": "$exists(requestBody.name) and $exists(requestBody.name[0]) and $exists(requestBody.name[0].given[0]) ? requestBody.name[0].given[0] : null",
@@ -18,7 +19,7 @@
     "phoneNumber": "$exists(requestBody.telecom) and $exists(requestBody.telecom[0]) ? requestBody.telecom[0].value : null"
   },
   "inputMapping": {
-    "constants.candidateThreshold": "candidateThreshold",
+    "transforms.candidateThreshold": "candidateThreshold",
     "transforms.sourcePatient": "sourceId",
     "transforms.nationalId": "demographicData.nationalId",
     "transforms.familyName": "demographicData.familyName",
