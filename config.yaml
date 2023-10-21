@@ -23,3 +23,4 @@ packages:
   - client-registry-jempi
   - identity-access-manager-keycloak
   - openhim-mapping-mediator
+  - openhim-auth-service
