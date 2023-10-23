@@ -7,20 +7,44 @@ services:
         constraints:
           - node.labels.name == node-1
 
-  jempi-alpha-02:
-    deploy:
-      placement:
-        constraints:
-          - node.labels.name == node-2
+jempi-alpha-02:
+  image: dgraph/dgraph:v22.0.0
+  hostname: alpha-02
+  volumes:
+    - jempi-alpha-02-data:/dgraph
+  deploy:
+    replicas: 1
+    resources:
+      limits:
+        memory: ${JEMPI_ALPHA_02_MEMORY_LIMIT}
+      reservations:
+        memory: ${JEMPI_ALPHA_02_MEMORY_RESERVE}
+    restart_policy:
+      condition: on-failure
+  command: dgraph alpha --my=jempi-alpha-02:7081 --zero=jempi-zero-01:5080 --security whitelist=0.0.0.0/0 -o 1 --telemetry "sentry=false;"
 
-  jempi-alpha-03:
-    deploy:
-      placement:
-        constraints:
-          - node.labels.name == node-3
+jempi-alpha-03:
+  image: dgraph/dgraph:v22.0.0
+  hostname: alpha-03
+  volumes:
+    - jempi-alpha-03-data:/dgraph
+  deploy:
+    replicas: 1
+    resources:
+      limits:
+        memory: ${JEMPI_ALPHA_03_MEMORY_LIMIT}
+      reservations:
+        memory: ${JEMPI_ALPHA_03_MEMORY_RESERVE}
+    restart_policy:
+      condition: on-failure
+  command: dgraph alpha --my=jempi-alpha-03:7082 --zero=jempi-zero-01:5080 --security whitelist=0.0.0.0/0 -o 2 --telemetry "sentry=false;"
 
   jempi-ratel:
     deploy:
       placement:
         constraints:
           - node.labels.name == node-1
+  
+volumes:
+  jempi-alpha-02-data:
+  jempi-alpha-03-data:
