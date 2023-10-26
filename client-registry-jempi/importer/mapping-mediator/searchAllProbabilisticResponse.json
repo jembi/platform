@@ -24,9 +24,27 @@
                 },
                 "valueString": {
                   "type": "string"
+                },
+                "part": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "fn": {
+                        "type": "string"
+                      },
+                      "operator": {
+                        "type": "string"
+                      },
+                      "distance": {
+                        "type": "number"
+                      }
+                    },
+                    "required": ["fn", "distance", "operator"]
+                  }
                 }
               },
-              "required": ["name", "valueString"]
+              "required": ["name", "valueString", "part"]
             },
             "minItems": 1
           }
