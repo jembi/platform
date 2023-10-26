@@ -44,9 +44,7 @@
             }
           }
         },
-        "extract": {
-          "JeMPIResponse": "$.body"
-        }
+        "fhirResponse": true
       }
     ]
   }
