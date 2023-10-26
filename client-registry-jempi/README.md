@@ -241,39 +241,26 @@ via the [mapping mediator](https://github.com/jembi/openhim-mediator-mapping) (i
 
 POST http://localhost:3003/fhir/Patients/match
 
-The `candidateThreshold` can optionally be set in the request query. The default value is 0.9
-
 {
-    "resourceType": "Patient",
-    "gender": "male",
-    "birthDate": "1968-04-15",
-    "name": [
+    "resourceType": "Parameters",
+    "parameter": [
         {
-            "family": "cread",
-            "given": [
-                "Jacess"
+            "name": "city",
+            "valueString": "Indianapeeolis",
+            "part": [
+                {
+                    "name": "operator",
+                    "valueString": "and"
+                },
+                {
+                    "name": "fn",
+                    "valueString": "match"
+                },
+                {
+                    "name": "distance",
+                    "valueInteger": 2
+                }
             ]
-        }
-    ],
-    "address": [
-        {
-            "city": "Indianapolis"
-        }
-    ],
-    "identifier": [
-        {
-            "system": "https://instantopenhie.org/client1",
-            "value": "6b4573e7-f9dc-49ea-9ebb-daaa6b74a534"
-        },
-        {
-            "value": "60934be6-ce88-48af-958e-02d88f77eec9",
-            "system": "NationalID"
-        }
-    ],
-    "telecom": [
-        {
-            "value": "899-882-4991",
-            "system": "phone"
         }
     ]
 }
