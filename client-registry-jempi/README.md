@@ -215,23 +215,26 @@ POST http://localhost:3003/fhir/Patients
 via the api (in JeMPI format)
 
 ```sh
-POST - http://localhost:50000/JeMPI/cr-candidates
+POST - http://localhost:50000/JeMPI/cr-find
 
 {
-    "candidateThreshold": 0.9,
-    "sourceId": {
-        "facility": "fac1",
-        "patient": "pat1"
-    },
-    "demographicData": {
-        "givenName": "XXX",
-        "familyName": "YYY",
-        "gender": "female",
-        "dob": "20000101",
-        "phoneNumber": "123456789",
-        "city": "Cape Town",
-        "nationalId": "1234567890"
+  "operand": {
+    "fn": "match",
+    "name": "givenName",
+    "value": "drake",
+    "distance": 2
+  },
+  "operands": [
+    {
+      "operator": "and",
+      "operand": {
+        "fn": "match",
+        "name": "familyName",
+        "value": "brake",
+        "distance": 2
+      }
     }
+  ]
 }
 ```
 
@@ -245,8 +248,8 @@ POST http://localhost:3003/fhir/Patient/$match
     "resourceType": "Parameters",
     "parameter": [
         {
-            "name": "city",
-            "valueString": "Indianapeeolis",
+            "name": "givenName",
+            "valueString": "drake",
             "part": [
                 {
                     "name": "operator",
@@ -263,8 +266,8 @@ POST http://localhost:3003/fhir/Patient/$match
             ]
         },
         {
-            "name": "givenName",
-            "valueString": "drake",
+            "name": "familyName",
+            "valueString": "brake",
             "part": [
                 {
                     "name": "operator",
