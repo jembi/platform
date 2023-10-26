@@ -1,7 +1,7 @@
 {
   "name": "Search Endpoint probabilistic",
   "endpoint": {
-    "pattern": "/fhir/Patients/match",
+    "pattern": "/fhir/Patient/$match",
     "method": "POST"
   },
   "transformation": {

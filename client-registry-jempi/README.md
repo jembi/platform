@@ -239,7 +239,7 @@ via the [mapping mediator](https://github.com/jembi/openhim-mediator-mapping) (i
 
 ```sh
 
-POST http://localhost:3003/fhir/Patients/match
+POST http://localhost:3003/fhir/Patient/$match
 
 {
     "resourceType": "Parameters",
@@ -247,6 +247,24 @@ POST http://localhost:3003/fhir/Patients/match
         {
             "name": "city",
             "valueString": "Indianapeeolis",
+            "part": [
+                {
+                    "name": "operator",
+                    "valueString": "and"
+                },
+                {
+                    "name": "fn",
+                    "valueString": "match"
+                },
+                {
+                    "name": "distance",
+                    "valueInteger": 2
+                }
+            ]
+        },
+        {
+            "name": "givenName",
+            "valueString": "drake",
             "part": [
                 {
                     "name": "operator",
