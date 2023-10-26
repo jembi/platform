@@ -33,7 +33,8 @@
             "contentType": "application/json"
           },
           "url": "http://openhim-mapping-mediator:3003/search-response-probabilistic"
-        }
+        },
+        "fhirResponse": true
       }
     ]
   }

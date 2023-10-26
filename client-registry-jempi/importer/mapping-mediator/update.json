@@ -37,9 +37,7 @@
             },
             "url": "http://openhim-mapping-mediator:3003/update-patient-response/:patientId"
           },
-          "extract": {
-            "JeMPIResponse": "$.body"
-          }
+          "fhirResponse": true
         }
       ]
     }
