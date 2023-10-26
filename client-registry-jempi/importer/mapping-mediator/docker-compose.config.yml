@@ -23,10 +23,10 @@ services:
         target: /searchAll.json
       - source: mediator-config-searchAllResponse.json
         target: /searchAllResponse.json
-      - source: mediator-config-searchMatch.json
-        target: /searchMatch.json
-      - source: mediator-config-searchMatchResponse.json
-        target: /searchMatchResponse.json
+      - source: mediator-config-searchAllProbabilistic.json
+        target: /searchAllProbabilistic.json
+      - source: mediator-config-searchAllProbabilisticResponse.json
+        target: /searchAllProbabilisticResponse.json
     networks:
       mapping-mediator:
     # This command will only attempt to import the config when the uptime responds with a 2xx
@@ -73,14 +73,14 @@ configs:
     name: mediator-config-searchAllResponse.json-${mediator_config_searchAllResponse_json_DIGEST:?err}
     labels:
       name: jempi
-  mediator-config-searchMatch.json:
-    file: ./searchMatch.json
-    name: mediator-config-searchMatch.json-${mediator_config_searchMatch_json_DIGEST:?err}
+  mediator-config-searchAllProbabilistic.json:
+    file: ./searchAllProbabilistic.json
+    name: mediator-config-searchAllProbabilistic.json-${mediator_config_searchAllProbabilistic_json_DIGEST:?err}
     labels:
       name: jempi
-  mediator-config-searchMatchResponse.json:
-    file: ./searchMatchResponse.json
-    name: mediator-config-searchMatchResponse.json-${mediator_config_searchMatchResponse_json_DIGEST:?err}
+  mediator-config-searchAllProbabilisticResponse.json:
+    file: ./searchAllProbabilisticResponse.json
+    name: mediator-config-searchAllProbabilisticResponse.json-${mediator_config_searchAllProbabilisticResponse_json_DIGEST:?err}
     labels:
       name: jempi
 
