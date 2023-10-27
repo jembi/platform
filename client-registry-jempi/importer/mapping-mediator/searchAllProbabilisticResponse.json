@@ -30,17 +30,17 @@
                   "items": {
                     "type": "object",
                     "properties": {
-                      "fn": {
+                      "name": {
                         "type": "string"
                       },
-                      "operator": {
+                      "valueString": {
                         "type": "string"
                       },
-                      "distance": {
+                      "valueInteger": {
                         "type": "number"
                       }
                     },
-                    "required": ["fn", "distance", "operator"]
+                    "required": ["name"]
                   }
                 }
               },
