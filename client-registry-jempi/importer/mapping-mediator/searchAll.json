@@ -1,41 +1,29 @@
 {
   "name": "Search Endpoint deterministic",
   "endpoint": {
-    "pattern": "/fhir/Patients",
-    "method": "POST"
+    "pattern": "/fhir/Patient/$exact",
+    "method": "GET"
   },
   "transformation": {
-    "input": "JSON",
     "output": "JSON"
   },
-  "constants": {
-    "resourceType": "Bundle",
-    "type": "searchset"
-  },
   "inputTransforms": {
-    "total": "$count(lookupRequests.jempiSearchAll.data.goldenRecords)",
-    "entry": "$map(lookupRequests.jempiSearchAll.data.goldenRecords, function($v) {{'fullUrl': 'Patient/' & $v.goldenId, 'resource': {'resourceType': 'Patient','id': $v.goldenId,'name': {'given': [$v.demographicData.givenName],'family': $v.demographicData.familyName},'address': [{'city': $v.demographicData.city}],'birthDate': $v.demographicData.dob,'telecom': [{'value': $v.demographicData.phoneNumber,'system': 'phone'}],'identifier': [{'system': $v.sourceId.facility,'value': $v.sourceId.patient},{'system': 'NationalID','value': $v.demographicData.nationalId}],'gender': $v.demographicData.gender}}})"
+    "operands": "($transform := function($v) {[query.family ? {'operator': 'and', 'operand': {'fn': 'eq', 'name': 'familyName', 'value': query.family}},query.given ? {'operator': 'and', 'operand': {'fn': 'eq', 'name': 'givenName', 'value': query.given}},query.gender ? {'operator': 'and', 'operand': {'fn': 'eq', 'name': 'gender', 'value': query.gender}},query.birthDate ? {'operator': 'and', 'operand': {'fn': 'eq', 'name': 'dob', 'value': query.birthDate}},query.address ? {'operator': 'and', 'operand': {'fn': 'eq', 'name': 'city', 'value': query.address}},query.telecom ? {'operator': 'and', 'operand': {'fn': 'eq', 'name': 'phoneNumber', 'value': query.telecom}},query.identifier ? {'operator': 'and', 'operand': {'fn': 'eq', 'name': 'nationalId', 'value': query.identifier}}]};$transform(query))"
   },
   "inputMapping": {
-    "constants.resourceType": "resourceType",
-    "constants.type": "type",
-    "transforms.total": "total",
-    "transforms.entry": "entry"
+    "transforms.operands": "operands",
+    "transforms.operands[0].operand": "operand"
   },
   "requests": {
-    "lookup": [
+    "response": [
       {
         "id": "jempiSearchAll",
-        "forwardExistingRequestBody": true,
         "config": {
           "method": "post",
           "headers": {
             "contentType": "application/json"
           },
           "url": "http://openhim-mapping-mediator:3003/search-response"
-        },
-        "extract": {
-          "JeMPIResponse": "$.body"
         }
       }
     ]

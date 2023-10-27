@@ -1,5 +1,5 @@
 {
-  "name": "Search Response Endpoint deterministic",
+  "name": "Search Endpoint deterministic response",
   "endpoint": {
     "pattern": "/search-response",
     "method": "POST"
@@ -8,60 +8,28 @@
     "input": "JSON",
     "output": "JSON"
   },
-  "inputValidation": {
-    "type": "object",
-    "properties": {
-      "requestBody": {
-        "type": "object",
-        "properties": {
-          "parameters": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                },
-                "valueCode": {
-                  "type": "string"
-                },
-                "valueString": {
-                  "type": "string"
-                }
-              },
-              "required": ["name", "valueCode", "valueString"]
-            },
-            "minItems": 1
-          }
-        },
-        "required": [
-          "parameters"
-        ]
-      }
-    }
+  "constants": {
+    "resourceType": "Bundle",
+    "type": "searchset"
   },
   "inputTransforms": {
-    "operands": "$append([], $map(requestBody.parameters, function($v) {{'operator': $v.name, 'operand': {'fn': 'eq', 'name': $v.valueCode, 'value': $v.valueString}}}))"
-  },
-  "constants": {
-    "operator": "or",
-    "function": "match",
-    "operandFunction": "eq"
+    "total": "$count(lookupRequests.jempiSearchAllResponse.data.goldenRecords)",
+    "entry": "$map(lookupRequests.jempiSearchAllResponse.data.goldenRecords, function($v) {{'fullUrl': 'Patient/' & $v.goldenId, 'resource': {'resourceType': 'Patient','id': $v.goldenId,'name': {'given': [$v.demographicData.givenName],'family': $v.demographicData.familyName},'address': [{'city': $v.demographicData.city}],'birthDate': $v.demographicData.dob,'telecom': [{'value': $v.demographicData.phoneNumber,'system': 'phone'}],'identifier': [{'system': $v.sourceId.facility,'value': $v.sourceId.patient},{'system': 'NationalID','value': $v.demographicData.nationalId}],'gender': $v.demographicData.gender}}})"
   },
   "inputMapping": {
-    "transforms.operands": "operands",
-    "transforms.operands[0].operand": "operand"
+    "constants.resourceType": "resourceType",
+    "constants.type": "type",
+    "transforms.total": "total",
+    "transforms.entry": "entry"
   },
   "requests": {
-    "response": [
+    "lookup": [
       {
         "id": "jempiSearchAllResponse",
+        "forwardExistingRequestBody": true,
         "config": {
           "method": "post",
           "url": "http://jempi-api:50000/JeMPI/cr-find"
-        },
-        "extract": {
-          "JeMPIResponse": "$.body"
         }
       }
     ]
