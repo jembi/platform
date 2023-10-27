@@ -191,23 +191,9 @@ POST http://localhost:50000/JeMPI/cr-find
 via the [mapping mediator](https://github.com/jembi/openhim-mediator-mapping) (in fhir format)
 
 ```sh
-POST http://localhost:3003/fhir/Patients
+GET http://localhost:3003/fhir/Patient/$exact
 
-{
-    "resourceType": "Parameters",
-    "parameters": [
-        {
-            "name": "and",                              // matches to the operator (options are "and" and "or")
-            "valueCode": "familyName",                  // matches to the field name (options are "givenName", "familyName", "dob", "nationalId", "gender", "city" and "phoneNumber")
-            "valueString": "creexxxeead"                // matches to value of the field
-        },
-        {
-            "name": "and",
-            "valueCode": "city",
-            "valueString": "Indianapeeolis"
-        }
-    ]
-}
+Query parameters - family, given, telecom, identifier, gender, birthDate, address (city)
 ```
 
 ## Query patients probabilistic
