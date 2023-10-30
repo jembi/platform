@@ -124,7 +124,7 @@ PATCH - http://localhost:50000/JeMPI/cr-update-fields
 via the [mapping mediator](https://github.com/jembi/openhim-mediator-mapping) (in fhir format)
 
 ```sh
-PUT - http://localhost:3003/fhir/update/Patient/<PATIENT_GOLDEN_RECORD>
+PUT - http://localhost:3003/fhir/Patient/<PATIENT_GOLDEN_RECORD>
 
 {
     "resourceType": "Patient",
@@ -191,7 +191,7 @@ POST http://localhost:50000/JeMPI/cr-find
 via the [mapping mediator](https://github.com/jembi/openhim-mediator-mapping) (in fhir format)
 
 ```sh
-GET http://localhost:3003/fhir/Patient/$exact
+GET http://localhost:3003/fhir/Patient
 
 Query parameters - family, given, telecom, identifier, gender, birthDate, address (city)
 ```
