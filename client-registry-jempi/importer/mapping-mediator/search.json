@@ -2,7 +2,7 @@
   "name": "Search Patient by id",
   "endpoint": {
     "pattern": "/fhir/Patient/:patientId",
-    "method": "POST"
+    "method": "GET"
   },
   "transformation": {
     "input": "JSON",

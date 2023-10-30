@@ -1,7 +1,7 @@
 {
     "name": "Update Patient",
     "endpoint": {
-      "pattern": "/fhir/update/Patient/:patientId",
+      "pattern": "/fhir/Patient/:patientId",
       "method": "PUT"
     },
     "transformation": {

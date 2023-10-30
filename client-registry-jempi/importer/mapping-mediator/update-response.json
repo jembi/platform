@@ -37,9 +37,6 @@
             "contentType": "application/json"
           },
           "url": "http://jempi-api:50000/JeMPI/cr-update-fields"
-        },
-        "extract": {
-          "JeMPIResponse": "$.body"
         }
       }
     }

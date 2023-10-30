@@ -43,9 +43,6 @@
           "contentType": "application/fhir+json"
         },
         "url": "http://jempi-api:50000/JeMPI/cr-register"
-      },
-      "extract": {
-        "JeMPIResponse": "$.body"
       }
     }
   }
