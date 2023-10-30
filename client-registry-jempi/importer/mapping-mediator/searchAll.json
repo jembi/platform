@@ -8,20 +8,52 @@
     "output": "JSON"
   },
   "inputTransforms": {
-    "operands": "($transform := function($v) {[query.family ? {'operator': 'and', 'operand': {'fn': 'eq', 'name': 'familyName', 'value': query.family}},query.given ? {'operator': 'and', 'operand': {'fn': 'eq', 'name': 'givenName', 'value': query.given}},query.gender ? {'operator': 'and', 'operand': {'fn': 'eq', 'name': 'gender', 'value': query.gender}},query.birthDate ? {'operator': 'and', 'operand': {'fn': 'eq', 'name': 'dob', 'value': query.birthDate}},query.address ? {'operator': 'and', 'operand': {'fn': 'eq', 'name': 'city', 'value': query.address}},query.telecom ? {'operator': 'and', 'operand': {'fn': 'eq', 'name': 'phoneNumber', 'value': query.telecom}},query.identifier ? {'operator': 'and', 'operand': {'fn': 'eq', 'name': 'nationalId', 'value': query.identifier}}]};$transform(query))"
+    "total": "$count(lookupRequests.jempiSearchAll.data.goldenRecords)",
+    "entry": "$map(lookupRequests.jempiSearchAll.data.goldenRecords, function($v) {{'fullUrl': 'Patient/' & $v.goldenId, 'resource': {'resourceType': 'Patient','id': $v.goldenId,'name': {'given': [$v.demographicData.givenName],'family': $v.demographicData.familyName},'address': [{'city': $v.demographicData.city}],'birthDate': $v.demographicData.dob,'telecom': [{'value': $v.demographicData.phoneNumber,'system': 'phone'}],'identifier': [{'system': $v.sourceId.facility,'value': $v.sourceId.patient},{'system': 'NationalID','value': $v.demographicData.nationalId}],'gender': $v.demographicData.gender}}})"
   },
   "inputMapping": {
-    "transforms.operands": "operands",
-    "transforms.operands[0].operand": "operand"
+    "constants.resourceType": "resourceType",
+    "constants.type": "type",
+    "transforms.total": "total",
+    "transforms.entry": "entry"
+  },
+  "constants": {
+    "resourceType": "Bundle",
+    "type": "searchset"
   },
   "requests": {
-    "response": [
+    "lookup": [
       {
         "id": "jempiSearchAll",
         "config": {
-          "method": "post",
+          "method": "get",
           "headers": {
             "contentType": "application/json"
+          },
+          "params": {
+            "query": {
+              "family": {
+                "path": "query.family"
+              },
+              "given": {
+                "path": "query.given"
+              },
+              "telecom": {
+                "path": "query.telecom"
+              },
+              "identifier": {
+                "path": "query.identifier"
+              },
+              "gender": {
+                "path": "query.gender"
+              },
+              "birthDate": {
+                "path": "query.birthDate"
+              },
+              "address": {
+                "path": "query.address"
+              }
+            }
           },
           "url": "http://openhim-mapping-mediator:3003/search-response"
         }

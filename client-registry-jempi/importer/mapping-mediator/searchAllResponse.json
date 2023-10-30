@@ -2,28 +2,20 @@
   "name": "Search Endpoint deterministic response",
   "endpoint": {
     "pattern": "/search-response",
-    "method": "POST"
+    "method": "GET"
   },
   "transformation": {
-    "input": "JSON",
     "output": "JSON"
   },
-  "constants": {
-    "resourceType": "Bundle",
-    "type": "searchset"
-  },
   "inputTransforms": {
-    "total": "$count(lookupRequests.jempiSearchAllResponse.data.goldenRecords)",
-    "entry": "$map(lookupRequests.jempiSearchAllResponse.data.goldenRecords, function($v) {{'fullUrl': 'Patient/' & $v.goldenId, 'resource': {'resourceType': 'Patient','id': $v.goldenId,'name': {'given': [$v.demographicData.givenName],'family': $v.demographicData.familyName},'address': [{'city': $v.demographicData.city}],'birthDate': $v.demographicData.dob,'telecom': [{'value': $v.demographicData.phoneNumber,'system': 'phone'}],'identifier': [{'system': $v.sourceId.facility,'value': $v.sourceId.patient},{'system': 'NationalID','value': $v.demographicData.nationalId}],'gender': $v.demographicData.gender}}})"
+    "operands": "($transform := function($v) {[query.family ? {'operator': 'and', 'operand': {'fn': 'eq', 'name': 'familyName', 'value': query.family}},query.given ? {'operator': 'and', 'operand': {'fn': 'eq', 'name': 'givenName', 'value': query.given}},query.gender ? {'operator': 'and', 'operand': {'fn': 'eq', 'name': 'gender', 'value': query.gender}},query.birthDate ? {'operator': 'and', 'operand': {'fn': 'eq', 'name': 'dob', 'value': query.birthDate}},query.address ? {'operator': 'and', 'operand': {'fn': 'eq', 'name': 'city', 'value': query.address}},query.telecom ? {'operator': 'and', 'operand': {'fn': 'eq', 'name': 'phoneNumber', 'value': query.telecom}},query.identifier ? {'operator': 'and', 'operand': {'fn': 'eq', 'name': 'nationalId', 'value': query.identifier}}]};$transform(query))"
   },
   "inputMapping": {
-    "constants.resourceType": "resourceType",
-    "constants.type": "type",
-    "transforms.total": "total",
-    "transforms.entry": "entry"
+    "transforms.operands": "operands",
+    "transforms.operands[0].operand": "operand"
   },
   "requests": {
-    "lookup": [
+    "response": [
       {
         "id": "jempiSearchAllResponse",
         "forwardExistingRequestBody": true,
