@@ -1,52 +1,14 @@
 {
-  "name": "Search Response Endpoint",
+  "name": "Search Endpoint deterministic response",
   "endpoint": {
     "pattern": "/search-response",
-    "method": "POST"
+    "method": "GET"
   },
   "transformation": {
-    "input": "JSON",
     "output": "JSON"
   },
-  "inputValidation": {
-    "type": "object",
-    "properties": {
-      "requestBody": {
-        "type": "object",
-        "properties": {
-          "parameters": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                },
-                "valueCode": {
-                  "type": "string"
-                },
-                "valueString": {
-                  "type": "string"
-                }
-              },
-              "required": ["name", "valueCode", "valueString"]
-            },
-            "minItems": 1
-          }
-        },
-        "required": [
-          "parameters"
-        ]
-      }
-    }
-  },
   "inputTransforms": {
-    "operands": "$append([], $map(requestBody.parameters, function($v) {{'operator': $v.name, 'operand': {'fn': 'eq', 'name': $v.valueCode, 'value': $v.valueString}}}))"
-  },
-  "constants": {
-    "operator": "or",
-    "function": "match",
-    "operandFunction": "eq"
+    "operands": "($transform := function($v) {[query.family ? {'operator': 'and', 'operand': {'fn': 'eq', 'name': 'familyName', 'value': query.family}},query.given ? {'operator': 'and', 'operand': {'fn': 'eq', 'name': 'givenName', 'value': query.given}},query.gender ? {'operator': 'and', 'operand': {'fn': 'eq', 'name': 'gender', 'value': query.gender}},query.birthDate ? {'operator': 'and', 'operand': {'fn': 'eq', 'name': 'dob', 'value': query.birthDate}},query.address ? {'operator': 'and', 'operand': {'fn': 'eq', 'name': 'city', 'value': query.address}},query.telecom ? {'operator': 'and', 'operand': {'fn': 'eq', 'name': 'phoneNumber', 'value': query.telecom}},query.identifier ? {'operator': 'and', 'operand': {'fn': 'eq', 'name': 'nationalId', 'value': query.identifier}}]};$transform(query))"
   },
   "inputMapping": {
     "transforms.operands": "operands",
@@ -56,12 +18,10 @@
     "response": [
       {
         "id": "jempiSearchAllResponse",
+        "forwardExistingRequestBody": true,
         "config": {
           "method": "post",
           "url": "http://jempi-api:50000/JeMPI/cr-find"
-        },
-        "extract": {
-          "JeMPIResponse": "$.body"
         }
       }
     ]

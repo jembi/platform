@@ -1,16 +1,11 @@
 {
-  "name": "Search Endpoint",
+  "name": "Search Endpoint deterministic",
   "endpoint": {
-    "pattern": "/fhir/Patients",
-    "method": "POST"
+    "pattern": "/fhir/Patient",
+    "method": "GET"
   },
   "transformation": {
-    "input": "JSON",
     "output": "JSON"
-  },
-  "constants": {
-    "resourceType": "Bundle",
-    "type": "searchset"
   },
   "inputTransforms": {
     "total": "$count(lookupRequests.jempiSearchAll.data.goldenRecords)",
@@ -22,20 +17,45 @@
     "transforms.total": "total",
     "transforms.entry": "entry"
   },
+  "constants": {
+    "resourceType": "Bundle",
+    "type": "searchset"
+  },
   "requests": {
     "lookup": [
       {
         "id": "jempiSearchAll",
-        "forwardExistingRequestBody": true,
         "config": {
-          "method": "post",
+          "method": "get",
           "headers": {
             "contentType": "application/json"
           },
+          "params": {
+            "query": {
+              "family": {
+                "path": "query.family"
+              },
+              "given": {
+                "path": "query.given"
+              },
+              "telecom": {
+                "path": "query.telecom"
+              },
+              "identifier": {
+                "path": "query.identifier"
+              },
+              "gender": {
+                "path": "query.gender"
+              },
+              "birthDate": {
+                "path": "query.birthDate"
+              },
+              "address": {
+                "path": "query.address"
+              }
+            }
+          },
           "url": "http://openhim-mapping-mediator:3003/search-response"
-        },
-        "extract": {
-          "JeMPIResponse": "$.body"
         }
       }
     ]

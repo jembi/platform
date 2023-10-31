@@ -46,6 +46,8 @@ via the [mapping mediator](https://github.com/jembi/openhim-mediator-mapping) (i
 
 POST http://localhost:3003/fhir/Patient
 
+The `candidateThreshold` can optionally be set in the request query. The default value is 0.9
+
 {
     "resourceType": "Patient",
     "gender": "male",
@@ -122,7 +124,7 @@ PATCH - http://localhost:50000/JeMPI/cr-update-fields
 via the [mapping mediator](https://github.com/jembi/openhim-mediator-mapping) (in fhir format)
 
 ```sh
-PUT - http://localhost:3003/fhir/update/Patient/<PATIENT_GOLDEN_RECORD>
+PUT - http://localhost:3003/fhir/Patient/<PATIENT_GOLDEN_RECORD>
 
 {
     "resourceType": "Patient",
@@ -189,20 +191,83 @@ POST http://localhost:50000/JeMPI/cr-find
 via the [mapping mediator](https://github.com/jembi/openhim-mediator-mapping) (in fhir format)
 
 ```sh
-POST http://localhost:3003/fhir/Patients
+GET http://localhost:3003/fhir/Patient
+
+Query parameters - family, given, telecom, identifier, gender, birthDate, address (city)
+```
+
+## Query patients probabilistic
+
+via the api (in JeMPI format)
+
+```sh
+POST - http://localhost:50000/JeMPI/cr-find
+
+{
+  "operand": {
+    "fn": "match",
+    "name": "givenName",
+    "value": "drake",
+    "distance": 2
+  },
+  "operands": [
+    {
+      "operator": "and",
+      "operand": {
+        "fn": "match",
+        "name": "familyName",
+        "value": "brake",
+        "distance": 2
+      }
+    }
+  ]
+}
+```
+
+via the [mapping mediator](https://github.com/jembi/openhim-mediator-mapping) (in fhir format)
+
+```sh
+
+POST http://localhost:3003/fhir/Patient/$match
 
 {
     "resourceType": "Parameters",
-    "parameters": [
+    "parameter": [
         {
-            "name": "and",                              // matches to the operator (options are "and" and "or")
-            "valueCode": "familyName",                  // matches to the field name (options are "givenName", "familyName", "dob", "nationalId", "gender", "city" and "phoneNumber")
-            "valueString": "creexxxeead"                // matches to value of the field
+            "name": "givenName",
+            "valueString": "drake",
+            "part": [
+                {
+                    "name": "operator",
+                    "valueString": "and"
+                },
+                {
+                    "name": "fn",
+                    "valueString": "match"
+                },
+                {
+                    "name": "distance",
+                    "valueInteger": 2
+                }
+            ]
         },
         {
-            "name": "and",
-            "valueCode": "city",
-            "valueString": "Indianapeeolis"
+            "name": "familyName",
+            "valueString": "brake",
+            "part": [
+                {
+                    "name": "operator",
+                    "valueString": "and"
+                },
+                {
+                    "name": "fn",
+                    "valueString": "match"
+                },
+                {
+                    "name": "distance",
+                    "valueInteger": 2
+                }
+            ]
         }
     ]
 }
