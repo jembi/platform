@@ -1,8 +1,12 @@
 ---
 description: What is the Jembi Platform and what can you use it for?
+cover: >-
+  https://images.unsplash.com/photo-1639815189096-f75717eaecfe?crop=entropy&cs=srgb&fm=jpg&ixid=M3wxOTcwMjR8MHwxfHNlYXJjaHwzfHxjb25uZWN0aW5nJTIwYmxvY2tzJTIwZGlnaXRhbHxlbnwwfHx8fDE2OTg4MzAyNjl8MA&ixlib=rb-4.0.3&q=85
+coverY: 0
+layout: landing
 ---
 
-# About
+# OpenHIM Platform
 
 Jembi platform is an easy was to setup, manage and operate a Health Information Exchange (HIE). Specifically it is the following:
 

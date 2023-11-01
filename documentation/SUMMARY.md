@@ -1,6 +1,6 @@
 # Table of contents
 
-* [About](README.md)
+* [OpenHIM Platform](README.md)
 * [Getting Started](<README (1).md>)
 * [Packages](packages/README.md)
   * [Interoperability Layer Openhim](packages/interoperability-layer-openhim/README.md)
