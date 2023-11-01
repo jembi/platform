@@ -1,12 +1,14 @@
 ---
-description: A package for deployment tools.
+description: Infrastructure tools for the OpenHIM Platform
 ---
 
-# Provisioning up remote servers
+# Provisioning remote servers
 
-This package contains two folders: ansible and terraform.
+As part of the OpenHIM Platform Github repository we also provide scripts to easily setup new servers. The Terraform script are able to instanciate server in AWS and the Ansible script are able to configure those server to be ready to accept OpenHIM Platform packages.
 
-## Ansible&#x20;
+## Ansible
+
+See [here](https://github.com/jembi/platform/tree/main/infrastructure/ansible).
 
 It is used for:&#x20;
 
@@ -19,4 +21,4 @@ In the inventories, there is different environment configuration (development, p
 
 ## Terraform
 
-It is used to create and set AWS servers.
+Is used to create and set AWS servers. See [here](https://github.com/jembi/platform/tree/main/infrastructure/terraform).

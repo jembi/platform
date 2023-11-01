@@ -1,5 +1,5 @@
 ---
-description: What is the Jembi Platform and what can you use it for?
+description: What is the OpenHIM Platform and what can you use it for?
 cover: >-
   https://images.unsplash.com/photo-1639815189096-f75717eaecfe?crop=entropy&cs=srgb&fm=jpg&ixid=M3wxOTcwMjR8MHwxfHNlYXJjaHwzfHxjb25uZWN0aW5nJTIwYmxvY2tzJTIwZGlnaXRhbHxlbnwwfHx8fDE2OTg4MzAyNjl8MA&ixlib=rb-4.0.3&q=85
 coverY: 0
@@ -8,11 +8,15 @@ layout: landing
 
 # OpenHIM Platform
 
-Jembi platform is an easy was to setup, manage and operate a Health Information Exchange (HIE). Specifically it is the following:
+OpenHIM platform is an easy was to setup, manage and operate a Health Information Exchange (HIE). Specifically it is the following:
 
 * A toolbox of open-source tools, grouped into packages, that are used to in an HIE.
 * The glue that ties these tools together. These are often in the form of OpenHIM mediators which are just microservices that talk to the OpenHIM.
 * A CLI tool to deploy and manage these packages.
+
+{% content-ref url="README (1).md" %}
+[README (1).md](<README (1).md>)
+{% endcontent-ref %}
 
 ### The Problem <a href="#the-problem" id="the-problem"></a>
 
@@ -32,10 +36,14 @@ Operating production-grade HIE systems is hard, because of these issues:
 
 ### The Solution <a href="#the-solution" id="the-solution"></a>
 
-Jembi Platform provides an opinionated way to to deploy, secure and scale highly-available services for an HIE environment. It provides a set of services to solve common HIE challenges:
+OpenHIM Platform provides an opinionated way to to deploy, secure and scale highly-available services for an HIE environment. It provides a set of services to solve common HIE challenges:
 
 * Patient matching
 * FHIR support
 * Reporting services
 * Extensible for country needs
 * Deploying/Operating/Managing HIE services
+
+{% hint style="info" %}
+OpenHIM Platform is powered by the [Instant OpenHIE deployment tool](https://jembi.gitbook.io/instant-v2/).
+{% endhint %}
