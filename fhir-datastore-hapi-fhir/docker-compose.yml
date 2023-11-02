@@ -21,6 +21,13 @@ services:
       - hapi.fhir.bulk_export_enabled=true
       - hapi.fhir.enable_repository_validating_interceptor=true
       - hapi.fhir.fhir_version=${FHIR_VERSION}
+      - hapi.fhir.advanced_lucene_indexing=false
+      - hapi.fhir.mdm_enabled=false
+      - hapi.fhir.subscription.resthook_enabled=false
+      - hapi.fhir.cql_enabled=false
+      - hapi.fhir.default_pretty_print=false
+      - hapi.fhir.graphql_enabled=false
+      - hapi.fhir.narrative_enabled=false
       - JAVA_TOOL_OPTIONS=${HF_JAVA_OPTS}
       - CATALINA_OPTS=${HF_JAVA_OPTS}
     deploy:
