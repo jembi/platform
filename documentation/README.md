@@ -8,6 +8,8 @@ layout: landing
 
 # OpenHIM Platform
 
+{% embed url="https://youtu.be/37MvrolxHto" fullWidth="false" %}
+
 OpenHIM platform is an easy way to set up, manage and operate a Health Information Exchange (HIE). Specifically, it is the following:
 
 * A toolbox of open-source tools, grouped into packages, that are used within an HIE.
