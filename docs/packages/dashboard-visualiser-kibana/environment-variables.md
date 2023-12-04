@@ -4,16 +4,4 @@ description: Listed in this page are all environment variables needed to run Kib
 
 # Environment Variables
 
-
-
-| Variable Name             | Type    | Relevance                              | Required | Default              |
-| ------------------------- | ------- | -------------------------------------- | -------- | -------------------- |
-| ES\_KIBANA_\__SYSTEM      | String  | ElasticSearch auth username            | Yes      |                      |
-| KIBANA\_INSTANCES         | Number  | Number of service replicas             | No       | 1                    |
-| KIBANA\_YML_\__CONFIG     | String  | Path to the service configuration file | No       | kibana-kibana.yml    |
-| KIBANA\_USERNAME          | String  | Service username                       | No       | elastic              |
-| KIBANA\_PASSWORD          | String  | Service password                       | No       | dev\_password\_only  |
-| KIBANA\_SSL               | Boolean | SSL protocol requirement               | No       | True                 |
-| KIBANA\_CONFIG_\__FILE    | String  | Path to the dashboard import file      | No       | kibana-export.ndjson |
-| KIBANA\_MEMORY_\__LIMIT   | String  | RAM usage limit                        | No       | 3G                   |
-| KIBANA\_MEMORY_\__RESERVE | String  | Reserved RAM                           | No       | 500M                 |
+<table><thead><tr><th width="263">Variable Name</th><th width="96">Type</th><th width="171">Relevance</th><th width="102">Required</th><th>Default</th></tr></thead><tbody><tr><td>ES_KIBANA<em>_</em>SYSTEM</td><td>String</td><td>ElasticSearch auth username</td><td>Yes</td><td></td></tr><tr><td>KIBANA_INSTANCES</td><td>Number</td><td>Number of service replicas </td><td>No</td><td>1</td></tr><tr><td>KIBANA_YML<em>_</em>CONFIG</td><td>String</td><td>Path to the service configuration file</td><td>No</td><td>kibana-kibana.yml </td></tr><tr><td>KIBANA_USERNAME</td><td>String</td><td>Service username</td><td>No</td><td>elastic</td></tr><tr><td>KIBANA_PASSWORD</td><td>String</td><td>Service password</td><td>No</td><td>dev_password_only</td></tr><tr><td>KIBANA_SSL</td><td>Boolean</td><td>SSL protocol requirement</td><td>No</td><td>True</td></tr><tr><td>KIBANA_CONFIG<em>_</em>FILE</td><td>String</td><td>Path to the dashboard import file</td><td>No</td><td>kibana-export.ndjson</td></tr><tr><td>KIBANA_MEMORY<em>_</em>LIMIT</td><td>String</td><td>RAM usage limit</td><td>No</td><td>3G</td></tr><tr><td>KIBANA_MEMORY<em>_</em>RESERVE</td><td>String</td><td>Reserved RAM</td><td>No</td><td>500M</td></tr></tbody></table>
