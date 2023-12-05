@@ -1,5 +1,11 @@
 # Central Data Repository with Data Warehousing
 
+
+
+{% hint style="warning" %}
+Note: This recipe is in a pre-release alpha stage. It's usable but do so at your own risk.
+{% endhint %}
+
 This recipe sets up an HIE that does the following:
 
 * Accept FHIR bundles submitted securely through an IOL (OpenHIM)
