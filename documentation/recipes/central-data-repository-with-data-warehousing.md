@@ -23,7 +23,9 @@ wget https://raw.githubusercontent.com/jembi/platform/recipes/config.yaml && \
 instant package init -p cdr-dw --dev
 ```
 
-When deployed in --dev mode the location of the UIs will be as follows:
+## Services
+
+When deployed in `--dev` mode the location of the UIs will be as follows:
 
 | Service  | URL                                                                                                                        | Auth                                                  |
 | -------- | -------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
@@ -33,9 +35,15 @@ When deployed in --dev mode the location of the UIs will be as follows:
 | Grafana  | [http://localhost:3000/](http://localhost:3000/)                                                                           | <p>Test SSO user:<br>u: test p: dev_password_only</p> |
 | Keycloak | [http://localhost:9088/admin/master/console/#/platform-realm](http://localhost:9088/admin/master/console/#/platform-realm) | u: admin p: dev\_password\_only                       |
 
-Extra UIs only exposed in --dev mode:
+Extra UIs only exposed in `--dev` mode:
 
 | Service   | URL                                              | Auth |
 | --------- | ------------------------------------------------ | ---- |
 | Kafdrop   | [http://localhost:9013/](http://localhost:9013/) | none |
 | HAPI FHIR | [http://localhost:3447/](http://localhost:3447/) | none |
+
+## Example use
+
+Use the following example postman collection to see interaction you cna have with the system and see how the system reacts.
+
+{% embed url="https://www.postman.com/jembi-platform/workspace/jembi-public/collection/23372581-055117db-6827-43d8-bc50-86f06f5a54c6?action=share&creator=23372581" %}
