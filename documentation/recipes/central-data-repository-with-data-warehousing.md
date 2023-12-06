@@ -22,3 +22,20 @@ wget https://raw.githubusercontent.com/jembi/platform/recipes/cdr-dw.env && \
 wget https://raw.githubusercontent.com/jembi/platform/recipes/config.yaml && \
 instant package init -p cdr-dw --dev
 ```
+
+When deployed in --dev mode the location of the UIs will be as follows:
+
+| Service  | URL                                                                                                                        | Auth                                                  |
+| -------- | -------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| OpenHIM  | [http://localhost:9000/](http://localhost:9000/)                                                                           | <p>Test SSO user:<br>u: test p: dev_password_only</p> |
+| JeMPI    | [http://localhost:3033/](http://localhost:3033/)                                                                           | <p>Test SSO user:<br>u: test p: dev_password_only</p> |
+| Superset | [http://localhost:8089/](http://localhost:8089/)                                                                           | <p>Test SSO user:<br>u: test p: dev_password_only</p> |
+| Grafana  | [http://localhost:3000/](http://localhost:3000/)                                                                           | <p>Test SSO user:<br>u: test p: dev_password_only</p> |
+| Keycloak | [http://localhost:9088/admin/master/console/#/platform-realm](http://localhost:9088/admin/master/console/#/platform-realm) | u: admin p: dev\_password\_only                       |
+
+Extra UIs only exposed in --dev mode:
+
+| Service   | URL                                              | Auth |
+| --------- | ------------------------------------------------ | ---- |
+| Kafdrop   | [http://localhost:9013/](http://localhost:9013/) | none |
+| HAPI FHIR | [http://localhost:3447/](http://localhost:3447/) | none |
