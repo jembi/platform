@@ -26,7 +26,7 @@
     "KC_GRAFANA_CLIENT_SECRET": "CV14QfwnpYFj1IH5dK5lScPNCYAIYP1c",
     "KC_GRAFANA_ROOT_URL": "http://localhost:3000",
     "KC_GRAFANA_CLIENT_ROLES": "admin,editor,viewer",
-    "KC_JEMPI_SSO_ENABLED": "true",
+    "KC_JEMPI_SSO_ENABLED": "false",
     "KC_JEMPI_CLIENT_ID": "jempi-oauth",
     "KC_JEMPI_CLIENT_SECRET": "Tbe3llP5OJIlqUjz7K1wPp8YDAdCOEMn",
     "KC_JEMPI_ROOT_URL": "http://localhost:3033",
