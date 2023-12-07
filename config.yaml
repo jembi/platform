@@ -51,6 +51,7 @@ profiles:
       - fhir-datastore-hapi-fhir
       - message-bus-kafka
       - job-scheduler-ofelia
+      - kafka-unbundler-consumer
       - monitoring
       - mpi-mediator
       - client-registry-jempi
