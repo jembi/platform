@@ -20,7 +20,7 @@ The following tools are needed to run/deploy platform:
 1. Once Docker is installed initialise Docker Swarm: `docker swarm init`
 2. Download the [Instant OpenHIE 2 binary](https://jembi.gitbook.io/instant-v2/getting-started). Once you are able to execute the instant executable, return here.
 3. Go to the OpenHIM Platform [https://github.com/jembi/platform/releases/latest](https://github.com/jembi/platform/releases/latest) page and use the `<tag_name>` for the following steps.
-4. Download the latest OpenHIM Platform config file which configures Instant OpenHIE v2 to use openHIM Platform packages: `wget https://raw.githubusercontent.com/jembi/platform/<tag_name>/config.yaml`&#x20;
+4. Download the latest OpenHIM Platform config file which configures Instant OpenHIE v2 to use OpenHIM Platform packages: `wget https://raw.githubusercontent.com/jembi/platform/<tag_name>/config.yaml`&#x20;
 
 {% hint style="info" %}
 &#x20;e.g. `wget https://raw.githubusercontent.com/jembi/platform/2.3.0/config.yaml`
@@ -29,4 +29,8 @@ The following tools are needed to run/deploy platform:
 5. Download the latest environment variable file, which sets configuration options for OpenHIM Platform packages: `wget https://raw.githubusercontent.com/jembi/platform/<tag_name>/.env.local`
 6. Launch some OpenHIM Platform packages, e.g. `./instant package init --name interoperability-layer-openhim --name message-bus-kafka --env-file .env.local --dev` This launches the OpenHIM and Kafka packages in dev mode (which exposes service ports for development purposes) using the config supplied in the env var file.
 
-Next, you might want to browse the packages available in OpenHIM Platform. Each package's documentation lists the variables used to configure them. For more information on how to start stop and destroy packages using the command line, see the [Instant OpenHIE 2 CLI docs](https://jembi.gitbook.io/instant-v2/cli).
+Next, you might want to browse the [recipes](recipes/) available in OpenHIM Platform. Each recipe bundles a set of packages and configuration to setup an HIE for a particular purpose.
+
+Alternatively you can also browse the individual set of [packages](packages/) that OpenHIM Platform offers. Each package's documentation lists the environment variables used to configure them.
+
+For more information on how to start stop and destroy packages using the command line, see the [Instant OpenHIE 2 CLI docs](https://jembi.gitbook.io/instant-v2/cli).

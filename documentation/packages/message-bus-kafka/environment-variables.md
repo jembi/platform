@@ -6,27 +6,5 @@ description: >-
 
 # Environment Variables
 
-| Variable Name              | Type   | Relevance        | Required | Default |
-| -------------------------- | ------ | ---------------- | -------- | ------- |
-| KAFKA\_INSTANCES           | Number | Service replicas | No       | 1       |
-| KAFKA\_CPU\_LIMIT          | Number | CPU usage limit  | No       | 0       |
-| KAFKA\_CPU\_RESERVE        | Number | Reserved CPU     | No       | 0.05    |
-| KAFKA\_MEMORY\_LIMIT       | String | RAM usage limit  | No       | 3G      |
-| KAFKA\_MEMORY\_RESERVE     | String | Reserved RAM     | No       | 500M    |
-| KAFKA\_TOPICS              | String | Kafka topics     | Yes      |         |
-|                            |        |                  |          |         |
-| ZOOKEEPER\_CPU\_LIMIT      | Number | CPU usage limit  | No       | 0       |
-| ZOOKEEPER\_CPU\_RESERVE    | Number | Reserved CPU     | No       | 0.05    |
-| ZOOKEEPER\_MEMORY\_LIMIT   | String | RAM usage limit  | No       | 3G      |
-| ZOOKEEPER\_MEMORY\_RESERVE | String | Reserved RAM     | No       | 500M    |
-|                            |        |                  |          |         |
-| KMINION\_CPU\_LIMIT        | Number | CPU usage limit  | No       | 0       |
-| KMINION\_CPU\_RESERVE      | Number | Reserved CPU     | No       | 0.05    |
-| KMINION\_MEMORY\_LIMIT     | String | RAM usage limit  | No       | 3G      |
-| KMINION\_MEMORY\_RESERVE   | String | Reserved RAM     | No       | 500M    |
-|                            |        |                  |          |         |
-| KAFDROP\_CPU\_LIMIT        | Number | CPU usage limit  | No       | 0       |
-| KAFDROP\_CPU\_RESERVE      | Number | Reserved CPU     | No       | 0.05    |
-| KAFDROP\_MEMORY\_LIMIT     | String | RAM usage limit  | No       | 3G      |
-| KAFDROP\_MEMORY\_RESERVE   | String | Reserved RAM     | No       | 500M    |
+<table><thead><tr><th width="230">Variable Name</th><th width="96">Type</th><th width="167">Relevance</th><th width="102">Required</th><th>Default</th></tr></thead><tbody><tr><td>KAFKA_INSTANCES</td><td>Number</td><td>Service replicas</td><td>No</td><td>1</td></tr><tr><td>KAFKA_CPU_LIMIT</td><td>Number</td><td>CPU usage limit</td><td>No</td><td>0</td></tr><tr><td>KAFKA_CPU_RESERVE</td><td>Number</td><td>Reserved CPU</td><td>No</td><td>0.05</td></tr><tr><td>KAFKA_MEMORY_LIMIT</td><td>String</td><td>RAM usage limit</td><td>No</td><td>3G</td></tr><tr><td>KAFKA_MEMORY_RESERVE</td><td>String</td><td>Reserved RAM</td><td>No</td><td>500M</td></tr><tr><td>KAFKA_TOPICS</td><td>String</td><td>Kafka topics</td><td>Yes</td><td></td></tr><tr><td></td><td></td><td></td><td></td><td></td></tr><tr><td>ZOOKEEPER_CPU_LIMIT</td><td>Number</td><td>CPU usage limit</td><td>No</td><td>0</td></tr><tr><td>ZOOKEEPER_CPU_RESERVE</td><td>Number</td><td>Reserved CPU</td><td>No</td><td>0.05</td></tr><tr><td>ZOOKEEPER_MEMORY_LIMIT</td><td>String</td><td>RAM usage limit</td><td>No</td><td>3G</td></tr><tr><td>ZOOKEEPER_MEMORY_RESERVE</td><td>String</td><td>Reserved RAM</td><td>No</td><td>500M</td></tr><tr><td></td><td></td><td></td><td></td><td></td></tr><tr><td>KMINION_CPU_LIMIT</td><td>Number</td><td>CPU usage limit</td><td>No</td><td>0</td></tr><tr><td>KMINION_CPU_RESERVE</td><td>Number</td><td>Reserved CPU</td><td>No</td><td>0.05</td></tr><tr><td>KMINION_MEMORY_LIMIT</td><td>String</td><td>RAM usage limit</td><td>No</td><td>3G</td></tr><tr><td>KMINION_MEMORY_RESERVE</td><td>String</td><td>Reserved RAM</td><td>No</td><td>500M</td></tr><tr><td></td><td></td><td></td><td></td><td></td></tr><tr><td>KAFDROP_CPU_LIMIT</td><td>Number</td><td>CPU usage limit</td><td>No</td><td>0</td></tr><tr><td>KAFDROP_CPU_RESERVE</td><td>Number</td><td>Reserved CPU</td><td>No</td><td>0.05</td></tr><tr><td>KAFDROP_MEMORY_LIMIT</td><td>String</td><td>RAM usage limit</td><td>No</td><td>3G</td></tr><tr><td>KAFDROP_MEMORY_RESERVE</td><td>String</td><td>Reserved RAM</td><td>No</td><td>500M</td></tr></tbody></table>
 
