@@ -1,6 +1,6 @@
 projectName: platform
-image: jembi/platform:test-recipes
-logPath: /tmp
+image: jembi/platform:latest
+logPath: /tmp/logs
 
 packages:
   - interoperability-layer-openhim
