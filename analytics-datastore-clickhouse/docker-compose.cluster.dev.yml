@@ -4,44 +4,44 @@ services:
   analytics-datastore-clickhouse-01:
     ports:
       - target: 8123
-        published: 8124
+        published: 8123
         mode: host
       - target: 9000
-        published: 9001
+        published: 9000
         mode: host
-      - target: 9181
-        published: 9181
-        mode: host
+
   analytics-datastore-clickhouse-02:
     ports:
       - target: 8123
-        published: 8125
+        published: 8123
         mode: host
       - target: 9000
-        published: 9002
+        published: 9000
         mode: host
-      - target: 9181
-        published: 9182
-        mode: host
+
   analytics-datastore-clickhouse-03:
     ports:
       - target: 8123
-        published: 8126
+        published: 8123
         mode: host
       - target: 9000
-        published: 9003
+        published: 9000
         mode: host
-      - target: 9181
-        published: 9183
-        mode: host
-  analytics-datastore-clickhouse-04:
+
+  clickhouse-keeper-01:
     ports:
-      - target: 8123
-        published: 8127
-        mode: host
-      - target: 9000
-        published: 9004
-        mode: host
       - target: 9181
-        published: 9184
+        published: 9181
+        mode: host
+
+  clickhouse-keeper-02:
+    ports:
+      - target: 9181
+        published: 9181
+        mode: host
+
+  clickhouse-keeper-03:
+    ports:
+      - target: 9181
+        published: 9181
         mode: host
