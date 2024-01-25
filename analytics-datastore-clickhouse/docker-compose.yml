@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   analytics-datastore-clickhouse:
-    image: clickhouse/clickhouse-server
+    image: clickhouse/clickhouse-server:latest
     ulimits:
       noFile: 262144
     volumes:
