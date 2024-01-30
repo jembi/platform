@@ -3,7 +3,7 @@
   "name": "Fhir Datastore Package - HAPI-FHIR",
   "description": "A FHIR compliant server for the platform",
   "type": "infrastructure",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "dependencies": [],
   "environmentVariables": {
     "REPMGR_PRIMARY_HOST": "postgres-1",
