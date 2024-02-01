@@ -1,0 +1,141 @@
+version: '3.9'
+
+services:
+  pgpool-1:
+    image: bitnami/pgpool:4.4.3
+    deploy:
+      placement:
+        constraints:
+          - "node.labels.name==node-1"
+      replicas: 1
+      resources:
+        limits:
+          cpus: ${PGPOOL_CPU_LIMIT}
+          memory: ${PGPOOL_MEMORY_LIMIT}
+        reservations:
+          cpus: ${PGPOOL_CPU_RESERVE}
+          memory: ${PGPOOL_MEMORY_RESERVE}
+    networks:
+      default:
+      postgres:
+    configs:
+      - target: /config/custom_pgpool.conf
+        source: pgpool.conf
+      - target: /opt/bitnami/pgpool/conf/pgpool_node_id
+        source: pgpool_node_id0.conf
+    environment:
+      PGPOOL_BACKEND_NODES: ${PGPOOL_NODES}
+      PGPOOL_BACKEND_APPLICATION_NAMES: ${REPMGR_PARTNER_NODES}
+      PGPOOL_SR_CHECK_USER: postgres
+      PGPOOL_SR_CHECK_PASSWORD: ${POSTGRES_PASSWORD}
+      PGPOOL_POSTGRES_USERNAME: postgres
+      PGPOOL_POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGPOOL_ADMIN_USERNAME: ${PGPOOL_USERNAME}
+      PGPOOL_ADMIN_PASSWORD: ${PGPOOL_PASSWORD}
+      PGPOOL_POSTGRES_CUSTOM_USERS: ${POSTGRESQL_USERNAME}
+      PGPOOL_POSTGRES_CUSTOM_PASSWORDS: ${POSTGRESQL_PASSWORD}
+      PGPOOL_ENABLE_LOAD_BALANCING: "no"
+      PGPOOL_AUTO_FAILBACK: "yes"
+      PGPOOL_USER_CONF_FILE: "/config/custom_pgpool.conf"
+
+  pgpool-2:
+    image: bitnami/pgpool:4.4.3
+    deploy:
+      placement:
+        constraints:
+          - "node.labels.name==node-2"
+      replicas: 1
+      resources:
+        limits:
+          cpus: ${PGPOOL_CPU_LIMIT}
+          memory: ${PGPOOL_MEMORY_LIMIT}
+        reservations:
+          cpus: ${PGPOOL_CPU_RESERVE}
+          memory: ${PGPOOL_MEMORY_RESERVE}
+    networks:
+      default:
+      postgres:
+    configs:
+      - target: /config/custom_pgpool.conf
+        source: pgpool.conf
+      - target: /opt/bitnami/pgpool/conf/pgpool_node_id
+        source: pgpool_node_id1.conf
+    environment:
+      PGPOOL_BACKEND_NODES: ${PGPOOL_NODES}
+      PGPOOL_BACKEND_APPLICATION_NAMES: ${REPMGR_PARTNER_NODES}
+      PGPOOL_SR_CHECK_USER: postgres
+      PGPOOL_SR_CHECK_PASSWORD: ${POSTGRES_PASSWORD}
+      PGPOOL_POSTGRES_USERNAME: postgres
+      PGPOOL_POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGPOOL_ADMIN_USERNAME: ${PGPOOL_USERNAME}
+      PGPOOL_ADMIN_PASSWORD: ${PGPOOL_PASSWORD}
+      PGPOOL_POSTGRES_CUSTOM_USERS: ${POSTGRESQL_USERNAME}
+      PGPOOL_POSTGRES_CUSTOM_PASSWORDS: ${POSTGRESQL_PASSWORD}
+      PGPOOL_ENABLE_LOAD_BALANCING: "no"
+      PGPOOL_AUTO_FAILBACK: "yes"
+      PGPOOL_USER_CONF_FILE: "/config/custom_pgpool.conf"
+
+  pgpool-3:
+    image: bitnami/pgpool:4.4.3
+    deploy:
+      placement:
+        constraints:
+          - "node.labels.name==node-3"
+      replicas: 1
+      resources:
+        limits:
+          cpus: ${PGPOOL_CPU_LIMIT}
+          memory: ${PGPOOL_MEMORY_LIMIT}
+        reservations:
+          cpus: ${PGPOOL_CPU_RESERVE}
+          memory: ${PGPOOL_MEMORY_RESERVE}
+    networks:
+      default:
+      postgres:
+    configs:
+      - target: /config/custom_pgpool.conf
+        source: pgpool.conf
+      - target: /opt/bitnami/pgpool/conf/pgpool_node_id
+        source: pgpool_node_id2.conf
+    environment:
+      PGPOOL_BACKEND_NODES: ${PGPOOL_NODES}
+      PGPOOL_BACKEND_APPLICATION_NAMES: ${REPMGR_PARTNER_NODES}
+      PGPOOL_SR_CHECK_USER: postgres
+      PGPOOL_SR_CHECK_PASSWORD: ${POSTGRES_PASSWORD}
+      PGPOOL_POSTGRES_USERNAME: postgres
+      PGPOOL_POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGPOOL_ADMIN_USERNAME: ${PGPOOL_USERNAME}
+      PGPOOL_ADMIN_PASSWORD: ${PGPOOL_PASSWORD}
+      PGPOOL_POSTGRES_CUSTOM_USERS: ${POSTGRESQL_USERNAME}
+      PGPOOL_POSTGRES_CUSTOM_PASSWORDS: ${POSTGRESQL_PASSWORD}
+      PGPOOL_ENABLE_LOAD_BALANCING: "no"
+      PGPOOL_AUTO_FAILBACK: "yes"
+      PGPOOL_USER_CONF_FILE: "/config/custom_pgpool.conf"
+
+configs:
+  pgpool.conf:
+    name: pgpool_conf-${pgpool_conf_DIGEST:?err}
+    file: ./config/custom_pgpool.conf
+    labels:
+      name: postgres
+  pgpool_node_id0.conf:
+    name: pgpool_node_id0-${pgpool_node_id0_DIGEST:?err}
+    file: ./config/pgpool_node_id0
+    labels:
+      name: postgres
+  pgpool_node_id1.conf:
+    name: pgpool_node_id1-${pgpool_node_id1_DIGEST:?err}
+    file: ./config/pgpool_node_id1
+    labels:
+      name: postgres
+  pgpool_node_id2.conf:
+    name: pgpool_node_id2-${pgpool_node_id2_DIGEST:?err}
+    file: ./config/pgpool_node_id2
+    labels:
+      name: postgres
+
+networks:
+  default:
+  postgres:
+    name: postgres_public
+    external: true
