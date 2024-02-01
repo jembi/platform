@@ -1,5 +1,5 @@
 projectName: platform
-image: jembi/platform:2.5.0
+image: jembi/platform:2.5.1
 logPath: /tmp/logs
 
 packages:
@@ -23,3 +23,4 @@ packages:
   - client-registry-jempi
   - identity-access-manager-keycloak
   - openhim-mapping-mediator
+  - database-postgres
