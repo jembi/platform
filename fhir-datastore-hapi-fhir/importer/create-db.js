@@ -5,7 +5,7 @@ const host = process.env.POSTGRES_SERVICE || 'localhost'
 const database = process.env.POSTGRES_DATABASE || 'postgres'
 const password = process.env.POSTGRES_PASSWORD || 'instant101'
 const port = process.env.POSTGRES_PORT || 5432
-const newDb = process.env.NEW_DATABASE_NAME || 'hapi'
+const newDbs = process.env.NEW_DATABASE_NAME || 'hapi'
 const newUser = process.env.NEW_DATABASE_USER || 'hapi'
 const newUserPassword = process.env.NEW_DATABASE_PASSWORD || 'instant101'
 
@@ -20,21 +20,28 @@ const pool = new Pool({
 (async () => {
   const client = await pool.connect()
 
-  try {
-    // Check db existence before creating
-    const result = await client.query('SELECT 1 FROM pg_database WHERE datname = $1', [newDb])
+  const createDb = async db => {
+    //Check db exists before creating
+    const result = await client.query('SELECT 1 FROM pg_database WHERE datname = $1', [db])
 
     if (!result.rows.length) {
-      await client.query(`CREATE USER ${newUser} WITH ENCRYPTED PASSWORD '${newUserPassword}';`)
+      const user = await client.query('SELECT 1 FROM pg_user WHERE usename = $1', [newUser])
 
-      console.log(`User ${newUser} created`)
+      if (!user.rows.length) {
+        await client.query(`CREATE USER ${newUser} WITH ENCRYPTED PASSWORD '${newUserPassword}';`)
+        console.log(`User ${newUser} created`)
+      }
 
-      await client.query(`CREATE DATABASE ${newDb};`)
+      await client.query(`CREATE DATABASE ${db};`)
 
-      console.log(`Database '${newDb}' created successfully`)
+      console.log(`Database '${db}' created successfully`)
     } else {
-      console.log(`Database '${newDb}' already exists`)
+      console.log(`Database '${db}' already exists`)
     }
+  }
+
+  try {
+    await Promise.all(newDbs.split(',').map(db => createDb(db)))
   } catch (error) {
     console.error('Error creating database:', error.message)
   } finally {
@@ -42,4 +49,3 @@ const pool = new Pool({
     pool.end()
   }
 })();
-

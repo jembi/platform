@@ -18,7 +18,7 @@
     "POSTGRES_PORT": 5432,
     "POSTGRESQL_USER": "postgres",
     "POSTGRESQL_PASSWORD": "instant101",
-    "POGRESS_DATABASE": "postgres",
+    "POSTGRESS_DATABASE": "postgres",
     "HF_POSTGRESQL_PASSWORD": "instant101",
     "HF_POSTGRESQL_USERNAME": "hapi",
     "HF_POSTGRESQL_DATABASE": "hapi",
