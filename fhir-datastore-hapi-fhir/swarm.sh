@@ -32,13 +32,10 @@ function import_sources() {
 }
 
 function initialize_package() {
-  local postgres_cluster_compose_filename=""
-  local postgres_dev_compose_filename=""
   local hapi_fhir_dev_compose_filename=""
 
   if [ "${MODE}" == "dev" ]; then
     log info "Running package in DEV mode"
-    postgres_dev_compose_filename="docker-compose-postgres.dev.yml"
     hapi_fhir_dev_compose_filename="docker-compose.dev.yml"
   else
     log info "Running package in PROD mode"
@@ -49,10 +46,11 @@ function initialize_package() {
   fi
 
   (
-    docker::deploy_service "$STACK" "${COMPOSE_FILE_PATH}" "docker-compose-postgres.yml" "$postgres_cluster_compose_filename" "$postgres_dev_compose_filename"
 
-    if [[ "${CLUSTERED_MODE}" == "true" && "${HF_PGPOOL_ENABLED}" == "true" ]]; then
-      docker::deploy_service "$STACK" "${COMPOSE_FILE_PATH}" "docker-compose-pgpool.cluster.yml"
+    docker::await_service_status "postgres" "postgres-1" "Running"
+
+    if [[ "${ACTION}" == "init" ]]; then
+      docker::deploy_config_importer "postgres" "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "hapi_db_config" "hapi-fhir"
     fi
 
     docker::deploy_service "$STACK" "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$hapi_fhir_dev_compose_filename"

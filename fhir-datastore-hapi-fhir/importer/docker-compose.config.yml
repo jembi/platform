@@ -1,0 +1,43 @@
+version: '3.9'
+
+services:
+  hapi_db_config:
+    image: node:erbium-alpine
+    command: sh -c "cd /importer && ls && npm i && ls && node create-db.js"
+    configs:
+      - target: /importer/package.json
+        source: package.json
+      - target: /importer/create-db.js
+        source: create-db.js
+    networks:
+      postgres:
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_SERVICE: ${POSTGRES_SERVICE}
+      POSTGRES_DATABASE: ${POSTGRES_DATABASE}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      NEW_DATABASE_NAME: ${HF_POSTGRESQL_DATABASE}
+      NEW_DATABASE_USER: ${HF_POSTGRESQL_USERNAME}
+      NEW_DATABASE_PASSWORD: ${HF_POSTGRESQL_PASSWORD}
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: none
+
+networks:
+  postgres:
+    name: postgres_public
+    external: true
+
+configs:
+  package.json:
+    file: ./package.json
+    name: package.json-${package_json_DIGEST:?err}
+    labels:
+      name: hapi-fhir
+  create-db.js:
+    file: ./create-db.js
+    name: create_db.js-${create_db_js_DIGEST:?err}
+    labels:
+      name: hapi-fhir
