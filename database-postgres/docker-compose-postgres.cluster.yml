@@ -43,6 +43,7 @@ services:
     networks:
       default:
       pg_backup_net:
+      postgres:
 
   postgres-3:
     image: bitnami/postgresql-repmgr:14
@@ -78,6 +79,7 @@ services:
     networks:
       default:
       pg_backup_net:
+      postgres:
 
 volumes:
   hapi-postgres-2-data:
