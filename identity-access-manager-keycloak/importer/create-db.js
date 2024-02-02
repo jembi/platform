@@ -25,7 +25,7 @@ const pool = new Pool({
     const result = await client.query('SELECT 1 FROM pg_database WHERE datname = $1', [db])
 
     if (!result.rows.length) {
-      const user = await client.query('SELECT 1 FROM pg_user WHERE username = $1', [newUser])
+      const user = await client.query('SELECT 1 FROM pg_user WHERE usename = $1', [newUser])
 
       if (!user.rows.length) {
         await client.query(`CREATE USER ${newUser} WITH ENCRYPTED PASSWORD '${newUserPassword}';`)
