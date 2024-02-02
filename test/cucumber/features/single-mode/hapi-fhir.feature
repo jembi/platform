@@ -23,7 +23,7 @@ Feature: Fhir Datastore HAPI-FHIR?
       | hapi-fhir_public | kafka_public | openhim_public |
 
   Scenario: Destroy Fhir Datastore HAPI-FHIR
-    Given I use parameters "package destroy -n=fhir-datastore-hapi-fhir,message-bus-helper-hapi-proxy,datastore-postgres --only --dev --env-file=.env.local"
+    Given I use parameters "package destroy -n=fhir-datastore-hapi-fhir,message-bus-helper-hapi-proxy,database-postgres --only --dev --env-file=.env.local"
     When I launch the platform with params
     Then The service "postgres-1" should be removed
     And The service "hapi-fhir" should be removed
