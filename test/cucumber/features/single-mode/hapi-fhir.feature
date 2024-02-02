@@ -9,9 +9,9 @@ Feature: Fhir Datastore HAPI-FHIR?
     And There should be 2 services
     And The service "hapi-fhir" should have healthy containers
     And The service "hapi-fhir" should be connected to the networks
-      | mpi_public | hapi-fhir_public | hapi-fhir_default |
+      | mpi_public | hapi-fhir_public | hapi-fhir_default | postgres_public |
     And The service "postgres-1" should be connected to the networks
-      | hapi-fhir_postgres_public | hapi-fhir_default | pg_backup | postgres_public |
+      | pg_backup | postgres_public |
     And There should be 1 volume
 
   Scenario: Init Message Bus Helper Hapi Proxy
@@ -32,4 +32,4 @@ Feature: Fhir Datastore HAPI-FHIR?
     And There should be 0 volume
     And There should be 0 config
     And There should not be network
-      | hapi-fhir_public | hapi-fhir_postgres_public | mpi_public | kafka_public | openhim_public | postgres_public |
+      | hapi-fhir_public | mpi_public | kafka_public | openhim_public | postgres_public |
