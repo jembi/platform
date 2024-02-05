@@ -75,9 +75,7 @@ function initialize_package() {
   (
     docker::await_service_status "postgres" "postgres-1" "Running"
 
-    if [[ "${ACTION}" == "init" ]]; then
-      docker::deploy_config_importer "postgres" "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "kc_db_config" "keycloak"
-    fi
+    docker::deploy_config_importer "postgres" "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "kc_db_config" "keycloak"
 
     docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$keycloak_dev_compose_filename"
   ) ||
