@@ -13,7 +13,6 @@ services:
     image: bitnami/postgresql-repmgr:14
     environment:
       POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
-      POSTGRESQL_USERNAME: ${POSTGRESQL_USERNAME}
       REPMGR_NODE_NETWORK_NAME: postgres-2
       REPMGR_PASSWORD: ${REPMGR_PASSWORD}
       REPMGR_RECONNECT_INTERVAL: 3
@@ -49,7 +48,6 @@ services:
     image: bitnami/postgresql-repmgr:14
     environment:
       POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
-      POSTGRESQL_USERNAME: ${POSTGRESQL_USERNAME}
       REPMGR_NODE_NETWORK_NAME: postgres-3
       REPMGR_PASSWORD: ${REPMGR_PASSWORD}
       REPMGR_RECONNECT_INTERVAL: 3

@@ -19,6 +19,8 @@
     "PGPOOL_NODES": "0:postgres-1:5432,1:postgres-2:5432,2:postgres-3:5432",
     "PGPOOL_USERNAME": "pgadmin",
     "PGPOOL_PASSWORD": "dev_password_only",
+    "PGPOOL_POSTGRES_CUSTOM_USERS": "hapi",
+    "PGPOOL_POSTGRES_CUSTOM_PASSWORDS": "instant101",
     "PGPOOL_CPU_LIMIT": "0",
     "PGPOOL_MEMORY_LIMIT": "500M",
     "PGPOOL_CPU_RESERVE": "0.05",
