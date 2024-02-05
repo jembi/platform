@@ -9,10 +9,10 @@ Feature: Identity Access Manager Keycloak?
       | pg_backup | postgres_default | postgres_public |
     And The service "postgres-2" should be started with 1 replica
     And The service "postgres-2" should be connected to the networks
-      | pg_backup | poostgres_default | postgres_public |
+      | pg_backup | postgres_default | postgres_public |
     And The service "postgres-3" should be started with 1 replica
     And The service "postgres-3" should be connected to the networks
-      | pg_backup | poostgres_default | postgres_public |
+      | pg_backup | postgres_default | postgres_public |
     And The service "identity-access-manager-keycloak" should be started with 1 replicas
     And The service "identity-access-manager-keycloak" should be connected to the networks
       | reverse-proxy_public | keycloak_public | keycloak_default | postgres_public |
