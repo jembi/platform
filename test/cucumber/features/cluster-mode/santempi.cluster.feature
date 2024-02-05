@@ -13,7 +13,7 @@ Feature: Client Registry JeMPI?
     And The service "santedb-mpi" should be started with 1 replica
     And The service "santedb-mpi" should be connected to the networks
       | reverse-proxy_public | mpi_public | santedb_public | santempi_default | postgres_public |
-    And There should be 5 services
+    And There should be 8 services
 
   Scenario: Destroy Client Registry JeMPI
     Given I use parameters "package destroy -n=client-registry-santempi --dev --env-file=.env.cluster"
