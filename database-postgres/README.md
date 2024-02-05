@@ -1,5 +1,5 @@
 
-# Instant OpenHIE Postgres datatbase - docker-swarm
+# Instant OpenHIE Postgres database - docker-swarm
 
 ## Getting Started
 
