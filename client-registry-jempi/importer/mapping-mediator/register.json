@@ -12,7 +12,8 @@
     "active": true
   },
   "inputTransforms": {
-    "id": "lookupRequests.jempiRegister.data.linkInfo.goldenUID"
+    "id": "lookupRequests.jempiRegister.data.linkInfo.interactionUID",
+    "link": "[{'type': 'refer', 'other': {'reference': 'Patient/' & lookupRequests.jempiRegister.data.linkInfo.goldenUID}}]"
   },
   "inputMapping": {
     "requestBody.resourceType": "resourceType",
@@ -23,7 +24,8 @@
     "requestBody.gender": "gender",
     "requestBody.birthDate": "birthDate",
     "requestBody.address": "address",
-    "requestBody.telecom": "telecom"
+    "requestBody.telecom": "telecom",
+    "transforms.link": "link"
   },
   "requests": {
     "lookup": [
