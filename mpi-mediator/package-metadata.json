@@ -5,10 +5,8 @@
   "type": "infrastructure",
   "version": "0.0.1",
   "dependencies": [
-    "interoperability-layer-openhim",
     "fhir-datastore-hapi-fhir",
-    "message-bus-kafka",
-    "client-registry-santempi"
+    "client-registry-jempi"
   ],
   "environmentVariables": {
     "MPI_MEDIATOR_INSTANCES": 1,
@@ -21,9 +19,9 @@
     "MPI_CLIENT_ID": "fiddler",
     "MPI_CLIENT_SECRET": "fiddler",
     "MPI_PROTOCOL": "http",
-    "MPI_HOST": "santedb-mpi",
-    "MPI_PORT": 8080,
-    "MPI_AUTH_ENABLED": "true",
+    "MPI_HOST": "openhim-mapping-mediator",
+    "MPI_PORT": 3003,
+    "MPI_AUTH_ENABLED": "false",
     "KAFKA_HOSTS": "kafka-01:9092",
     "KAFKA_BUNDLE_TOPIC": "2xx",
     "KAFKA_ASYNC_BUNDLE_TOPIC": "2xx-async",
