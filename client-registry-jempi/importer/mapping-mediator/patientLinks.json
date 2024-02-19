@@ -1,0 +1,59 @@
+{
+  "name": "Get patient links",
+  "endpoint": {
+    "pattern": "/fhir/links/Patient/:patientId",
+    "method": "GET"
+  },
+  "transformation": {
+    "input": "JSON",
+    "output": "JSON"
+  },
+  "inputTransforms": {
+    "id": "lookupRequests.jempiSearch.data.goldenRecord.uid",
+    "gender": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.gender) ? lookupRequests.jempiSearch.data.goldenRecord.demographicData.gender : null",
+    "birthDate": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.dob) ? lookupRequests.jempiSearch.data.goldenRecord.demographicData.dob : null",
+    "name": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.givenName) ? lookupRequests.jempiSearch.data.goldenRecord.demographicData.givenName : null",
+    "lastName": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.familyName) ? lookupRequests.jempiSearch.data.goldenRecord.demographicData.familyName : null",
+    "city": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.city) ? lookupRequests.jempiSearch.data.goldenRecord.demographicData.city : null",
+    "identifierValue": "$exists(lookupRequests.jempiSearch.data.goldenRecord.sourceId) and $exists(lookupRequests.jempiSearch.data.goldenRecord.sourceId.patient) ? lookupRequests.jempiSearch.data.goldenRecord.sourceId.patient : null",
+    "identifierSystem": "$exists(lookupRequests.jempiSearch.data.goldenRecord.sourceId) and $exists(lookupRequests.jempiSearch.data.goldenRecord.sourceId.facility) ? lookupRequests.jempiSearch.data.goldenRecord.sourceId.facility : null",
+    "nationalId": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.nationalId) ? {'value': lookupRequests.jempiSearch.data.goldenRecord.demographicData.nationalId, 'system': constants.nidSystem} : null",
+    "phoneNumber": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.phoneNumber) ? {'value': lookupRequests.jempiSearch.data.goldenRecord.demographicData.phoneNumber, 'system': constants.phone} : null",
+    "link": "$append([], $map(lookupRequests.jempiSearch.data.interactionsWithScore, function($v) {{'other': {'reference': 'Patient/' & $v.interaction.uid}, 'type': 'refer'}}))"
+  },
+  "inputMapping": {
+    "constants.resourceType": "resourceType",
+    "transforms.id": "id",
+    "transforms.gender": "gender",
+    "transforms.birthDate": "birthDate",
+    "transforms.lastName": "name[0].family",
+    "transforms.name": "name[0].given[0]",
+    "transforms.city": "address[0].city",
+    "transforms.identifierSystem": "identifier[0].system",
+    "transforms.identifierValue": "identifier[0].value",
+    "transforms.nationalId": "identifier[]+",
+    "transforms.phoneNumber": "telecom[]+",
+    "transforms.link": "link"
+  },
+  "constants": {
+    "nidSystem": "NationalID",
+    "resourceType": "Patient",
+    "phone": "phone"
+  },
+  "requests": {
+    "lookup": {
+      "id": "jempiSearch",
+      "config": {
+        "method": "get",
+        "url": "http://openhim-mapping-mediator:3003/response/links/:patientId",
+        "params": {
+          "url": {
+            "patientId": {
+              "path": "urlParams.patientId"
+            }
+          }
+        }
+      }
+    }
+  }
+}
