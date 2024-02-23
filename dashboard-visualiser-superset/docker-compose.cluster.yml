@@ -1,0 +1,8 @@
+version: '3.9'
+
+services:
+  dashboard-visualiser-superset:
+    deploy: 
+      placement: 
+        constraints: 
+          - "node.labels.name==node-1"
