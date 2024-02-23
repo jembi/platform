@@ -19,6 +19,8 @@ services:
       - spring.datasource.hikari.idleTimeout=600000
       - hapi.fhir.allow_external_references=true
       - hapi.fhir.bulk_export_enabled=true
+      - hapi.fhir.ips_enabled=${IPS_ENABLED}
+      - hapi.fhir.ig_runtime_upload_enabled=${ENABLE_RUNTIME_IG_UPLOAD}
       - hapi.fhir.enable_repository_validating_interceptor=true
       - hapi.fhir.fhir_version=${FHIR_VERSION}
       - JAVA_TOOL_OPTIONS=${HF_JAVA_OPTS}
