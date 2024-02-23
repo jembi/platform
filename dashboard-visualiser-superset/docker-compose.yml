@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   dashboard-visualiser-superset:
-    image: apache/superset:latest
+    image: ${SUPERSET_IMAGE}
     environment:
       KC_SUPERSET_SSO_ENABLED: ${KC_SUPERSET_SSO_ENABLED}
       KC_SUPERSET_CLIENT_ID: ${KC_SUPERSET_CLIENT_ID}
