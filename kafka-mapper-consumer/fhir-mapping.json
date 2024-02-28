@@ -3,8 +3,12 @@
     "resourceType": "Patient",
     "tableMappings": [
       {
-        "targetTable": "patient",
+        "targetTable": "patient_example",
         "columnMappings": [
+          {
+            "columnName": "goldenId",
+            "fhirPath": "Patient.link.where(type='refer').other.reference.replace('Patient/', '')"
+          },
           {
             "columnName": "patientGivenName",
             "fhirPath": "Patient.name.given"
@@ -12,6 +16,24 @@
           {
             "columnName": "patientFamilyName",
             "fhirPath": "Patient.name.family"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "resourceType": "Observation",
+    "tableMappings": [
+      {
+        "targetTable": "observation_example",
+        "columnMappings": [
+          {
+            "columnName": "observationValue",
+            "fhirPath": "Observation.valueQuantity.value"
+          },
+          {
+            "columnName": "patientId",
+            "fhirPath": "Observation.subject.reference.replace('Patient/', '')"
           }
         ]
       }

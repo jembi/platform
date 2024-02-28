@@ -4,15 +4,9 @@
   "description": "This package creates a mediator service that is used in facilitating patient creation, updating and reading from the MPI and Hapi-Fhir, from FHIR bundles using Kafka",
   "type": "infrastructure",
   "version": "0.0.1",
-  "dependencies": [
-    "interoperability-layer-openhim",
-    "fhir-datastore-hapi-fhir",
-    "message-bus-kafka",
-    "client-registry-santempi"
-  ],
+  "dependencies": ["fhir-datastore-hapi-fhir", "client-registry-jempi"],
   "environmentVariables": {
     "MPI_MEDIATOR_INSTANCES": 1,
-    "CLIENT_REGISTRY_URL": "http://santedb-mpi:8080",
     "OPENHIM_MEDIATOR_URL": "https://openhim-core:8080",
     "TRUST_SELF_SIGNED": "true",
     "OPENHIM_USERNAME": "root@openhim.org",
@@ -21,9 +15,10 @@
     "MPI_CLIENT_ID": "fiddler",
     "MPI_CLIENT_SECRET": "fiddler",
     "MPI_PROTOCOL": "http",
-    "MPI_HOST": "santedb-mpi",
-    "MPI_PORT": 8080,
-    "MPI_AUTH_ENABLED": "true",
+    "MPI_HOST": "openhim-mapping-mediator",
+    "MPI_PORT": 3003,
+    "MPI_AUTH_ENABLED": "false",
+    "MPI_PROXY_URL": "http://localhost:5001",
     "KAFKA_HOSTS": "kafka-01:9092",
     "KAFKA_BUNDLE_TOPIC": "2xx",
     "KAFKA_ASYNC_BUNDLE_TOPIC": "2xx-async",
@@ -31,6 +26,9 @@
     "FHIR_DATASTORE_PROTOCOL": "http",
     "FHIR_DATASTORE_HOST": "hapi-fhir",
     "FHIR_DATASTORE_PORT": 8080,
-    "DISABLE_VALIDATION": "false"
+    "DISABLE_VALIDATION": "true",
+    "ENABLE_JEMPI_GOLDEN_ID_UPDATE": "true",
+    "CLICKHOUSE_HOST": "analytics-datastore-clickhouse",
+    "CLICKHOUSE_PORT": "8123"
   }
 }
