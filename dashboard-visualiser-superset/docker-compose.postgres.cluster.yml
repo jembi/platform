@@ -1,7 +1,7 @@
 version: '3.9'
 
 services:
-  dashboard-visualiser-superset:
+  postgres-metastore-1:
     deploy: 
       placement: 
         constraints: 
