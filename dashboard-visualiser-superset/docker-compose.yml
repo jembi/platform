@@ -19,8 +19,6 @@ services:
       SUPERSET_POSTGRESQL_CLUSTER: ${SUPERSET_POSTGRESQL_CLUSTER}
     volumes:
       - superset_home:/app/superset_home
-      - superset:/app/superset
-      - superset-frontend:/app/superset-frontend
     command: sh -c "pip install --no-cache-dir -r "/app/docker/requirements-local.txt" && superset fab create-admin \ --username ${SUPERSET_USERNAME} \ --firstname ${SUPERSET_FIRSTNAME}  \ --lastname ${SUPERSET_LASTNAME} \ --email ${SUPERSET_EMAIL} \ --password ${SUPERSET_PASSWORD} && superset db upgrade && superset init && cd /usr/bin && ./run-server.sh"
     configs:
       - source: superset_config.py
@@ -63,8 +61,6 @@ configs:
 
 volumes:
   superset_home:
-  superset:
-  superset-frontend:
 
 networks:
   clickhouse:
