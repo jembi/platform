@@ -4,7 +4,10 @@
   "description": "This package creates a mediator service that is used in facilitating patient creation, updating and reading from the MPI and Hapi-Fhir, from FHIR bundles using Kafka",
   "type": "infrastructure",
   "version": "0.0.1",
-  "dependencies": ["fhir-datastore-hapi-fhir", "client-registry-jempi"],
+  "dependencies": [
+    "fhir-datastore-hapi-fhir",
+    "client-registry-jempi"
+  ],
   "environmentVariables": {
     "MPI_MEDIATOR_INSTANCES": 1,
     "OPENHIM_MEDIATOR_URL": "https://openhim-core:8080",
