@@ -17,6 +17,7 @@ services:
       SUPERSET_POSTGRESQL_PASSWORD: ${SUPERSET_POSTGRESQL_PASSWORD}
       SUPERSET_POSTGRESQL_DATABASE: ${SUPERSET_POSTGRESQL_DATABASE}
       SUPERSET_POSTGRESQL_CLUSTER: ${SUPERSET_POSTGRESQL_CLUSTER}
+      SUPERSET_ENABLED_FEATURE_FLAGS: ${SUPERSET_ENABLED_FEATURE_FLAGS}
     volumes:
       - superset_home:/app/superset_home
     command: sh -c "pip install --no-cache-dir -r "/app/docker/requirements-local.txt" && superset fab create-admin \ --username ${SUPERSET_USERNAME} \ --firstname ${SUPERSET_FIRSTNAME}  \ --lastname ${SUPERSET_LASTNAME} \ --email ${SUPERSET_EMAIL} \ --password ${SUPERSET_PASSWORD} && superset db upgrade && superset init && cd /usr/bin && ./run-server.sh"
