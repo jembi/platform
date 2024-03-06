@@ -20,6 +20,9 @@ services:
       - hapi.fhir.allow_external_references=true
       - hapi.fhir.bulk_export_enabled=true
       - hapi.fhir.ips_enabled=${IPS_ENABLED}
+      - hapi.fhir.implementationguides.ips_1_0_0.url=${IPS_URL}
+      - hapi.fhir.implementationguides.ips_1_0_0.name=${IPS_NAME}
+      - hapi.fhir.implementationguides.ips_1_0_0.version=${IPS_VERSION}
       - hapi.fhir.ig_runtime_upload_enabled=${ENABLE_RUNTIME_IG_UPLOAD}
       - hapi.fhir.enable_repository_validating_interceptor=true
       - hapi.fhir.fhir_version=${FHIR_VERSION}
