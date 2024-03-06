@@ -4,10 +4,7 @@
   "description": "This package creates a mediator service that is used in facilitating patient creation, updating and reading from the MPI and Hapi-Fhir, from FHIR bundles using Kafka",
   "type": "infrastructure",
   "version": "0.0.1",
-  "dependencies": [
-    "fhir-datastore-hapi-fhir",
-    "client-registry-jempi"
-  ],
+  "dependencies": ["fhir-datastore-hapi-fhir", "client-registry-jempi"],
   "environmentVariables": {
     "MPI_MEDIATOR_INSTANCES": 1,
     "OPENHIM_MEDIATOR_URL": "https://openhim-core:8080",
@@ -32,6 +29,7 @@
     "DISABLE_VALIDATION": "true",
     "ENABLE_JEMPI_GOLDEN_ID_UPDATE": "true",
     "CLICKHOUSE_HOST": "analytics-datastore-clickhouse",
-    "CLICKHOUSE_PORT": "8123"
+    "CLICKHOUSE_PORT": "8123",
+    "PATIENT_PROFILE_FOR_STUB_PATIENT": ""
   }
 }

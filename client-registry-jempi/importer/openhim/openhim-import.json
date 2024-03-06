@@ -3,7 +3,7 @@
     {
       "name": "JeMPI Patient endpoints in fhir",
       "description": "JeMPI Patient endpoints in fhir format",
-      "urlPattern": "^/fhir/Patient.*$",
+      "urlPattern": "^/fhir/Patient/?[^/]*$",
       "methods": [
         "GET",
         "POST",
@@ -21,9 +21,7 @@
       "pollingSchedule": null,
       "requestBody": true,
       "responseBody": true,
-      "allow": [
-        "test"
-      ],
+      "allow": ["instant"],
       "whitelist": [],
       "authType": "private",
       "routes": [
