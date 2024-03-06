@@ -1,21 +1,14 @@
 version: "3.9"
 
 services:
-  postgres-metastore-1:
-    image: bitnami/postgresql-repmgr:14
+  postgres-metastore:
+    image: postgres:16.2
     environment:
-      POSTGRESQL_USERNAME: ${SUPERSET_POSTGRESQL_USERNAME}
-      POSTGRESQL_PASSWORD: ${SUPERSET_POSTGRESQL_PASSWORD}
-      POSTGRESQL_DATABASE: ${SUPERSET_POSTGRESQL_DATABASE}
-      POSTGRESQL_POSTGRES_PASSWORD: ${SUPERSET_POSTGRESQL_POSTGRES_PASSWORD}
-      REPMGR_NODE_NETWORK_NAME: postgres-metastore-1
-      REPMGR_NODE_NAME: postgres-metastore-1
-      REPMGR_RECONNECT_INTERVAL: 3
-      REPMGR_PASSWORD: ${SUPERSET_REPMGR_PASSWORD}
-      REPMGR_PRIMARY_HOST: ${SUPERSET_REPMGR_PRIMARY_HOST}
-      REPMGR_PARTNER_NODES: ${SUPERSET_REPMGR_PARTNER_NODES}
+      POSTGRES_USER: ${SUPERSET_POSTGRESQL_USERNAME}
+      POSTGRES_PASSWORD: ${SUPERSET_POSTGRESQL_PASSWORD}
+      POSTGRES_DB: ${SUPERSET_POSTGRESQL_DATABASE}
     volumes:
-      - "superset-postgres-data:/bitnami/postgresql"
+      - "superset-postgres-data:/var/lib/postgresql/data"
     deploy:
       replicas: 1
       resources:

@@ -28,10 +28,6 @@
     "SUPERSET_POSTGRESQL_USERNAME": "admin",
     "SUPERSET_POSTGRESQL_PASSWORD": "admin",
     "SUPERSET_POSTGRESQL_DATABASE": "superset",
-    "SUPERSET_POSTGRESQL_POSTGRES_PASSWORD": "postgres",
-    "SUPERSET_POSTGRESQL_CLUSTER": "postgres-metastore-1:5432",
-    "SUPERSET_REPMGR_PASSWORD": "admin",
-    "SUPERSET_REPMGR_PRIMARY_HOST": "postgres-metastore-1",
-    "SUPERSET_REPMGR_PARTNER_NODES": "postgres-metastore-1"
+    "SUPERSET_POSTGRESQL_URL": "postgres-metastore:5432"
   }
 }

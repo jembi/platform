@@ -5,4 +5,4 @@ services:
     deploy: 
       placement: 
         constraints: 
-          - "node.labels.name==node-1"
+          - "node.labels.name==node-2"
