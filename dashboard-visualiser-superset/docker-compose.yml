@@ -32,6 +32,7 @@ services:
       keycloak:
       reverse-proxy:
       default:
+      public:
 
 configs:
   superset_config.py:
@@ -64,5 +65,8 @@ networks:
     external: true
   reverse-proxy:
     name: reverse-proxy_public
+    external: true
+  public:
+    name: superset_public
     external: true
   default:
