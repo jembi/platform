@@ -17,8 +17,11 @@
     "city": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.city) ? lookupRequests.jempiSearch.data.goldenRecord.demographicData.city : null",
     "identifierValue": "$exists(lookupRequests.jempiSearch.data.goldenRecord.sourceId) and $exists(lookupRequests.jempiSearch.data.goldenRecord.sourceId.patient) ? lookupRequests.jempiSearch.data.goldenRecord.sourceId.patient : null",
     "identifierSystem": "$exists(lookupRequests.jempiSearch.data.goldenRecord.sourceId) and $exists(lookupRequests.jempiSearch.data.goldenRecord.sourceId.facility) ? lookupRequests.jempiSearch.data.goldenRecord.sourceId.facility : null",
-    "nationalId": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.nationalId) ? {'value': lookupRequests.jempiSearch.data.goldenRecord.demographicData.nationalId, 'system': constants.nidSystem} : null",
-    "phoneNumber": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.phoneNumber) ? {'value': lookupRequests.jempiSearch.data.goldenRecord.demographicData.phoneNumber, 'system': constants.phone} : null",
+    "nic": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.nic) ? {'value': lookupRequests.jempiSearch.data.goldenRecord.demographicData.nic, 'system': constants.nicSystem} : null",
+    "ppn": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.ppn) ? {'value': lookupRequests.jempiSearch.data.goldenRecord.demographicData.ppn, 'system': constants.ppnSystem} : null",
+    "scn": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.scn) ? {'value': lookupRequests.jempiSearch.data.goldenRecord.demographicData.scn, 'system': constants.scnSystem} : null",
+    "dl": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.dl) ? {'value': lookupRequests.jempiSearch.data.goldenRecord.demographicData.dl, 'system': constants.dlSystem} : null",
+    "phoneNumber": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.phoneNumberMobile) ? {'value': lookupRequests.jempiSearch.data.goldenRecord.demographicData.phoneNumberMobile, 'system': constants.phone} : null",
     "link": "$append([], $map(lookupRequests.jempiSearch.data.interactionsWithScore, function($v) {{'other': {'reference': 'Patient/' & $v.interaction.uid}, 'type': 'refer'}}))"
   },
   "inputMapping": {
@@ -31,12 +34,18 @@
     "transforms.city": "address[0].city",
     "transforms.identifierSystem": "identifier[0].system",
     "transforms.identifierValue": "identifier[0].value",
-    "transforms.nationalId": "identifier[]+",
+    "transforms.nic": "identifier[]+",
+    "transforms.ppn": "identifier[]+",
+    "transforms.scn": "identifier[]+",
+    "transforms.dl": "identifier[]+",
     "transforms.phoneNumber": "telecom[]+",
     "transforms.link": "link"
   },
   "constants": {
-    "nidSystem": "NationalID",
+    "nicSystem": "https://fhir.health.gov.lk/id/nic",
+    "ppnSystem": "https://fhir.health.gov.lk/id/ppn",
+    "scnSystem": "https://fhir.health.gov.lk/id/scn",
+    "dlSystem": "https://fhir.health.gov.lk/id/dl",
     "resourceType": "Patient",
     "phone": "phone"
   },
