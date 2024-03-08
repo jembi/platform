@@ -20,11 +20,8 @@ Feature: Client Registry JeMPI?
     And The service "jempi-async-receiver" should be started with 1 replica
     And The service "jempi-async-receiver" should be connected to the networks
       | kafka_public | jempi_default |
-    And The service "jempi-sync-receiver" should be started with 1 replica
-    And The service "jempi-sync-receiver" should be connected to the networks
-      | kafka_public | jempi_default |
-    And The service "jempi-pre-processor" should be started with 1 replica
-    And The service "jempi-pre-processor" should be connected to the networks
+    And The service "jempi-etl" should be started with 1 replica
+    And The service "jempi-etl" should be connected to the networks
       | kafka_public | jempi_default |
     And The service "jempi-controller" should be started with 1 replica
     And The service "jempi-controller" should be connected to the networks
@@ -58,8 +55,7 @@ Feature: Client Registry JeMPI?
     And The service "jempi-alpha-02" should be removed
     And The service "jempi-alpha-03" should be removed
     And The service "jempi-async-receiver" should be removed
-    And The service "jempi-sync-receiver" should be removed
-    And The service "jempi-pre-processor" should be removed
+    And The service "jempi-etl" should be removed
     And The service "jempi-controller" should be removed
     And The service "jempi-em-calculator" should be removed
     And The service "jempi-linker" should be removed

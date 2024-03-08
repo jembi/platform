@@ -6,7 +6,4 @@ description: >-
 
 # Environment Variables
 
-| Variable Name                 | Type   | Relevance                   | Required | Default             |
-| ----------------------------- | ------ | --------------------------- | -------- | ------------------- |
-| GF\_SECURITY\_ADMIN\_USER     | String | Username of Grafana service | No       | admin               |
-| GF\_SECURITY\_ADMIN\_PASSWORD | String | Password of Grafana service | No       | dev\_password\_only |
+<table><thead><tr><th width="221">Variable Name</th><th width="86">Type</th><th width="191">Relevance</th><th width="103">Required</th><th>Default</th></tr></thead><tbody><tr><td>GF_SECURITY_ADMIN_USER</td><td>String</td><td>Username of Grafana service</td><td>No</td><td>admin</td></tr><tr><td>GF_SECURITY_ADMIN_PASSWORD</td><td>String</td><td>Password of Grafana service</td><td>No</td><td>dev_password_only</td></tr></tbody></table>

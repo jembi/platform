@@ -9,25 +9,19 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Set up Go
-      uses: actions/setup-go@v2
-      with:
-        go-version: 1.17
+      # replaces latest with the version of the release in the config.yaml file
+      - name: Set version
+        run: |
+          sed -i "s/latest/${{ github.event.release.tag_name }}/g" config.yaml
 
-    - name: Build Releases
-      run: ./get-cli.sh
-
-    - name: Test binaries
-      run: ./instant-linux help
-
-    - name: Release
-      uses: softprops/action-gh-release@v1
-      with:
-        files: |
-          ./instant-linux
-          ./instant-macos
-          ./instant.exe
-          ./config.yml
-          ./banner.txt
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ./config.yml
+            ./banner.txt
+            ./cdr-dw.env
+            ./cdr.env
+            ./mpi.env

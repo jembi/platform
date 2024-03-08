@@ -8,6 +8,9 @@ CHANGED_FILES=($@)
 
 cd ../../test/cucumber/ || exit
 
+# This ensures that the openhim and its mediators' tests are run only once when the openhim and its mediators have all been modified
+openhimRan="false"
+
 declare -A changed_packages
 for package in "${CHANGED_FILES[@]}"; do
     if [[ $package == *"features/cluster-mode"* ]]; then
@@ -28,12 +31,10 @@ elif [[ "${!changed_packages[*]}" == *"features/single-mode"* ]] && [[ $NODE_MOD
     DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:single
 elif [[ "${!changed_packages[*]}" == *"features/cluster-mode"* ]] && [[ $NODE_MODE == "cluster" ]]; then
     DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:cluster
-elif [[ "${!changed_packages[*]}" == *"infrastructure"* ]]; then
-    DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE"
+elif [[ "${!changed_packages[*]}" == *"infrastructure"* ]] && [[ $openhimRan == "false" ]]; then
+    openhimRan="true"
+    DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":openhim
 else
-    # This ensures that the openhim and its mediators' tests are run only once when the openhim and its mediators have all been modified
-    openhimRan="false"
-
     for folder_name in "${!changed_packages[@]}"; do
         echo "$folder_name was changed"
 

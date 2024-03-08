@@ -1,12 +1,6 @@
 version: '3.9'
 
 services:
-  jempi-sync-receiver:
-    ports:
-      - published: 50040
-        target: 50000
-        protocol: tcp
-        mode: host
 
   jempi-controller:
     ports:

@@ -1,114 +1,9 @@
 {
   "Channels": [
     {
-      "methods": [
-        "POST"
-      ],
-      "type": "http",
-      "allow": [
-        "instant"
-      ],
-      "whitelist": [],
-      "authType": "private",
-      "matchContentTypes": [],
-      "properties": [],
-      "txViewAcl": [],
-      "txViewFullAcl": [],
-      "txRerunAcl": [],
-      "status": "enabled",
-      "rewriteUrls": false,
-      "addAutoRewriteRules": true,
-      "autoRetryEnabled": false,
-      "autoRetryPeriodMinutes": 60,
-      "routes": [
-        {
-          "type": "http",
-          "status": "enabled",
-          "forwardAuthHeader": false,
-          "name": "JeMPI Sync Receiver",
-          "secured": false,
-          "host": "jempi-sync-receiver",
-          "port": 50000,
-          "path": "/fhir",
-          "pathTransform": "",
-          "primary": true,
-          "username": "",
-          "password": ""
-        }
-      ],
-      "requestBody": true,
-      "responseBody": true,
-      "rewriteUrlsConfig": [],
-      "name": "JeMPI Sync Receiver",
-      "urlPattern": "^/jempi/fhir.*$",
-      "matchContentRegex": null,
-      "matchContentXpath": null,
-      "matchContentValue": null,
-      "matchContentJson": null,
-      "pollingSchedule": null,
-      "tcpHost": null,
-      "tcpPort": null,
-      "updatedBy": {
-        "id": "638a089bed7a51001325406f",
-        "name": "Super User"
-      },
-      "alerts": []
-    },
-    {
-      "methods": [
-        "POST"
-      ],
-      "type": "http",
-      "allow": [
-        "instant"
-      ],
-      "whitelist": [],
-      "authType": "private",
-      "matchContentTypes": [],
-      "properties": [],
-      "txViewAcl": [],
-      "txViewFullAcl": [],
-      "txRerunAcl": [],
-      "status": "enabled",
-      "rewriteUrls": false,
-      "addAutoRewriteRules": true,
-      "autoRetryEnabled": false,
-      "autoRetryPeriodMinutes": 60,
-      "routes": [
-        {
-          "type": "http",
-          "status": "enabled",
-          "forwardAuthHeader": false,
-          "name": "JeMPI Async Receiver",
-          "secured": false,
-          "host": "jempi-async-receiver",
-          "port": 50000,
-          "path": "/fhir",
-          "pathTransform": "",
-          "primary": true,
-          "username": "",
-          "password": ""
-        }
-      ],
-      "requestBody": true,
-      "responseBody": true,
-      "rewriteUrlsConfig": [],
-      "name": "JeMPI Async Receiver",
-      "urlPattern": "^/jempi/async/fhir.*$",
-      "matchContentRegex": null,
-      "matchContentXpath": null,
-      "matchContentValue": null,
-      "matchContentJson": null,
-      "pollingSchedule": null,
-      "tcpHost": null,
-      "tcpPort": null,
-      "updatedBy": {
-        "id": "638a089bed7a51001325406f",
-        "name": "Super User"
-      },
-      "alerts": []
-    },
-    {
+      "name": "JeMPI Patient endpoints in fhir",
+      "description": "JeMPI Patient endpoints in fhir format",
+      "urlPattern": "^/fhir/Patient/?[^/]*$",
       "methods": [
         "GET",
         "POST",
@@ -121,54 +16,52 @@
         "PATCH"
       ],
       "type": "http",
-      "allow": [
-        "instant"
-      ],
+      "tcpPort": null,
+      "tcpHost": null,
+      "pollingSchedule": null,
+      "requestBody": true,
+      "responseBody": true,
+      "allow": ["instant"],
       "whitelist": [],
       "authType": "private",
+      "routes": [
+        {
+          "name": "Generic Mapping Mediator",
+          "type": "http",
+          "status": "enabled",
+          "secured": false,
+          "host": "openhim-mapping-mediator",
+          "port": 3003,
+          "path": "",
+          "pathTransform": "",
+          "primary": true,
+          "username": "",
+          "password": "",
+          "forwardAuthHeader": true,
+          "waitPrimaryResponse": false,
+          "statusCodesCheck": "2**"
+        }
+      ],
       "matchContentTypes": [],
+      "matchContentRegex": null,
+      "matchContentXpath": null,
+      "matchContentJson": null,
+      "matchContentValue": null,
       "properties": [],
       "txViewAcl": [],
       "txViewFullAcl": [],
       "txRerunAcl": [],
+      "alerts": [],
       "status": "enabled",
       "rewriteUrls": false,
       "addAutoRewriteRules": true,
+      "rewriteUrlsConfig": [],
       "autoRetryEnabled": false,
       "autoRetryPeriodMinutes": 60,
-      "routes": [
-        {
-          "type": "http",
-          "status": "enabled",
-          "forwardAuthHeader": false,
-          "name": "JeMPI",
-          "secured": false,
-          "host": "jempi-api",
-          "port": 50000,
-          "path": "",
-          "pathTransform": "s/jempi\\/api\\///g",
-          "primary": true,
-          "username": "",
-          "password": ""
-        }
-      ],
-      "requestBody": true,
-      "responseBody": true,
-      "rewriteUrlsConfig": [],
-      "name": "JeMPI API",
-      "urlPattern": "^/jempi/api/.*$",
-      "matchContentRegex": null,
-      "matchContentXpath": null,
-      "matchContentValue": null,
-      "matchContentJson": null,
-      "pollingSchedule": null,
-      "tcpHost": null,
-      "tcpPort": null,
       "updatedBy": {
-        "id": "638a089bed7a51001325406f",
+        "id": "6527e7676dec203bde9f2aeb",
         "name": "Super User"
-      },
-      "alerts": []
+      }
     }
   ]
 }

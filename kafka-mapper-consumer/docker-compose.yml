@@ -2,10 +2,17 @@ version: '3.9'
 
 services:
   kafka-mapper-consumer:
-    image: jembi/kafka-mapper-consumer:0.0.3
+    image: jembi/kafka-mapper-consumer:0.1.0
     environment:
       KAFKA_HOST: ${KAFKA_HOST}
       KAFKA_PORT: ${KAFKA_PORT}
+      KAFKA_FROM_BEGINNING: ${KAFKA_FROM_BEGINNING}
+      CONSUMER_GROUP_ID: ${CONSUMER_GROUP_ID}
+      TRUST_SELF_SIGNED: ${TRUST_SELF_SIGNED}
+      OPENHIM_API_URL: ${OPENHIM_API_URL}
+      OPENHIM_USERNAME: ${OPENHIM_USERNAME}
+      OPENHIM_PASSWORD: ${OPENHIM_PASSWORD}
+      REGISTER_MEDIATOR: ${REGISTER_MEDIATOR}
       CLICKHOUSE_HOST: ${CLICKHOUSE_HOST}
       CLICKHOUSE_PORT: ${CLICKHOUSE_PORT}
     configs:
