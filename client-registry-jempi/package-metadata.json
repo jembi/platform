@@ -63,6 +63,7 @@
     "POSTGRESQL_USERS_DB": "users_db",
     "POSTGRESQL_NOTIFICATIONS_DB": "notifications_db",
     "POSTGRESQL_AUDIT_DB": "audit_db",
+    "POSTGRESQL_DATABASE": "postgres",
     "POSTGRESQL_USERNAME": "postgres",
     "JEMPI_REPMGR_PASSWORD": "dev_password_only",
     "JEMPI_REPMGR_PRIMARY_HOST": "jempi-postgresql-01",

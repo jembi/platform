@@ -11,7 +11,11 @@
   "inputTransforms": {
     "currentDate": "$now()",
     "sourcePatient": "$exists(requestBody.identifier) and $exists(requestBody.identifier[0]) and $exists(requestBody.identifier[0].value) ? {'patient': requestBody.identifier[0].value, 'facility': requestBody.identifier[0].system} : null",
-    "nationalId": "$exists(requestBody.identifier) and $exists(requestBody.identifier[0]) and $count($filter(requestBody.identifier, function($v) {$contains($v.system, 'NationalID')})) > 0 ? $filter(requestBody.identifier, function($v) {$contains($v.system, 'NationalID')})[0].value : null",
+    "phn": "$exists(requestBody.identifier) and $exists(requestBody.identifier[0]) and  $count($filter(requestBody.identifier, function($v) {$contains($v.system, 'phn')})) > 0 ? $filter(requestBody.identifier, function($v) {$contains($v.system, 'phn')})[0].value : null",
+    "nic": "$exists(requestBody.identifier) and $exists(requestBody.identifier[0]) and  $count($filter(requestBody.identifier, function($v) {$contains($v.system, 'nic')})) > 0 ? $filter(requestBody.identifier, function($v) {$contains($v.system, 'nic')})[0].value : null",
+    "ppn": "$exists(requestBody.identifier) and $exists(requestBody.identifier[0]) and  $count($filter(requestBody.identifier, function($v) {$contains($v.system, 'ppn')})) > 0 ? $filter(requestBody.identifier, function($v) {$contains($v.system, 'ppn')})[0].value : null",
+    "scn": "$exists(requestBody.identifier) and $exists(requestBody.identifier[0]) and  $count($filter(requestBody.identifier, function($v) {$contains($v.system, 'scn')})) > 0 ? $filter(requestBody.identifier, function($v) {$contains($v.system, 'scn')})[0].value : null",
+    "dl": "$exists(requestBody.identifier) and $exists(requestBody.identifier[0]) and  $count($filter(requestBody.identifier, function($v) {$contains($v.system, 'dl')})) > 0 ? $filter(requestBody.identifier, function($v) {$contains($v.system, 'dl')})[0].value : null",
     "name": "$exists(requestBody.name) and $exists(requestBody.name[0]) and $exists(requestBody.name[0].given[0]) ? requestBody.name[0].given[0] : null",
     "familyName": "$exists(requestBody.name) and $exists(requestBody.name[0]) ? requestBody.name[0].family : null",
     "city": "$exists(requestBody.address) and $exists(requestBody.address[0]) ? requestBody.address[0].city : null",
@@ -19,13 +23,17 @@
   },
   "inputMapping": {
     "transforms.sourcePatient": "sourceId",
-    "transforms.nationalId": "demographicData.nationalId",
+    "transforms.phn": "demographicData.phn",
+    "transforms.nic": "demographicData.nic",
+    "transforms.ppn": "demographicData.ppn",
+    "transforms.scn": "demographicData.scn",
+    "transforms.dl": "demographicData.dl",
     "transforms.familyName": "demographicData.familyName",
     "transforms.name": "demographicData.givenName",
     "requestBody.gender": "demographicData.gender",
     "requestBody.birthDate": "demographicData.dob",
     "transforms.city": "demographicData.city",
-    "transforms.phoneNumber": "demographicData.phoneNumber",
+    "transforms.phoneNumber": "demographicData.phoneNumberMobile",
     "transforms.currentDate": "uniqueInteractionData.auxDateCreated"
   },
   "requests": {
