@@ -121,6 +121,9 @@ services:
       KAFKA_APPLICATION_ID: ${KAFKA_APPLICATION_ID_BOOTSTRAPPER}
       DGRAPH_HOSTS: ${DGRAPH_HOSTS}
       DGRAPH_PORTS: ${DGRAPH_PORTS}
+    networks:
+      kafka:
+      default:
 
   jempi-postgresql-01:
     image: bitnami/postgresql-repmgr:15.2.0
