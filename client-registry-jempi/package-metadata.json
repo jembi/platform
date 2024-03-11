@@ -87,6 +87,9 @@
     "KAFKA_CLIENT_ID_ASYNC": "client-id-syncrx",
     "KAFKA_APPLICATION_ID_ETL": "app-id-etl",
     "KAFKA_APPLICATION_ID_CTRL": "app-id-ctrl",
-    "KAFKA_CLIENT_ID_CTRL": "client-id-ctrl"
+    "KAFKA_CLIENT_ID_CTRL": "client-id-ctrl",
+    "KAFKA_APPLICATION_ID_BOOTSTRAPPER": "app-id-bootstrapper",
+    "JEMPI_BOOTSTRAPPER_IMAGE_TAG": "1.0.0-beta1",
+    "POSTGRESQL_KC_TEST_DB": "kc_test_db"
   }
 }
