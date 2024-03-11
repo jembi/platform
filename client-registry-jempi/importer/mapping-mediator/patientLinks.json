@@ -17,10 +17,10 @@
     "city": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.city) ? lookupRequests.jempiSearch.data.goldenRecord.demographicData.city : null",
     "identifierValue": "$exists(lookupRequests.jempiSearch.data.goldenRecord.sourceId) and $exists(lookupRequests.jempiSearch.data.goldenRecord.sourceId.patient) ? lookupRequests.jempiSearch.data.goldenRecord.sourceId.patient : null",
     "identifierSystem": "$exists(lookupRequests.jempiSearch.data.goldenRecord.sourceId) and $exists(lookupRequests.jempiSearch.data.goldenRecord.sourceId.facility) ? lookupRequests.jempiSearch.data.goldenRecord.sourceId.facility : null",
-    "nic": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.nic) ? {'value': lookupRequests.jempiSearch.data.goldenRecord.demographicData.nic, 'system': constants.nicSystem} : null",
-    "ppn": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.ppn) ? {'value': lookupRequests.jempiSearch.data.goldenRecord.demographicData.ppn, 'system': constants.ppnSystem} : null",
-    "scn": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.scn) ? {'value': lookupRequests.jempiSearch.data.goldenRecord.demographicData.scn, 'system': constants.scnSystem} : null",
-    "dl": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.dl) ? {'value': lookupRequests.jempiSearch.data.goldenRecord.demographicData.dl, 'system': constants.dlSystem} : null",
+    "nic": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.nic) ? {'type': {'coding': [{'system': constants.fhirCodingSystem, 'code': 'NIC' }], 'text': 'National identity number'}, 'system': constants.nicSystem, 'value': lookupRequests.jempiSearch.data.goldenRecord.demographicData.nic} : null",
+    "ppn": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.ppn) ? {'type': {'coding': [{'system': constants.terminologyCodingSystem, 'code': 'PPN' }], 'text': 'Passport number'}, 'system': constants.ppnSystem, 'value': lookupRequests.jempiSearch.data.goldenRecord.demographicData.ppn} : null",
+    "scn": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.scn) ? {'type': {'coding': [{'system': constants.fhirCodingSystem, 'code': 'SCN' }], 'text': 'Senior Citizen Number'}, 'system': constants.scnSystem, 'value': lookupRequests.jempiSearch.data.goldenRecord.demographicData.scn} : null",
+    "dl": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.dl) ? {'type': {'coding': [{'system': constants.terminologyCodingSystem, 'code': 'DL' }], 'text': 'Drivers license number'}, 'system': constants.dlSystem, 'value': lookupRequests.jempiSearch.data.goldenRecord.demographicData.dl} : null",
     "phoneNumber": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.phoneNumberMobile) ? {'value': lookupRequests.jempiSearch.data.goldenRecord.demographicData.phoneNumberMobile, 'system': constants.phone} : null",
     "link": "$append([], $map(lookupRequests.jempiSearch.data.interactionsWithScore, function($v) {{'other': {'reference': 'Patient/' & $v.interaction.uid}, 'type': 'refer'}}))"
   },
@@ -42,10 +42,12 @@
     "transforms.link": "link"
   },
   "constants": {
-    "nicSystem": "https://fhir.health.gov.lk/id/nic",
-    "ppnSystem": "https://fhir.health.gov.lk/id/ppn",
-    "scnSystem": "https://fhir.health.gov.lk/id/scn",
-    "dlSystem": "https://fhir.health.gov.lk/id/dl",
+    "fhirCodingSystem": "http://fhir.health.gov.lk/ips/CodeSystem/cs-identifier-types",
+    "terminologyCodingSystem": "http://terminology.hl7.org/CodeSystem/v2-0203",
+    "nicSystem": "http://fhir.health.gov.lk/ips/identifier/nic",
+    "ppnSystem": "http://fhir.health.gov.lk/ips/identifier/passport",
+    "scnSystem": "http://fhir.health.gov.lk/ips/identifier/scn",
+    "dlSystem": "http://fhir.health.gov.lk/ips/identifier/drivers",
     "resourceType": "Patient",
     "phone": "phone"
   },

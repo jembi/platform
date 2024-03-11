@@ -8,7 +8,7 @@
     "input": "JSON",
     "output": "JSON"
   },
-  "inputTransforms" : {
+  "inputTransforms": {
     "id": "lookupRequests.jempiSearch.data.goldenRecord.uid",
     "gender": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.gender) ? lookupRequests.jempiSearch.data.goldenRecord.demographicData.gender : null",
     "birthDate": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.dob) ? lookupRequests.jempiSearch.data.goldenRecord.demographicData.dob : null",
@@ -17,8 +17,11 @@
     "city": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.city) ? lookupRequests.jempiSearch.data.goldenRecord.demographicData.city : null",
     "identifierValue": "$exists(lookupRequests.jempiSearch.data.goldenRecord.sourceId) and $exists(lookupRequests.jempiSearch.data.goldenRecord.sourceId.patient) ? lookupRequests.jempiSearch.data.goldenRecord.sourceId.patient : null",
     "identifierSystem": "$exists(lookupRequests.jempiSearch.data.goldenRecord.sourceId) and $exists(lookupRequests.jempiSearch.data.goldenRecord.sourceId.facility) ? lookupRequests.jempiSearch.data.goldenRecord.sourceId.facility : null",
-    "nationalId": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.nationalId) ? {'value': lookupRequests.jempiSearch.data.goldenRecord.demographicData.nationalId, 'system': constants.nidSystem} : null",
-    "phoneNumber": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.phoneNumber) ? {'value': lookupRequests.jempiSearch.data.goldenRecord.demographicData.phoneNumber, 'system': constants.phone} : null",
+    "nic": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.nic) ? {'type': {'coding': [{'system': constants.fhirCodingSystem, 'code': 'NIC' }], 'text': 'National identity number'}, 'system': constants.nicSystem, 'value': lookupRequests.jempiSearch.data.goldenRecord.demographicData.nic} : null",
+    "ppn": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.ppn) ? {'type': {'coding': [{'system': constants.terminologyCodingSystem, 'code': 'PPN' }], 'text': 'Passport number'}, 'system': constants.ppnSystem, 'value': lookupRequests.jempiSearch.data.goldenRecord.demographicData.ppn} : null",
+    "scn": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.scn) ? {'type': {'coding': [{'system': constants.fhirCodingSystem, 'code': 'SCN' }], 'text': 'Senior Citizen Number'}, 'system': constants.scnSystem, 'value': lookupRequests.jempiSearch.data.goldenRecord.demographicData.scn} : null",
+    "dl": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.dl) ? {'type': {'coding': [{'system': constants.terminologyCodingSystem, 'code': 'DL' }], 'text': 'Drivers license number'}, 'system': constants.dlSystem, 'value': lookupRequests.jempiSearch.data.goldenRecord.demographicData.dl} : null",
+    "phoneNumber": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.phoneNumberMobile) ? {'value': lookupRequests.jempiSearch.data.goldenRecord.demographicData.phoneNumberMobile, 'system': constants.phone} : null",
     "link": "$append([], $map(lookupRequests.jempiSearch.data.interactionsWithScore, function($v) {{'other': {'reference': 'Patient/' & $v.interaction.uid}, 'type': 'refer'}}))"
   },
   "inputMapping": {
@@ -31,12 +34,14 @@
     "transforms.city": "address[0].city",
     "transforms.identifierSystem": "identifier[0].system",
     "transforms.identifierValue": "identifier[0].value",
-    "transforms.nationalId": "identifier[]+",
+    "transforms.nic": "identifier[]+",
+    "transforms.ppn": "identifier[]+",
+    "transforms.scn": "identifier[]+",
+    "transforms.dl": "identifier[]+",
     "transforms.phoneNumber": "telecom[]+",
     "transforms.link": "link"
   },
   "constants": {
-    "nidSystem": "NationalID",
     "resourceType": "Patient",
     "phone": "phone"
   },
