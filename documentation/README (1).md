@@ -23,7 +23,7 @@ The following tools are needed to run/deploy platform:
 4. Download the latest OpenHIM Platform config file which configures Instant OpenHIE v2 to use OpenHIM Platform packages: `wget https://raw.githubusercontent.com/jembi/platform/<tag_name>/config.yaml`&#x20;
 
 {% hint style="info" %}
-&#x20;e.g. `wget https://raw.githubusercontent.com/jembi/platform/2.3.0/config.yaml`
+&#x20;e.g. `wget https://raw.githubusercontent.com/jembi/platform/2.5.0/config.yaml`
 {% endhint %}
 
 5. Download the latest environment variable file, which sets configuration options for OpenHIM Platform packages: `wget https://raw.githubusercontent.com/jembi/platform/<tag_name>/.env.local`

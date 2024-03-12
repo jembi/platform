@@ -29,12 +29,19 @@
   ],
   "Channels": [
     {
-      "name": "MPI Orchestrations - Create/Read operations for patients and their clinical data",
-      "description": "",
-      "urlPattern": "^/fhir.*$",
+      "name": "JeMPI Patient endpoints in fhir",
+      "description": "JeMPI Patient endpoints in fhir format",
+      "urlPattern": "^/fhir/Patient/?[^/]*$",
       "methods": [
         "GET",
-        "POST"
+        "POST",
+        "DELETE",
+        "PUT",
+        "OPTIONS",
+        "HEAD",
+        "TRACE",
+        "CONNECT",
+        "PATCH"
       ],
       "type": "http",
       "priority": null,
@@ -43,9 +50,61 @@
       "pollingSchedule": null,
       "requestBody": true,
       "responseBody": true,
-      "allow": [
-        "instant"
+      "allow": ["instant"],
+      "whitelist": [],
+      "authType": "private",
+      "routes": [
+        {
+          "name": "Generic Mapping Mediator",
+          "type": "http",
+          "status": "enabled",
+          "secured": false,
+          "host": "openhim-mapping-mediator",
+          "port": 3003,
+          "path": "",
+          "pathTransform": "",
+          "primary": true,
+          "username": "",
+          "password": "",
+          "forwardAuthHeader": true,
+          "waitPrimaryResponse": false,
+          "statusCodesCheck": "2**"
+        }
       ],
+      "matchContentTypes": [],
+      "matchContentRegex": null,
+      "matchContentXpath": null,
+      "matchContentJson": null,
+      "matchContentValue": null,
+      "properties": [],
+      "txViewAcl": [],
+      "txViewFullAcl": [],
+      "txRerunAcl": [],
+      "alerts": [],
+      "status": "enabled",
+      "rewriteUrls": false,
+      "addAutoRewriteRules": true,
+      "rewriteUrlsConfig": [],
+      "autoRetryEnabled": false,
+      "autoRetryPeriodMinutes": 60,
+      "updatedBy": {
+        "id": "65d47e98223a0672c3c9808b",
+        "name": "Super User"
+      }
+    },
+    {
+      "name": "MPI Orchestrations - Create/Read operations for patients and their clinical data",
+      "description": "",
+      "urlPattern": "^/fhir.*$",
+      "methods": ["GET", "POST"],
+      "type": "http",
+      "priority": null,
+      "tcpPort": null,
+      "tcpHost": null,
+      "pollingSchedule": null,
+      "requestBody": true,
+      "responseBody": true,
+      "allow": ["instant"],
       "whitelist": [],
       "authType": "private",
       "routes": [
@@ -81,7 +140,7 @@
       "autoRetryEnabled": false,
       "autoRetryPeriodMinutes": 60,
       "updatedBy": {
-        "id": "65c20de34f5c821e9597f9c8",
+        "id": "65d47e98223a0672c3c9808b",
         "name": "Super User"
       }
     },
@@ -105,7 +164,7 @@
       "authType": "private",
       "routes": [
         {
-          "name": "Hapi Fhir",
+          "name": "MPI Mediator",
           "type": "http",
           "status": "enabled",
           "secured": false,
@@ -161,6 +220,26 @@
     }
   ],
   "Mediators": [
+    {
+      "urn": "urn:mediator:generic_mapper",
+      "version": "3.2.0",
+      "name": "Mapping Mediator",
+      "description": "Generic OpenHIM Mapping Mediator",
+      "endpoints": [
+        {
+          "name": "Generic Mapping Mediator",
+          "type": "http",
+          "status": "enabled",
+          "host": "localhost",
+          "port": 3003,
+          "forwardAuthHeader": false
+        }
+      ],
+      "defaultChannelConfig": [],
+      "configDefs": [],
+      "_lastHeartbeat": "2024-02-22T16:09:57.075Z",
+      "_uptime": 101055.747901311
+    },
     {
       "urn": "urn:mediator:mpi-mediator",
       "version": "1.0.0",
