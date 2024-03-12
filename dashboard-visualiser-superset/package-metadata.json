@@ -6,7 +6,7 @@
   "version": "0.0.1",
   "dependencies": ["analytics-datastore-clickhouse"],
   "environmentVariables": {
-    "SUPERSET_IMAGE": "apache/superset:latest",
+    "SUPERSET_IMAGE": "apache/superset:3.1.1",
     "SUPERSET_ENABLED_FEATURE_FLAGS": "DASHBOARD_RBAC",
     "SUPERSET_USERNAME": "admin",
     "SUPERSET_FIRSTNAME": "SUPERSET",
