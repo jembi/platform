@@ -1,7 +1,7 @@
 version: '3.9'
 
 services:
-  postgres-metastore-1:
+  postgres-metastore:
     deploy: 
       placement: 
         constraints: 
