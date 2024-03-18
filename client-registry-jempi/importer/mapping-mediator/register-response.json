@@ -29,7 +29,8 @@
     "addressPostalCode": "$exists(requestBody.address) and $exists(requestBody.address[0]) ? requestBody.address[0].postalCode : null",
     "addressCountry": "$exists(requestBody.address) and $exists(requestBody.address[0]) ? requestBody.address[0].country : null",
     "phoneNumber": "$exists(requestBody.telecom) and $exists(requestBody.telecom[0]) ? requestBody.telecom[0].value : null",
-    "emailAddress": "$exists(requestBody.telecom) and $exists(requestBody.telecom[1]) ? requestBody.telecom[1].value : null"
+    "emailAddressA": "$exists(requestBody.telecom) and $exists(requestBody.telecom[1]) ? requestBody.telecom[1].value : null",
+    "emailAddressB": "$exists(requestBody.telecom) and $exists(requestBody.telecom[2]) ? requestBody.telecom[2].value : null"
   },
   "inputMapping": {
     "transforms.sourcePatient": "sourceId",
@@ -53,7 +54,8 @@
     "transforms.addressPostalCode": "demographicData.addressPostalCode",
     "transforms.addressCountry": "demographicData.addressCountry",
     "transforms.phoneNumber": "demographicData.phoneNumber",
-    "transforms.emailAddress": "demographicData.emailAddress",
+    "transforms.emailAddressA": "demographicData.emailAddressA",
+    "transforms.emailAddressB": "demographicData.emailAddressB",
     "transforms.currentDate": "uniqueInteractionData.auxDateCreated"
   },
   "requests": {
