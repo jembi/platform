@@ -9,6 +9,7 @@
     "output": "JSON"
   },
   "inputTransforms": {
+    "goldenId": "$exists(lookupRequests.jempiSearchGoldenId.data[0].goldenRecordsWithScore[0].goldenRecord.uid) ? lookupRequests.jempiSearchGoldenId.data[0].goldenRecordsWithScore[0].goldenRecord.uid : ''",
     "familyName": "$exists(requestBody.name) and $exists(requestBody.name[0]) and $exists(requestBody.name[0].family) ? {'name': 'familyName', 'value': requestBody.name[0].family} : null",
     "givenName": "$exists(requestBody.name) and $exists(requestBody.name[0]) and $exists(requestBody.name[0].given) and $exists(requestBody.name[0].given[0]) ? {'name': 'givenName', 'value': requestBody.name[0].given[0]} : null",
     "birthDate": "$exists(requestBody.birthDate) ? {'name': 'dob', 'value': requestBody.birthDate} : null",
@@ -37,6 +38,20 @@
           "contentType": "application/json"
         },
         "url": "http://jempi-api:50000/JeMPI/cr-update-fields"
+      }
+    },
+    "lookup": {
+      "id": "jempiSearchGoldenId",
+      "config": {
+        "method": "get",
+        "url": "http://jempi-api:50000/JeMPI/cr-find",
+        "params": {
+          "query": {
+            "uidList": {
+              "path": "urlParams.patientId"
+            }
+          }
+        }
       }
     }
   }

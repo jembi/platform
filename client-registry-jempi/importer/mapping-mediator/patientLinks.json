@@ -31,7 +31,8 @@
     "scn": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.scn) ? {'type': {'coding': [{'system': constants.fhirCodingSystem, 'code': 'SCN' }], 'text': 'Senior Citizen Number'}, 'system': constants.scnSystem, 'value': lookupRequests.jempiSearch.data.goldenRecord.demographicData.scn} : null",
     "dl": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.dl) ? {'type': {'coding': [{'system': constants.terminologyCodingSystem, 'code': 'DL' }], 'text': 'Drivers license number'}, 'system': constants.dlSystem, 'value': lookupRequests.jempiSearch.data.goldenRecord.demographicData.dl} : null",
     "phoneNumber": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.phoneNumber) ? {'value': lookupRequests.jempiSearch.data.goldenRecord.demographicData.phoneNumber, 'system': constants.phone} : null",
-    "emailAddress": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.emailAddress) ? {'value': lookupRequests.jempiSearch.data.goldenRecord.demographicData.emailAddress, 'system': constants.email} : null",
+    "emailAddressA": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.emailAddressA) ? {'value': lookupRequests.jempiSearch.data.goldenRecord.demographicData.emailAddressA, 'system': constants.email} : null",
+    "emailAddressB": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.emailAddressB) ? {'value': lookupRequests.jempiSearch.data.goldenRecord.demographicData.emailAddressB, 'system': constants.email} : null",
     "link": "$append([], $map(lookupRequests.jempiSearch.data.interactionsWithScore, function($v) {{'other': {'reference': 'Patient/' & $v.interaction.uid}, 'type': 'refer'}}))"
   },
   "inputMapping": {
@@ -58,7 +59,8 @@
     "transforms.scn": "identifier[]+",
     "transforms.dl": "identifier[]+",
     "transforms.phoneNumber": "telecom[]+",
-    "transforms.emailAddress": "telecom[]+",
+    "transforms.emailAddressA": "telecom[]+",
+    "transforms.emailAddressB": "telecom[]+",
     "transforms.link": "link"
   },
   "constants": {
