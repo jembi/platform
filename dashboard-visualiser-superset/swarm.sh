@@ -33,6 +33,7 @@ function import_sources() {
 
 function initialize_package() {
   local superset_dev_compose_filename=""
+  local superset_postgres_cluster_compose_filename=""
 
   if [[ "${MODE}" == "dev" ]]; then
     log info "Running package in DEV mode"
@@ -41,10 +42,16 @@ function initialize_package() {
     log info "Running package in PROD mode"
   fi
 
+  if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+    superset_postgres_cluster_compose_filename="docker-compose.postgres.cluster.yml"
+  fi
+
   # Replace env vars
   envsubst <"${COMPOSE_FILE_PATH}/config/client_secret_env.json" >"${COMPOSE_FILE_PATH}/config/client_secret.json"
 
   (
+    docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.postgres.yml" "$superset_postgres_cluster_compose_filename"
+
     docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$superset_dev_compose_filename"
   ) || {
     log error "Failed to deploy package"
