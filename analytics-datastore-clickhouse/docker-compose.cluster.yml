@@ -25,6 +25,7 @@ services:
         source: clickhouse_use_keeper.xml
     networks:
       public:
+      dbt:
       default:
 
   analytics-datastore-clickhouse-02:

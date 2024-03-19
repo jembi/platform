@@ -9,6 +9,7 @@ services:
       - clickhouse-data:/var/lib/clickhouse/
     networks:
       public:
+      dbt:
       default:
 
 volumes:
@@ -18,4 +19,8 @@ networks:
   public:
     name: clickhouse_public
     external: true
+  dbt:
+    name: dbt_attachable
+    external: true
+    attachable: true
   default:
