@@ -1,4 +1,4 @@
-# Jembi Platform
+# Jembi Platform - TEST
 
 ## Tech Used
 
@@ -54,7 +54,7 @@ The Go Cli runs all services from the `jembi/platform` docker image. When develo
 As you add new packages to the platform remember to list them in `config.yaml` file. This config file controls what packages the GO CLI can launch.
 
 For logging all output to a file, ensure that you have created the file and it has the required permissions to be written to.
-The default log file with it's path is set in `.env.local` in `BASHLOG_FILE_PATH`. 
+The default log file with it's path is set in `.env.local` in `BASHLOG_FILE_PATH`.
 The logPath property in the `config.yml` is used to create a bind mount for the logs to be stored on the host.
 
 ## Resource Allocations
