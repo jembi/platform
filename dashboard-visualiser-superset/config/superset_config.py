@@ -22,16 +22,27 @@
 #
 
 # A list of available feature flags is available at https://github.com/apache/superset/blob/master/RESOURCES/FEATURE_FLAGS.md
-# FEATURE_FLAGS = {
-# }
+# The environment variable SUPERSET_ENABLED_FEATURE_FLAGS (e.g: "DASHBOARD_RBAC,ENABLE_TEMPLATE_PROCESSING") is a comma seperated list of flags to enable
+# And allows for flags to be enabled/disabled without having to redploy the superset package
+import os
+
+FLAGS = os.getenv('SUPERSET_ENABLED_FEATURE_FLAGS')
+FEATURE_FLAGS = { key: True for key in FLAGS.split(',') if key != '' }
 
 # Variables for use in Superset with Jinja templating 
 # JINJA_CONTEXT_ADDONS = {
 # }
 
+# --------------------------- POSTGRESQL METASTORE ----------------------------
 
-# ---------------------------KEYCLOACK ----------------------------
-import os
+METASTORE_USERNAME = os.getenv('SUPERSET_POSTGRESQL_USERNAME')
+METASTORE_PASSWORD = os.getenv('SUPERSET_POSTGRESQL_PASSWORD')
+METASTORE_DATABASE = os.getenv('SUPERSET_POSTGRESQL_DATABASE')
+METASTORE_URL = os.getenv('SUPERSET_POSTGRESQL_URL')
+SQLALCHEMY_DATABASE_URI = f'postgresql://{METASTORE_USERNAME}:{METASTORE_PASSWORD}@{METASTORE_URL}/{METASTORE_DATABASE}'
+
+
+# --------------------------- KEYCLOACK ----------------------------
 
 KC_SUPERSET_SSO_ENABLED = os.getenv('KC_SUPERSET_SSO_ENABLED')
 

@@ -9,10 +9,12 @@
     "output": "JSON"
   },
   "constants": {
-    "active": true
+    "active": true,
+    "linkType": "refer"
   },
   "inputTransforms": {
-    "id": "lookupRequests.jempiRegister.data.linkInfo.goldenUID"
+    "id": "lookupRequests.jempiRegister.data.linkInfo.interactionUID",
+    "goldenId": "$exists(lookupRequests.jempiRegister.data.linkInfo.goldenUID) ? {'reference': 'Patient/' & lookupRequests.jempiRegister.data.linkInfo.goldenUID} : null"
   },
   "inputMapping": {
     "requestBody.resourceType": "resourceType",
@@ -23,7 +25,9 @@
     "requestBody.gender": "gender",
     "requestBody.birthDate": "birthDate",
     "requestBody.address": "address",
-    "requestBody.telecom": "telecom"
+    "requestBody.telecom": "telecom",
+    "transforms.goldenId": "link[].other",
+    "constants.linkType": "link[].type"
   },
   "requests": {
     "lookup": [

@@ -1,0 +1,44 @@
+{
+  "name": "Get patient links response",
+  "endpoint": {
+    "pattern": "/response/links/:patientId",
+    "method": "GET"
+  },
+  "transformation": {
+    "input": "JSON",
+    "output": "JSON"
+  },
+  "inputTransforms": {
+    "goldenId": "$exists(lookupRequests.jempiSearchGoldenId.data[0].goldenRecordsWithScore[0].goldenRecord.uid) ? lookupRequests.jempiSearchGoldenId.data[0].goldenRecordsWithScore[0].goldenRecord.uid : ''"
+  },
+  "requests": {
+    "response": {
+      "id": "jempiSearchResponse",
+      "config": {
+        "method": "get",
+        "url": "http://jempi-api:50000/JeMPI/expanded-golden-record/:goldenId",
+        "params": {
+          "url": {
+            "goldenId": {
+              "path": "transforms.goldenId"
+            }
+          }
+        }
+      }
+    },
+    "lookup": {
+      "id": "jempiSearchGoldenId",
+      "config": {
+        "method": "get",
+        "url": "http://jempi-api:50000/JeMPI/expanded-interactions-csv",
+        "params": {
+          "query": {
+            "uidList": {
+              "path": "urlParams.patientId"
+            }
+          }
+        }
+      }
+    }
+  }
+}
