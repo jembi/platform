@@ -1,0 +1,32 @@
+{
+  "id": "database-postgres",
+  "name": "Postgres Database package",
+  "description": "Postgres Database package",
+  "type": "infrastructure",
+  "version": "0.0.1",
+  "dependencies": [],
+  "environmentVariables": {
+    "REPMGR_PRIMARY_HOST": "postgres-1",
+    "REPMGR_PARTNER_NODES": "postgres-1",
+    "REPMGR_PASSWORD": "instant101",
+    "POSTGRES_REPLICA_SET": "postgres-1:5432",
+    "POSTGRES_CPU_LIMIT": "0",
+    "POSTGRES_CPU_RESERVE": "0.05",
+    "POSTGRES_MEMORY_LIMIT": "3G",
+    "POSTGRES_MEMORY_RESERVE": "500M",
+    "POSTGRESQL_PASSWORD": "instant101",
+    "POSTGRESQL_USERNAME": "postgres",
+    "PGPOOL_NODES": "0:postgres-1:5432,1:postgres-2:5432,2:postgres-3:5432",
+    "PGPOOL_USERNAME": "pgadmin",
+    "PGPOOL_PASSWORD": "dev_password_only",
+    "PGPOOL_POSTGRES_CUSTOM_USERS": "hapi",
+    "PGPOOL_POSTGRES_CUSTOM_PASSWORDS": "instant101",
+    "PGPOOL_CPU_LIMIT": "0",
+    "PGPOOL_MEMORY_LIMIT": "500M",
+    "PGPOOL_CPU_RESERVE": "0.05",
+    "PGPOOL_MEMORY_RESERVE": "50M",
+    "HF_PGPOOL_ENABLED": "true",
+    "POSTGRES_FAILOVER": "automatic",
+    "POSTGRES_DEGRADED_MONITORING_TIMEOUT": "5"
+  }
+}

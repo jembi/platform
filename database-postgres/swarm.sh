@@ -4,7 +4,7 @@ declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare STACK="hapi-fhir"
+declare STACK="postgres"
 
 function init_vars() {
   ACTION=$1
@@ -32,11 +32,12 @@ function import_sources() {
 }
 
 function initialize_package() {
-  local hapi_fhir_dev_compose_filename=""
+  local postgres_cluster_compose_filename=""
+  local postgres_dev_compose_filename=""
 
   if [ "${MODE}" == "dev" ]; then
     log info "Running package in DEV mode"
-    hapi_fhir_dev_compose_filename="docker-compose.dev.yml"
+    postgres_dev_compose_filename="docker-compose-postgres.dev.yml"
   else
     log info "Running package in PROD mode"
   fi
@@ -46,14 +47,12 @@ function initialize_package() {
   fi
 
   (
+    docker::deploy_service "$STACK" "${COMPOSE_FILE_PATH}" "docker-compose-postgres.yml" "$postgres_cluster_compose_filename" "$postgres_dev_compose_filename"
 
-    docker::await_service_status "postgres" "postgres-1" "Running"
-
-    if [[ "${ACTION}" == "init" ]]; then
-      docker::deploy_config_importer "postgres" "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "hapi_db_config" "hapi-fhir"
+    if [[ "${CLUSTERED_MODE}" == "true" && "${HF_PGPOOL_ENABLED}" == "true" ]]; then
+      docker::deploy_service "$STACK" "${COMPOSE_FILE_PATH}" "docker-compose-pgpool.cluster.yml"
     fi
 
-    docker::deploy_service "$STACK" "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$hapi_fhir_dev_compose_filename"
   ) ||
     {
       log error "Failed to deploy package"
@@ -68,7 +67,7 @@ function destroy_package() {
     log warn "Volumes are only deleted on the host on which the command is run. Postgres volumes on other nodes are not deleted"
   fi
 
-  docker::prune_configs "hapi-fhir"
+  docker::prune_configs "postgres"
 }
 
 main() {
