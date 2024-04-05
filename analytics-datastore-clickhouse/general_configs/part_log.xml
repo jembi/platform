@@ -1,0 +1,5 @@
+<clickhouse>
+    <part_log>
+        <ttl>event_date + INTERVAL 30 DAY DELETE</ttl>
+    </part_log>
+</clickhouse>
