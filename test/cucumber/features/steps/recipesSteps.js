@@ -9,8 +9,8 @@ const { Given, When, Then, setDefaultTimeout } = require("@cucumber/cucumber");
 setDefaultTimeout(30 * 60 * 1000);
 
 const CLICKHOUSE_HOST =
-  process.env.CLICKHOUSE_HOST || 'analytics-datastore-clickhouse';
-const CLICKHOUSE_PORT = parseInt(process.env.CLICKHOUSE_PORT || '8123');
+  process.env.CLICKHOUSE_HOST || 'localhost';
+const CLICKHOUSE_PORT = parseInt(process.env.CLICKHOUSE_PORT || '8124');
 const CLICKHOUSE_DEBUG = Boolean(process.env.CLICKHOUSE_DEBUG || false);
 
 const { expect } = chai;
@@ -21,6 +21,8 @@ const clickhouse = new ClickHouse({
   debug: CLICKHOUSE_DEBUG,
   raw: true,
 });
+
+const query = table => `SELECT * FROM ${table}`;
 
 const sendRequest = (url, method='POST', data={}) => {
   return axios({
@@ -88,4 +90,17 @@ Then("a request to fetch data from the cdr should fail", async function () {
   await sendRequest(`http://localhost:3003/fhir/links/Patient/${PatientID}`).catch(err => {
     expect(err.message).to.match(/ECONNREFUSED/);
   });
+});
+
+Then("the data should be stored in clickhouse", async function () {
+  const patient = await clickhouse.query(
+    query("patient_example"),
+  ).toPromise();
+  const observation = await clickhouse.query(
+    query("observation_example")
+  ).toPromise();
+
+
+  expect(JSON.parse(patient).rows).to.be.greaterThan(0);
+  expect(JSON.parse(observation).rows).to.be.greaterThan(0);
 });
