@@ -26,13 +26,13 @@ for package in "${CHANGED_FILES[@]}"; do
 done
 
 if [[ ${#changed_packages[@]} -eq 0 ]] || [[ "${!changed_packages[*]}" == *"utils"* ]]; then
-    cdr_recipe="true"
+    recipe_run="true"
     DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE"
 elif [[ "${!changed_packages[*]}" == *"features/single-mode"* ]] && [[ $NODE_MODE == "single" ]]; then
-    cdr_recipe="true"
+    recipe_run="true"
     DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:single
 elif [[ "${!changed_packages[*]}" == *"features/cluster-mode"* ]] && [[ $NODE_MODE == "cluster" ]]; then
-    cdr_recipe="true"
+    recipe_run="true"
     DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:cluster
 elif [[ "${!changed_packages[*]}" == *"infrastructure"* ]] && [[ $openhimRan == "false" ]]; then
     openhimRan="true"
@@ -72,6 +72,6 @@ else
     done
 
 # Run the basic funtional end to end tests for the CDR recipe
-if [[ $cdr_recipe !== "true" ]]; then
-    DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":cdr
+if [[ $recipe_run !== "true" ]]; then
+    DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":recipe
 fi
