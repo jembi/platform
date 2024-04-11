@@ -11,9 +11,6 @@ cd ../../test/cucumber/ || exit
 # This ensures that the openhim and its mediators' tests are run only once when the openhim and its mediators have all been modified
 openhimRan="false"
 
-# Ensures that the recipe tests are run only once
-recipe_run="false"
-
 declare -A changed_packages
 for package in "${CHANGED_FILES[@]}"; do
     if [[ $package == *"features/cluster-mode"* ]]; then
@@ -29,16 +26,12 @@ for package in "${CHANGED_FILES[@]}"; do
 done
 
 if [[ ${#changed_packages[@]} -eq 0 ]] || [[ "${!changed_packages[*]}" == *"utils"* ]]; then
-    recipe_run="true"
     DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE"
 elif [[ "${!changed_packages[*]}" == *"features/single-mode"* ]] && [[ $NODE_MODE == "single" ]]; then
-    recipe_run="true"
     DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:single
 elif [[ "${!changed_packages[*]}" == *"features/cluster-mode"* ]] && [[ $NODE_MODE == "cluster" ]]; then
-    recipe_run="true"
     DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:cluster
 elif [[ "${!changed_packages[*]}" == *"infrastructure"* ]] && [[ $openhimRan == "false" ]]; then
-    openhimRan="true"
     DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":openhim
 else
     for folder_name in "${!changed_packages[@]}"; do
@@ -76,6 +69,5 @@ else
 fi
 
 # Run the basic funtional end to end tests for the CDR recipe
-if [[ $recipe_run == "false" ]]; then
-    DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":recipe
-fi
+DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":recipe
+
