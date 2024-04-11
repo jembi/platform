@@ -39,7 +39,7 @@ services:
         - prometheus-port=8080
 
   openhim-console:
-    image: jembi/openhim-console:v1.18.2
+    image: ${OPENHIM_CONSOLE_VERSION}
     environment:
       OPENHIM_CORE_MEDIATOR_HOSTNAME: ${OPENHIM_CORE_MEDIATOR_HOSTNAME}
       OPENHIM_MEDIATOR_API_PORT: ${OPENHIM_MEDIATOR_API_PORT}
