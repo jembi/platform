@@ -73,6 +73,7 @@ else
             DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":jempi
         fi
     done
+fi
 
 # Run the basic funtional end to end tests for the CDR recipe
 if [[ $recipe_run == "false" ]]; then
