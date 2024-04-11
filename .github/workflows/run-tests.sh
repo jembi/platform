@@ -11,6 +11,9 @@ cd ../../test/cucumber/ || exit
 # This ensures that the openhim and its mediators' tests are run only once when the openhim and its mediators have all been modified
 openhimRan="false"
 
+# Ensures that the recipe tests are run only once
+recipe_run="false"
+
 declare -A changed_packages
 for package in "${CHANGED_FILES[@]}"; do
     if [[ $package == *"features/cluster-mode"* ]]; then
@@ -72,6 +75,6 @@ else
     done
 
 # Run the basic funtional end to end tests for the CDR recipe
-if [[ $recipe_run !== "true" ]]; then
+if [[ $recipe_run == "false" ]]; then
     DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":recipe
 fi
