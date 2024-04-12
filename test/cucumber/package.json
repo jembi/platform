@@ -6,7 +6,7 @@
     "test:single": "cucumber-js 'features/single-mode/**/*.feature'",
     "test:single:recipe": "cucumber-js 'features/single-mode/recipe.feature'",
     "test:cluster": "cucumber-js 'features/cluster-mode/**/*.feature'",
-    "test:cluser:recipe": "cucumber-js 'features/cluster-mode/recipe.feature'",
+    "test:cluster:recipe": "cucumber-js 'features/cluster-mode/recipe.feature'",
     "test:single:clickhouse": "cucumber-js 'features/single-mode/clickhouse.feature'",
     "test:cluster:clickhouse": "cucumber-js 'features/cluster-mode/clickhouse.cluster.feature'",
     "test:single:elk": "cucumber-js 'features/single-mode/elastic-packages.feature'",
