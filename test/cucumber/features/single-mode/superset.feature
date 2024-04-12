@@ -11,7 +11,7 @@ Feature: Dashboard Visualiser Superset?
     And The service "dashboard-visualiser-superset" should be connected to the networks
       | reverse-proxy_public | clickhouse_public | keycloak_public | superset_default |
     And There should be 2 service
-    And There should be 3 volumes
+    And There should be 2 volumes
 
   Scenario: Destroy Dashboard Visualiser Superset
     Given I use parameters "package destroy -n=dashboard-visualiser-superset --only --dev --env-file=.env.local"
