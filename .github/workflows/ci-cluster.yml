@@ -72,7 +72,7 @@ jobs:
   run-e2e-tests:
     runs-on: ubuntu-20.04
     needs: configure-e2e-server
-    timeout-minutes: 120
+    timeout-minutes: 160
     steps:
       - uses: actions/checkout@v3
         with:
