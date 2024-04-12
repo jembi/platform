@@ -5,6 +5,8 @@ services:
     image: clickhouse/clickhouse-server
     ulimits:
       noFile: 262144
+    environment:
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
     volumes:
       - clickhouse-data:/var/lib/clickhouse/
     configs:

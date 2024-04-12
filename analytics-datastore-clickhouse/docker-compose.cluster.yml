@@ -5,6 +5,8 @@ services:
     image: clickhouse/clickhouse-server
     ulimits:
       noFile: 262144
+    environment:
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
     volumes:
       - clickhouse-data-01:/var/lib/clickhouse/
     hostname: analytics-datastore-clickhouse-01
@@ -44,6 +46,8 @@ services:
           - "node.labels.name==node-2"
     ulimits:
       noFile: 262144
+    environment:
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
     volumes:
       - clickhouse-data-02:/var/lib/clickhouse/
     configs:
@@ -78,6 +82,8 @@ services:
           - "node.labels.name==node-3"
     ulimits:
       noFile: 262144
+    environment:
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
     volumes:
       - clickhouse-data-03:/var/lib/clickhouse/        
     configs:
@@ -108,6 +114,8 @@ services:
     hostname: analytics-datastore-clickhouse-04
     ulimits:
       noFile: 262144
+    environment:
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
     volumes:
       - clickhouse-data-04:/var/lib/clickhouse/        
     configs:
