@@ -9,7 +9,7 @@ const { Given, When, Then, setDefaultTimeout } = require("@cucumber/cucumber");
 setDefaultTimeout(30 * 60 * 1000);
 
 const CLICKHOUSE_HOST =
-  process.env.CLICKHOUSE_HOST || 'localhost';
+  process.env.CLICKHOUSE_HOST || '0.0.0.0';
 const CLICKHOUSE_PORT = parseInt(process.env.CLICKHOUSE_PORT || '8124');
 const CLICKHOUSE_DEBUG = Boolean(process.env.CLICKHOUSE_DEBUG || false);
 
@@ -43,7 +43,7 @@ Given("I have configured the cdr", async function () {
     fs.readFileSync(path.resolve(__dirname, '..' , 'resources', 'organization.json'))
   );
 
-  this.cdrConfigResult = await sendRequest('http://localhost:5001/fhir', 'POST', organization);
+  this.cdrConfigResult = await sendRequest('http://0.0.0.0:5001/fhir', 'POST', organization);
 });
 
 When("I send a fhir patient bundle", async function () {
@@ -51,15 +51,15 @@ When("I send a fhir patient bundle", async function () {
     fs.readFileSync(path.resolve(__dirname, '..' , 'resources', 'fhirBundle.json'))
   );
 
-  this.fhirBundleSentResult = await sendRequest('http://localhost:5001/fhir', 'POST', fhirBundle);
+  this.fhirBundleSentResult = await sendRequest('http://0.0.0.0:5001/fhir', 'POST', fhirBundle);
 });
 
 When("I then send a fhir patient summary request", async function () {
-  this.IPSResult = await sendRequest(`http://localhost:5001/fhir/Patient/${PatientID}/$summary`, 'GET');
+  this.IPSResult = await sendRequest(`http://0.0.0.0:5001/fhir/Patient/${PatientID}/$summary`, 'GET');
 });
 
 When("I then send a request for all the patient's clinical data", async function () {
-  this.EverythingResult = await sendRequest(`http://localhost:5001/fhir/Patient/${PatientID}/$everything`, 'GET');
+  this.EverythingResult = await sendRequest(`http://0.0.0.0:5001/fhir/Patient/${PatientID}/$everything`, 'GET');
 });
 
 Then("the clinical data should be stored in hapi fhir", async function () {
@@ -73,7 +73,7 @@ Then("the patient data in the Jempi client registry", async function () {
 
   PatientID = patientResource.response.location.split('/')[1];
 
-  const patient = await sendRequest(`http://localhost:3003/fhir/links/Patient/${PatientID}`, 'GET');
+  const patient = await sendRequest(`http://0.0.0.0:3003/fhir/links/Patient/${PatientID}`, 'GET');
 
   expect(patient.data.link.filter(pat => pat.other.reference.match(`Patient/${PatientID}`)).length).to.equal(1);
 });
@@ -87,7 +87,7 @@ Then("I should get a successful everything response", function () {
 });
 
 Then("a request to fetch data from the cdr should fail", async function () {
-  await sendRequest(`http://localhost:3003/fhir/links/Patient/${PatientID}`).catch(err => {
+  await sendRequest(`http://0.0.0.0:3003/fhir/links/Patient/${PatientID}`).catch(err => {
     expect(err.message).to.match(/ECONNREFUSED/);
   });
 });
