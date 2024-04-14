@@ -43,7 +43,7 @@ Given("I have configured the cdr", async function () {
     fs.readFileSync(path.resolve(__dirname, '..' , 'resources', 'organization.json'))
   );
 
-  this.cdrConfigResult = await sendRequest(`http://${HOST}/fhir`, 'POST', organization);
+  this.cdrConfigResult = await sendRequest(`http://${HOST}:5001/fhir`, 'POST', organization);
 });
 
 When("I send a fhir patient bundle", async function () {
@@ -51,15 +51,15 @@ When("I send a fhir patient bundle", async function () {
     fs.readFileSync(path.resolve(__dirname, '..' , 'resources', 'fhirBundle.json'))
   );
 
-  this.fhirBundleSentResult = await sendRequest(`http://${HOST}/fhir`, 'POST', fhirBundle);
+  this.fhirBundleSentResult = await sendRequest(`http://${HOST}:5001/fhir`, 'POST', fhirBundle);
 });
 
 When("I then send a fhir patient summary request", async function () {
-  this.IPSResult = await sendRequest(`http://${HOST}/fhir/Patient/${PatientID}/$summary`, 'GET');
+  this.IPSResult = await sendRequest(`http://${HOST}:5001/fhir/Patient/${PatientID}/$summary`, 'GET');
 });
 
 When("I then send a request for all the patient's clinical data", async function () {
-  this.EverythingResult = await sendRequest(`http://${HOST}/fhir/Patient/${PatientID}/$everything`, 'GET');
+  this.EverythingResult = await sendRequest(`http://${HOST}:5001/fhir/Patient/${PatientID}/$everything`, 'GET');
 });
 
 Then("the clinical data should be stored in hapi fhir", async function () {
