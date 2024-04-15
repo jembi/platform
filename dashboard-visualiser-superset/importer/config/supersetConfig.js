@@ -83,7 +83,7 @@ const importZipConfig = async (accessToken) => {
 const replaceClickhouseConnectionString = async (accessToken) => {
   const CLICKHOUSE_HOST = process.env.CLICKHOUSE_HOST || 'analytics-datastore-clickhouse';
   const CLICKHOUSE_PORT = process.env.CLICKHOUSE_PORT || '8123';
-  const CLIKCHOUSE_PASSWORD = process.env.CLIKCHOUSE_PASSWORD || 'dev_password_only';
+  const CLICKHOUSE_PASSWORD = process.env.CLICKHOUSE_PASSWORD || 'dev_password_only';
 
   const databaseConfig = {
 
@@ -98,7 +98,7 @@ const replaceClickhouseConnectionString = async (accessToken) => {
     driver: "connect",
     engine: "clickhousedb",
     expose_in_sqllab: true,
-    sqlalchemy_uri: `clickhousedb+connect://default:${CLIKCHOUSE_PASSWORD}@${CLICKHOUSE_HOST}:${CLICKHOUSE_PORT}/default`,
+    sqlalchemy_uri: `clickhousedb+connect://default:${CLICKHOUSE_PASSWORD}@${CLICKHOUSE_HOST}:${CLICKHOUSE_PORT}/default`,
     uuid: "868ecd6d-f099-46ab-a100-dd91173bc63f"
   };
 

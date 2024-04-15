@@ -15,7 +15,7 @@ services:
       SUPERSET_SSL: ${SUPERSET_SSL}
       CLICKHOUSE_HOST: ${CLICKHOUSE_HOST}
       CLICKHOUSE_PORT: ${CLICKHOUSE_PORT}
-      CLIKCHOUSE_PASSWORD: ${CLIKCHOUSE_PASSWORD}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
     configs:
       - source: config-importer-supersetConfig.js
         target: /supersetConfig.js
