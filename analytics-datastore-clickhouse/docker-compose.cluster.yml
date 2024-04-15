@@ -35,6 +35,7 @@ services:
         source: clickhouse_trace_log.xml
     networks:
       public:
+      reverse-proxy:
       default:
 
   analytics-datastore-clickhouse-02:
@@ -220,5 +221,8 @@ configs:
 networks:
   public:
     name: clickhouse_public
+    external: true
+  reverse-proxy:
+    name: reverse-proxy_public
     external: true
   default:
