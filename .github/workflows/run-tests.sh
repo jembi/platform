@@ -64,4 +64,4 @@ else
 fi
 
 # Run the basic funtional end to end tests for the CDR recipe
-DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud HOST=0.0.0.0 yarn test:"$NODE_MODE":recipe
+DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud HOST=$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":recipe
