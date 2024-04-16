@@ -1,8 +1,8 @@
-version: '3.9'
+version: "3.9"
 
 services:
   dashboard-visualiser-kibana:
-    image: docker.elastic.co/kibana/kibana:7.13.0
+    image: ${KIBANA_IMAGE}
     healthcheck:
       test: curl --fail http://localhost:5601 || exit 1
       interval: 10s
@@ -33,7 +33,7 @@ configs:
   kibana-kibana-cluster.yml:
     file: ./kibana.cluster.yml
     name: kibana-kibana-cluster.yml-${kibana_kibana_cluster_yml_DIGEST:?err}
-    labels: 
+    labels:
       name: kibana
 
 networks:
