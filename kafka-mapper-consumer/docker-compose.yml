@@ -21,6 +21,11 @@ services:
     networks:
       clickhouse:
       kafka:
+      
+  kafka-mapper-consumer-ui:
+    image: jembi/kafka-mapper-consumer-ui:0.1.0-alpha
+    networks:
+      kafka:
 
 configs:
   fhir-mapping.json:
