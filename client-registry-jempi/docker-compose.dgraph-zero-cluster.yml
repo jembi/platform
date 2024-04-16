@@ -5,7 +5,7 @@ services:
     deploy:
       placement:
         constraints:
-          - node.labels.name == node-1
+          - node.labels.name == ${JEMPI_ZERO_01_PLACEMENT}
     command: dgraph zero --my=jempi-zero-01:5080 --replicas 3 --bindall --raft "idx=1"
 
   jempi-zero-02:
@@ -16,7 +16,7 @@ services:
       replicas: 1
       placement:
         constraints:
-          - node.labels.name == node-2
+          - node.labels.name == ${JEPMI_ZERO_02_PLACEMENT}
       resources:
         limits:
           memory: ${JEMPI_ZERO_MEMORY_LIMIT}
@@ -34,7 +34,7 @@ services:
       replicas: 1
       placement:
         constraints:
-          - node.labels.name == node-3
+          - node.labels.name == ${JEMPI_ZERO_03_PLACEMENT}
       resources:
         limits:
           memory: ${JEMPI_ZERO_MEMORY_LIMIT}
