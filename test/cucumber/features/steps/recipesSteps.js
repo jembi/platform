@@ -6,6 +6,7 @@ const path = require('path');
 const chai = require("chai");
 const { ClickHouse } = require('clickhouse');
 const { Given, When, Then, setDefaultTimeout } = require("@cucumber/cucumber");
+const { Console } = require("console");
 setDefaultTimeout(30 * 60 * 1000);
 
 const HOST =
@@ -100,7 +101,8 @@ Then("the data should be stored in clickhouse", async function () {
     query("observation_example")
   ).toPromise();
 
-
+  console.log(patient)
+  console.log(observation)
   expect(JSON.parse(patient).rows).to.be.greaterThan(0);
   expect(JSON.parse(observation).rows).to.be.greaterThan(0);
 });
