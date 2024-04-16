@@ -5,7 +5,7 @@ services:
     deploy:
       placement:
         constraints:
-          - "node.labels.name==node-1"
+          - "node.labels.name==${PSQL_1_PLACEMENT}"
 
   santempi-psql-2:
     image: ${SANTEMPI_PSQL_IMAGE}
@@ -24,7 +24,7 @@ services:
       replicas: 1
       placement:
         constraints:
-          - "node.labels.name==node-2"
+          - "node.labels.name==${PSQL_2_PLACEMENT}"
 
   santempi-psql-3:
     image: ${SANTEMPI_PSQL_IMAGE}
@@ -43,7 +43,7 @@ services:
       replicas: 1
       placement:
         constraints:
-          - "node.labels.name==node-3"
+          - "node.labels.name==${PSQL_3_PLACEMENT}"
 
 volumes:
   santempi-psql-2-data:
