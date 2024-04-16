@@ -1,16 +1,16 @@
-version: '3.9'
+version: "3.9"
 
 services:
   analytics-datastore-clickhouse-01:
-    image: clickhouse/clickhouse-server
+    image: ${CLICKHOUSE_IMAGE}
     ulimits:
       noFile: 262144
     volumes:
       - clickhouse-data-01:/var/lib/clickhouse/
     hostname: analytics-datastore-clickhouse-01
-    deploy: 
-      placement: 
-        constraints: 
+    deploy:
+      placement:
+        constraints:
           - "node.labels.name==node-1"
     configs:
       - target: /etc/clickhouse-server/config.d/docker_related_config.xml
@@ -36,11 +36,11 @@ services:
       default:
 
   analytics-datastore-clickhouse-02:
-    image: clickhouse/clickhouse-server
+    image: ${CLICKHOUSE_IMAGE}
     hostname: analytics-datastore-clickhouse-02
-    deploy: 
-      placement: 
-        constraints: 
+    deploy:
+      placement:
+        constraints:
           - "node.labels.name==node-2"
     ulimits:
       noFile: 262144
@@ -70,16 +70,16 @@ services:
       default:
 
   analytics-datastore-clickhouse-03:
-    image: clickhouse/clickhouse-server
+    image: ${CLICKHOUSE_IMAGE}
     hostname: analytics-datastore-clickhouse-03
-    deploy: 
-      placement: 
-        constraints: 
+    deploy:
+      placement:
+        constraints:
           - "node.labels.name==node-3"
     ulimits:
       noFile: 262144
     volumes:
-      - clickhouse-data-03:/var/lib/clickhouse/        
+      - clickhouse-data-03:/var/lib/clickhouse/
     configs:
       - target: /etc/clickhouse-server/config.d/docker_related_config.xml
         source: docker_related_config.xml
@@ -109,7 +109,7 @@ services:
     ulimits:
       noFile: 262144
     volumes:
-      - clickhouse-data-04:/var/lib/clickhouse/        
+      - clickhouse-data-04:/var/lib/clickhouse/
     configs:
       - target: /etc/clickhouse-server/config.d/docker_related_config.xml
         source: docker_related_config.xml
@@ -136,77 +136,77 @@ volumes:
   clickhouse-data-02:
   clickhouse-data-03:
   clickhouse-data-04:
-  
+
 configs:
   docker_related_config.xml:
     file: ./cluster_configs/docker_related_config.xml
     name: docker_related_config.xml-${docker_related_config_xml_DIGEST:?err}
-    labels: 
+    labels:
       name: clickhouse
   clickhouse_enable_keeper_01.xml:
     file: ./cluster_configs/enable_keeper_01.xml
     name: enable_keeper_01.xml-${enable_keeper_01_xml_DIGEST:?err}
-    labels: 
+    labels:
       name: clickhouse
   clickhouse_enable_keeper_02.xml:
     file: ./cluster_configs/enable_keeper_02.xml
     name: enable_keeper_02.xml-${enable_keeper_02_xml_DIGEST:?err}
-    labels: 
+    labels:
       name: clickhouse
   clickhouse_enable_keeper_03.xml:
     file: ./cluster_configs/enable_keeper_03.xml
     name: enable_keeper_03.xml-${enable_keeper_03_xml_DIGEST:?err}
-    labels: 
+    labels:
       name: clickhouse
   clickhouse_macros_01.xml:
     file: ./cluster_configs/macros_01.xml
     name: macros_01.xml-${macros_01_xml_DIGEST:?err}
-    labels: 
+    labels:
       name: clickhouse
   clickhouse_macros_02.xml:
     file: ./cluster_configs/macros_02.xml
     name: macros_02.xml-${macros_02_xml_DIGEST:?err}
-    labels: 
+    labels:
       name: clickhouse
   clickhouse_macros_03.xml:
     file: ./cluster_configs/macros_03.xml
     name: macros_03.xml-${macros_03_xml_DIGEST:?err}
-    labels: 
+    labels:
       name: clickhouse
   clickhouse_macros_04.xml:
     file: ./cluster_configs/macros_04.xml
     name: macros_04.xml-${macros_04_xml_DIGEST:?err}
-    labels: 
+    labels:
       name: clickhouse
   clickhouse_remote_servers.xml:
     file: ./cluster_configs/remote_servers.xml
     name: remote_servers.xml-${remote_servers_xml_DIGEST:?err}
-    labels: 
+    labels:
       name: clickhouse
   clickhouse_use_keeper.xml:
     file: ./cluster_configs/use_keeper.xml
     name: use_keeper.xml-${use_keeper_xml_DIGEST:?err}
-    labels: 
+    labels:
       name: clickhouse
   clickhouse_metric_log.xml:
     file: ./general_configs/metric_log.xml
     name: metric_log.xml.xml-${metric_log_xml_DIGEST:?err}
-    labels: 
+    labels:
       name: clickhouse
   clickhouse_part_log.xml:
     file: ./general_configs/part_log.xml
     name: part_log.xml.xml-${part_log_xml_DIGEST:?err}
-    labels: 
+    labels:
       name: clickhouse
   clickhouse_query_log.xml:
     file: ./general_configs/query_log.xml
     name: query_log.xml.xml-${query_log_xml_DIGEST:?err}
-    labels: 
+    labels:
       name: clickhouse
   clickhouse_trace_log.xml:
     file: ./general_configs/trace_log.xml
     name: trace_log.xml.xml-${trace_log_xml_DIGEST:?err}
-    labels: 
+    labels:
       name: clickhouse
 
 networks:
