@@ -73,7 +73,7 @@ Then("the patient data in the Jempi client registry", async function () {
 
   PatientID = patientResource.response.location.split('/')[1];
 
-  const patient = await sendRequest(`http://${HOST}:3003/fhir/links/Patient/${PatientID}`, 'GET');
+  const patient = await sendRequest(`http://${HOST}:5001/fhir/links/Patient/${PatientID}`, 'GET');
 
   expect(patient.data.link.filter(pat => pat.other.reference.match(`Patient/${PatientID}`)).length).to.equal(1);
 });
