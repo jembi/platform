@@ -1,8 +1,8 @@
-version: '3.9'
+version: "3.9"
 
 services:
   santedb-mpi:
-    image: santesuite/santedb-mpi:2.2.3
+    image: ${SANTEMPI_IMAGE}
     networks:
       mpi:
       public:
@@ -26,7 +26,7 @@ services:
       - santedb-data:/santedb
 
   santedb-www:
-    image: santesuite/santedb-www:2.2.1.10
+    image: ${SANTEDB_WWW_IMAGE}
     networks:
       default:
       reverse-proxy:

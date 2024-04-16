@@ -11,6 +11,9 @@
     "SANTEMPI_POSTGRESQL_PASSWORD": "SanteDB123",
     "SANTEMPI_POSTGRESQL_USERNAME": "santedb",
     "SANTEMPI_REPMGR_PRIMARY_HOST": "santempi-psql-1",
-    "SANTEMPI_REPMGR_PARTNER_NODES": "santempi-psql-1"
+    "SANTEMPI_REPMGR_PARTNER_NODES": "santempi-psql-1",
+    "SANTEMPI_IMAGE": "santesuite/santedb-mpi:2.2.3",
+    "SANTEDB_WWW_IMAGE": "santesuite/santedb-www:2.2.1.10",
+    "SANTEMPI_PSQL_IMAGE": "bitnami/postgresql-repmgr:14"
   }
 }
