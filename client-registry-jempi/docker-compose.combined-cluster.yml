@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   jempi-postgresql-01:
@@ -6,9 +6,9 @@ services:
       placement:
         constraints:
           - "node.labels.name==node-1"
-  
+
   jempi-postgresql-02:
-    image: bitnami/postgresql-repmgr:15.2.0
+    image: ${JEMPI_POSTGRESQL_IMAGE}
     environment:
       POSTGRESQL_USERNAME: ${POSTGRESQL_USERNAME}
       POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
@@ -38,7 +38,7 @@ services:
         source: jempi_psql_init_db.sql
 
   jempi-postgresql-03:
-    image: bitnami/postgresql-repmgr:15.2.0
+    image: ${JEMPI_POSTGRESQL_IMAGE}
     environment:
       POSTGRESQL_USERNAME: ${POSTGRESQL_USERNAME}
       POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}

@@ -1,8 +1,8 @@
-version: '3.9'
+version: "3.9"
 
 services:
   jempi-alpha-01:
-    image: dgraph/dgraph:v22.0.0
+    image: ${JEMPI_ZERO_IMAGE}
     hostname: alpha-01
     volumes:
       - jempi-alpha-01-data:/dgraph
@@ -18,7 +18,7 @@ services:
     command: dgraph alpha --my=jempi-alpha-01:7080 --zero=jempi-zero-01:5080 --security whitelist=0.0.0.0/0 --telemetry "sentry=false;"
 
   jempi-alpha-02:
-    image: dgraph/dgraph:v22.0.0
+    image: ${JEMPI_ZERO_IMAGE}
     hostname: alpha-02
     volumes:
       - jempi-alpha-02-data:/dgraph
@@ -34,7 +34,7 @@ services:
     command: dgraph alpha --my=jempi-alpha-02:7081 --zero=jempi-zero-01:5080 --security whitelist=0.0.0.0/0 -o 1 --telemetry "sentry=false;"
 
   jempi-alpha-03:
-    image: dgraph/dgraph:v22.0.0
+    image: ${JEMPI_ZERO_IMAGE}
     hostname: alpha-03
     volumes:
       - jempi-alpha-03-data:/dgraph

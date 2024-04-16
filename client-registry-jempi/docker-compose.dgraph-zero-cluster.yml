@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   jempi-zero-01:
@@ -7,9 +7,9 @@ services:
         constraints:
           - node.labels.name == node-1
     command: dgraph zero --my=jempi-zero-01:5080 --replicas 3 --bindall --raft "idx=1"
-  
+
   jempi-zero-02:
-    image: dgraph/dgraph:v22.0.0
+    image: ${JEMPI_ZERO_IMAGE}
     volumes:
       - jempi-zero-02-data:/dgraph
     deploy:
@@ -27,7 +27,7 @@ services:
     command: dgraph zero --my=jempi-zero-02:5080 --replicas 3 --peer=jempi-zero-01:5080 --raft "idx=2"
 
   jempi-zero-03:
-    image: dgraph/dgraph:v22.0.0
+    image: ${JEMPI_ZERO_IMAGE}
     volumes:
       - jempi-zero-03-data:/dgraph
     deploy:
