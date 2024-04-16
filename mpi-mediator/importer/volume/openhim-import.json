@@ -252,9 +252,10 @@
       "autoRetryEnabled": false,
       "autoRetryPeriodMinutes": 60,
       "updatedBy": {
-        "id": "661e1f5400aefa5bfd3ea14d",
+        "id": "661e3c1206d33f9dfbcb3094",
         "name": "test test"
-      }
+      },
+      "priority": 1
     }
   ],
   "Mediators": [
