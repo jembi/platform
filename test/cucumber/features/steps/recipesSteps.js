@@ -87,8 +87,8 @@ Then("I should get a successful everything response", function () {
 });
 
 Then("a request to fetch data from the cdr should fail", async function () {
-  await sendRequest(`http://${HOST}:3003/fhir/links/Patient/${PatientID}`).catch(err => {
-    expect(err.message).to.match(/ECONNREFUSED/);
+  await sendRequest(`http://${HOST}:5001/fhir/links/Patient/${PatientID}`).catch(err => {
+    expect(err.message).to.match(/ECONNREFUSED|socket hang up/);
   });
 });
 
