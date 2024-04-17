@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   postgres-1:
@@ -7,10 +7,10 @@ services:
     deploy:
       placement:
         constraints:
-          - "node.labels.name==node-1"
+          - "node.labels.name==${POSTGRES_1_PLACEMENT}"
 
   postgres-2:
-    image: bitnami/postgresql-repmgr:14
+    image: ${POSTGRES_IMAGE}
     environment:
       POSTGRESQL_PASSWORD: ${HF_POSTGRESQL_PASSWORD}
       POSTGRESQL_USERNAME: ${HF_POSTGRESQL_USERNAME}
@@ -25,15 +25,15 @@ services:
       REPMGR_FAILOVER: ${HF_POSTGRES_FAILOVER}
       REPMGR_DEGRADED_MONITORING_TIMEOUT: ${HF_POSTGRES_DEGRADED_MONITORING_TIMEOUT}
     volumes:
-      - 'hapi-postgres-2-data:/bitnami/postgresql'
+      - "hapi-postgres-2-data:/bitnami/postgresql"
     configs:
       - target: /bitnami/postgresql/conf/conf.d/custom_postgresql.conf
         source: postgresql.conf
     deploy:
       placement:
         constraints:
-          - "node.labels.name==node-2"
-      replicas: 1
+          - "node.labels.name==${POSTGRES_2_PLACEMENT}"
+      replicas: ${POSTGRES_REPLICAS}
       resources:
         limits:
           cpus: ${HF_POSTGRES_CPU_LIMIT}
@@ -46,7 +46,7 @@ services:
       pg_backup_net:
 
   postgres-3:
-    image: bitnami/postgresql-repmgr:14
+    image: ${POSTGRES_IMAGE}
     environment:
       POSTGRESQL_PASSWORD: ${HF_POSTGRESQL_PASSWORD}
       POSTGRESQL_USERNAME: ${HF_POSTGRESQL_USERNAME}
@@ -61,15 +61,15 @@ services:
       REPMGR_FAILOVER: ${HF_POSTGRES_FAILOVER}
       REPMGR_DEGRADED_MONITORING_TIMEOUT: ${HF_POSTGRES_DEGRADED_MONITORING_TIMEOUT}
     volumes:
-      - 'hapi-postgres-3-data:/bitnami/postgresql'
+      - "hapi-postgres-3-data:/bitnami/postgresql"
     configs:
       - target: /bitnami/postgresql/conf/conf.d/custom_postgresql.conf
         source: postgresql.conf
     deploy:
       placement:
         constraints:
-          - "node.labels.name==node-3"
-      replicas: 1
+          - "node.labels.name==${POSTGRES_3_PLACEMENT}"
+      replicas: ${POSTGRES_REPLICAS}
       resources:
         limits:
           cpus: ${HF_POSTGRES_CPU_LIMIT}

@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   postgres-1:
-    image: bitnami/postgresql-repmgr:14
+    image: ${POSTGRES_IMAGE}
     environment:
       POSTGRESQL_PASSWORD: ${HF_POSTGRESQL_PASSWORD}
       POSTGRESQL_USERNAME: ${HF_POSTGRESQL_USERNAME}
@@ -22,7 +22,7 @@ services:
       - target: /bitnami/postgresql/conf/conf.d/custom_postgresql.conf
         source: postgresql.conf
     deploy:
-      replicas: 1
+      replicas: ${POSTGRES_REPLICAS}
       resources:
         limits:
           cpus: ${HF_POSTGRES_CPU_LIMIT}
