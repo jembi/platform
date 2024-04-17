@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   keycloak-postgres-1:
-    image: bitnami/postgresql-repmgr:14
+    image: ${POSTGRES_IMAGE}
     environment:
       POSTGRESQL_PASSWORD: ${KC_POSTGRESQL_PASSWORD}
       POSTGRESQL_USERNAME: ${KC_POSTGRESQL_USERNAME}
@@ -17,7 +17,7 @@ services:
     volumes:
       - "keycloak-postgres-1-data:/bitnami/postgresql"
     deploy:
-      replicas: 1
+      replicas: ${POSTGRES_REPLICAS}
       resources:
         limits:
           cpus: ${KC_POSTGRES_CPU_LIMIT}
