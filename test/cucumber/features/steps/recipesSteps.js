@@ -39,6 +39,9 @@ const sendRequest = (url, method='POST', data={}) => {
 let PatientID;
 
 Given("I have configured the cdr", async function () {
+  await new Promise((resolve) => {
+    setTimeout(() => resolve(), 3000000)
+  });
   const organization = JSON.parse(
     fs.readFileSync(path.resolve(__dirname, '..' , 'resources', 'organization.json'))
   );
