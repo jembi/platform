@@ -1,8 +1,8 @@
-version: '3.9'
+version: "3.9"
 
 services:
   kafka-unbundler-consumer:
-    image: jembi/kafka-unbundler-consumer:0.0.3
+    image: ${KAFKA_UNBUNDLER_CONSUMER_IMAGE}
     environment:
       KAFKA_HOST: ${KAFKA_HOST}
       KAFKA_PORT: ${KAFKA_PORT}
