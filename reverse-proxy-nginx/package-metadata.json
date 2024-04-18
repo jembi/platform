@@ -6,6 +6,8 @@
   "version": "0.0.1",
   "dependencies": [],
   "environmentVariables": {
+    "REVERSE_PROXY_NGINX_IMAGE": "nginx:stable",
+    "REVERSE_PROXY_NGINX_MAX_REPLICAS_PER_NODE": 1,
     "REVERSE_PROXY_INSTANCES": "1",
     "NGINX_CPU_LIMIT": "0",
     "NGINX_CPU_RESERVE": "0.05",

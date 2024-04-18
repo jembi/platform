@@ -1,15 +1,15 @@
-version: '3.9'
+version: "3.9"
 
 services:
   # Proxies requests to internal services
   reverse-proxy-nginx:
-    image: nginx:stable
+    image: ${REVERSE_PROXY_NGINX_IMAGE}
     networks:
       public:
     deploy:
       replicas: ${REVERSE_PROXY_INSTANCES}
       placement:
-        max_replicas_per_node: 1
+        max_replicas_per_node: ${REVERSE_PROXY_NGINX_MAX_REPLICAS_PER_NODE}
       resources:
         limits:
           cpus: ${NGINX_CPU_LIMIT}
