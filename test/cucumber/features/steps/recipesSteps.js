@@ -65,6 +65,12 @@ When("I then send a request for all the patient's clinical data", async function
   this.EverythingResult = await sendRequest(`http://${HOST}:5001/fhir/Patient/${PatientID}/$everything?_mdm=true`, 'GET');
 });
 
+When("I wait for the services to start up", async function() {
+  await new Promise((resolve) => {
+    setTimeout(() => resolve(), 600000);
+  });
+});
+
 Then("the clinical data should be stored in hapi fhir", async function () {
   this.fhirBundleSentResult.data.entry.forEach(rec => {
     expect(rec.response.status).to.match(/201|200/);
