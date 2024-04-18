@@ -40,6 +40,7 @@ Scenario: Bring up the servers and test
     And The service "openhim-console" should be started with 3 replica
     And The service "postgres-1" should be started with 1 replica
     And The service "hapi-fhir" should be started with 3 replica
+    And I wait for the services to start up
     When I then send a request for all the patient's clinical data
     Then I should get a successful everything response
     And the data should be stored in clickhouse
