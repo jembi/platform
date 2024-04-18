@@ -1,9 +1,9 @@
-version: '3.9'
+version: "3.9"
 
 services:
   # container for executing config import scripts for creating the OpenHIM channels used by the Mediator
   mpi-mediator-config-importer:
-    image: node:erbium-alpine
+    image: ${MPI_MEDIATOR_CONFIG_IMPORTER_IMAGE}
     networks:
       openhim:
       default:
@@ -19,7 +19,7 @@ services:
       - source: mpi-mediator-config-importer-openhim-import.json
         target: /openhim-import.json
     deploy:
-      replicas: 1
+      replicas: ${MPI_MEDIATOR_CONFIG_IMPORTER_REPLICAS}
       restart_policy:
         condition: none
 
