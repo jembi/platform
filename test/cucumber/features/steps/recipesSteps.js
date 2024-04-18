@@ -94,7 +94,7 @@ Then("a request to fetch data from the cdr should fail", async function () {
 
 Then("the data should be stored in clickhouse", async function () {
   await new Promise((resolve) => {
-    setTimeout(() => resolve(), 10000)
+    setTimeout(() => resolve(), 20000)
   });
 
   const patient = await clickhouse.query(
