@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   hapi-fhir:
@@ -12,7 +12,7 @@ services:
       - spring.datasource.username=${HF_POSTGRESQL_USERNAME}
       - spring.datasource.password=${HF_POSTGRESQL_PASSWORD}
       - spring.datasource.driverClassName=org.postgresql.Driver
-      - spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQL95Dialect
+      - spring.jpa.properties.hibernate.dialect=ca.uhn.fhir.jpa.model.dialect.HapiFhirPostgres94Dialect
       - spring.datasource.hikari.maximumPoolSize=${HF_MAX_POOL_SIZE}
       - spring.datasource.hikari.minimumIdle=20
       - spring.datasource.hikari.connectionTimeout=60000
@@ -37,7 +37,7 @@ services:
           cpus: ${HAPI_FHIR_CPU_RESERVE}
           memory: ${HAPI_FHIR_MEMORY_RESERVE}
     healthcheck:
-      test: /bin/wget --no-verbose --tries=1 --spider http://localhost:8080/fhir/Organization?identifier=urn:healthcheck
+      test: /bin/wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health
       interval: 30s
       timeout: 5s
       retries: 5
