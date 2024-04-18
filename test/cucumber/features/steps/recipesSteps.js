@@ -6,7 +6,6 @@ const path = require('path');
 const chai = require("chai");
 const { ClickHouse } = require('clickhouse');
 const { Given, When, Then, setDefaultTimeout } = require("@cucumber/cucumber");
-const { Console } = require("console");
 setDefaultTimeout(30 * 60 * 1000);
 
 const HOST =
@@ -60,7 +59,7 @@ When("I then send a fhir patient summary request", async function () {
 });
 
 When("I then send a request for all the patient's clinical data", async function () {
-  this.EverythingResult = await sendRequest(`http://${HOST}:5001/fhir/Patient/${PatientID}/$everything`, 'GET');
+  this.EverythingResult = await sendRequest(`http://${HOST}:5001/fhir/Patient/${PatientID}/$everything?_mdm=true`, 'GET');
 });
 
 Then("the clinical data should be stored in hapi fhir", async function () {
@@ -94,6 +93,10 @@ Then("a request to fetch data from the cdr should fail", async function () {
 });
 
 Then("the data should be stored in clickhouse", async function () {
+  await new Promise((resolve) => {
+    setTimeout(() => resolve(), 10000)
+  });
+
   const patient = await clickhouse.query(
     query("patient_example"),
   ).toPromise();
