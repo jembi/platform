@@ -1,8 +1,8 @@
-version: '3.9'
+version: "3.9"
 
 services:
   grafana:
-    image: grafana/grafana-oss:9.2.3
+    image: ${GRAFANA_IMAGE}
     volumes:
       - grafana-data:/var/lib/grafana
     environment:
@@ -71,11 +71,11 @@ services:
       - target: /etc/prometheus/prometheus.yml
         source: prometheus.yml
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--web.enable-lifecycle'
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/etc/prometheus/console_libraries"
+      - "--web.console.templates=/etc/prometheus/consoles"
+      - "--web.enable-lifecycle"
     networks:
       public:
       default:
@@ -96,14 +96,14 @@ services:
     image: quay.io/prometheus/node-exporter:v1.3.1
     hostname: "{{.Node.ID}}"
     command:
-      - '--path.rootfs=/host'
+      - "--path.rootfs=/host"
     volumes:
-      - '/:/host:ro,rslave'
+      - "/:/host:ro,rslave"
     deploy:
       mode: global
 
   loki:
-    image: grafana/loki:2.6.1
+    image: ${LOKI_IMAGE}
     volumes:
       - loki-data:/tmp/loki
     environment:
@@ -119,7 +119,7 @@ services:
         - prometheus-address=loki:3100
 
   promtail:
-    image: grafana/promtail:2.6.1
+    image: ${PROMTAIL_IMAGE}
     volumes:
       - /var/lib/docker/containers:/host/containers
       - /var/log:/var/log:ro
@@ -138,13 +138,7 @@ services:
       MINIO_ROOT_USER: ${MO_SECURITY_ADMIN_USER}
       MINIO_ROOT_PASSWORD: ${MO_SECURITY_ADMIN_PASSWORD}
     healthcheck:
-      test:
-        [
-          "CMD",
-          "curl",
-          "-f",
-          "http://localhost:9000/minio/health/live"
-        ]
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
       timeout: 20s
       retries: 3
