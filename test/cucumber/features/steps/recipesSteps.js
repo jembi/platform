@@ -63,11 +63,13 @@ When("I then send a fhir patient summary request", async function () {
 
 When("I then send a request for all the patient's clinical data", async function () {
   this.EverythingResult = await sendRequest(`http://${HOST}:5001/fhir/Patient/${PatientID}/$everything?_mdm=true`, 'GET');
+  console.log(this.EverythingResult);
+  console.log(this.EverythingResult.data)
 });
 
 When("I wait for the services to start up", async function() {
   await new Promise((resolve) => {
-    setTimeout(() => resolve(), 600000);
+    setTimeout(() => resolve(), 300000);
   });
 });
 
