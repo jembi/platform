@@ -37,6 +37,13 @@ resource "aws_security_group" "docker_swarm_sg" {
       "0.0.0.0/0"]
   }
   ingress {
+    from_port = 3033
+    to_port = 3033
+    protocol = "tcp"
+    cidr_blocks = [
+      "0.0.0.0/0"]
+  }
+  ingress {
     from_port = 3447
     to_port = 3447
     protocol = "tcp"
