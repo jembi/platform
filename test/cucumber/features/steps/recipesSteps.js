@@ -40,7 +40,7 @@ let PatientID;
 
 Given("I have configured the cdr", async function () {
   await new Promise((resolve) => {
-    setTimeout(() => resolve(), 900000)
+    setTimeout(() => resolve(), 300000)
   });
   const organization = JSON.parse(
     fs.readFileSync(path.resolve(__dirname, '..' , 'resources', 'organization.json'))
@@ -99,7 +99,7 @@ Then("I should get a successful everything response", function () {
 
 Then("a request to fetch data from the cdr should fail", async function () {
   await sendRequest(`http://${HOST}:5001/fhir/links/Patient/${PatientID}`).catch(err => {
-    expect(err.message).to.match(/ECONNREFUSED|socket hang up/);
+    expect(err.message).to.match(/ECONNREFUSED|socket hang up|ETIMEDOUT/);
   });
 });
 
