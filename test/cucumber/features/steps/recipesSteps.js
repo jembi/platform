@@ -69,7 +69,7 @@ When("I then send a request for all the patient's clinical data", async function
 
 When("I wait for the services to start up", async function() {
   await new Promise((resolve) => {
-    setTimeout(() => resolve(), 300000);
+    setTimeout(() => resolve(), 1500000);
   });
 });
 
