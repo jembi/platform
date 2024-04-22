@@ -36,6 +36,7 @@ jobs:
         shell: bash
         env:
           SSH_KEY: ${{ secrets.DEPLOY_KEY_PUB }}
+      - run: cp ./testsSecurity.tf ./security.tf
       - run: terraform init
       - run: terraform apply -auto-approve
       - name: Upload terraform state
