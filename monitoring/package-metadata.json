@@ -21,6 +21,7 @@
     "KC_GRAFANA_ROOT_URL": "http://localhost:3000",
     "GF_SERVER_DOMAIN": "localhost",
     "MO_SECURITY_ADMIN_USER": "admin",
-    "MO_SECURITY_ADMIN_PASSWORD": "dev_password_only"
+    "MO_SECURITY_ADMIN_PASSWORD": "dev_password_only",
+    "MO_RETENTION_TIME": "15d"
   }
 }
