@@ -63,8 +63,6 @@ When("I then send a fhir patient summary request", async function () {
 
 When("I then send a request for all the patient's clinical data", async function () {
   this.EverythingResult = await sendRequest(`http://${HOST}:5001/fhir/Patient/${PatientID}/$everything?_mdm=true`, 'GET');
-  console.log(this.EverythingResult);
-  console.log(this.EverythingResult.data)
 });
 
 When("I wait for the services to start up", async function() {
@@ -115,8 +113,6 @@ Then("the data should be stored in clickhouse", async function () {
     query("observation_example")
   ).toPromise();
 
-  console.log(patient)
-  console.log(observation)
   expect(JSON.parse(patient).rows).to.be.greaterThan(0);
   expect(JSON.parse(observation).rows).to.be.greaterThan(0);
 });
