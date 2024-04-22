@@ -45,9 +45,13 @@ services:
       LOG4J2_LEVEL: ${LOG4J2_LEVEL}
       POSTGRESQL_IP: ${JEMPI_REPMGR_PRIMARY_HOST}
       POSTGRESQL_PORT: 5432
-      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
       POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
       POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
+      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
+      POSTGRESQL_NOTIFICATIONS_DB: ${POSTGRESQL_NOTIFICATIONS_DB}
+      POSTGRESQL_AUDIT_DB: ${POSTGRESQL_AUDIT_DB}
+      DGRAPH_HOSTS: ${DGRAPH_HOSTS}
+      DGRAPH_PORTS: ${DGRAPH_PORTS}
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_HOSTS}
       KAFKA_APPLICATION_ID: ${KAFKA_APPLICATION_ID_CTRL}
       KAFKA_CLIENT_ID: ${KAFKA_CLIENT_ID_CTRL}
@@ -74,9 +78,11 @@ services:
       LOG4J2_LEVEL: ${LOG4J2_LEVEL}
       POSTGRESQL_IP: ${JEMPI_REPMGR_PRIMARY_HOST}
       POSTGRESQL_PORT: 5432
-      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
       POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
       POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
+      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
+      POSTGRESQL_NOTIFICATIONS_DB: ${POSTGRESQL_NOTIFICATIONS_DB}
+      POSTGRESQL_AUDIT_DB: ${POSTGRESQL_AUDIT_DB}
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_HOSTS}
       KAFKA_APPLICATION_ID_INTERACTIONS: ${KAFKA_APPLICATION_ID_INTERACTIONS}
       KAFKA_APPLICATION_ID_MU: ${KAFKA_APPLICATION_ID_MU}
@@ -99,12 +105,33 @@ services:
       kafka:
       default:
 
+  jempi-bootstrapper:
+    image: jembi/jempi-bootstrapper:${JEMPI_BOOTSTRAPPER_IMAGE_TAG}
+    environment:
+      POSTGRESQL_IP: ${JEMPI_REPMGR_PRIMARY_HOST}
+      POSTGRESQL_PORT: 5432
+      POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
+      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
+      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
+      POSTGRESQL_USERS_DB: ${POSTGRESQL_USERS_DB}
+      POSTGRESQL_NOTIFICATIONS_DB: ${POSTGRESQL_NOTIFICATIONS_DB}
+      POSTGRESQL_AUDIT_DB: ${POSTGRESQL_AUDIT_DB}
+      POSTGRESQL_KC_TEST_DB: ${POSTGRESQL_KC_TEST_DB}
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_HOSTS}
+      KAFKA_APPLICATION_ID: ${KAFKA_APPLICATION_ID_BOOTSTRAPPER}
+      DGRAPH_HOSTS: ${DGRAPH_HOSTS}
+      DGRAPH_PORTS: ${DGRAPH_PORTS}
+    networks:
+      kafka:
+      default:
 
   jempi-postgresql-01:
     image: bitnami/postgresql-repmgr:15.2.0
     environment:
       POSTGRESQL_USERNAME: ${POSTGRESQL_USERNAME}
-      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
+      POSTGRESQL_NOTIFICATIONS_DB: ${POSTGRESQL_NOTIFICATIONS_DB}
+      POSTGRESQL_AUDIT_DB: ${POSTGRESQL_AUDIT_DB}
+      POSTGRESQL_USERS_DB: ${POSTGRESQL_USERS_DB}
       REPMGR_PASSWORD: ${JEMPI_REPMGR_PASSWORD}
       REPMGR_PRIMARY_HOST: ${JEMPI_REPMGR_PRIMARY_HOST}
       REPMGR_PARTNER_NODES: ${JEMPI_REPMGR_PARTNER_NODES}
@@ -124,8 +151,14 @@ services:
     volumes:
       - "jempi-psql-01-data:/bitnami/postgresql"
     configs:
-      - target: /docker-entrypoint-initdb.d/jempi_psql_init_db.sql
-        source: jempi_psql_init_db.sql
+      - target: /docker-entrypoint-initdb.d/create-schema.sh
+        source: create-schema.sh
+      - target: /conf/config-audit.sql
+        source: config-audit.sql
+      - target: /conf/config-notifications.sql
+        source: config-notifications.sql
+      - target: /conf/config-users.sql
+        source: config-users.sql
 
 volumes:
   jempi-psql-01-data:
@@ -140,8 +173,23 @@ networks:
 
 
 configs:
-  jempi_psql_init_db.sql:
-    file: ./importer/jempi_psql_init_db.sql
-    name: jempi_psql_init_db.sql-${jempi_psql_init_db_sql_DIGEST:?err}
+  create-schema.sh:
+    file: ./importer/create-schema.sh
+    name: create-schema.sh-${create_schema_sh_DIGEST:?err}
+    labels:
+      name: jempi
+  config-audit.sql:
+    file: ./importer/config-audit.sql
+    name: config-audit.sql-${config_audit_sql_DIGEST:?err}
+    labels:
+      name: jempi
+  config-notifications.sql:
+    file: ./importer/config-notifications.sql
+    name: config-notifications.sql-${config_notifications_sql_DIGEST:?err}
+    labels:
+      name: jempi
+  config-users.sql:
+    file: ./importer/config-users.sql
+    name: config-users.sql-${config_users_sql_DIGEST:?err}
     labels:
       name: jempi

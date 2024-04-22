@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   jempi-web:
-    image: jembi/jempi-web:${JEMPI_WEB_VERSION}
+    image: jembi/jempi-ui:${JEMPI_WEB_VERSION}
     environment:
       REACT_APP_JEMPI_BASE_API_HOST: ${REACT_APP_JEMPI_BASE_API_HOST}
       REACT_APP_JEMPI_BASE_API_PORT: ${REACT_APP_JEMPI_BASE_API_PORT}
