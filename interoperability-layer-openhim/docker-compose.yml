@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   openhim-core:
-    image: jembi/openhim-core:v8.4.0
+    image: jembi/openhim-core:poc
     networks:
       kafka:
       hapi-fhir:
@@ -39,7 +39,7 @@ services:
         - prometheus-port=8080
 
   openhim-console:
-    image: ${OPENHIM_CONSOLE_VERSION}
+    image: drono/openhim-console-mf:test
     environment:
       OPENHIM_CORE_MEDIATOR_HOSTNAME: ${OPENHIM_CORE_MEDIATOR_HOSTNAME}
       OPENHIM_MEDIATOR_API_PORT: ${OPENHIM_MEDIATOR_API_PORT}
