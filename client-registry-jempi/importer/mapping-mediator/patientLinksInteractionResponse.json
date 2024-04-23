@@ -1,7 +1,7 @@
 {
   "name": "Get patient links interaction response",
   "endpoint": {
-    "pattern": "/response/links/interaction/:interactionId",
+    "pattern": "/response/links/interaction/:patientId",
     "method": "GET"
   },
   "transformation": {
@@ -9,7 +9,7 @@
     "output": "JSON"
   },
   "inputTransforms": {
-    "urlParams.interactionId": "uidList[]+"
+    "urlParams.patientId": "uidList[]+"
   },
   "requests": {
     "response": {
