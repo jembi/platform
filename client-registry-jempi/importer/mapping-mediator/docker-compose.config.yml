@@ -23,6 +23,8 @@ services:
         target: /searchAll.json
       - source: mediator-config-patientLinks.json
         target: /patientLinks.json
+      - source: mediator-config-patientLinksInteractionResponse.json
+        target: /patientLinksInteractionResponse.json
       - source: mediator-config-patientLinksResponse.json
         target: /patientLinksResponse.json
       - source: mediator-config-searchAllResponse.json
@@ -75,6 +77,11 @@ configs:
   mediator-config-patientLinks.json:
     file: ./patientLinks.json
     name: mediator-config-patientLinks.json-${mediator_config_patientLinks_json_DIGEST:?err}
+    labels:
+      name: jempi
+  mediator-config-patientLinksInteractionResponse.json:
+    file: ./patientLinksInteractionResponse.json
+    name: mediator-config-patientLinksInteractionResponse.json-${mediator_config_patientLinksInteractionResponse_json_DIGEST:?err}
     labels:
       name: jempi
   mediator-config-patientLinksResponse.json:

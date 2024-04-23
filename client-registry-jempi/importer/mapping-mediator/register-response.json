@@ -37,7 +37,7 @@
         "headers": {
           "contentType": "application/fhir+json"
         },
-        "url": "http://jempi-api:50000/JeMPI/link-interaction"
+        "url": "http://jempi-api:50000/JeMPI/crLink"
       }
     }
   }
