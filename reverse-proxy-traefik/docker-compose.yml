@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+  reverse-proxy-traefik:
+    image: traefik:v3.0
+    networks:
+      public:
+    deploy:
+      replicas: 1
+      placement:
+        max_replicas_per_node: 1
+      resources:
+        limits:
+          cpus: 0.5
+          memory: 256M
+        reservations:
+          cpus: 0.1
+          memory: 64M
+
+networks:
+  public:
+    name: reverse-proxy_public
+    external: true
