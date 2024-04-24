@@ -61,26 +61,22 @@ function append_config_sso_enabled() {
 }
 
 function initialize_package() {
-  local postgres_cluster_compose_filename=""
-  local postgres_dev_compose_filename=""
   local keycloak_dev_compose_filename=""
 
   if [ "${MODE}" == "dev" ]; then
     log info "Running package in DEV mode"
-    postgres_dev_compose_filename="docker-compose-postgres.dev.yml"
     keycloak_dev_compose_filename="docker-compose.dev.yml"
   else
     log info "Running package in PROD mode"
   fi
 
-  if [ "${CLUSTERED_MODE}" == "true" ]; then
-    postgres_cluster_compose_filename="docker-compose-postgres.cluster.yml"
-  fi
-
   append_config_sso_enabled
 
   (
-    docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose-postgres.yml" "$postgres_cluster_compose_filename" "$postgres_dev_compose_filename"
+    docker::await_service_status "postgres" "postgres-1" "Running"
+
+    docker::deploy_config_importer "postgres" "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "kc_db_config" "keycloak"
+
     docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$keycloak_dev_compose_filename"
   ) ||
     {
