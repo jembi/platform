@@ -5,21 +5,16 @@
     "method": "GET"
   },
   "transformation": {
-    "input": "JSON",
     "output": "JSON"
   },
-  "inputTransforms": {
+  "inputMapping": {
     "urlParams.patientId": "uidList[]+"
   },
   "requests": {
     "response": {
-      "id": "jempiSearchGoldenId",
-      "primary": true,
+      "id": "jempiSearchInteractionForGoldenId",
       "config": {
         "method": "post",
-        "headers": {
-          "contentType": "application/json"
-        },
         "url": "http://jempi-api:50000/JeMPI/expandedInteractionsCsv"
       }
     }

@@ -19,14 +19,7 @@
       "id": "jempiSearchResponse",
       "config": {
         "method": "post",
-        "url": "http://jempi-api:50000/JeMPI/expandedGoldenRecord",
-        "params": {
-          "url": {
-            "goldenId": {
-              "path": "transforms.goldenId"
-            }
-          }
-        }
+        "url": "http://jempi-api:50000/JeMPI/expandedGoldenRecord"
       }
     },
     "lookup": {
