@@ -1,7 +1,7 @@
 {
   "name": "Search Endpoint deterministic response",
   "endpoint": {
-    "pattern": "/search-response",
+    "pattern": "/search-response-all",
     "method": "GET"
   },
   "transformation": {

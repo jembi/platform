@@ -29,6 +29,8 @@ services:
         target: /patientLinksResponse.json
       - source: mediator-config-searchAllResponse.json
         target: /searchAllResponse.json
+      - source: mediator-config-searchResponse.json
+        target: /searchResponse.json
       - source: mediator-config-searchAllProbabilistic.json
         target: /searchAllProbabilistic.json
       - source: mediator-config-searchAllProbabilisticResponse.json
@@ -92,6 +94,11 @@ configs:
   mediator-config-searchAllResponse.json:
     file: ./searchAllResponse.json
     name: mediator-config-searchAllResponse.json-${mediator_config_searchAllResponse_json_DIGEST:?err}
+    labels:
+      name: jempi
+  mediator-config-searchResponse.json:
+    file: ./searchResponse.json
+    name: mediator-config-searchResponse.json-${mediator_config_searchResponse_json_DIGEST:?err}
     labels:
       name: jempi
   mediator-config-searchAllProbabilistic.json:
