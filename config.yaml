@@ -24,6 +24,7 @@ packages:
   - identity-access-manager-keycloak
   - openhim-mapping-mediator
   - database-postgres
+  - fhir-ig-importer
 
 profiles:
   - name: cdr-dw
@@ -73,3 +74,10 @@ profiles:
       - openhim-mapping-mediator
     envFiles:
       - mpi.env
+
+  - name: ig-importer
+    packages:
+      - fhir-ig-importer
+    envFiles:
+      - cdr.env
+    dev: true

@@ -4,13 +4,16 @@
   "description": "The package provides mechanism of loading a fhir IG and deploying to the fhir server. The package has a microfrontend and mediator app",
   "type": "infrastructure",
   "version": "0.0.1",
-  "dependencies": ["interoperability-layer-openhim"],
+  "dependencies": [
+    "interoperability-layer-openhim",
+    "fhir-datastore-hapi-fhir"
+  ],
   "environmentVariables": {
-    "HAPI_FHIR_BASE_URL": "http://localhost:3447/fhir",
+    "HAPI_FHIR_BASE_URL": "http://hapi-fhir:8080/fhir",
     "HAPI_FHIR_INSTANCES": 1,
-    "FHIR_IG_IMPORTER_CORE_PORT": 3333,
-    "FHIR_IG_IMPORTER_CORE_HOST": "localhost",
-    "FHIR_IG_IMPORTER_CORE_URL": "http://localhost:3333/fhir/ig/v1.0",
+    "FHIR_IG_IMPORTER_CORE_PORT": 3001,
+    "FHIR_IG_IMPORTER_CORE_HOST": "0.0.0.0",
+    "FHIR_IG_IMPORTER_CORE_URL": "http://0.0.0.0:3001/fhir/ig/v1.0",
     "FHIR_IG_IMPORTER_UI_VERSION": "latest",
     "FHIR_IG_IMPORTER_CORE_VERSION": "latest",
     "FHIR_IG_IMPORTER_UI_INSTANCES": 1,

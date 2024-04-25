@@ -4,8 +4,9 @@ services:
   fhir-ig-importer-mediator:
     image: jembi/fhir-ig-importer-mediator:${FHIR_IG_IMPORTER_CORE_VERSION}
     networks:
-      ig-importer-network:
+      ig-importer:
       hapi-fhir:
+      openhim:
     deploy:
       replicas: ${FHIR_IG_IMPORTER_CORE_INSTANCES}
       placement:
@@ -19,8 +20,9 @@ services:
   fhir-ig-importer-ui:
     image: jembi/fhir-ig-importer-ui:${FHIR_IG_IMPORTER_UI_VERSION}
     networks:
-      ig-importer-network:
+      ig-importer:
       hapi-fhir:
+      openhim:
     deploy:
       replicas: ${FHIR_IG_IMPORTER_UI_INSTANCES}
       placement:
@@ -28,9 +30,13 @@ services:
     environment:
       FHIR_IG_IMPORTER_CORE_URL: ${FHIR_IG_IMPORTER_CORE_URL}
 networks:
-  ig-importer-network:
+  ig-importer:
     name: ig-importer-network
+    external: true
   hapi-fhir:
     name: hapi-fhir_public
+    external: true
+  openhim:
+    name: openhim_public
     external: true
   

@@ -1,0 +1,326 @@
+{
+  "Users": [
+    {
+      "firstname": "Super",
+      "surname": "User",
+      "email": "root@openhim.org",
+      "provider": "token",
+      "groups": ["admin"],
+      "passwordAlgorithm": null,
+      "passwordHash": null,
+      "passwordSalt": null,
+      "expiry": null,
+      "locked": false,
+      "token": null,
+      "tokenType": null
+    }
+  ],
+  "Clients": [
+    {
+      "clientID": "instant-client",
+      "name": "Instant Client",
+      "roles": ["instant"],
+      "customTokenID": "test"
+    }
+  ],
+  "Channels": [
+    {
+      "name": "IG Importer Get",
+      "urlPattern": "^/ig.*$",
+      "methods": ["GET", "OPTIONS"],
+      "type": "http",
+      "tcpPort": null,
+      "tcpHost": null,
+      "pollingSchedule": null,
+      "requestBody": true,
+      "responseBody": true,
+      "allow": [],
+      "whitelist": [],
+      "authType": "public",
+      "routes": [
+        {
+          "type": "http",
+          "status": "enabled",
+          "forwardAuthHeader": false,
+          "name": "get fhir igs",
+          "secured": false,
+          "host": "fhir-ig-importer-mediator",
+          "port": 3001,
+          "path": "/ig/v1.0/all",
+          "pathTransform": "",
+          "primary": true,
+          "username": "",
+          "password": ""
+        }
+      ],
+      "matchContentTypes": [],
+      "matchContentRegex": null,
+      "matchContentXpath": null,
+      "matchContentJson": null,
+      "matchContentValue": null,
+      "properties": [],
+      "txViewAcl": [],
+      "txViewFullAcl": [],
+      "txRerunAcl": [],
+      "status": "enabled",
+      "rewriteUrls": false,
+      "addAutoRewriteRules": true,
+      "rewriteUrlsConfig": [],
+      "autoRetryEnabled": false,
+      "autoRetryPeriodMinutes": 60,
+      "updatedBy": {
+        "id": "6581971ea4e841f92ec4321a",
+        "name": "Super User"
+      },
+      "alerts": []
+    },
+    {
+      "methods": ["POST", "OPTIONS"],
+      "type": "http",
+      "allow": [],
+      "whitelist": [],
+      "authType": "public",
+      "matchContentTypes": [],
+      "properties": [],
+      "txViewAcl": [],
+      "txViewFullAcl": [],
+      "txRerunAcl": [],
+      "status": "enabled",
+      "rewriteUrls": false,
+      "addAutoRewriteRules": true,
+      "autoRetryEnabled": false,
+      "autoRetryPeriodMinutes": 60,
+      "updatedBy": {
+        "id": "6581971ea4e841f92ec4321a",
+        "name": "Super User"
+      },
+      "urlPattern": "^/ig.*$",
+      "tcpPort": null,
+      "tcpHost": null,
+      "pollingSchedule": null,
+      "requestBody": true,
+      "responseBody": true,
+      "routes": [
+        {
+          "type": "http",
+          "status": "enabled",
+          "forwardAuthHeader": false,
+          "name": "upload fhir ig",
+          "secured": false,
+          "host": "fhir-ig-importer-mediator",
+          "port": 3001,
+          "path": "/ig/v1.0/upload",
+          "pathTransform": "",
+          "primary": true,
+          "username": "",
+          "password": ""
+        }
+      ],
+      "matchContentRegex": null,
+      "matchContentXpath": null,
+      "matchContentJson": null,
+      "matchContentValue": null,
+      "rewriteUrlsConfig": [],
+      "alerts": [],
+      "name": "IG Importer Upload"
+    },
+    {
+      "methods": ["DELETE", "OPTIONS"],
+      "type": "http",
+      "allow": [],
+      "whitelist": [],
+      "authType": "public",
+      "matchContentTypes": [],
+      "properties": [],
+      "txViewAcl": [],
+      "txViewFullAcl": [],
+      "txRerunAcl": [],
+      "status": "enabled",
+      "rewriteUrls": false,
+      "addAutoRewriteRules": true,
+      "autoRetryEnabled": false,
+      "autoRetryPeriodMinutes": 60,
+      "updatedBy": {
+        "id": "6581971ea4e841f92ec4321a",
+        "name": "Super User"
+      },
+      "urlPattern": "^/ig/v1.0/delete.*$",
+      "tcpPort": null,
+      "tcpHost": null,
+      "pollingSchedule": null,
+      "requestBody": true,
+      "responseBody": true,
+      "routes": [
+        {
+          "type": "http",
+          "status": "enabled",
+          "forwardAuthHeader": false,
+          "name": "delete fhir ig",
+          "secured": false,
+          "host": "fhir-ig-importer-mediator",
+          "port": 3001,
+          "path": "",
+          "pathTransform": "",
+          "primary": true,
+          "username": "",
+          "password": ""
+        }
+      ],
+      "matchContentRegex": null,
+      "matchContentXpath": null,
+      "matchContentJson": null,
+      "matchContentValue": null,
+      "rewriteUrlsConfig": [],
+      "alerts": [],
+      "name": "IG Importer Delete"
+    },
+    {
+      "methods": ["PUT", "OPTIONS"],
+      "type": "http",
+      "allow": [],
+      "whitelist": [],
+      "authType": "public",
+      "matchContentTypes": [],
+      "properties": [],
+      "txViewAcl": [],
+      "txViewFullAcl": [],
+      "txRerunAcl": [],
+      "status": "enabled",
+      "rewriteUrls": false,
+      "addAutoRewriteRules": true,
+      "autoRetryEnabled": false,
+      "autoRetryPeriodMinutes": 60,
+      "updatedBy": {
+        "id": "6581971ea4e841f92ec4321a",
+        "name": "Super User"
+      },
+      "urlPattern": "^/ig/v1.0/update.*$",
+      "tcpPort": null,
+      "tcpHost": null,
+      "pollingSchedule": null,
+      "requestBody": true,
+      "responseBody": true,
+      "routes": [
+        {
+          "type": "http",
+          "status": "enabled",
+          "forwardAuthHeader": false,
+          "name": "update fhir ig",
+          "secured": false,
+          "host": "fhir-ig-importer-mediator",
+          "port": 3001,
+          "path": "",
+          "pathTransform": "",
+          "primary": true,
+          "username": "",
+          "password": ""
+        }
+      ],
+      "matchContentRegex": null,
+      "matchContentXpath": null,
+      "matchContentJson": null,
+      "matchContentValue": null,
+      "rewriteUrlsConfig": [],
+      "alerts": [],
+      "name": "IG Importer Update"
+    }
+  ],
+  "Mediators": [
+    {
+      "urn": "urn:mediator:fhir-ig-importer-mediator",
+      "version": "1.0.0",
+      "name": "Fhir IG importer mediator",
+      "description": "Mediator that upload, delete fhir IG in Fhir server.",
+      "defaultChannelConfig": [
+        {
+          "methods": ["POST"],
+          "type": "http",
+          "allow": ["instant"],
+          "whitelist": [],
+          "authType": "private",
+          "matchContentTypes": [],
+          "properties": [],
+          "txViewAcl": [],
+          "txViewFullAcl": [],
+          "txRerunAcl": [],
+          "status": "enabled",
+          "rewriteUrls": false,
+          "addAutoRewriteRules": true,
+          "autoRetryEnabled": false,
+          "autoRetryPeriodMinutes": 60,
+          "name": "Fhir IG importer mediator",
+          "urlPattern": "^/ig",
+          "routes": [
+            {
+              "type": "http",
+              "status": "enabled",
+              "forwardAuthHeader": false,
+              "name": "mediator main entry",
+              "host": "fhir-ig-importer-mediator",
+              "port": 3001,
+              "primary": true
+            }
+          ],
+          "alerts": [],
+          "rewriteUrlsConfig": []
+        }
+      ],
+      "endpoints": [
+        {
+          "type": "http",
+          "status": "enabled",
+          "forwardAuthHeader": false,
+          "name": "upload fhir ig",
+          "host": "fhir-ig-importer-mediator",
+          "port": 3001,
+          "path": "/ig/v1.0/upload",
+          "primary": true
+        },
+        {
+          "type": "http",
+          "status": "enabled",
+          "forwardAuthHeader": false,
+          "name": "get fhir igs",
+          "host": "fhir-ig-importer-mediator",
+          "port": 3001,
+          "path": "/ig/v1.0/all",
+          "primary": true
+        },
+        {
+          "type": "http",
+          "status": "enabled",
+          "forwardAuthHeader": false,
+          "name": "delete fhir ig",
+          "host": "fhir-ig-importer-mediator",
+          "port": 3001,
+          "path": "/ig/v1.0/delete/:id",
+          "primary": true
+        },
+        {
+          "type": "http",
+          "status": "enabled",
+          "forwardAuthHeader": false,
+          "name": "get fhir ig",
+          "host": "fhir-ig-importer-mediator",
+          "port": 3001,
+          "path": "/ig/v1.0/info/:id",
+          "primary": true
+        },
+        {
+          "type": "http",
+          "status": "enabled",
+          "forwardAuthHeader": false,
+          "name": "update fhir ig",
+          "host": "fhir-ig-importer-mediator",
+          "port": 3001,
+          "path": "/ig/v1.0/update/:id",
+          "primary": true
+        }
+      ],
+      "configDefs": [],
+      "_lastHeartbeat": "2023-12-22T10:52:05.461Z",
+      "_uptime": 1191.2140364
+    }
+  ],
+  "ContactGroups": []
+}
