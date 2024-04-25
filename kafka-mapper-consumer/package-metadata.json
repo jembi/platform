@@ -6,6 +6,7 @@
   "version": "0.0.1",
   "dependencies": ["message-bus-kafka", "interoperability-layer-openhim"],
   "environmentVariables": {
+    "KAFKA_MAPPER_CONSUMER": "jembi/kafka-mapper-consumer:0.1.0",
     "KAFKA_HOST": "kafka-01",
     "KAFKA_PORT": "9092",
     "KAFKA_FROM_BEGINNING": "false",
