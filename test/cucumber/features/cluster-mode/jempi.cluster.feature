@@ -14,9 +14,9 @@ Feature: Client Registry JeMPI?
     And The service "kafka-03" should be started with 1 replica
     And The service "kafdrop" should be started with 1 replica
     And The service "kafka-minion" should be started with 1 replica
-    And The service "keycloak-postgres-1" should be started with 1 replica
-    And The service "keycloak-postgres-2" should be started with 1 replica
-    And The service "keycloak-postgres-3" should be started with 1 replica
+    And The service "postgres-1" should be started with 1 replica
+    And The service "postgres-2" should be started with 1 replica
+    And The service "postgres-3" should be started with 1 replica
     And The service "identity-access-manager-keycloak" should be started with 1 replica
     And The service "jempi-ratel" should be started with 1 replica
     And The service "jempi-alpha-01" should be started with 1 replica
@@ -60,9 +60,9 @@ Feature: Client Registry JeMPI?
     And The service "kafka-03" should be removed
     And The service "kafdrop" should be removed
     And The service "kafka-minion" should be removed
-    And The service "keycloak-postgres-1" should be removed
-    And The service "keycloak-postgres-2" should be removed
-    And The service "keycloak-postgres-3" should be removed
+    And The service "postgres-1" should be removed
+    And The service "postgres-2" should be removed
+    And The service "postgres-3" should be removed
     And The service "identity-access-manager-keycloak" should be removed
     And The service "jempi-ratel" should be removed
     And The service "jempi-alpha-01" should be removed
