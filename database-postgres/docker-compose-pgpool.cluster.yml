@@ -1,13 +1,13 @@
-version: '3.9'
+version: "3.9"
 
 services:
   pgpool-1:
-    image: bitnami/pgpool:4.4.3
+    image: ${PGPOOL_IMAGE}
     deploy:
       placement:
         constraints:
-          - "node.labels.name==node-1"
-      replicas: 1
+          - "node.labels.name==${PGPOOL_1_PLACEMENT}"
+      replicas: ${PGPOOOL_REPLICAS}
       resources:
         limits:
           cpus: ${PGPOOL_CPU_LIMIT}
@@ -39,12 +39,12 @@ services:
       PGPOOL_USER_CONF_FILE: "/config/custom_pgpool.conf"
 
   pgpool-2:
-    image: bitnami/pgpool:4.4.3
+    image: ${PGPOOL_IMAGE}
     deploy:
       placement:
         constraints:
-          - "node.labels.name==node-2"
-      replicas: 1
+          - "node.labels.name==${PGPOOL_2_PLACEMENT}"
+      replicas: ${PGPOOOL_REPLICAS}
       resources:
         limits:
           cpus: ${PGPOOL_CPU_LIMIT}
@@ -76,12 +76,12 @@ services:
       PGPOOL_USER_CONF_FILE: "/config/custom_pgpool.conf"
 
   pgpool-3:
-    image: bitnami/pgpool:4.4.3
+    image: ${PGPOOL_IMAGE}
     deploy:
       placement:
         constraints:
-          - "node.labels.name==node-3"
-      replicas: 1
+          - "node.labels.name==${PGPOOL_3_PLACEMENT}"
+      replicas: ${PGPOOOL_REPLICAS}
       resources:
         limits:
           cpus: ${PGPOOL_CPU_LIMIT}

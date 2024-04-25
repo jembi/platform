@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   postgres-1:
@@ -7,10 +7,10 @@ services:
     deploy:
       placement:
         constraints:
-          - "node.labels.name==node-1"
+          - "node.labels.name==${POSTGRES_1_PLACEMENT}"
 
   postgres-2:
-    image: bitnami/postgresql-repmgr:14
+    image: ${POSTGRES_IMAGE}
     environment:
       POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
       REPMGR_NODE_NETWORK_NAME: postgres-2
@@ -23,15 +23,15 @@ services:
       REPMGR_FAILOVER: ${POSTGRES_FAILOVER}
       REPMGR_DEGRADED_MONITORING_TIMEOUT: ${POSTGRES_DEGRADED_MONITORING_TIMEOUT}
     volumes:
-      - 'hapi-postgres-2-data:/bitnami/postgresql'
+      - "hapi-postgres-2-data:/bitnami/postgresql"
     configs:
       - target: /bitnami/postgresql/conf/conf.d/custom_postgresql.conf
         source: postgresql.conf
     deploy:
       placement:
         constraints:
-          - "node.labels.name==node-2"
-      replicas: 1
+          - "node.labels.name==${POSTGRES_2_PLACEMENT}"
+      replicas: ${POSTGRES_REPLICAS}
       resources:
         limits:
           cpus: ${POSTGRES_CPU_LIMIT}
@@ -45,7 +45,7 @@ services:
       postgres:
 
   postgres-3:
-    image: bitnami/postgresql-repmgr:14
+    image: ${POSTGRES_IMAGE}
     environment:
       POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
       REPMGR_NODE_NETWORK_NAME: postgres-3
@@ -58,15 +58,15 @@ services:
       REPMGR_FAILOVER: ${POSTGRES_FAILOVER}
       REPMGR_DEGRADED_MONITORING_TIMEOUT: ${POSTGRES_DEGRADED_MONITORING_TIMEOUT}
     volumes:
-      - 'hapi-postgres-3-data:/bitnami/postgresql'
+      - "hapi-postgres-3-data:/bitnami/postgresql"
     configs:
       - target: /bitnami/postgresql/conf/conf.d/custom_postgresql.conf
         source: postgresql.conf
     deploy:
       placement:
         constraints:
-          - "node.labels.name==node-3"
-      replicas: 1
+          - "node.labels.name==${POSTGRES_3_PLACEMENT}"
+      replicas: ${POSTGRES_REPLICAS}
       resources:
         limits:
           cpus: ${POSTGRES_CPU_LIMIT}
