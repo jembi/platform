@@ -1,20 +1,20 @@
-version: '3.9'
+version: "3.9"
 
 services:
   prometheus:
     deploy:
       placement:
         constraints:
-          - "node.labels.name==node-1"
+          - "node.labels.name==${PROMETHEUS_PLACEMENT}"
       replicas: 1
 
   prometheus_backup:
-    image: prom/prometheus:v2.38.0
+    image: ${PROMETHEUS_BACKUP_IMAGE}
     user: root
     deploy:
       placement:
         constraints:
-          - "node.labels.name!=node-1"
+          - "node.labels.name!=${PROMETHEUS_BACKUP_PLACEMENT}"
       replicas: 1
     volumes:
       - prometheus_data_backup:/prometheus
@@ -23,11 +23,11 @@ services:
       - target: /etc/prometheus/prometheus.yml
         source: prometheus.yml
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--web.enable-lifecycle'
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/etc/prometheus/console_libraries"
+      - "--web.console.templates=/etc/prometheus/consoles"
+      - "--web.enable-lifecycle"
     networks:
       public:
       default:
@@ -36,23 +36,17 @@ services:
     deploy:
       placement:
         constraints:
-          - "node.labels.name==node-1"
+          - "node.labels.name==${MINIO_01_PLACEMENT}"
 
   minio-02:
-    image: quay.io/minio/minio:RELEASE.2022-10-24T18-35-07Z
+    image: ${MINIO_IMAGE}
     entrypoint: sh
     command: -c 'mkdir -p /data1/loki /data2/loki && minio server --console-address ":9001" http://minio-0{1...4}/data{1...2}'
     environment:
       MINIO_ROOT_USER: ${MO_SECURITY_ADMIN_USER}
       MINIO_ROOT_PASSWORD: ${MO_SECURITY_ADMIN_PASSWORD}
     healthcheck:
-      test:
-        [
-          "CMD",
-          "curl",
-          "-f",
-          "http://localhost:9000/minio/health/live"
-        ]
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
       timeout: 20s
       retries: 3
@@ -63,24 +57,18 @@ services:
     deploy:
       placement:
         constraints:
-          - "node.labels.name==node-1"
+          - "node.labels.name==${MINIO_02_PLACEMENT}"
       replicas: 1
 
   minio-03:
-    image: quay.io/minio/minio:RELEASE.2022-10-24T18-35-07Z
+    image: ${MINIO_IMAGE}
     entrypoint: sh
     command: -c 'mkdir -p /data1/loki /data2/loki && minio server --console-address ":9001" http://minio-0{1...4}/data{1...2}'
     environment:
       MINIO_ROOT_USER: ${MO_SECURITY_ADMIN_USER}
       MINIO_ROOT_PASSWORD: ${MO_SECURITY_ADMIN_PASSWORD}
     healthcheck:
-      test:
-        [
-          "CMD",
-          "curl",
-          "-f",
-          "http://localhost:9000/minio/health/live"
-        ]
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
       timeout: 20s
       retries: 3
@@ -91,24 +79,18 @@ services:
     deploy:
       placement:
         constraints:
-          - "node.labels.name==node-2"
+          - "node.labels.name==${MINIO_03_PLACEMENT}"
       replicas: 1
 
   minio-04:
-    image: quay.io/minio/minio:RELEASE.2022-10-24T18-35-07Z
+    image: ${MINIO_IMAGE}
     entrypoint: sh
     command: -c 'mkdir -p /data1/loki /data2/loki && minio server --console-address ":9001" http://minio-0{1...4}/data{1...2}'
     environment:
       MINIO_ROOT_USER: ${MO_SECURITY_ADMIN_USER}
       MINIO_ROOT_PASSWORD: ${MO_SECURITY_ADMIN_PASSWORD}
     healthcheck:
-      test:
-        [
-          "CMD",
-          "curl",
-          "-f",
-          "http://localhost:9000/minio/health/live"
-        ]
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
       timeout: 20s
       retries: 3
@@ -119,7 +101,7 @@ services:
     deploy:
       placement:
         constraints:
-          - "node.labels.name==node-3"
+          - "node.labels.name==${MINIO_04_PLACEMENT}"
       replicas: 1
 
 volumes:
