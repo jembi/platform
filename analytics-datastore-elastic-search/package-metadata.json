@@ -18,6 +18,9 @@
     "ES_SSL": "false",
     "ES_MEMORY_LIMIT": "3G",
     "ES_MEMORY_RESERVE": "500M",
-    "ES_IMAGE": "docker.elastic.co/elasticsearch/elasticsearch:7.13.0"
+    "ES_IMAGE": "docker.elastic.co/elasticsearch/elasticsearch:7.13.0",
+    "ES_01_PLACEMENT": "node-1",
+    "ES_02_PLACEMENT": "node-2",
+    "ES_03_PLACEMENT": "node-3"
   }
 }

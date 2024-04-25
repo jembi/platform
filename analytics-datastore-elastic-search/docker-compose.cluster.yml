@@ -16,7 +16,7 @@ services:
           memory: ${ES_MEMORY_RESERVE}
       placement:
         constraints:
-          - "node.labels.name==node-1"
+          - "node.labels.name==${ES_01_PLACEMENT}"
     environment:
       node.name: es01
       cluster.name: es-cluster
@@ -66,7 +66,7 @@ services:
           memory: ${ES_MEMORY_RESERVE}
       placement:
         constraints:
-          - "node.labels.name==node-2"
+          - "node.labels.name==${ES_02_PLACEMENT}"
     environment:
       node.name: es02
       cluster.name: es-cluster
@@ -116,7 +116,7 @@ services:
           memory: ${ES_MEMORY_RESERVE}
       placement:
         constraints:
-          - "node.labels.name==node-3"
+          - "node.labels.name==${ES_03_PLACEMENT}"
     environment:
       node.name: es03
       cluster.name: es-cluster
