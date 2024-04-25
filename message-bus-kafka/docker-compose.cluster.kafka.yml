@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   kafka-01:
@@ -7,32 +7,32 @@ services:
     deploy:
       placement:
         constraints:
-          - "node.labels.name==node-1"
+          - "node.labels.name==${KAFKA_01_PLACEMENT}"
 
   kafka-02:
-    image: bitnami/kafka:3.4.0
+    image: ${KAFKA_IMAGE}
     hostname: "{{.Node.Hostname}}-{{.Service.Name}}"
     environment:
       BITNAMI_DEBUG: ${KAFKA_DEBUG}
-      KAFKA_ENABLE_KRAFT: 'yes'
-      KAFKA_KRAFT_CLUSTER_ID: 'ehB92ChxEe2iYQAAAkKsEg'
+      KAFKA_ENABLE_KRAFT: "yes"
+      KAFKA_KRAFT_CLUSTER_ID: "ehB92ChxEe2iYQAAAkKsEg"
       KAFKA_CFG_NODE_ID: 2
       KAFKA_CFG_BROKER_ID: 2
-      KAFKA_CFG_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CFG_PROCESS_ROLES: "broker,controller"
       KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
       KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
       KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka-02:9092
       KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-01:9093,2@kafka-02:9093,3@kafka-03:9093
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      ALLOW_PLAINTEXT_LISTENER: 'yes'
+      ALLOW_PLAINTEXT_LISTENER: "yes"
     volumes:
       - kafka-02-data:/bitnami/kafka
     deploy:
       placement:
         constraints:
-          - "node.labels.name==node-2"
-      replicas: 1
+          - "node.labels.name==${KAFKA_02_PLACEMENT}"
+      replicas: ${KAFKA_REPLICAS}
       resources:
         limits:
           memory: ${KAFKA_MEMORY_LIMIT}
@@ -45,29 +45,29 @@ services:
       default:
 
   kafka-03:
-    image: bitnami/kafka:3.4.0
+    image: ${KAFKA_IMAGE}
     hostname: "{{.Node.Hostname}}-{{.Service.Name}}"
     environment:
       BITNAMI_DEBUG: ${KAFKA_DEBUG}
-      KAFKA_ENABLE_KRAFT: 'yes'
-      KAFKA_KRAFT_CLUSTER_ID: 'ehB92ChxEe2iYQAAAkKsEg'
+      KAFKA_ENABLE_KRAFT: "yes"
+      KAFKA_KRAFT_CLUSTER_ID: "ehB92ChxEe2iYQAAAkKsEg"
       KAFKA_CFG_NODE_ID: 3
       KAFKA_CFG_BROKER_ID: 3
-      KAFKA_CFG_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CFG_PROCESS_ROLES: "broker,controller"
       KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
       KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
       KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka-03:9092
       KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-01:9093,2@kafka-02:9093,3@kafka-03:9093
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      ALLOW_PLAINTEXT_LISTENER: 'yes'
+      ALLOW_PLAINTEXT_LISTENER: "yes"
     volumes:
-      - kafka-03-data:/bitnami/kafka    
+      - kafka-03-data:/bitnami/kafka
     deploy:
       placement:
         constraints:
-          - "node.labels.name==node-3"
-      replicas: 1
+          - "node.labels.name==${KAFKA_03_PLACEMENT}"
+      replicas: ${KAFKA_REPLICAS}
       resources:
         limits:
           memory: ${KAFKA_MEMORY_LIMIT}
