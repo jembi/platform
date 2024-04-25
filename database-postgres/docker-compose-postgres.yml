@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   postgres-1:
-    image: bitnami/postgresql-repmgr:14
+    image: ${POSTGRES_IMAGE}
     environment:
       POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
       REPMGR_NODE_NETWORK_NAME: postgres-1
