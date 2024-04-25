@@ -1,10 +1,9 @@
-
 # JeMPI Client Registry Component - docker-swarm
 
 This component consists of two services:
 
-* JeMPI Web UI - http://localhost:3033
-* JeMPI API - http://localhost:50000/JeMPI
+- JeMPI Web UI - http://localhost:3033
+- JeMPI API - http://localhost:50000/JeMPI
 
 ## Api endpoints
 
@@ -15,7 +14,7 @@ This component consists of two services:
 via the api (in JeMPI format)
 
 ```sh
-POST - http://localhost:50000/JeMPI/cr-register
+POST - http://localhost:50000/JeMPI/crRegister
 
 {
     "candidateThreshold": 0.9,
@@ -83,6 +82,7 @@ The `candidateThreshold` can optionally be set in the request query. The default
     ]
 }
 ```
+
 > The identifier with the system 'NationalID' maps to the 'nationalId' property in JeMPI
 
 ## Querying a patient by id
@@ -90,7 +90,10 @@ The `candidateThreshold` can optionally be set in the request query. The default
 via the api (returns patient in JeMPI formated)
 
 ```sh
-GET - http://localhost:50000/JeMPI/expanded-golden-record/<PATIENT_GOLDEN_ID>
+POST - http://localhost:50000/JeMPI/expandedGoldenRecord
+{
+    "gid":"<PATIENT_GOLDEN_ID>"
+}
 ```
 
 via the [mapping mediator](https://github.com/jembi/openhim-mediator-mapping) (returns patient in fhir format)
@@ -104,7 +107,7 @@ GET - http://localhost:3003/fhir/Patient/<PATIENT_GOLDEN_ID>
 via the api (in JeMPI format)
 
 ```sh
-PATCH - http://localhost:50000/JeMPI/cr-update-fields
+POST - http://localhost:50000/JeMPI/crUpdateFields
 
 {
   "goldenId": "0x5",
@@ -167,7 +170,7 @@ PUT - http://localhost:3003/fhir/Patient/<PATIENT_GOLDEN_RECORD>
 via the api (returns in JeMPI format)
 
 ```sh
-POST http://localhost:50000/JeMPI/cr-find
+POST http://localhost:50000/JeMPI/crFind
 
 {
   "operand": {
@@ -201,7 +204,7 @@ Query parameters - family, given, telecom, identifier, gender, birthDate, addres
 via the api (in JeMPI format)
 
 ```sh
-POST - http://localhost:50000/JeMPI/cr-find
+POST - http://localhost:50000/JeMPI/crFind
 
 {
   "operand": {
