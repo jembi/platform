@@ -6,6 +6,7 @@
   "version": "0.0.1",
   "dependencies": ["interoperability-layer-openhim"],
   "environmentVariables": {
+    "OPENHIM_MAPPING_MEDIATOR_IMAGE": "jembi/openhim-mediator-mapping:v3.3.0",
     "OPENHIM_URL": "https://openhim-core:8080",
     "OPENHIM_USERNAME": "root@openhim.org",
     "OPENHIM_MONGO_URL": "mongodb://mongo-1:27017/openhim",
