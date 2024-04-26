@@ -6,6 +6,7 @@
   "version": "0.0.1",
   "dependencies": [],
   "environmentVariables": {
+    "JOB_SCHEDULER_OFELIA_IMAGE": "mcuadros/ofelia:v0.3.6",
     "RENEWAL_EMAIL": "dummy@jembi.org",
     "STAGING": "true",
     "DOMAIN_NAME": "localhost",
