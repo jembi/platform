@@ -1,7 +1,7 @@
 {
   "name": "Search Endpoint deterministic response",
   "endpoint": {
-    "pattern": "/search-response",
+    "pattern": "/search-response-all",
     "method": "GET"
   },
   "transformation": {
@@ -21,7 +21,7 @@
         "forwardExistingRequestBody": true,
         "config": {
           "method": "post",
-          "url": "http://jempi-api:50000/JeMPI/cr-find"
+          "url": "http://jempi-api:50000/JeMPI/crFind"
         }
       }
     ]

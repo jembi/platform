@@ -5,7 +5,9 @@
       "surname": "User",
       "email": "root@openhim.org",
       "provider": "token",
-      "groups": ["admin"],
+      "groups": [
+        "admin"
+      ],
       "passwordAlgorithm": "sha512",
       "passwordHash": "ea3824f17cf1379eb118a36bc7c8cf0f45712e2af7748567fca5313dec6fa66d61064e82a5e5cb88e998486ee3c7d0dac235bbeda8c341d6edc1c77406be2ab6",
       "passwordSalt": "d4f622c0404f09bd959bfb263efa3452",
@@ -19,7 +21,9 @@
     {
       "clientID": "test",
       "name": "Test Client",
-      "roles": ["instant"],
+      "roles": [
+        "instant"
+      ],
       "customTokenID": "test"
     }
   ],
@@ -40,6 +44,7 @@
         "PATCH"
       ],
       "type": "http",
+      "priority": null,
       "tcpPort": null,
       "tcpHost": null,
       "pollingSchedule": null,
@@ -142,7 +147,9 @@
     {
       "name": "MPI Orchestration for fhir bundles - Asynchronous flow",
       "urlPattern": "^/async/fhir/?$",
-      "methods": ["POST"],
+      "methods": [
+        "POST"
+      ],
       "type": "http",
       "priority": null,
       "tcpPort": null,
@@ -150,7 +157,9 @@
       "pollingSchedule": null,
       "requestBody": true,
       "responseBody": true,
-      "allow": ["instant"],
+      "allow": [
+        "instant"
+      ],
       "whitelist": [],
       "authType": "private",
       "routes": [
@@ -159,14 +168,32 @@
           "type": "http",
           "status": "enabled",
           "secured": false,
-          "host": "mpi-mediator",
-          "port": 3000,
-          "path": "",
+          "host": "hapi-fhir",
+          "port": 8080,
+          "path": "/fhir/Bundle/$validate",
           "pathTransform": "",
           "primary": true,
           "username": "",
           "password": "",
           "forwardAuthHeader": false
+        },
+        {
+          "name": "Kafka - 2xx-async topic",
+          "type": "kafka",
+          "status": "enabled",
+          "secured": false,
+          "host": "",
+          "port": null,
+          "path": "",
+          "pathTransform": "",
+          "primary": false,
+          "username": "",
+          "password": "",
+          "forwardAuthHeader": false,
+          "waitPrimaryResponse": true,
+          "statusCodesCheck": "200",
+          "kafkaClientId": "openhim-core",
+          "kafkaTopic": "2xx-async"
         }
       ],
       "matchContentTypes": [],
@@ -186,9 +213,10 @@
       "autoRetryEnabled": false,
       "autoRetryPeriodMinutes": 60,
       "updatedBy": {
-        "id": "65d47e98223a0672c3c9808b",
+        "id": "65c20de34f5c821e9597f9c8",
         "name": "Super User"
-      }
+      },
+      "description": "Sends a fhir bundle to hapi-fhir for validation, and then forwards it to a kafka if valid."
     },
     {
       "name": "JeMPI Patient links endpoint in fhir",
@@ -300,9 +328,14 @@
         {
           "name": "MPI mediator",
           "urlPattern": "^(/async)?/fhir.*$",
-          "methods": ["POST", "GET"],
+          "methods": [
+            "POST",
+            "GET"
+          ],
           "type": "http",
-          "allow": ["instant"],
+          "allow": [
+            "instant"
+          ],
           "whitelist": [],
           "authType": "private",
           "routes": [
@@ -331,8 +364,8 @@
         }
       ],
       "configDefs": [],
-      "_lastHeartbeat": "2024-02-22T16:09:55.511Z",
-      "_uptime": 4490.494161057
+      "_lastHeartbeat": "2024-02-06T12:23:22.769Z",
+      "_uptime": 5650.734193405
     }
   ],
   "ContactGroups": []
