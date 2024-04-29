@@ -2,22 +2,36 @@ version: "3.9"
 
 services:
   reverse-proxy-traefik:
-    image: traefik:v3.0
+    image: traefik:v2.11
     networks:
-      public:
+      - reverse-proxy-traefik_public
+      - public
+    command:
+      - --providers.docker
+      - --providers.docker.swarmmode#
+      - --providers.docker.endpoint=tcp://127.0.0.1:2377
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --log
+      - --log.level=DEBUG
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.constraint-label=reverse-proxy-traefik_public
       replicas: 1
       placement:
         max_replicas_per_node: 1
       resources:
         limits:
-          cpus: 0.5
+          cpus: "0.5"
           memory: 256M
         reservations:
-          cpus: 0.1
+          cpus: "0.1"
           memory: 64M
 
 networks:
   public:
-    name: reverse-proxy_public
+    name: reverse-proxy-traefik_public
     external: true

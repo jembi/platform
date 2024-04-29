@@ -23,6 +23,7 @@ packages:
   - client-registry-jempi
   - identity-access-manager-keycloak
   - openhim-mapping-mediator
+  - reverse-proxy-traefik
 
 profiles:
   - name: cdr-dw

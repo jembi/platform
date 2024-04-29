@@ -1,0 +1,16 @@
+{
+  "id": "reverse-proxy-traefik",
+  "name": "Traefik Reverse Proxy package",
+  "description": "traefik reverse proxy",
+  "type": "use-case",
+  "version": "0.0.0",
+  "dependencies": [],
+  "environmentVariables": {
+    "REVERSE_PROXY_INSTANCES": "1",
+    "TK_CPU_LIMIT": 0,
+    "TK_CPU_RESERVE": "0.05",
+    "TK_MEMORY_LIMIT": "3G",
+    "TK_MEMORY_RESERVE": "500M",
+    "DOMAIN_NAME": "localhost"
+  }
+}
