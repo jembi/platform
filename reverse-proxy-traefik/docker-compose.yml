@@ -4,11 +4,14 @@ services:
   reverse-proxy-traefik:
     image: traefik:v2.11
     networks:
-      - reverse-proxy-traefik_public
-      - public
+      - traefik
+    ports:
+      - 80:80
+      - 443:443
     command:
-      - --providers.docker
-      - --providers.docker.swarmmode#
+      - --providers.docker=true
+      - --traefik.docker.network=reverse-proxy-traefik_public
+      - --providers.docker.swarmmode=true
       - --providers.docker.endpoint=tcp://127.0.0.1:2377
       - --providers.docker.exposedbydefault=false
       - --entrypoints.web.address=:80
@@ -32,6 +35,6 @@ services:
           memory: 64M
 
 networks:
-  public:
+  traefik:
     name: reverse-proxy-traefik_public
     external: true
