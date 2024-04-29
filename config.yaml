@@ -24,6 +24,7 @@ packages:
   - identity-access-manager-keycloak
   - openhim-mapping-mediator
   - reverse-proxy-traefik
+  - database-postgres
 
 profiles:
   - name: cdr-dw

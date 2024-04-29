@@ -1,5 +1,5 @@
 {
-  "name": "Get patient links response",
+  "name": "Get interaction links response",
   "endpoint": {
     "pattern": "/response/links/:patientId",
     "method": "GET"
@@ -11,29 +11,25 @@
   "inputTransforms": {
     "goldenId": "$exists(lookupRequests.jempiSearchGoldenId.data[0].goldenRecordsWithScore[0].goldenRecord.uid) ? lookupRequests.jempiSearchGoldenId.data[0].goldenRecordsWithScore[0].goldenRecord.uid : ''"
   },
+  "inputMapping": {
+    "transforms.goldenId": "gid"
+  },
   "requests": {
     "response": {
       "id": "jempiSearchResponse",
       "config": {
-        "method": "get",
-        "url": "http://jempi-api:50000/JeMPI/expanded-golden-record/:goldenId",
-        "params": {
-          "url": {
-            "goldenId": {
-              "path": "transforms.goldenId"
-            }
-          }
-        }
+        "method": "post",
+        "url": "http://jempi-api:50000/JeMPI/expandedGoldenRecord"
       }
     },
     "lookup": {
       "id": "jempiSearchGoldenId",
       "config": {
         "method": "get",
-        "url": "http://jempi-api:50000/JeMPI/expanded-interactions-csv",
+        "url": "http://openhim-mapping-mediator:3003/response/links/interaction/:patientId",
         "params": {
-          "query": {
-            "uidList": {
+          "url": {
+            "patientId": {
               "path": "urlParams.patientId"
             }
           }
