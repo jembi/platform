@@ -23,6 +23,7 @@ packages:
   - client-registry-jempi
   - identity-access-manager-keycloak
   - openhim-mapping-mediator
+  - reprocess-mediator
 
 profiles:
   - name: cdr-dw
@@ -72,3 +73,10 @@ profiles:
       - openhim-mapping-mediator
     envFiles:
       - mpi.env
+
+  - name: reprocess
+    packages:
+      - reprocess-mediator
+      - reverse-proxy-nginx
+    envFiles:
+      - .env
