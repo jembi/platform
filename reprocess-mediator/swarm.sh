@@ -8,6 +8,7 @@ declare MODE=""
 
 function init_vars() {
   ACTION=$1
+  MODE=$2
 
   COMPOSE_FILE_PATH=$(
     cd "$(dirname "${BASH_SOURCE[0]}")" || exit
@@ -20,6 +21,7 @@ function init_vars() {
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
   readonly STACK
+  readonly MODE
 }
 
 # shellcheck disable=SC1091

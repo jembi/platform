@@ -7,9 +7,12 @@
     "dependencies": ["interoperability-layer-openhim"],
     "environmentVariables": {
       "TRUST_SELF_SIGNED": "true",
-      "OPENHIM_API_URL": "https://openhim-core:8080",
+      "OPENHIM_MEDIATOR_URL": "https://openhim-core:8080",
       "OPENHIM_USERNAME": "root@openhim.org",
       "OPENHIM_PASSWORD": "instant101",
-      "REGISTER_MEDIATOR": "true"
+      "REGISTER_MEDIATOR": "true",
+      "REPROCESSOR_API_BASE_URL": "http://reprocess-mediator:3000",
+      "REPROCESS_CORE_VERSION": "latest",
+      "REPROCESS_UI_VERSION": "latest"
     }
   }

@@ -80,3 +80,4 @@ profiles:
       - reverse-proxy-nginx
     envFiles:
       - .env
+    dev: true

@@ -2,22 +2,22 @@ version: '3.9'
 
 services:
   reprocess-mediator:
-    image: reprocess-mediator:latest
+    image: jembi/reprocess-mediator:${REPROCESS_CORE_VERSION}
     networks:
       openhim:
       reprocess:
     environment:
       TRUST_SELF_SIGNED: ${TRUST_SELF_SIGNED}
-      OPENHIM_API_URL: ${OPENHIM_API_URL}
+      OPENHIM_MEDIATOR_URL: ${OPENHIM_MEDIATOR_URL}
       OPENHIM_USERNAME: ${OPENHIM_USERNAME}
       OPENHIM_PASSWORD: ${OPENHIM_PASSWORD}
       REGISTER_MEDIATOR: ${REGISTER_MEDIATOR}
   
   reprocess-mediator-ui:
-    image: reprocess-mediator-ui:latest
+    image: jembi/reprocess-mediator-ui:${REPROCESS_UI_VERSION}
     networks:
+      openhim:
       reprocess:
-      reprocessui:
     environment:
       REPROCESSOR_API_BASE_URL: ${REPROCESSOR_API_BASE_URL}
 
@@ -27,8 +27,5 @@ networks:
     external: true
   reprocess:
     name: reprocess_public
-    external: true
-  reprocessui:
-    name: reprocess_ui_public
     external: true
 
