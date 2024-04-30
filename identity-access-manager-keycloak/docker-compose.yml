@@ -49,6 +49,7 @@ services:
       reverse-proxy:
       public:
       default:
+      postgres:
 
 configs:
   realm.json:
@@ -65,3 +66,6 @@ networks:
     name: keycloak_public
     external: true
   default:
+  postgres:
+    name: postgres_public
+    external: true

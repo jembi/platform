@@ -36,6 +36,7 @@ jobs:
         shell: bash
         env:
           SSH_KEY: ${{ secrets.DEPLOY_KEY_PUB }}
+      - run: cp ../../test/cucumber/features/resources/testsSecurity.tf ./security.tf
       - run: terraform init
       - run: terraform apply -auto-approve
       - name: Upload terraform state
@@ -71,7 +72,7 @@ jobs:
   run-e2e-tests:
     runs-on: ubuntu-20.04
     needs: configure-e2e-server
-    timeout-minutes: 80
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v3
         with:

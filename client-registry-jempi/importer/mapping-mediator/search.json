@@ -8,7 +8,7 @@
     "input": "JSON",
     "output": "JSON"
   },
-  "inputTransforms" : {
+  "inputTransforms": {
     "id": "lookupRequests.jempiSearch.data.goldenRecord.uid",
     "gender": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.gender) ? lookupRequests.jempiSearch.data.goldenRecord.demographicData.gender : null",
     "birthDate": "$exists(lookupRequests.jempiSearch.data.goldenRecord.demographicData.dob) ? lookupRequests.jempiSearch.data.goldenRecord.demographicData.dob : null",
@@ -45,7 +45,7 @@
       "id": "jempiSearch",
       "config": {
         "method": "get",
-        "url": "http://jempi-api:50000/JeMPI/expanded-golden-record/:patientId",
+        "url": "http://openhim-mapping-mediator:3003/search-response/:patientId",
         "params": {
           "url": {
             "patientId": {
