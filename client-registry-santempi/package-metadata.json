@@ -9,6 +9,7 @@
     "SANTEMPI_INSTANCES": "1",
     "POSTGRESQL_PASSWORD": "instant101",
     "POSTGRESQL_USERNAME": "postgres",
-    "SANTEMPI_DB_REP_SET": "postgres-1"
+    "SANTEMPI_DB_REP_SET": "postgres-1",
+    "SANTEDB_WWW_TRAEFIK_HOST_NAME": "santempi"
   }
 }

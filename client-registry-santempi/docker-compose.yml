@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   santedb-mpi:
@@ -28,9 +28,16 @@ services:
 
   santedb-www:
     image: santesuite/santedb-www:2.2.1.10
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=reverse-proxy_public
+        - traefik.http.routers.santedb-www.rule=Host(`${SANTEDB_WWW_TRAEFIK_HOST_NAME}`)
+        - traefik.http.services.santedb-www.loadbalancer.server.port=80
     networks:
       default:
       reverse-proxy:
+      traefik:
 
 # Sante's Match configuration is stored in the container. This will prevent the matching rules of the client registry from being lost. A docker config cannot be used for this case as the settings can be changed on Sante's UI.
 volumes:
@@ -45,6 +52,9 @@ networks:
     external: true
   reverse-proxy:
     name: reverse-proxy_public
+    external: true
+  traefik:
+    name: reverse-proxy-traefik_public
     external: true
   default:
   postgres:

@@ -1,10 +1,16 @@
-version: '3.9'
+version: "3.9"
 
 services:
   grafana:
     image: grafana/grafana-oss:9.2.3
     volumes:
       - grafana-data:/var/lib/grafana
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=reverse-proxy-traefik_public
+        - traefik.http.routers.grafana.rule=Host(`${GRAFANA_TRAEFIK_HOST_NAME}`)
+        - traefik.http.services.grafana.loadbalancer.server.port=3000
     environment:
       GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER}
       GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
@@ -59,6 +65,7 @@ services:
     networks:
       keycloak:
       reverse-proxy:
+      traefik:
       default:
 
   prometheus:
@@ -71,12 +78,12 @@ services:
       - target: /etc/prometheus/prometheus.yml
         source: prometheus.yml
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--web.enable-lifecycle'
-      - '--storage.tsdb.retention.time=${MO_RETENTION_TIME}'
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/etc/prometheus/console_libraries"
+      - "--web.console.templates=/etc/prometheus/consoles"
+      - "--web.enable-lifecycle"
+      - "--storage.tsdb.retention.time=${MO_RETENTION_TIME}"
     networks:
       public:
       default:
@@ -97,9 +104,9 @@ services:
     image: quay.io/prometheus/node-exporter:v1.3.1
     hostname: "{{.Node.ID}}"
     command:
-      - '--path.rootfs=/host'
+      - "--path.rootfs=/host"
     volumes:
-      - '/:/host:ro,rslave'
+      - "/:/host:ro,rslave"
     deploy:
       mode: global
 
@@ -139,13 +146,7 @@ services:
       MINIO_ROOT_USER: ${MO_SECURITY_ADMIN_USER}
       MINIO_ROOT_PASSWORD: ${MO_SECURITY_ADMIN_PASSWORD}
     healthcheck:
-      test:
-        [
-          "CMD",
-          "curl",
-          "-f",
-          "http://localhost:9000/minio/health/live"
-        ]
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
       timeout: 20s
       retries: 3
@@ -155,8 +156,14 @@ services:
       - minio-01-data2:/data2
     deploy:
       replicas: 1
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=reverse-proxy-traefik_public
+        - traefik.http.routers.minio-01.rule=Host(`${MINIO_TRAEFIK_HOST_NAME}`)
+        - traefik.http.services.minio-01.loadbalancer.server.port=9001
     networks:
       reverse-proxy:
+      traefik:
       default:
 
 configs:
@@ -247,5 +254,8 @@ networks:
     external: true
   public:
     name: prometheus_public
+    external: true
+  traefik:
+    name: reverse-proxy-traefik_public
     external: true
   default:

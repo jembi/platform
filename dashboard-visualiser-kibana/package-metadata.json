@@ -15,6 +15,7 @@
     "KIBANA_CONFIG_FILE": "kibana-export.ndjson",
     "KIBANA_SSL": "false",
     "KIBANA_MEMORY_LIMIT": "3G",
-    "KIBANA_MEMORY_RESERVE": "500M"
+    "KIBANA_MEMORY_RESERVE": "500M",
+    "KIBANA_TRAEFIK_HOST_NAME": "kibana"
   }
 }

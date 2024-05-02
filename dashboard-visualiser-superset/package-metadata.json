@@ -28,6 +28,7 @@
     "SUPERSET_POSTGRESQL_USERNAME": "admin",
     "SUPERSET_POSTGRESQL_PASSWORD": "admin",
     "SUPERSET_POSTGRESQL_DATABASE": "superset",
-    "SUPERSET_POSTGRESQL_URL": "postgres-metastore:5432"
+    "SUPERSET_POSTGRESQL_URL": "postgres-metastore:5432",
+    "SUPERSET_TRAEFIK_HOST_NAME": "superset"
   }
 }

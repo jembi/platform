@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   dashboard-visualiser-kibana:
@@ -13,6 +13,11 @@ services:
       ES_KIBANA_SYSTEM: ${ES_KIBANA_SYSTEM?:err}
     deploy:
       replicas: ${KIBANA_INSTANCES}
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=reverse-proxy-public
+        - traefik.http.routers.dashboard-visualiser-kibana.rule=Host(`${KIBANA_TRAEFIK_HOST_NAME}`)
+        - traefik.http.services.dashboard-visualiser-kibana.loadbalancer.server.port=5601
       resources:
         limits:
           memory: ${KIBANA_MEMORY_LIMIT}
@@ -23,6 +28,7 @@ services:
         source: ${KIBANA_YML_CONFIG}
     networks:
       reverse-proxy:
+      traefik:
       elastic:
       default:
 
@@ -33,12 +39,15 @@ configs:
   kibana-kibana-cluster.yml:
     file: ./kibana.cluster.yml
     name: kibana-kibana-cluster.yml-${kibana_kibana_cluster_yml_DIGEST:?err}
-    labels: 
+    labels:
       name: kibana
 
 networks:
   reverse-proxy:
     name: reverse-proxy_public
+    external: true
+  traefik:
+    name: reverse-proxy-traefik_public
     external: true
   elastic:
     name: elastic_public

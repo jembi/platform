@@ -7,13 +7,8 @@ services:
       labels:
         - traefik.enable=true
         - traefik.docker.network=reverse-proxy-traefik_public
-        - traefik.http.routers.dashboard-visualiser-superset.rule=Host(`localhost`) && PathPrefix(`/superset`)
-        - traefik.http.routers.dashboard-visualiser-superset.entrypoints=web
+        - traefik.http.routers.dashboard-visualiser-superset.rule=Host(`${SUPERSET_TRAEFIK_HOST_NAME}`)
         - traefik.http.services.dashboard-visualiser-superset.loadbalancer.server.port=8088
-        - traefik.http.services.dashboard-visualiser-superset.loadbalancer.server.scheme=http
-        - traefik.http.routers.dashboard-visualiser-superset.middlewares=superset
-        - traefik.http.middlewares.dashboard-visualiser-superset.stripprefix.prefixes=/superset
-        - traefik.http.middlewares.dashboard-visualiser-superset.stripprefix.forceSlash=false
     environment:
       KC_SUPERSET_SSO_ENABLED: ${KC_SUPERSET_SSO_ENABLED}
       KC_SUPERSET_CLIENT_ID: ${KC_SUPERSET_CLIENT_ID}

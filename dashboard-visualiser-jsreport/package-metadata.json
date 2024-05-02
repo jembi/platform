@@ -20,6 +20,7 @@
     "JS_REPORT_MEMORY_RESERVE": "500M",
     "JS_REPORT_DEV_MOUNT": "false",
     "JS_REPORT_PACKAGE_PATH": "",
-    "JS_REPORT_LICENSE_KEY": ""
+    "JS_REPORT_LICENSE_KEY": "",
+    "JS_REPORT_TRAEFIK_HOST_NAME": "reports"
   }
 }

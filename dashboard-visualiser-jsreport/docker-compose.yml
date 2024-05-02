@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   dashboard-visualiser-jsreport:
@@ -13,6 +13,11 @@ services:
       placement:
         max_replicas_per_node: 1
       replicas: ${JS_REPORT_INSTANCES}
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=reverse-proxy-traefik_public
+        - traefik.http.routers.dashboard-visualiser-jsreport.rule=Host(`${JS_REPORT_TRAEFIK_HOST_NAME}`)
+        - traefik.http.services.dashboard-visualiser-jsreport.loadbalancer.server.port=5488
       resources:
         limits:
           cpus: ${JS_REPORT_CPU_LIMIT}
@@ -21,14 +26,14 @@ services:
           cpus: ${JS_REPORT_CPU_RESERVE}
           memory: ${JS_REPORT_MEMORY_RESERVE}
     labels:
-      co.elastic.metrics/module: 'docker'
-      co.elastic.metrics/metricsets: 'cpu,memory,diskio,info,healthcheck,container'
+      co.elastic.metrics/module: "docker"
+      co.elastic.metrics/metricsets: "cpu,memory,diskio,info,healthcheck,container"
     environment:
-      allowLocalFilesAccess: 'true'
-      extensions_fsStore_dataDirectory: 'jsreport/data'
-      extensions_fsStore_externalModificationsSync: 'true'
+      allowLocalFilesAccess: "true"
+      extensions_fsStore_dataDirectory: "jsreport/data"
+      extensions_fsStore_externalModificationsSync: "true"
       extensions_authentication_cookieSession_secret: ${JS_REPORT_SECRET}
-      extensions_authentication_admin_username: 'admin'
+      extensions_authentication_admin_username: "admin"
       extensions_authentication_admin_password: ${JS_REPORT}
       ES_PASSWORD: ${ES_ELASTIC}
       licenseKey: ${JS_REPORT_LICENSE_KEY}
@@ -37,6 +42,7 @@ services:
       - jsreport-data:/jsreport
     networks:
       reverse-proxy:
+      traefik:
       elastic:
       default:
 
@@ -49,5 +55,8 @@ networks:
     external: true
   elastic:
     name: elastic_public
+    external: true
+  traefik:
+    name: reverse-proxy-traefik_public
     external: true
   default:

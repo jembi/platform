@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   identity-access-manager-keycloak:
@@ -8,7 +8,7 @@ services:
         "start",
         "--proxy=edge",
         "--hostname-url=${KC_FRONTEND_URL}",
-        "--import-realm"
+        "--import-realm",
       ]
     hostname: identity-access-manager-keycloak
     healthcheck:
@@ -45,9 +45,15 @@ services:
     deploy:
       placement:
         max_replicas_per_node: 1
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=reverse-proxy
+        - traefik.http.routers.identity-access-manager-keycloak.rule=Host(`${KC_TRAEFIK_HOST_NAME}`)
+        - traefik.http.services.identity-access-manager-keycloak.loadbalancer.server.port=8080
     networks:
       reverse-proxy:
       public:
+      traefik:
       default:
       postgres:
 
@@ -64,6 +70,9 @@ networks:
     external: true
   public:
     name: keycloak_public
+    external: true
+  traefik:
+    name: reverse-proxy-traefik_public
     external: true
   default:
   postgres:
