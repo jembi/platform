@@ -7,6 +7,7 @@
   "dependencies": [],
   "environmentVariables": {
     "REVERSE_PROXY_INSTANCES": "1",
+    "LOG_LEVEL": "DEBUG",
     "TK_CPU_LIMIT": 0,
     "TK_CPU_RESERVE": "0.05",
     "TK_MEMORY_LIMIT": "3G",
