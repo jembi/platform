@@ -217,6 +217,73 @@
         "name": "Super User"
       },
       "description": "Sends a fhir bundle to hapi-fhir for validation, and then forwards it to a kafka if valid."
+    },
+    {
+      "name": "JeMPI Patient links endpoint in fhir",
+      "description": "JeMPI Patient endpoint for retrieving  using the patient interaction id",
+      "urlPattern": "^/fhir/links/Patient/?[^/]*$",
+      "isAsynchronousProcess": false,
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE",
+        "PUT",
+        "OPTIONS",
+        "HEAD",
+        "TRACE",
+        "CONNECT",
+        "PATCH"
+      ],
+      "type": "http",
+      "tcpPort": null,
+      "tcpHost": null,
+      "pollingSchedule": null,
+      "requestBody": true,
+      "responseBody": true,
+      "allow": [
+        "instant"
+      ],
+      "whitelist": [],
+      "authType": "private",
+      "routes": [
+        {
+          "name": "Generic Mapping Mediator",
+          "type": "http",
+          "status": "enabled",
+          "secured": false,
+          "host": "openhim-mapping-mediator",
+          "port": 3003,
+          "path": "",
+          "pathTransform": "",
+          "primary": true,
+          "username": "",
+          "password": "",
+          "forwardAuthHeader": true,
+          "waitPrimaryResponse": false,
+          "statusCodesCheck": "2**"
+        }
+      ],
+      "matchContentTypes": [],
+      "matchContentRegex": null,
+      "matchContentXpath": null,
+      "matchContentJson": null,
+      "matchContentValue": null,
+      "properties": [],
+      "txViewAcl": [],
+      "txViewFullAcl": [],
+      "txRerunAcl": [],
+      "alerts": [],
+      "status": "enabled",
+      "rewriteUrls": false,
+      "addAutoRewriteRules": true,
+      "rewriteUrlsConfig": [],
+      "autoRetryEnabled": false,
+      "autoRetryPeriodMinutes": 60,
+      "updatedBy": {
+        "id": "661e3c1206d33f9dfbcb3094",
+        "name": "test test"
+      },
+      "priority": 1
     }
   ],
   "Mediators": [
