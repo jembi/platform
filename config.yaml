@@ -74,10 +74,3 @@ profiles:
       - openhim-mapping-mediator
     envFiles:
       - mpi.env
-
-  - name: ig-importer
-    packages:
-      - fhir-ig-importer
-    envFiles:
-      - cdr.env
-    dev: true

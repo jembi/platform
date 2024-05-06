@@ -4,13 +4,8 @@ services:
   fhir-ig-importer-mediator:
     image: jembi/fhir-ig-importer-mediator:${FHIR_IG_IMPORTER_CORE_VERSION}
     networks:
-      ig-importer:
       hapi-fhir:
       openhim:
-    deploy:
-      replicas: ${FHIR_IG_IMPORTER_CORE_INSTANCES}
-      placement:
-        max_replicas_per_node: 1
     environment:
       HAPI_FHIR_BASE_URL: ${HAPI_FHIR_BASE_URL}
       HAPI_FHIR_INSTANCES: ${HAPI_FHIR_INSTANCES}
@@ -18,22 +13,14 @@ services:
       FHIR_IG_IMPORTER_CORE_HOST: ${FHIR_IG_IMPORTER_CORE_HOST}
 
   fhir-ig-importer-ui:
-    image: jembi/fhir-ig-importer-ui:${FHIR_IG_IMPORTER_UI_VERSION}
+    image: jembi/fhir-ig-importer-mediator-ui:${FHIR_IG_IMPORTER_UI_VERSION}
     networks:
-      ig-importer:
       hapi-fhir:
       openhim:
-    deploy:
-      replicas: ${FHIR_IG_IMPORTER_UI_INSTANCES}
-      placement:
-        max_replicas_per_node: 1
     environment:
       FHIR_IG_IMPORTER_CORE_URL: ${FHIR_IG_IMPORTER_CORE_URL}
 
 networks:
-  ig-importer:
-    name: ig-importer-network
-    external: true
   hapi-fhir:
     name: hapi-fhir_public
     external: true

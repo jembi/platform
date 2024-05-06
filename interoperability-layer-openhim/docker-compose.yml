@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   openhim-core:
-    image: jembi/openhim-core:microfrontends-pre-release
+    image: ${OPENHIM_CORE_IMAGE}
     networks:
       kafka:
       hapi-fhir:
@@ -11,7 +11,6 @@ services:
       public:
       default:
       prometheus:
-      ig:
     environment:
       - mongo_url=${OPENHIM_MONGO_URL}
       - mongo_atnaUrl=${OPENHIM_MONGO_ATNAURL}
@@ -84,8 +83,5 @@ networks:
     external: true
   prometheus:
     name: prometheus_public
-    external: true
-  ig:
-    name: ig-importer
     external: true
   default:
