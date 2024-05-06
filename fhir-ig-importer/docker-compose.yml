@@ -29,6 +29,7 @@ services:
         max_replicas_per_node: 1
     environment:
       FHIR_IG_IMPORTER_CORE_URL: ${FHIR_IG_IMPORTER_CORE_URL}
+
 networks:
   ig-importer:
     name: ig-importer-network
