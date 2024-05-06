@@ -1,7 +1,7 @@
 {
     "id": "reprocess-mediator",
     "name": "Reprocess Mediator",
-    "description": "A mediator that allows for configuring and reprocess of transactions",
+    "description": "A mediator that allows for configuring and reprocessing of transactions",
     "type": "use-case",
     "version": "1.4.2",
     "dependencies": ["interoperability-layer-openhim"],

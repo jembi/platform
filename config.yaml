@@ -75,10 +75,3 @@ profiles:
     envFiles:
       - mpi.env
 
-  - name: reprocess
-    packages:
-      - reprocess-mediator
-      - reverse-proxy-nginx
-    envFiles:
-      - .env
-    dev: true
