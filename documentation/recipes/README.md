@@ -4,7 +4,7 @@ description: Pre-defined recipes for common use cases
 
 # 📜 Recipes
 
-OpenHIM platform comes bundles with a set of generic packages that can be deployed and configured to support a number of different use cases. To help users of OpenHIM Platform get started with something they can make use of immediately, a number of default OpenHIM Platform reciepes are provided. These help you get started with everything you need setup and configured for a particular use case.
+OpenHIM platform comes bundles with a set of generic packages that can be deployed and configured to support a number of different use cases. To help users of OpenHIM Platform get started with something they can make use of immediately, a number of default OpenHIM Platform recipes are provided. These help you get started with everything you need setup and configured for a particular use case.
 
 We current support the following default recipes:
 
