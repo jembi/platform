@@ -55,7 +55,7 @@
               }
             }
           },
-          "url": "http://openhim-mapping-mediator:3003/search-response"
+          "url": "http://openhim-mapping-mediator:3003/search-response-all"
         }
       }
     ]
