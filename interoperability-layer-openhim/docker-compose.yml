@@ -39,7 +39,7 @@ services:
         - prometheus-scheme=https
         - prometheus-port=8080
         - traefik.enable=true
-        - traefik.docker.network=reverse-proxy_public
+        - traefik.docker.network=reverse-proxy-traefik_public
         - traefik.http.routers.openhim-comms.rule=Host(`${OPENHIM_COMMS_HOST_NAME}`)
         - traefik.http.services.openhim-comms.loadbalancer.server.port=8080
         - traefik.http.routers.openhim-core.rule=Host(`${OPENHIM_CORE_HOST_NAME}`)
@@ -65,7 +65,7 @@ services:
       replicas: ${OPENHIM_CONSOLE_INSTANCES}
       labels:
         - traefik.enable=true
-        - traefik.docker.network=reverse-proxy_public
+        - traefik.docker.network=reverse-proxy-traefik_public
         - traefik.http.routers.openhim-console.rule=Host(`${OPENHIM_CONSOLE_HOST_NAME}`)
         - traefik.http.services.openhim-console.loadbalancer.server.port=80
       placement:
@@ -87,6 +87,9 @@ networks:
     external: true
   reverse-proxy:
     name: reverse-proxy_public
+    external: true
+  traefik:
+    name: reverse-proxy-traefik_public
     external: true
   keycloak:
     name: keycloak_public

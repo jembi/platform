@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   jempi-web:
@@ -15,6 +15,11 @@ services:
       REACT_APP_SHOW_BRAND_LOGO: "false"
     deploy:
       replicas: ${JEMPI_WEB_INSTANCES}
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=reverse-proxy-traefik_public
+        - traefik.http.routers.jempi-web.rule=Host(`${JEMPI_WEB_TRAEFIK_HOST_NAME}`)
+        - traefik.http.services.jempi-web.loadbalancer.server.port=3000
       placement:
         max_replicas_per_node: 1
       resources:
@@ -24,13 +29,16 @@ services:
           memory: ${JEMPI_WEB_MEMORY_RESERVE}
     networks:
       reverse-proxy:
+      traefik:
       keycloak:
       default:
-
 
 networks:
   reverse-proxy:
     name: reverse-proxy_public
+    external: true
+  traefik:
+    name: reverse-proxy-traefik_public
     external: true
   keycloak:
     name: keycloak_public
