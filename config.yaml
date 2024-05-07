@@ -24,6 +24,7 @@ packages:
   - identity-access-manager-keycloak
   - openhim-mapping-mediator
   - database-postgres
+  - fhir-ig-importer
 
 profiles:
   - name: cdr-dw

@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   openhim-core:
-    image: jembi/openhim-core:v8.4.0
+    image: ${OPENHIM_CORE_IMAGE}
     networks:
       kafka:
       hapi-fhir:
