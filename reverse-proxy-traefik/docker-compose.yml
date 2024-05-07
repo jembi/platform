@@ -14,15 +14,16 @@ services:
       - --providers.docker.exposedbydefault=false
       - --providers.swarm.useBindPortIP=true
       - --entrypoints.web.address=:80
-      - --entrypoints.https.address=:443
+      - --entryPoints.websecure.address=:443
       - --providers.docker.network=reverse-proxy-traefik_public
+      - --certificatesresolvers.myresolver.acme.email=${ACME_EMAIL}
+      - --certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     deploy:
       replicas: 1
       labels:
         - traefik.enable=true
-        - traefik.http.routers.reverse-proxy-traefik.rule=Host(`${TRAEFIK_HOST_NAME}`)
         - traefik.http.services.reverse-proxy-traefik.loadbalancer.server.port=80
       placement:
         max_replicas_per_node: 1
