@@ -1,10 +1,10 @@
 #!/bin/bash
 
 declare ACTION=""
+declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare STACK="kafka-mapper"
-declare MODE=""
+declare STACK="fhir-ig-importer"
 
 function init_vars() {
   ACTION=$1
@@ -14,43 +14,42 @@ function init_vars() {
     cd "$(dirname "${BASH_SOURCE[0]}")" || exit
     pwd -P
   )
-
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
-
   readonly ACTION
+  readonly MODE
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
   readonly STACK
-  readonly MODE
 }
-
 # shellcheck disable=SC1091
 function import_sources() {
   source "${UTILS_PATH}/docker-utils.sh"
+  source "${UTILS_PATH}/config-utils.sh"
   source "${UTILS_PATH}/log.sh"
 }
 
 function initialize_package() {
-  local consumer_ui_dev_compose_filename=""
+  local fhir_ig_importer_dev_compose_filename=""
 
   if [[ "${MODE}" == "dev" ]]; then
     log info "Running package in DEV mode"
-    consumer_ui_dev_compose_filename="docker-compose.dev.yml"
+    fhir_ig_importer_dev_compose_filename="docker-compose.dev.yml"
   else
     log info "Running package in PROD mode"
   fi
+
   (
-    docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$consumer_ui_dev_compose_filename"
+    docker::deploy_service "$STACK" "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$fhir_ig_importer_dev_compose_filename"
   ) || {
     log error "Failed to deploy package"
     exit 1
   }
+  docker::deploy_config_importer $STACK "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "fhir-ig-importer-config-importer" "fhir-ig-importer"
+
 }
 
 function destroy_package() {
-  docker::stack_destroy $STACK
-
-  docker::prune_configs "kafka-mapper-consumer"
+  docker::stack_destroy "$STACK"
 }
 
 main() {
@@ -58,13 +57,17 @@ main() {
   import_sources
 
   if [[ "${ACTION}" == "init" ]] || [[ "${ACTION}" == "up" ]]; then
-    log info "Running package"
+    if [[ "${CLUSTERED_MODE}" == "true" ]]; then
+      log info "Running package in Cluster node mode"
+    else
+      log info "Running package in Single node mode"
+    fi
 
     initialize_package
   elif [[ "${ACTION}" == "down" ]]; then
     log info "Scaling down package"
 
-    docker::scale_services $STACK 0
+    docker::scale_services "$STACK" 0
   elif [[ "${ACTION}" == "destroy" ]]; then
     log info "Destroying package"
     destroy_package

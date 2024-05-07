@@ -66,7 +66,7 @@
         "id": "jempiSearchAllProbabilisticResponse",
         "config": {
           "method": "post",
-          "url": "http://jempi-api:50000/JeMPI/cr-find"
+          "url": "http://jempi-api:50000/JeMPI/crFind"
         }
       }
     ]

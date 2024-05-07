@@ -1,0 +1,22 @@
+{
+  "name": "Get patient links interaction response",
+  "endpoint": {
+    "pattern": "/response/links/interaction/:patientId",
+    "method": "GET"
+  },
+  "transformation": {
+    "output": "JSON"
+  },
+  "inputMapping": {
+    "urlParams.patientId": "uidList[]+"
+  },
+  "requests": {
+    "response": {
+      "id": "jempiSearchInteractionForGoldenId",
+      "config": {
+        "method": "post",
+        "url": "http://jempi-api:50000/JeMPI/expandedInteractionsCsv"
+      }
+    }
+  }
+}
