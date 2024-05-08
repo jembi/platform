@@ -68,6 +68,7 @@
     groups: 
       - docker
   loop: "{{ docker_users }}"
+  when: item.key is defined
 
 - name: reset ssh connection to allow user changes to affect ansible user
   meta: reset_connection
