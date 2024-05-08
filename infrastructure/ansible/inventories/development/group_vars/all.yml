@@ -26,6 +26,9 @@ sudoers:
     key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCwfQ8ypu5+4rGNfMeSzB+ADffE4qT/519AFVDTIWgV4FaJipsgHdYFTVnxkJHAiixTKAqEJ2SF1RJ2/pIH2hX5p2GNWhrXuOmnqiOZEByPSsqidSNS8aMCfIzt7UZ6XvIPhagZnEQ7NCA1BOuOqzWISIEKjSqA3MvfZ5kniis5J9cbTqkGB+pgW75fuQIxtmK7iCZbwuXOO735PzkKgeT/vfg4fTlbmOeikSNO6QaamGRZ+NJfprCIx5j5GKc970k6V9d4RcQltHojgWI7Wl2VRLsprm7Xy2keaTGXfjnCDwQ2cQRUgBqIoWyDoUzNqvDYXrEAfM19sNEICMx90fXaJeGrNbMg2jjWuyPacSnB0moDtECt4zd2svozGEWnVvdY8KDAWgMbTUlrufNOzh7hyrDMpaBSmSN9npyTpekM0kWlykfU++oEexXMi41b0cZLJc9ocPJCeKZ0fzpachHW35zsUh2E6OCgbXdDxNugVrG4ecz9nUqjJGyYhCX6mhz9VxpB46wEPQ/E2rTsnIfd+xMYoyLqLzCfKf/Z8CL8/Ifq7uDRxczRmo5sCrjByOdwyUGY+JoFQMc5OcEzfyepVmcwfuhuASBGAZOr1zM1ituqG614d7W+GDRHwCeAS8zUZKFdYvL5C4nOg+OxojqnC8zSGwN3ZcnMXHvvzKdQHw==
 
 docker_users:
+  - name: Default user
+    username: ubuntu
+    state: present
   - name: bradford.sawadye@jembi.org
     username: bradfordsawadye
     state: present
