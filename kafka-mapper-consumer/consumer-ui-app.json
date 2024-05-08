@@ -1,0 +1,11 @@
+{
+  "name": "Kafka Mapper Consumer",
+  "description": "Kafka mapper consumer microfrontents app",
+  "category": "HIE Configuration",
+  "type": "esmodule",
+  "url": "http://localhost:8091/jembi-kafka-mapper-consumer-ui.js",
+  "showInPortal": true,
+  "showInSideBar": false,
+  "access_roles": ["admin"],
+  "icon": "https://fonts.gstatic.com/s/i/materialicons/apps/v12/24px.svg"
+}

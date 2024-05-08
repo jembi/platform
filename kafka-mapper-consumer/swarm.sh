@@ -45,6 +45,7 @@ function initialize_package() {
     log error "Failed to deploy package"
     exit 1
   }
+  docker::deploy_config_importer $STACK "$COMPOSE_FILE_PATH/docker-compose.config.yml" "kafka-mapper-consumer-config-importer" "kafka-mapper-consumer"
 }
 
 function destroy_package() {

@@ -1,5 +1,5 @@
 projectName: platform
-image: jembi/platform:latest
+image: jembi/platform:3.0.0-beta
 logPath: /tmp/logs
 
 packages:
@@ -74,3 +74,11 @@ profiles:
       - openhim-mapping-mediator
     envFiles:
       - mpi.env
+
+  - name: test-recipe
+    packages:
+      - fhir-ig-importer
+      - kafka-mapper-consumer
+    envFiles:
+      - cdr-dw.env
+    dev: true
