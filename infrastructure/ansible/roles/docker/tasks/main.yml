@@ -79,14 +79,6 @@
 - name: reset ssh connection to allow user changes to affect ansible user
   meta: reset_connection
 
-- name: log in to docker hub using ubuntu user
-  become: yes
-  become_user: ubuntu
-  docker_login:
-    username: '{{ docker_username }}'
-    password: '{{ docker_password }}'
-    state: present
-
 - name: create docker daemon config path if it doesn't exist
   raw: sudo mkdir -p /etc/docker
 
