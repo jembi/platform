@@ -12,7 +12,6 @@ Scenario: Init the CDR recipe
     And The service "kafka-01" should be started with 1 replica
     And The service "kafdrop" should be started with 1 replica
     And The service "kafka-minion" should be started with 1 replica
-    And The service "keycloak-postgres-1" should be started with 1 replica
     And The service "identity-access-manager-keycloak" should be started with 1 replica
     And The service "jempi-ratel" should be started with 1 replica
     And The service "jempi-alpha-01" should be started with 1 replica
