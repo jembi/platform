@@ -75,3 +75,15 @@ profiles:
     envFiles:
       - mpi.env
 
+  - name: dev
+    packages:
+      - interoperability-layer-openhim
+      - reprocess-mediator
+      # - reverse-proxy-nginx
+      # - fhir-datastore-hapi-fhir
+      # - monitoring
+      # - identity-access-manager-keycloak
+    envFiles:
+      - .env
+    dev: true
+

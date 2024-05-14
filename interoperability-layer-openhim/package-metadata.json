@@ -26,7 +26,7 @@
     "OPENHIM_MONGO_MEMORY_RESERVE": "500M",
     "OPENHIM_MONGO_URL": "mongodb://mongo-1:27017/openhim",
     "OPENHIM_MONGO_ATNAURL": "mongodb://mongo-1:27017/openhim",
-    "OPENHIM_CONSOLE_VERSION": "jembi/openhim-console:v1.18.2",
+    "OPENHIM_CONSOLE_VERSION": "jembi/openhim-console:microfrontend-poc",
     "KAFKA_HOSTS": "kafka-01:9092",
     "KC_REALM_NAME": "platform-realm",
     "KC_FRONTEND_URL": "http://localhost:9088",
