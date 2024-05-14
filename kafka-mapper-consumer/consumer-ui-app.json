@@ -1,6 +1,6 @@
 {
   "name": "Kafka Mapper Consumer",
-  "description": "Kafka mapper consumer microfrontents app",
+  "description": "Kafka mapper consumer microfrontends app",
   "category": "HIE Configuration",
   "type": "esmodule",
   "url": "http://localhost:8091/jembi-kafka-mapper-consumer-ui.js",
