@@ -1,0 +1,11 @@
+{
+  "name": "FHIR IG Importer",
+  "description": "FHIR IG microfrontend app",
+  "category": "HIE Configuration",
+  "type": "esmodule",
+  "url": "http://localhost:3000/jembi-fhir-ig-importer.js",
+  "showInPortal": true,
+  "showInSideBar": true,
+  "access_roles": ["admin"],
+  "icon": "https://fonts.gstatic.com/s/i/materialicons/medical_information/v1/24px.svg"
+}

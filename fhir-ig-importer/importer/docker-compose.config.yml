@@ -18,6 +18,8 @@ services:
         target: /openhimConfig.js
       - source: fhir-ig-importer-config-importer-openhim-import.json
         target: /openhim-import.json
+      - source: fhir-ig-importer-config-importer-ig-importer-app.json
+        target: /ig-importer-app.json
     deploy:
       replicas: 1
       restart_policy:
@@ -32,6 +34,11 @@ configs:
   fhir-ig-importer-config-importer-openhim-import.json:
     file: ./volume/openhim-import.json
     name: fhir-ig-importer-config-importer-openhim-import.json-${fhir_ig_importer_config_importer_openhim_import_js_DIGEST:?err}
+    labels:
+      name: fhir-ig-importer
+  fhir-ig-importer-config-importer-ig-importer-app.json:
+    file: ./volume/ig-importer-app.json
+    name: fhir-ig-importer-config-importer-ig-importer-app.json-${fhir_ig_importer_config_importer_ig_importer_app_DIGEST:?err}
     labels:
       name: fhir-ig-importer
 
