@@ -52,11 +52,12 @@ function initialize_package() {
     log info "Running package in PROD mode"
   fi
 
-  if [[ "$CLUSTERED_MODE" == "true" ]]; then
-    dgraph_cluster_compose_param="docker-compose.dgraph-cluster.yml"
-    dgraph_zero_cluster_compose_param="docker-compose.dgraph-zero-cluster.yml"
-    combined_cluster_compose_param="docker-compose.combined-cluster.yml"
-  fi
+  # Jempi not working in clustered mode, temporarily disable
+  # if [[ "$CLUSTERED_MODE" == "true" ]]; then
+  #   dgraph_cluster_compose_param="docker-compose.dgraph-cluster.yml"
+  #   dgraph_zero_cluster_compose_param="docker-compose.dgraph-zero-cluster.yml"
+  #   combined_cluster_compose_param="docker-compose.combined-cluster.yml"
+  # fi
 
   (
     log info "Importing JeMPI Kafka topics"
