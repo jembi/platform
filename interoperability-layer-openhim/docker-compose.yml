@@ -11,6 +11,7 @@ services:
       public:
       default:
       prometheus:
+      reprocess:
     environment:
       - mongo_url=${OPENHIM_MONGO_URL}
       - mongo_atnaUrl=${OPENHIM_MONGO_ATNAURL}
@@ -22,6 +23,7 @@ services:
       - api_openid_callbackUrl=${KC_OPENHIM_ROOT_URL}
       - api_openid_clientId=${KC_OPENHIM_CLIENT_ID}
       - api_openid_clientSecret=${KC_OPENHIM_CLIENT_SECRET}
+      - openhimConsoleBaseUrl=${OPENHIM_CONSOLE_BASE_URL}
     deploy:
       replicas: ${OPENHIM_CORE_INSTANCES}
       placement:
@@ -83,5 +85,8 @@ networks:
     external: true
   prometheus:
     name: prometheus_public
+    external: true
+  reprocess:
+    name: reprocess_public
     external: true
   default:
