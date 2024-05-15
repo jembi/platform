@@ -1,5 +1,5 @@
 projectName: platform
-image: jembi/platform:latest
+image: jembi/platform:3.0.0-beta
 logPath: /tmp/logs
 
 packages:
@@ -84,3 +84,10 @@ profiles:
     dev: true
     only: false
 
+  - name: test-recipe
+    packages:
+      - fhir-ig-importer
+      - kafka-mapper-consumer
+    envFiles:
+      - cdr-dw.env
+    dev: true
