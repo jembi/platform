@@ -40,6 +40,7 @@ Feature: Client Registry JeMPI?
     And The service "jempi-linker" should be connected to the networks
       | kafka_public | jempi_default |
     And The service "jempi-api" should be started with 1 replica
+    And The service "mongo-1" should be started with 1 replica
     And The service "jempi-api" should be connected to the networks
       | kafka_public | jempi_default |
     And The service "jempi-postgresql-01" should be started with 1 replica
