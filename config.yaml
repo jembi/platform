@@ -76,18 +76,3 @@ profiles:
     envFiles:
       - mpi.env
 
-  - name: dev
-    packages:
-      - reprocess-mediator
-    envFiles:
-      - .env.local
-    dev: true
-    only: false
-
-  - name: test-recipe
-    packages:
-      - fhir-ig-importer
-      - kafka-mapper-consumer
-    envFiles:
-      - cdr-dw.env
-    dev: true
