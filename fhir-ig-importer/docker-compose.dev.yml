@@ -9,6 +9,6 @@ services:
 
   fhir-ig-importer-ui:
     ports:
-      - target: 8080
+      - target: 80
         published: 3334
         mode: host
