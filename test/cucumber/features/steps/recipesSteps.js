@@ -109,11 +109,7 @@ Then("the patient data in the Jempi client registry", async function () {
     "GET"
   );
 
-  expect(
-    patient.data.link.filter((pat) =>
-      pat.other.reference.match(`Patient/${PatientID}`)
-    ).length
-  ).to.equal(1);
+  expect(patient.data.id).to.be.equal(PatientID);
 });
 
 Then("I should get a successful summary response", function () {
