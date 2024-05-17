@@ -33,6 +33,7 @@ services:
       reverse-proxy:
       kafka:
       default:
+      jempi:
 
 
   jempi-api-kc:
@@ -77,6 +78,7 @@ services:
       reverse-proxy:
       kafka:
       default:
+      jempi:
 
 
 volumes:
@@ -86,6 +88,9 @@ volumes:
 networks:
   reverse-proxy:
     name: reverse-proxy_public
+    external: true
+  jempi:
+    name: jempi_public
     external: true
   kafka:
     name: kafka_public
