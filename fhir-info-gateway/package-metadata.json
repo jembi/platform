@@ -1,0 +1,23 @@
+{
+  "id": "fhir-info-gateway",
+  "name": "FHIR Info Gateway",
+  "description": "Implement the FHIR Info Gateway as a platform package which sits between the OpenHIM and MPI Mediator and any other direct FHIR access",
+  "type": "infrastructure",
+  "version": "0.0.1",
+  "dependencies": ["mpi-mediator"],
+  "environmentVariables": {
+    "MPI_PROXY_URL": "http://localhost:5001",
+    "ACCESS_CHECKER": "patient",
+    "RUN_MODE": "DEV",
+    "FHIR_INFO_GATEWAY_IMAGE": "jembi/fhir-info-gateway:v0.0.1",
+    "BACKEND_TYPE": "HAPI",
+    "KC_API_URL": "http://identity-access-manager-keycloak:9088",
+    "KC_REALM_NAME": "platform-realm",
+    "FHIR_INFO_GATEWAY_INSTANCES": "1",
+    "FHIR_INFO_GATEWAY_MAX_REPLICAS_PER_NODE": "1",
+    "FHIR_INFO_GATEWAY_CPU_LIMIT": "0",
+    "FHIR_INFO_GATEWAY_MEMORY_LIMIT": "2G",
+    "FHIR_INFO_GATEWAY_CPU_RESERVE": "0.05",
+    "FHIR_INFO_GATEWAY_MEMORY_RESERVE": "500M"
+  }
+}

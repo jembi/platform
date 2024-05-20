@@ -1,5 +1,5 @@
 projectName: platform
-image: jembi/platform:3.0.0-beta
+image: jembi/platform:latest
 logPath: /tmp/logs
 
 packages:
@@ -26,6 +26,7 @@ packages:
   - database-postgres
   - reprocess-mediator
   - fhir-ig-importer
+  - fhir-info-gateway
 
 profiles:
   - name: cdr-dw
@@ -75,4 +76,3 @@ profiles:
       - openhim-mapping-mediator
     envFiles:
       - mpi.env
-

@@ -1,0 +1,33 @@
+version: "3.9"
+services:
+  fhir-info-gateway:
+    image: ${FHIR_INFO_GATEWAY_IMAGE}
+    networks:
+      openhim:
+      keycloak:
+      default:
+    environment:
+      TOKEN_ISSUER: ${KC_API_URL}/realms/${KC_REALM_NAME}
+      ACCESS_CHECKER: ${ACCESS_CHECKER}
+      PROXY_TO: ${MPI_PROXY_URL}
+      BACKEND_TYPE: ${BACKEND_TYPE}
+      RUN_MODE: ${RUN_MODE}
+    deploy:
+      replicas: ${FHIR_INFO_GATEWAY_INSTANCES}
+      placement:
+        max_replicas_per_node: ${FHIR_INFO_GATEWAY_MAX_REPLICAS_PER_NODE}
+      resources:
+        limits:
+          cpus: ${FHIR_INFO_GATEWAY_CPU_LIMIT}
+          memory: ${FHIR_INFO_GATEWAY_MEMORY_LIMIT}
+        reservations:
+          cpus: ${FHIR_INFO_GATEWAY_CPU_RESERVE}
+          memory: ${FHIR_INFO_GATEWAY_MEMORY_RESERVE}
+networks:
+    openhim:
+      name: openhim_public
+      external: true
+    keycloak:
+      name: keycloak_public
+      external: true
+    default:
