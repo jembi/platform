@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   kafka-mapper-consumer:
-    image: ${KAFKA_MAPPER_CONSUMER}
+    image: ${KAFKA_CONSUMER_MAPPER_MEDIATOR_VERSION}
     environment:
       KAFKA_HOST: ${KAFKA_HOST}
       KAFKA_PORT: ${KAFKA_PORT}
@@ -20,6 +20,11 @@ services:
         source: fhir-mapping.json
     networks:
       clickhouse:
+      kafka:
+
+  kafka-mapper-consumer-ui:
+    image: ${KAFKA_CONSUMER_MAPPER_UI_VERSION}
+    networks:
       kafka:
 
 configs:

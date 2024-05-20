@@ -1,0 +1,1114 @@
+{
+  "resourceType": "Bundle",
+  "type": "transaction",
+  "entry": [
+    {
+      "fullUrl": "Patient/642b83d3-a43c-41ef-a578-2b730f276bfb",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "642b83d3-a43c-41ef-a578-2b730f276bfb",
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/patient-religion",
+            "valueCodeableConcept": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/ValueSet/v3-ReligiousAffiliation",
+                  "code": "1036",
+                  "display": "Orthodox"
+                }
+              ]
+            }
+          },
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/patient-relatedPerson",
+            "valueReference": {
+              "reference": "RelatedPerson/f8b7dccb-f1ef-4365-9323-29303479d02bRelatedPerson481"
+            }
+          },
+          {
+            "url": "http://cdr.aacahb.gov.et/EducationalLevel",
+            "valueCodeableConcept": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v3-EducationLevel",
+                  "code": "ELEM",
+                  "display": "Elementary School"
+                }
+              ]
+            }
+          },
+          {
+            "url": "http://cdr.aacahb.gov.et/Occupation",
+            "valueString": "Foreman"
+          }
+        ],
+        "identifier": [
+          {
+            "system": "http://cdr.aacahb.gov.et/SmartCareID",
+            "value": "642b83d3-a43c-41ef-a578-2b730f276bfb"
+          },
+          {
+            "system": "http://cdr.aacahb.gov.et/NationalID",
+            "value": "MRN-642b83d3-a43c-41ef-a578-2b730f476bf9"
+          },
+          {
+            "system": "http://cdr.aacahb.gov.et/UAN",
+            "value": "UAN-642b83d3-a43c-41ef-a578-2b730f276bfb"
+          }
+        ],
+        "name": [
+          {
+            "use": "official",
+            "family": "Rodrigues",
+            "given": ["Liniee"]
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "+2519000000",
+            "use": "home"
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1999-06-19",
+        "address": [
+          {
+            "type": "physical",
+            "text": "Urban",
+            "state": "Addis Ababa",
+            "city": "Cherkos sub city",
+            "district": "10",
+            "line": ["17", "927/5"]
+          }
+        ],
+        "maritalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
+              "code": "M",
+              "display": "Married"
+            }
+          ]
+        },
+        "managingOrganization": {
+          "reference": "Organization/009a6a861c1b45778c0cbedadefe52a4"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/642b83d3-a43c-41ef-a578-2b730f276bfb"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "13588dce-9c0d-4ac1-959f-3a9f49b0d573encounter481",
+        "status": "finished",
+        "extension": [
+          {
+            "url": "http://cdr.aacahb.gov.et/visit-type",
+            "valueString": "Unscheduled"
+          },
+          {
+            "url": "http://cdr.aacahb.gov.et/next-visit",
+            "valueDateTime": "2017-01-19"
+          }
+        ],
+        "identifier": [
+          {
+            "system": "http://cdr.aacahb.gov.et/Encounter",
+            "value": "900326"
+          }
+        ],
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "390906007"
+              }
+            ],
+            "text": "Follow-up encounter"
+          }
+        ],
+        "serviceType": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/service-type",
+              "code": "536",
+              "display": "Art therapy"
+            },
+            {
+              "system": "http://snomed.info/sct",
+              "code": "65153003",
+              "display": "Art therapy"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/642b83d3-a43c-41ef-a578-2b730f276bfb"
+        },
+        "period": {
+          "start": "2016-12-19",
+          "end": "2016-12-19"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/13588dce-9c0d-4ac1-959f-3a9f49b0d573encounter481"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationStatement",
+        "id": "50d3b3fc-2c52-493f-8890-3eed413b1f66medStat481",
+        "status": "not-taken",
+        "subject": {
+          "reference": "Patient/642b83d3-a43c-41ef-a578-2b730f276bfb"
+        },
+        "context": {
+          "reference": "Encounter/13588dce-9c0d-4ac1-959f-3a9f49b0d573encounter481"
+        },
+        "effectivePeriod": {
+          "start": "2016-12-22"
+        },
+        "reasonCode": [
+          {
+            "coding": [
+              {
+                "system": "http://cdr.aacahb.gov.et/arv-therapy",
+                "code": "arv-treatment",
+                "display": "ARV Treatment started"
+              }
+            ],
+            "text": "ARV Treatment started"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "MedicationStatement/50d3b3fc-2c52-493f-8890-3eed413b1f66medStat481"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationDispense",
+        "id": "511f54b5-4f2d-4401-85fd-bfea7b2fa8bbMedDisp481",
+        "extension": [
+          {
+            "url": "http://cdr.aacahb.gov.et/was-switched",
+            "valueBoolean": "false"
+          },
+          {
+            "url": "http://cdr.aacahb.gov.et/switch-type",
+            "valueString": "1st switch"
+          },
+          {
+            "url": "http://cdr.aacahb.gov.et/switch-reason",
+            "valueString": "Clinical failure"
+          },
+          {
+            "url": "http://cdr.aacahb.gov.et/dose-end-date",
+            "valueDateTime": "2017-04-08"
+          }
+        ],
+        "status": "completed",
+        "statusReasonCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://cdr.aacahb.gov.et/medication-dispense/status-reason",
+              "code": "lost"
+            }
+          ]
+        },
+        "context": {
+          "reference": "Encounter/13588dce-9c0d-4ac1-959f-3a9f49b0d573encounter481"
+        },
+        "medicationCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://cdr.aacahb.gov.et/hiv-regimen-codes",
+              "code": "1c"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/642b83d3-a43c-41ef-a578-2b730f276bfb"
+        },
+        "quantity": {
+          "value": "168",
+          "system": "http://terminology.hl7.org/CodeSystem/v3-orderableDrugForm",
+          "code": "Tablet",
+          "unit": "Tablet"
+        },
+        "daysSupply": {
+          "value": "110",
+          "unit": "Day",
+          "system": "http://unitsofmeasure.org",
+          "code": "d"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "MedicationDispense/511f54b5-4f2d-4401-85fd-bfea7b2fa8bbMedDisp481"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "QuestionnaireResponse",
+        "id": "fcc43c4a-03b5-4c62-87a4-43ace65d4a55PregnancyQuest481",
+        "questionnaire": "PregnancyStatus",
+        "status": "completed",
+        "subject": {
+          "reference": "Patient/642b83d3-a43c-41ef-a578-2b730f276bfb"
+        },
+        "encounter": {
+          "reference": "Encounter/13588dce-9c0d-4ac1-959f-3a9f49b0d573encounter481"
+        },
+        "item": [
+          {
+            "linkId": "pregnant",
+            "text": "Is Pregnant",
+            "answer": [
+              {
+                "valueBoolean": "true",
+                "item": [
+                  {
+                    "linkId": "pregnant.want-to-be-pregnant",
+                    "text": "Want to be pregnant",
+                    "answer": [
+                      {
+                        "valueBoolean": false
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "linkId": "is-breast-feeding",
+            "text": "Is breast feeding",
+            "answer": [
+              {
+                "valueBoolean": "false"
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "QuestionnaireResponse/fcc43c4a-03b5-4c62-87a4-43ace65d4a55PregnancyQuest481"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "QuestionnaireResponse",
+        "id": "66bb28b3-cd8a-400c-94a2-d669d2e47005ARTQuest481",
+        "questionnaire": "ARTEligibility",
+        "status": "completed",
+        "subject": {
+          "reference": "Patient/642b83d3-a43c-41ef-a578-2b730f276bfb"
+        },
+        "source": {
+          "reference": "Patient/642b83d3-a43c-41ef-a578-2b730f276bfb"
+        },
+        "encounter": {
+          "reference": "Encounter/13588dce-9c0d-4ac1-959f-3a9f49b0d573encounter481"
+        },
+        "item": [
+          {
+            "linkId": "hiv-confirmation-date",
+            "text": "HIV Confirmed Date",
+            "answer": [
+              {
+                "valueDate": "2016-03-15"
+              }
+            ]
+          },
+          {
+            "linkId": "eligbility",
+            "item": [
+              {
+                "linkId": "eligbility.eligbile",
+                "text": "Eligible for ART",
+                "answer": [
+                  {
+                    "valueBoolean": true,
+                    "item": [
+                      {
+                        "linkId": "eligbility.eligbile.why",
+                        "text": "Why Eligible",
+                        "answer": [
+                          {
+                            "valueString": "WHO HIV Clinical Stage 3 && 4,CD4 less than or equal to 500"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "QuestionnaireResponse/66bb28b3-cd8a-400c-94a2-d669d2e47005ARTQuest481"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "410ed3de-82e3-4086-b5bb-fa2f7dfa41baAdherence981",
+        "status": "final",
+        "encounter": {
+          "reference": "Encounter/13588dce-9c0d-4ac1-959f-3a9f49b0d573encounter481"
+        },
+        "subject": {
+          "reference": "Patient/642b83d3-a43c-41ef-a578-2b730f276bfb"
+        },
+        "partOf": [
+          {
+            "reference": "MedicationDispense/511f54b5-4f2d-4401-85fd-bfea7b2fa8bbMedDisp481"
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "418633004",
+              "display": "Medication adherence"
+            }
+          ]
+        },
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "135818000",
+              "display": "Poor - grade"
+            }
+          ]
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation/410ed3de-82e3-4086-b5bb-fa2f7dfa41baAdherence981"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "190a54e9-b787-4b56-967b-0c929a1d6e31NutrtionalStatus481",
+        "status": "final",
+        "encounter": {
+          "reference": "Encounter/13588dce-9c0d-4ac1-959f-3a9f49b0d573encounter481"
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "social-history",
+                "display": "Social History"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/642b83d3-a43c-41ef-a578-2b730f276bfb"
+        },
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "87276001",
+              "display": "Nutritional status"
+            }
+          ]
+        },
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "255604002",
+              "display": "Mild Malnutrition"
+            }
+          ]
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation/190a54e9-b787-4b56-967b-0c929a1d6e31NutrtionalStatus481"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "60601a7a-2031-4c43-8881-aaf959d3f3f8Weight481",
+        "status": "final",
+        "encounter": {
+          "reference": "Encounter/13588dce-9c0d-4ac1-959f-3a9f49b0d573encounter481"
+        },
+        "subject": {
+          "reference": "Patient/642b83d3-a43c-41ef-a578-2b730f276bfb"
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs",
+                "display": "Vital Signs"
+              }
+            ],
+            "text": "Vital Signs"
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "29463-7",
+              "display": "Body weight"
+            }
+          ],
+          "text": "Weight"
+        },
+        "valueQuantity": {
+          "value": "39",
+          "unit": "kilogram",
+          "system": "http://unitsofmeasure.org",
+          "code": "kg"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation/60601a7a-2031-4c43-8881-aaf959d3f3f8Weight481"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationStatement",
+        "id": "4ba565ae-aab9-4009-a68d-a1afa6a5110aTbScreening481",
+        "extention": [
+          {
+            "url": "http://cdr.aacahb.gov.et/TreatmentPhase",
+            "valueString": "INH1"
+          }
+        ],
+        "context": {
+          "reference": "Encounter/13588dce-9c0d-4ac1-959f-3a9f49b0d573encounter481"
+        },
+        "status": "stopped",
+        "category": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "699618001",
+              "display": "Tuberculosis preventive therapy"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/642b83d3-a43c-41ef-a578-2b730f276bfb"
+        },
+        "effectivePeriod": {
+          "start": "2016-12-10",
+          "end": "2017-01-11"
+        },
+        "reasonCode": [
+          {
+            "coding": [
+              {
+                "system": "http://cdr.aacahb.gov.et/prophylaxis-type",
+                "code": "continuous"
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "MedicationStatement/4ba565ae-aab9-4009-a68d-a1afa6a5110aTbScreening481"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationStatement",
+        "id": "85823549-616c-4ed1-9f78-d385c4374072TbrxTreatment481",
+        "extention": [
+          {
+            "url": "http://cdr.aacahb.gov.et/TreatmentPhase",
+            "valueString": "TBRx1"
+          }
+        ],
+        "context": {
+          "reference": "Encounter/13588dce-9c0d-4ac1-959f-3a9f49b0d573encounter481"
+        },
+        "status": "completed",
+        "category": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "tb-treatment",
+              "display": "TB Treatment"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/642b83d3-a43c-41ef-a578-2b730f276bfb"
+        },
+        "effectivePeriod": {
+          "start": "2017-01-28",
+          "end": "2017-01-30"
+        },
+        "reasonCode": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "56717001",
+                "display": "Tuberculosis (disorder)"
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "MedicationStatement/85823549-616c-4ed1-9f78-d385c4374072TbrxTreatment481"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationStatement",
+        "id": "efc1a629-0e1a-4326-88e7-fbd0be2fe9dbCotrimoxazolTreatment481",
+        "extention": [
+          {
+            "url": "http://cdr.aacahb.gov.et/Adherence-level",
+            "valueString": "good"
+          }
+        ],
+        "context": {
+          "reference": "Encounter/13588dce-9c0d-4ac1-959f-3a9f49b0d573encounter481"
+        },
+        "status": "active",
+        "medicationCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "398731002",
+              "display": "Product containing sulfamethoxazole and trimethoprim"
+            }
+          ],
+          "text": "Co-trimoxazole"
+        },
+        "subject": {
+          "reference": "Patient/642b83d3-a43c-41ef-a578-2b730f276bfb"
+        },
+        "effectivePeriod": {
+          "start": "2016-11-10",
+          "end": "2016-11-20"
+        },
+        "dosage": [
+          {
+            "maxDosePerPeriod": {
+              "numerator": {
+                "value": 30,
+                "unit": "Dose",
+                "system": "http://unitsofmeasure.org",
+                "code": "Dose"
+              },
+              "denominator": {
+                "value": 30,
+                "unit": "days",
+                "system": "http://unitsofmeasure.org",
+                "code": "d"
+              }
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "MedicationStatement/efc1a629-0e1a-4326-88e7-fbd0be2fe9dbCotrimoxazolTreatment481"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationStatement",
+        "id": "bf03f2eb-1fd0-4d45-972b-86c5969d33c4FluconazoleTreatment481",
+        "context": {
+          "reference": "Encounter/13588dce-9c0d-4ac1-959f-3a9f49b0d573encounter481"
+        },
+        "status": "active",
+        "medicationCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "387174006",
+              "display": "Fluconazole"
+            }
+          ],
+          "text": "Fluconazole"
+        },
+        "subject": {
+          "reference": "Patient/642b83d3-a43c-41ef-a578-2b730f276bfb"
+        },
+        "effectivePeriod": {
+          "start": "2016-12-08",
+          "end": "2017-01-23"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "MedicationStatement/bf03f2eb-1fd0-4d45-972b-86c5969d33c4FluconazoleTreatment481"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "DiagnosticReport",
+        "id": "1546df70-7168-4a2f-9f89-7e134d42c07eViralLoad481",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                "code": "LAB",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "315124004",
+              "display": "Human immunodeficiency virus viral load"
+            }
+          ],
+          "text": "viral load"
+        },
+        "subject": {
+          "reference": "Patient/642b83d3-a43c-41ef-a578-2b730f276bfb"
+        },
+        "encounter": {
+          "reference": "Encounter/13588dce-9c0d-4ac1-959f-3a9f49b0d573encounter481"
+        },
+        "effectivePeriod": {
+          "start": "2017-01-03",
+          "end": "2017-01-13"
+        },
+        "conclusion": "Suppressed"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "DiagnosticReport/1546df70-7168-4a2f-9f89-7e134d42c07eViralLoad481"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "QuestionnaireResponse",
+        "id": "141326b1-27f1-4c5e-9553-0bdccab9dc40ASM481",
+        "questionnaire": "AppointmentSpacingModel",
+        "status": "completed",
+        "encounter": {
+          "reference": "Encounter/13588dce-9c0d-4ac1-959f-3a9f49b0d573encounter481"
+        },
+        "subject": {
+          "reference": "Patient/642b83d3-a43c-41ef-a578-2b730f276bfb"
+        },
+        "item": [
+          {
+            "linkId": "assessment",
+            "item": [
+              {
+                "linkId": "assessment.assessed",
+                "text": "Assessed For ASM",
+                "answer": [
+                  {
+                    "valueBoolean": "false"
+                  }
+                ]
+              },
+              {
+                "linkId": "assessment.date",
+                "text": "Assessed Date",
+                "answer": [
+                  {
+                    "valueBoolean": "false"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "linkId": "category",
+            "text": "Category",
+            "answer": [
+              {
+                "valueString": "Category 4e"
+              }
+            ]
+          },
+          {
+            "linkId": "eligible",
+            "text": "Is Eligible For ASM",
+            "answer": [
+              {
+                "valueBoolean": "false"
+              }
+            ]
+          },
+          {
+            "linkId": "counseled",
+            "text": "Counseled",
+            "answer": [
+              {
+                "valueBoolean": "true"
+              }
+            ]
+          },
+          {
+            "linkId": "enrollment",
+            "item": [
+              {
+                "linkId": "enrollment.agree",
+                "text": "Agree To Be Enrolled",
+                "answer": [
+                  {
+                    "valueBoolean": "true"
+                  }
+                ]
+              },
+              {
+                "linkId": "enrollment.enrolled",
+                "text": "Enrolled To ASM",
+                "answer": [
+                  {
+                    "valueBoolean": "true"
+                  }
+                ]
+              },
+              {
+                "linkId": "enrollment.reason",
+                "text": "Reason Not Enrolled To ASM",
+                "answer": [
+                  {
+                    "valueString": "Drug Stock Out"
+                  }
+                ]
+              },
+              {
+                "linkId": "enrollment.date",
+                "text": "Enrollment Date",
+                "answer": [
+                  {
+                    "valueDate": "2016-12-31"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "linkId": "couple-enrollment",
+            "item": [
+              {
+                "linkId": "couple-enrollment.enrolled",
+                "text": "Couple Enrolled To ASM",
+                "answer": [
+                  {
+                    "valueBoolean": "true"
+                  }
+                ]
+              },
+              {
+                "linkId": "couple-enrollment.uat-no",
+                "text": "Couple UAT No",
+                "answer": [
+                  {
+                    "valueString": "14097912"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "linkId": "new-category-change",
+            "item": [
+              {
+                "linkId": "new-category-change.type",
+                "text": "New Category Change",
+                "answer": [
+                  {
+                    "valueBoolean": "false"
+                  }
+                ]
+              },
+              {
+                "linkId": "new-category-change.reason",
+                "text": "Reason For Category Change",
+                "answer": [
+                  {
+                    "valueBoolean": "false"
+                  }
+                ]
+              },
+              {
+                "linkId": "new-category-change.date",
+                "text": "Category Change Date",
+                "answer": [
+                  {
+                    "valueBoolean": "false"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "linkId": "termination",
+            "item": [
+              {
+                "linkId": "termination.terminated",
+                "text": "Terminated From ASM",
+                "answer": [
+                  {
+                    "valueBoolean": "true"
+                  }
+                ]
+              },
+              {
+                "linkId": "termination.reason",
+                "text": "Reason For Termination",
+                "answer": [
+                  {
+                    "valueString": "Lost from follow up"
+                  }
+                ]
+              },
+              {
+                "linkId": "termination.date",
+                "text": "Terminated Date",
+                "answer": [
+                  {
+                    "valueDate": "2016-12-27"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "QuestionnaireResponse/141326b1-27f1-4c5e-9553-0bdccab9dc40ASM481"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "CarePlan",
+        "id": "691dac7c-ead7-4bfa-bd7c-32f33d10f4c4CarePlan481",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://cdr.aacahb.gov.et/care-plan",
+                "code": "hiv-positive-tracking",
+                "display": "HIV Positive Tracking"
+              }
+            ]
+          }
+        ],
+        "status": "active",
+        "intent": "order",
+        "created": "2016-12-14",
+        "period": {
+          "start": "2016-12-19",
+          "end": "2020-09-13"
+        },
+        "subject": {
+          "reference": "Patient/642b83d3-a43c-41ef-a578-2b730f276bfb"
+        },
+        "supportingInfo": {
+          "reference": "ServiceRequest/5366affa-0576-41a1-931b-aa6e3c64894dServiceRequest481"
+        },
+        "activity": [
+          {
+            "detail": {
+              "code": {
+                "coding": [
+                  {
+                    "system": "http://cdr.aacahb.gov.et/tracking",
+                    "code": "started-art",
+                    "display": "Started ART"
+                  }
+                ]
+              },
+              "status": "not-started",
+              "statusReason": {
+                "coding": [
+                  {
+                    "system": "http://cdr.aacahb.gov.et/tracking/status-reason",
+                    "code": "on-oi-management"
+                  }
+                ]
+              },
+              "description": "Address adherence barriers"
+            }
+          },
+          {
+            "detail": {
+              "code": {
+                "coding": [
+                  {
+                    "system": "http://cdr.aacahb.gov.et/tracking",
+                    "code": "linked-to-care",
+                    "display": "Linked to care and treatment"
+                  }
+                ]
+              },
+              "status": "not-started",
+              "scheduledPeriod": {
+                "valueBoolean": "false"
+              }
+            }
+          },
+          {
+            "extension": [
+              {
+                "url": "http://cdr.aacahb.gov.et/FinalOutcomeKnown",
+                "valueBoolean": "true"
+              }
+            ],
+            "outcomeCodeableConcept": [
+              {
+                "coding": [
+                  {
+                    "system": "http://cdr.aacahb.gov.et/final-outcome",
+                    "code": "confirmed-referral",
+                    "display": "Confirmed referral"
+                  }
+                ]
+              }
+            ],
+            "detail": {
+              "code": {
+                "coding": [
+                  {
+                    "system": "http://cdr.aacahb.gov.et/tracking",
+                    "code": "final-outcome",
+                    "display": "Final Outcome"
+                  }
+                ]
+              },
+              "kind": "ServiceRequest",
+              "location": {
+                "display": "Teklehaymanot medium clinic"
+              },
+              "scheduledPeriod": {
+                "start": "2017-01-12"
+              }
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "CarePlan/691dac7c-ead7-4bfa-bd7c-32f33d10f4c4CarePlan481"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "280ecb76-0f77-48ab-b1fd-4aa59fa91925ViralLoadResult480",
+        "status": "final",
+        "identifier": [
+          {
+            "system": "http://cdr.aacahb.gov.et/Laoratory",
+            "value": "Patient/642b83d3-a43c-41ef-a578-2b730f276bfb"
+          }
+        ],
+        "encounter": {
+          "reference": "Encounter/13588dce-9c0d-4ac1-959f-3a9f49b0d573encounter481"
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "subject": {
+          "reference": "Patient/642b83d3-a43c-41ef-a578-2b730f276bfb"
+        },
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "315124004",
+              "display": "Human immunodeficiency virus viral load"
+            }
+          ],
+          "text": "Viral load count"
+        },
+        "valueQuantity": {
+          "value": "1100",
+          "unit": "Count",
+          "system": "http://unitsofmeasure.org",
+          "code": "{Count}"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation/280ecb76-0f77-48ab-b1fd-4aa59fa91925ViralLoadResult461"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "ServiceRequest",
+        "id": "5366affa-0576-41a1-931b-aa6e3c64894dServiceRequest481",
+        "basedOn": [
+          {
+            "reference": "CarePlan/691dac7c-ead7-4bfa-bd7c-32f33d10f4c4CarePlan481"
+          }
+        ],
+        "status": "active",
+        "code": {
+          "text": "From Within Facility",
+          "coding": [
+            {
+              "display": "Internal facility referral or transfer",
+              "system": "http://loinc.org",
+              "code": "LA9328-1"
+            }
+          ]
+        },
+        "locationCode": [
+          {
+            "text": "Homenickmouth"
+          }
+        ],
+        "intent": "plan",
+        "subject": {
+          "reference": "Patient/642b83d3-a43c-41ef-a578-2b730f276bfb"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ServiceRequest/5366affa-0576-41a1-931b-aa6e3c64894dServiceRequest481"
+      }
+    }
+  ]
+}

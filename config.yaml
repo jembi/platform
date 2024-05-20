@@ -1,5 +1,5 @@
 projectName: platform
-image: jembi/platform:latest
+image: jembi/platform:3.0.0-beta
 logPath: /tmp/logs
 
 packages:
@@ -24,17 +24,17 @@ packages:
   - identity-access-manager-keycloak
   - openhim-mapping-mediator
   - database-postgres
+  - reprocess-mediator
+  - fhir-ig-importer
 
 profiles:
   - name: cdr-dw
     packages:
+      - message-bus-kafka
       - interoperability-layer-openhim
       - reverse-proxy-nginx
       - fhir-datastore-hapi-fhir
-      - message-bus-kafka
       - job-scheduler-ofelia
-      - kafka-mapper-consumer
-      - kafka-unbundler-consumer
       - analytics-datastore-clickhouse
       - dashboard-visualiser-superset
       - monitoring
@@ -42,6 +42,8 @@ profiles:
       - client-registry-jempi
       - identity-access-manager-keycloak
       - openhim-mapping-mediator
+      - kafka-mapper-consumer
+      - kafka-unbundler-consumer
     envFiles:
       - cdr-dw.env
 
@@ -73,3 +75,4 @@ profiles:
       - openhim-mapping-mediator
     envFiles:
       - mpi.env
+
