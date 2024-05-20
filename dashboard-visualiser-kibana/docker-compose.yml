@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   dashboard-visualiser-kibana:
-    image: docker.elastic.co/kibana/kibana:7.13.0
+    image: docker.elastic.co/kibana/kibana:${KIBANA_IMAGE_TAG}
     healthcheck:
       test: curl --fail http://localhost:5601 || exit 1
       interval: 10s
