@@ -40,10 +40,33 @@ services:
         - prometheus-port=8080
         - traefik.enable=true
         - traefik.docker.network=reverse-proxy-traefik_public
-        - traefik.http.routers.openhim-comms.rule=Host(`${OPENHIM_COMMS_HOST_NAME}`)
-        - traefik.http.services.openhim-comms.loadbalancer.server.port=8080
-        - traefik.http.routers.openhim-core.rule=Host(`${OPENHIM_CORE_HOST_NAME}`)
-        - traefik.http.services.openhim-core.loadbalancer.server.port=5001
+        - traefik.http.services.openhim-api.loadbalancer.server.port=8080
+        - traefik.http.services.openhim-api.loadbalancer.server.scheme=https
+        - traefik.http.routers.openhim-api.service=openhim-api
+        - traefik.http.routers.openhim-api.tls=true
+        - traefik.http.routers.openhim-api.entrypoints=websecure
+        - traefik.http.routers.openhim-api.rule=Host(`localhost`) && PathPrefix(`/openhim-api`)
+        - traefik.http.routers.openhim-api.middlewares=openhim-api
+        - traefik.http.middlewares.openhim-api.stripprefix.prefixes=/openhim-api
+        - traefik.http.middlewares.openhim-api.stripprefix.forceSlash=false
+        - traefik.http.services.openhim-ssl.loadbalancer.server.port=5000
+        - traefik.http.services.openhim-ssl.loadbalancer.server.scheme=https
+        - traefik.http.routers.openhim-ssl.service=openhim-ssl
+        - traefik.http.routers.openhim-ssl.tls=true
+        - traefik.http.routers.openhim-ssl.entrypoints=websecure
+        - traefik.http.routers.openhim-ssl.rule=Host(`localhost`) && PathPrefix(`/openhim-ssl`)
+        - traefik.http.routers.openhim-ssl.middlewares=openhim-ssl
+        - traefik.http.middlewares.openhim-ssl.stripprefix.prefixes=/openhim-ssl
+        - traefik.http.middlewares.openhim-ssl.stripprefix.forceSlash=false
+        - traefik.http.services.openhim-http.loadbalancer.server.port=5001
+        - traefik.http.services.openhim-http.loadbalancer.server.scheme=http
+        - traefik.http.routers.openhim-http.service=openhim-http
+        - traefik.http.routers.openhim-http.tls=false
+        - traefik.http.routers.openhim-http.entrypoints=web
+        - traefik.http.routers.openhim-http.rule=Host(`localhost`) && PathPrefix(`/openhim-http`)
+        - traefik.http.routers.openhim-http.middlewares=openhim-http
+        - traefik.http.middlewares.openhim-http.stripprefix.prefixes=/openhim-http
+        - traefik.http.middlewares.openhim-http.stripprefix.forceSlash=false
 
   openhim-console:
     image: ${OPENHIM_CONSOLE_VERSION}
@@ -66,7 +89,11 @@ services:
       labels:
         - traefik.enable=true
         - traefik.docker.network=reverse-proxy-traefik_public
-        - traefik.http.routers.openhim-console.rule=Host(`${OPENHIM_CONSOLE_HOST_NAME}`)
+        - traefik.http.services.openhim-console.loadbalancer.server.scheme=http
+        - traefik.http.routers.openhim-console.service=openhim-console
+        - traefik.http.routers.openhim-console.tls=true
+        - traefik.http.routers.openhim-console.entrypoints=websecure
+        - traefik.http.routers.openhim-console.rule=Host(`localhost`)
         - traefik.http.services.openhim-console.loadbalancer.server.port=80
       placement:
         max_replicas_per_node: 1

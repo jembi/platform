@@ -2,22 +2,23 @@ version: "3.9"
 
 services:
   reverse-proxy-traefik:
-    image: traefik:v3.0
+    image: traefik:v3.0.0
     networks:
       - traefik
     ports:
       - 80:80
+      - 8080:8080
       - 443:443
     command:
       - --log
       - --log.level=${LOG_LEVEL}
-      - --providers.docker.exposedbydefault=false
-      - --providers.swarm.useBindPortIP=true
+      - --providers.swarm.exposedbydefault=false
+      - --providers.swarm.endpoint=unix:///var/run/docker.sock
+      - --serversTransport.insecureSkipVerify=${INSECURE_SKIP_VERIFY}
+      # - --providers.swarm.useBindPortIP=true
+      - --api.insecure=true
       - --entrypoints.web.address=:80
-      - --entryPoints.websecure.address=:443
       - --providers.docker.network=reverse-proxy-traefik_public
-      - --certificatesresolvers.myresolver.acme.email=${ACME_EMAIL}
-      - --certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     deploy:

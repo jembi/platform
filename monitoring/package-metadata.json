@@ -23,7 +23,7 @@
     "MO_SECURITY_ADMIN_USER": "admin",
     "MO_SECURITY_ADMIN_PASSWORD": "dev_password_only",
     "MO_RETENTION_TIME": "15d",
-    "GRAFANA_TRAEFIK_HOST_NAME": "grafana",
-    "MINIO_TRAEFIK_HOST_NAME": "minio"
+    "GRAFANA_TRAEFIK_HOST_NAME": "health-afr.gov",
+    "MINIO_TRAEFIK_HOST_NAME": "health-afr.gov"
   }
 }

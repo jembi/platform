@@ -9,8 +9,8 @@ services:
       labels:
         - traefik.enable=true
         - traefik.docker.network=reverse-proxy-traefik_public
-        - traefik.http.routers.grafana.rule=Host(`${GRAFANA_TRAEFIK_HOST_NAME}`)
         - traefik.http.services.grafana.loadbalancer.server.port=3000
+        - traefik.http.routers.grafana.rule=Host(`${GRAFANA_TRAEFIK_HOST_NAME}`) && PathPrefix(`/grafana`)
     environment:
       GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER}
       GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
@@ -38,6 +38,7 @@ services:
       GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH: "contains(roles[*], 'admin') && 'Admin' || contains(roles[*], 'editor') && 'Editor' || 'Viewer'"
       GF_SERVER_DOMAIN: ${GF_SERVER_DOMAIN}
       GF_SERVER_ROOT_URL: ${KC_GRAFANA_ROOT_URL}
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
       GF_AUTH_SIGNOUT_REDIRECT_URL: "${KC_FRONTEND_URL}/realms/${KC_REALM_NAME}/protocol/openid-connect/logout?client_id=${KC_GRAFANA_CLIENT_ID}&post_logout_redirect_uri=${KC_GRAFANA_ROOT_URL}/login"
     configs:
       - target: /etc/grafana/grafana.ini
@@ -159,6 +160,9 @@ services:
       labels:
         - traefik.enable=true
         - traefik.docker.network=reverse-proxy-traefik_public
+        - traefik.http.services.minio-01.loadbalancer.server.scheme=http
+        - traefik.http.routers.minio-01.entrypoints=web
+        - traefik.http.routers.minio-01.service=minio-01
         - traefik.http.routers.minio-01.rule=Host(`${MINIO_TRAEFIK_HOST_NAME}`)
         - traefik.http.services.minio-01.loadbalancer.server.port=9001
     networks:
