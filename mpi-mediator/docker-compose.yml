@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   mpi-mediator:
-    image: jembi/mpi-mediator:v2.2.0
+    image: jembi/mpi-mediator:${MPI_MEDIATOR_VERSION}
     networks:
       openhim:
       kafka:
