@@ -9,8 +9,11 @@ services:
       labels:
         - traefik.enable=true
         - traefik.docker.network=reverse-proxy-traefik_public
+        - traefik.http.routers.grafana.service=grafana
         - traefik.http.services.grafana.loadbalancer.server.port=3000
-        - traefik.http.routers.grafana.rule=Host(`${GRAFANA_TRAEFIK_HOST_NAME}`) && PathPrefix(`/grafana`)
+        - traefik.http.routers.grafana.middlewares=grafana
+        - traefik.http.middlewares.grafana.stripprefix.forceSlash=false
+        - traefik.http.routers.grafana.rule=Host(`localhost`) && PathPrefix(`/grafana`)
     environment:
       GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER}
       GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
