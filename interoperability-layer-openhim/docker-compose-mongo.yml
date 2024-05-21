@@ -2,8 +2,8 @@ version: "3.9"
 
 services:
   mongo-1:
-    image: mongo:4.2
-    command: ['--replSet', 'mongo-set', '--wiredTigerCacheSizeGB', '0.5']
+    image: ${MONGO_IMAGE}
+    command: ["--replSet", "mongo-set", "--wiredTigerCacheSizeGB", "0.5"]
     volumes:
       - "openhim-mongo-01:/data/db"
       - "openhim-mongo-01-config:/data/configdb"

@@ -13,7 +13,6 @@ const OPENHIM_API_USERNAME =
 const authHeader = Buffer.from(
   `${OPENHIM_API_USERNAME}:${OPENHIM_API_PASSWORD}`
 ).toString("base64");
-
 function makeRequest(options, data) {
   const req = https.request(options, (res) => {
     if (res.statusCode == 401) {
@@ -35,15 +34,9 @@ function makeRequest(options, data) {
   req.end();
 }
 
-const jsonData = JSON.parse(
-  fs.readFileSync(path.resolve(__dirname, "openhim-import.json"))
-);
-
 const appJsonData = JSON.parse(
-  fs.readFileSync(path.resolve(__dirname, "ig-importer-app.json"))
+  fs.readFileSync(path.resolve(__dirname, "consumer-ui-app.json"))
 );
-
-const data = JSON.stringify(jsonData);
 const appData = JSON.stringify(appJsonData);
 
 const options = {
@@ -53,16 +46,6 @@ const options = {
   headers: {
     "Content-Type": "application/json",
     Authorization: `Basic ${authHeader}`,
-  },
-};
-
-const reqOptions = {
-  ...options,
-  path: "/metadata",
-  method: "POST",
-  headers: {
-    ...options.headers,
-    "Content-Length": data.length,
   },
 };
 
@@ -85,6 +68,5 @@ const importMapRebuildOptions = {
   },
 };
 
-makeRequest(reqOptions, data);
 makeRequest(appReqOptions, appData);
 makeRequest(importMapRebuildOptions, "");
