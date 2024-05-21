@@ -7,6 +7,7 @@
   "dependencies": ["fhir-datastore-hapi-fhir", "client-registry-jempi"],
   "environmentVariables": {
     "MPI_MEDIATOR_INSTANCES": 1,
+    "MPI_MEDIATOR_VERSION": "v2.3.0",
     "OPENHIM_MEDIATOR_URL": "https://openhim-core:8080",
     "TRUST_SELF_SIGNED": "true",
     "OPENHIM_USERNAME": "root@openhim.org",

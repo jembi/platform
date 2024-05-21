@@ -39,3 +39,4 @@ networks:
   openhim:
     name: openhim_public
     external: true
+  default:
