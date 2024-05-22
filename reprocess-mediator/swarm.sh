@@ -46,7 +46,7 @@ function initialize_package() {
     log error "Failed to deploy package"
     exit 1
   }
-  docker::deploy_config_importer $STACK "$COMPOSE_FILE_PATH/docker-compose.config.yml" "reprocess-config-importer" "reprocess"
+  docker::deploy_config_importer $STACK "$COMPOSE_FILE_PATH/docker-compose.config.yml" "reprocess-config-importer" "reprocess-mediator"
 }
 
 function destroy_package() {
