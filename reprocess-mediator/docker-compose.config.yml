@@ -28,12 +28,12 @@ configs:
     file: ./openhimConfig.js
     name: reprocess-openhimConfig.js-${reprocess_openhimConfig_js_DIGEST:?err}
     labels:
-      name: reprocess
+      name: reprocess-mediator
   reprocess-ui-app.json:
     file: ./reprocess-ui-app.json
     name: reprocess-ui-app.json-${reprocess_ui_json_DIGEST:?err}
     labels:
-      name: reprocess
+      name: reprocess-mediator
 
 networks:
   openhim:

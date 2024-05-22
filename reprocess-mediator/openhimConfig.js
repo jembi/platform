@@ -35,7 +35,7 @@ function makeRequest(options, data) {
 }
 
 const appJsonData = JSON.parse(
-  fs.readFileSync(path.resolve(__dirname, "reprocessor-ui-app.json"))
+  fs.readFileSync(path.resolve(__dirname, "reprocess-ui-app.json"))
 );
 const appData = JSON.stringify(appJsonData);
 
