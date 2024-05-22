@@ -19,6 +19,7 @@ services:
     networks:
       kafka:
       default:
+      jempi:
 
 
   jempi-etl:
@@ -37,6 +38,7 @@ services:
     networks:
       kafka:
       default:
+      jempi:
 
 
   jempi-controller:
@@ -70,6 +72,7 @@ services:
     networks:
       kafka:
       default:
+      jempi:
 
 
   jempi-linker:
@@ -104,6 +107,7 @@ services:
     networks:
       kafka:
       default:
+      jempi:
 
   jempi-bootstrapper:
     image: jembi/jempi-bootstrapper:${JEMPI_BOOTSTRAPPER_IMAGE_TAG}
@@ -124,6 +128,7 @@ services:
     networks:
       kafka:
       default:
+      jempi:
 
   jempi-postgresql-01:
     image: bitnami/postgresql-repmgr:15.2.0
@@ -151,6 +156,8 @@ services:
     configs:
       - target: /docker-entrypoint-initdb.d/jempi_psql_init_db.sql
         source: jempi_psql_init_db.sql
+    networks:
+      jempi:
 
 volumes:
   jempi-psql-01-data:
@@ -161,7 +168,10 @@ networks:
   kafka:
     name: kafka_public
     external: true
-  defualt:
+  default:
+  jempi:
+    name: jempi_public
+    external: true
 
 
 configs:
