@@ -37,7 +37,7 @@ services:
       start_period: 1m
     volumes:
       - es-data:/usr/share/elasticsearch/data
-      - /backups:/backups/elasticsearch
+      - ${ES_BACKUPS_PATH:-/backups}:/backups/elasticsearch
     networks:
       public:
 
