@@ -4,7 +4,9 @@
   "description": "A dashboard to interpret the data from the Clickhouse data store",
   "type": "infrastructure",
   "version": "0.0.1",
-  "dependencies": ["analytics-datastore-clickhouse"],
+  "dependencies": [
+    "analytics-datastore-clickhouse"
+  ],
   "environmentVariables": {
     "SUPERSET_IMAGE": "apache/superset:3.1.1",
     "SS_POSTGRES_IMAGE": "postgres:16.2",
