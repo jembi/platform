@@ -3,7 +3,7 @@
 declare ACTION=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare STACK="kafka-mapper"
+declare STACK="reprocess-mediator"
 declare MODE=""
 
 function init_vars() {
@@ -31,27 +31,27 @@ function import_sources() {
 }
 
 function initialize_package() {
-  local consumer_ui_dev_compose_filename=""
+  local reprocess_dev_compose_filename=""
 
   if [[ "${MODE}" == "dev" ]]; then
     log info "Running package in DEV mode"
-    consumer_ui_dev_compose_filename="docker-compose.dev.yml"
+    reprocess_dev_compose_filename="docker-compose.dev.yml"
   else
     log info "Running package in PROD mode"
   fi
+
   (
-    docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$consumer_ui_dev_compose_filename"
+    docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$reprocess_dev_compose_filename"
   ) || {
     log error "Failed to deploy package"
     exit 1
   }
-  docker::deploy_config_importer $STACK "$COMPOSE_FILE_PATH/docker-compose.config.yml" "kafka-mapper-consumer-config-importer" "kafka-mapper-consumer"
 }
 
 function destroy_package() {
   docker::stack_destroy $STACK
 
-  docker::prune_configs "kafka-mapper-consumer"
+  docker::prune_configs "reprocess-mediator"
 }
 
 main() {

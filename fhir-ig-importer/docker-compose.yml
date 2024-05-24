@@ -6,6 +6,7 @@ services:
     networks:
       hapi-fhir:
       openhim:
+      default:
     environment:
       HAPI_FHIR_BASE_URL: ${HAPI_FHIR_BASE_URL}
       HAPI_FHIR_INSTANCES: ${HAPI_FHIR_INSTANCES}
@@ -27,4 +28,5 @@ networks:
   openhim:
     name: openhim_public
     external: true
+  default:
   

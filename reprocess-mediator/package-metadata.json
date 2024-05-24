@@ -1,0 +1,18 @@
+{
+  "id": "reprocess-mediator",
+  "name": "Reprocess Mediator",
+  "description": "A mediator that allows for configuring and reprocessing of transactions",
+  "type": "use-case",
+  "version": "1.4.2",
+  "dependencies": ["interoperability-layer-openhim"],
+  "environmentVariables": {
+    "TRUST_SELF_SIGNED": "true",
+    "OPENHIM_MEDIATOR_URL": "https://openhim-core:8080",
+    "OPENHIM_USERNAME": "root@openhim.org",
+    "OPENHIM_PASSWORD": "instant101",
+    "REGISTER_MEDIATOR": "true",
+    "REPROCESSOR_API_BASE_URL": "http://reprocess-mediator:3000",
+    "REPROCESS_CORE_VERSION": "v0.1.0",
+    "REPROCESS_UI_VERSION": "v0.1.0"
+  }
+}
