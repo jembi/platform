@@ -21,7 +21,8 @@ services:
     networks:
       clickhouse:
       kafka:
-
+      openhim:
+      default:
   kafka-mapper-consumer-ui:
     image: ${KAFKA_CONSUMER_MAPPER_UI_VERSION}
     networks:
@@ -41,3 +42,7 @@ networks:
   kafka:
     name: kafka_public
     external: true
+  openhim:
+    name: openhim_public
+    external: true
+  default:

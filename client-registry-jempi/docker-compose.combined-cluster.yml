@@ -7,6 +7,12 @@ services:
         constraints:
           - "node.labels.name==node-1"
 
+  jempi-bootstrapper:
+    deploy:
+      placement:
+        constraints:
+          - "node.labels.name==node-1"
+
   jempi-postgresql-02:
     image: ${JEMPI_POSTGRESQL_IMAGE}
     environment:
@@ -36,6 +42,8 @@ services:
     configs:
       - target: /docker-entrypoint-initdb.d/jempi_psql_init_db.sql
         source: jempi_psql_init_db.sql
+    networks:
+      jempi:
 
   jempi-postgresql-03:
     image: ${JEMPI_POSTGRESQL_IMAGE}
@@ -66,7 +74,14 @@ services:
     configs:
       - target: /docker-entrypoint-initdb.d/jempi_psql_init_db.sql
         source: jempi_psql_init_db.sql
+    networks:
+      jempi:
 
 volumes:
   jempi-psql-02-data:
   jempi-psql-03-data:
+
+networks:
+  jempi:
+    name: jempi_public
+    external: true

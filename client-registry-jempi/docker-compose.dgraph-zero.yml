@@ -15,6 +15,13 @@ services:
       restart_policy:
         condition: on-failure
     command: dgraph zero --my=jempi-zero-01:5080 --replicas 1
+    networks:
+      jempi:
 
 volumes:
   jempi-zero-01-data:
+
+networks:
+  jempi:
+    name: jempi_public
+    external: true

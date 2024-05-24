@@ -16,6 +16,8 @@ services:
       restart_policy:
         condition: on-failure
     command: dgraph alpha --my=jempi-alpha-01:7080 --zero=jempi-zero-01:5080 --security whitelist=0.0.0.0/0 --telemetry "sentry=false;"
+    networks:
+      jempi:
 
   jempi-alpha-02:
     image: ${JEMPI_ZERO_IMAGE}
@@ -32,6 +34,8 @@ services:
       restart_policy:
         condition: on-failure
     command: dgraph alpha --my=jempi-alpha-02:7081 --zero=jempi-zero-01:5080 --security whitelist=0.0.0.0/0 -o 1 --telemetry "sentry=false;"
+    networks:
+      jempi:
 
   jempi-alpha-03:
     image: ${JEMPI_ZERO_IMAGE}
@@ -48,6 +52,8 @@ services:
       restart_policy:
         condition: on-failure
     command: dgraph alpha --my=jempi-alpha-03:7082 --zero=jempi-zero-01:5080 --security whitelist=0.0.0.0/0 -o 2 --telemetry "sentry=false;"
+    networks:
+      jempi:
 
   jempi-ratel:
     image: ${JEMPI_RATEL_IMAGE}
@@ -61,8 +67,15 @@ services:
       restart_policy:
         condition: on-failure
     command: dgraph-ratel
+    networks:
+      jempi:
 
 volumes:
   jempi-alpha-01-data:
   jempi-alpha-02-data:
   jempi-alpha-03-data:
+
+networks:
+  jempi:
+    name: jempi_public
+    external: true
