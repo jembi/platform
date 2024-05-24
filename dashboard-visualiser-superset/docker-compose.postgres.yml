@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   postgres-metastore:
-    image: ${POSTGRES_IMAGE}
+    image: ${SS_POSTGRES_IMAGE}
     environment:
       POSTGRES_USER: ${SUPERSET_POSTGRESQL_USERNAME}
       POSTGRES_PASSWORD: ${SUPERSET_POSTGRESQL_PASSWORD}
