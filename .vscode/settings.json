@@ -3,14 +3,16 @@
   "files.insertFinalNewline": true,
   "editor.formatOnSave": true,
   "[json]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "vscode.json-language-features"
   },
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit"
   },
   "json.schemas": [
     {
-      "fileMatch": ["package-metadata.json"],
+      "fileMatch": [
+        "package-metadata.json"
+      ],
       "url": "https://raw.githubusercontent.com/openhie/package-starter-kit/main/schema/package-metadata.schema.json"
     }
   ],
