@@ -7,7 +7,7 @@
   "dependencies": ["analytics-datastore-clickhouse"],
   "environmentVariables": {
     "SUPERSET_IMAGE": "apache/superset:3.1.1",
-    "POSTGRES_IMAGE": "postgres:16.2",
+    "SS_POSTGRES_IMAGE": "postgres:16.2",
     "POSTGRES_METASTORE": "node-2",
     "SUPERSET_ENABLED_FEATURE_FLAGS": "DASHBOARD_RBAC",
     "SUPERSET_USERNAME": "admin",
