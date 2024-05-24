@@ -20,10 +20,11 @@
     "KC_GRAFANA_CLIENT_SECRET": "CV14QfwnpYFj1IH5dK5lScPNCYAIYP1c",
     "KC_GRAFANA_ROOT_URL": "http://localhost:3000",
     "GF_SERVER_DOMAIN": "localhost",
+    "GF_SERVER_SERVE_FROM_SUB_PATH": "true",
     "MO_SECURITY_ADMIN_USER": "admin",
     "MO_SECURITY_ADMIN_PASSWORD": "dev_password_only",
     "MO_RETENTION_TIME": "15d",
-    "GRAFANA_TRAEFIK_HOST_NAME": "health-afr.gov",
-    "MINIO_TRAEFIK_HOST_NAME": "health-afr.gov"
+    "MINIO_SERVER_DOMAIN": "localhost",
+    "MINIO_BROWSER_REDIRECT_URL": "http://localhost"
   }
 }
