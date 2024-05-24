@@ -3,7 +3,7 @@
 declare ACTION=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare STACK="reprocess-mediator"
+declare STACK="reprocess"
 declare MODE=""
 
 function init_vars() {

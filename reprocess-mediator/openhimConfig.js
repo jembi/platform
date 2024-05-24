@@ -16,7 +16,7 @@ const authHeader = Buffer.from(
 function makeRequest(options, data) {
   const req = https.request(options, (res) => {
     if (res.statusCode == 401) {
-      throw new Error(`Incorrect OpenHIM API credentials`);
+      throw new Error("Incorrect OpenHIM API credentials");
     }
 
     if (![201, 200].includes(res.statusCode)) {
