@@ -16,7 +16,9 @@ services:
       labels:
         - traefik.enable=true
         - traefik.docker.network=reverse-proxy-traefik_public
-        - traefik.http.routers.dashboard-visualiser-jsreport.rule=Host(`${JS_REPORT_TRAEFIK_HOST_NAME}`)
+        - traefik.http.routers.dashboard-visualiser-jsreport.rule=Host(`localhost`) && PathPrefix(`/jsreport`)
+        - traefik.http.middlewares.jsreport-stripprefix.stripprefix.prefixes=/jsreport
+        - traefik.http.routers.dashboard-visualiser-jsreport.middlewares=jsreport-stripprefix
         - traefik.http.services.dashboard-visualiser-jsreport.loadbalancer.server.port=5488
       resources:
         limits:
@@ -29,6 +31,7 @@ services:
       co.elastic.metrics/module: "docker"
       co.elastic.metrics/metricsets: "cpu,memory,diskio,info,healthcheck,container"
     environment:
+      appPath: /jsreport
       allowLocalFilesAccess: "true"
       extensions_fsStore_dataDirectory: "jsreport/data"
       extensions_fsStore_externalModificationsSync: "true"
