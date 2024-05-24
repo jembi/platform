@@ -4,9 +4,7 @@
   "description": "A mediator that allows for configuring and reprocessing of transactions",
   "type": "use-case",
   "version": "1.4.2",
-  "dependencies": [
-    "interoperability-layer-openhim"
-  ],
+  "dependencies": ["interoperability-layer-openhim"],
   "environmentVariables": {
     "TRUST_SELF_SIGNED": "true",
     "OPENHIM_MEDIATOR_URL": "https://openhim-core:8080",
