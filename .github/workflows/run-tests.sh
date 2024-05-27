@@ -25,6 +25,9 @@ for package in "${CHANGED_FILES[@]}"; do
     fi
 done
 
+# Run the basic funtional end to end tests for the CDR recipe
+DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud HOST=$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":recipe
+
 if [[ ${#changed_packages[@]} -eq 0 ]] || [[ "${!changed_packages[*]}" == *"utils"* ]] || [[ "${!changed_packages[*]}" == *"features/steps"* ]] || [[ "${!changed_packages[*]}" == *"infrastructure"* ]] ; then
     openhim_ran="true"
     DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":openhim
@@ -32,9 +35,9 @@ else
     for folder_name in "${!changed_packages[@]}"; do
         echo "$folder_name was changed"
 
-        # if [[ $folder_name == *"clickhouse"* ]]; then
-        #     # DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":clickhouse
-        # el
+        if [[ $folder_name == *"clickhouse"* ]]; then
+            DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":clickhouse
+        el
         if [[ $folder_name == *"elastic"* ]] || [[ $folder_name == *"kibana"* ]] || [[ $folder_name == *"logstash"* ]]; then
             DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":elk
         elif [[ $folder_name == *"kafka"* ]] || [[ $folder_name == *"monitoring"* ]]; then
@@ -63,6 +66,3 @@ else
         fi
     done
 fi
-
-# Run the basic funtional end to end tests for the CDR recipe
-DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud HOST=$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":recipe
