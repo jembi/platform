@@ -1,8 +1,8 @@
-version: '3.9'
+version: "3.9"
 
 services:
   analytics-datastore-clickhouse:
-    image: clickhouse/clickhouse-server
+    image: ${CLICKHOUSE_IMAGE}
     ulimits:
       noFile: 262144
     volumes:
@@ -15,7 +15,7 @@ services:
       - target: /etc/clickhouse-server/config.d/query_log.xml
         source: clickhouse_query_log.xml
       - target: /etc/clickhouse-server/config.d/trace_log.xml
-        source: clickhouse_trace_log.xml  
+        source: clickhouse_trace_log.xml
     networks:
       public:
       default:
@@ -27,22 +27,22 @@ configs:
   clickhouse_metric_log.xml:
     file: ./general_configs/metric_log.xml
     name: metric_log.xml.xml-${metric_log_xml_DIGEST:?err}
-    labels: 
+    labels:
       name: clickhouse
   clickhouse_part_log.xml:
     file: ./general_configs/part_log.xml
     name: part_log.xml.xml-${part_log_xml_DIGEST:?err}
-    labels: 
+    labels:
       name: clickhouse
   clickhouse_query_log.xml:
     file: ./general_configs/query_log.xml
     name: query_log.xml.xml-${query_log_xml_DIGEST:?err}
-    labels: 
+    labels:
       name: clickhouse
   clickhouse_trace_log.xml:
     file: ./general_configs/trace_log.xml
     name: trace_log.xml.xml-${trace_log_xml_DIGEST:?err}
-    labels: 
+    labels:
       name: clickhouse
 
 networks:

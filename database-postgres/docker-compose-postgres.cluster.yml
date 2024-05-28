@@ -31,7 +31,7 @@ services:
       placement:
         constraints:
           - "node.labels.name==${POSTGRES_2_PLACEMENT}"
-      replicas: ${POSTGRES_REPLICAS}
+      replicas: 1
       resources:
         limits:
           cpus: ${POSTGRES_CPU_LIMIT}
@@ -66,7 +66,7 @@ services:
       placement:
         constraints:
           - "node.labels.name==${POSTGRES_3_PLACEMENT}"
-      replicas: ${POSTGRES_REPLICAS}
+      replicas: 1
       resources:
         limits:
           cpus: ${POSTGRES_CPU_LIMIT}

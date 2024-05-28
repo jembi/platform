@@ -7,6 +7,10 @@
   "dependencies": [],
   "environmentVariables": {
     "CLICKHOUSE_HOST": "analytics-datastore-clickhouse",
-    "CLICKHOUSE_PORT": "8123"
+    "CLICKHOUSE_PORT": "8123",
+    "CLICKHOUSE_IMAGE": "clickhouse/clickhouse-server:23.8.14.6",
+    "ANALYTICS_DATASTORE_CLICKHOUSE_01_PLACEMENT": "node-1",
+    "ANALYTICS_DATASTORE_CLICKHOUSE_02_PLACEMENT": "node-2",
+    "ANALYTICS_DATASTORE_CLICKHOUSE_03_PLACEMENT": "node-3"
   }
 }

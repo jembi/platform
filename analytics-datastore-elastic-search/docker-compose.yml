@@ -1,8 +1,8 @@
-version: '3.9'
+version: "3.9"
 
 services:
   analytics-datastore-elastic-search:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.13.0
+    image: ${ES_IMAGE}
     ulimits:
       memlock:
         soft: -1
@@ -16,9 +16,9 @@ services:
     environment:
       node.name: es01
       discovery.type: single-node
-      bootstrap.memory_lock: 'true'
-      xpack.security.enabled: 'true'
-      xpack.monitoring.collection.enabled: 'true'
+      bootstrap.memory_lock: "true"
+      xpack.security.enabled: "true"
+      xpack.monitoring.collection.enabled: "true"
       ES_JAVA_OPTS: ${ES_HEAP_SIZE}
       search.max_buckets: 1000000
       search.default_search_timeout: -1
