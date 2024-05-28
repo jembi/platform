@@ -111,7 +111,7 @@ const insertQueries = [`INSERT INTO Notification_State(State)
     }
   }
 
-  const createUSer = async () => {
+  const createUser = async () => {
     const user = await client.query('SELECT 1 FROM pg_user WHERE usename = $1', [newUser])
 
     if (!user.rows.length) {
@@ -123,7 +123,7 @@ const insertQueries = [`INSERT INTO Notification_State(State)
   try {
     await createDb(newDb)
 
-    await createUSer()
+    await createUser()
     await Promise.all(tableQueries.map(query => client.query(query)))
 
     await Promise.all(insertQueries.map(query => client.query(query)))
