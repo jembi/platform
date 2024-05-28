@@ -1,5 +1,17 @@
 # Reverse Proxy Traefik
 
+The following package is an alternative reverse proxy which uses both domain and subdirectory to host the following services:
+
+| Package  | Hosted        |
+|----------|---------------|
+| Superset | Domain        |
+| Jempi    | Domain        |
+| Santempi | Domain        |
+| Minio    | Sub Directory |
+| Grafana  | Sub Directory |
+| JSReport | Sub Directory |
+| OpenHim  | Sub Directory |
+
 ## Domain Based Reverse Proxy
 
 ### Superset
