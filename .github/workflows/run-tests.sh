@@ -29,7 +29,7 @@ done
 DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud HOST=$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":recipe
 
 if [[ ${#changed_packages[@]} -eq 0 ]] || [[ "${!changed_packages[*]}" == *"utils"* ]] || [[ "${!changed_packages[*]}" == *"features/steps"* ]] || [[ "${!changed_packages[*]}" == *"infrastructure"* ]] ; then
-    openhim_ran="true"
+    openhimRan="true"
     DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":openhim
 else
     for folder_name in "${!changed_packages[@]}"; do
