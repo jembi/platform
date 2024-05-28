@@ -25,43 +25,47 @@ for package in "${CHANGED_FILES[@]}"; do
     fi
 done
 
+function run_test() {
+   DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud HOST=$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":$1
+}
+
 # Run the basic funtional end to end tests for the CDR recipe
-DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud HOST=$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":recipe
+run_test "recipe"
 
 if [[ ${#changed_packages[@]} -eq 0 ]] || [[ "${!changed_packages[*]}" == *"utils"* ]] || [[ "${!changed_packages[*]}" == *"features/steps"* ]] || [[ "${!changed_packages[*]}" == *"infrastructure"* ]] ; then
     openhimRan="true"
-    DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":openhim
+    run_test "openhim"
 else
     for folder_name in "${!changed_packages[@]}"; do
         echo "$folder_name was changed"
 
         if [[ $folder_name == *"clickhouse"* ]]; then
-            DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":clickhouse
+            run_test "clickhouse"
         elif [[ $folder_name == *"elastic"* ]] || [[ $folder_name == *"kibana"* ]] || [[ $folder_name == *"logstash"* ]]; then
-            DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":elk
+            run_test "elk"
         elif [[ $folder_name == *"kafka"* ]] || [[ $folder_name == *"monitoring"* ]]; then
-            DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":kafka
+            run_test "kafka"
         elif [[ $folder_name == *"openhim"* ]] && [[ $openhimRan == "false" ]]; then
             openhimRan="true"
-            DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":openhim
+            run_test "openhim"
         elif [[ $folder_name == *"reverse-proxy"* ]]; then
-            DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":nginx
+            run_test "nginx"
         elif [[ $folder_name == *"hapi"* ]]; then
-            DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":hapi
+            run_test "hapi"
         elif [[ $folder_name == *"santempi"* ]]; then
-            DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":sante
+            run_test "sante"
         elif [[ $folder_name == *"monitoring"* ]]; then
-            DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":monitoring
+            run_test "monitoring"
         elif [[ $folder_name == *"keycloak"* ]]; then
-            DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":keycloak
+            run_test "keycloak"
         elif [[ $folder_name == *"superset"* ]] && [[ $NODE_MODE == "single" ]]; then
-            DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":superset
+            run_test "superset"
         elif [[ $folder_name == *"jsreport"* ]] && [[ $NODE_MODE == "single" ]]; then
-            DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":jsreport
+            run_test "jsreport"
         elif [[ $folder_name == *"mpi-mediator"* ]] && [[ $NODE_MODE == "single" ]]; then
-            DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":mpi-mediator
+            run_test "mpi-mediator"
         elif [[ $folder_name == *"jempi"* ]] && [[ $NODE_MODE == "single" ]]; then
-            DOCKER_HOST=ssh://ubuntu@$GITHUB_RUN_ID.jembi.cloud yarn test:"$NODE_MODE":jempi
+            run_test "jempi"
         fi
     done
 fi
