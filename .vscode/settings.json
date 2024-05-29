@@ -3,7 +3,7 @@
   "files.insertFinalNewline": true,
   "editor.formatOnSave": true,
   "[json]": {
-    "editor.defaultFormatter": "vscode.json-language-features"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit"
