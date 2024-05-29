@@ -3,7 +3,7 @@
 declare ACTION=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare STACK="reprocess-mediator"
+declare STACK="reprocess"
 declare MODE=""
 
 function init_vars() {
@@ -46,6 +46,7 @@ function initialize_package() {
     log error "Failed to deploy package"
     exit 1
   }
+  docker::deploy_config_importer $STACK "$COMPOSE_FILE_PATH/docker-compose.config.yml" "reprocess-config-importer" "reprocess-mediator"
 }
 
 function destroy_package() {
