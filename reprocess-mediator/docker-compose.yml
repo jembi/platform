@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   reprocess-mediator:
-    image: jembi/reprocess-mediator:${REPROCESS_CORE_VERSION}
+    image: ${REPROCESS_MEDIATOR_VERSION}
     networks:
       openhim:
       reprocess:
@@ -14,7 +14,7 @@ services:
       REGISTER_MEDIATOR: ${REGISTER_MEDIATOR}
   
   reprocess-mediator-ui:
-    image: jembi/reprocess-mediator-ui:${REPROCESS_UI_VERSION}
+    image: ${REPROCESS_MEDIATOR_UI_VERSION}
     networks:
       openhim:
       reprocess:
