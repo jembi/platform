@@ -7,6 +7,7 @@ services:
       mpi:
       public:
       reverse-proxy:
+      traefik:
       default:
       postgres:
     environment:
@@ -23,6 +24,12 @@ services:
       - SDB_DELAY_START=5000
     deploy:
       replicas: ${SANTEMPI_INSTANCES}
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=reverse-proxy-traefik_public
+        - traefik.http.routers.santedb-mpi.service=santedb-mpi
+        - traefik.http.services.santedb-mpi.loadbalancer.server.port=8080
+        - traefik.http.routers.santedb-mpi.rule=Host(`${SANTEDB_MPI_TRAEFIK_HOST_NAME}`)
     volumes:
       - santedb-data:/santedb
 
@@ -31,9 +38,10 @@ services:
     deploy:
       labels:
         - traefik.enable=true
-        - traefik.docker.network=reverse-proxy_public
+        - traefik.docker.network=reverse-proxy-traefik_public
+        - traefik.http.routers.santedb-www.service=santedb-www
+        - traefik.http.services.santedb-www.loadbalancer.server.port=9200
         - traefik.http.routers.santedb-www.rule=Host(`${SANTEDB_WWW_TRAEFIK_HOST_NAME}`)
-        - traefik.http.services.santedb-www.loadbalancer.server.port=80
     networks:
       default:
       reverse-proxy:
