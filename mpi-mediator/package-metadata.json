@@ -8,7 +8,7 @@
   "environmentVariables": {
     "MPI_MEDIATOR_CONFIG_IMPORTER_IMAGE": "node:erbium-alpine",
     "MPI_MEDIATOR_CONFIG_IMPORTER_REPLICAS": 1,
-    "MPI_MEDIATOR_IMAGE": "jembi/mpi-mediator:v2.1.0",
+    "MPI_MEDIATOR_IMAGE": "jembi/mpi-mediator:v2.3.0",
     "MPI_MEDIATOR_MAX_REPLICAS_PER_NODE": 1,
     "MPI_MEDIATOR_INSTANCES": 1,
     "MPI_MEDIATOR_VERSION": "v2.3.0",
