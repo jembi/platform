@@ -43,11 +43,11 @@ services:
     image: jembi/jempi-controller:${JEMPI_CONTROLLER_IMAGE_TAG}
     environment:
       LOG4J2_LEVEL: ${LOG4J2_LEVEL}
-      POSTGRESQL_IP: ${JEMPI_REPMGR_PRIMARY_HOST}
+      POSTGRESQL_IP: ${JEMPI_POSTGRES_DB}
       POSTGRESQL_PORT: 5432
       POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
-      POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
-      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
+      POSTGRESQL_USER: ${JEMPI_POSTGRESQL_USERNAME}
+      POSTGRESQL_PASSWORD: ${JEMPI_POSTGRESQL_PASSWORD}
       POSTGRESQL_NOTIFICATIONS_DB: ${POSTGRESQL_NOTIFICATIONS_DB}
       POSTGRESQL_AUDIT_DB: ${POSTGRESQL_AUDIT_DB}
       DGRAPH_HOSTS: ${DGRAPH_HOSTS}
@@ -71,16 +71,17 @@ services:
       kafka:
       default:
       jempi:
+      postgres:
 
   jempi-linker:
     image: jembi/jempi-linker:${JEMPI_LINKER_IMAGE_TAG}
     environment:
       LOG4J2_LEVEL: ${LOG4J2_LEVEL}
-      POSTGRESQL_IP: ${JEMPI_REPMGR_PRIMARY_HOST}
+      POSTGRESQL_IP: ${JEMPI_POSTGRES_DB}
       POSTGRESQL_PORT: 5432
       POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
-      POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
-      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
+      POSTGRESQL_USER: ${JEMPI_POSTGRESQL_USERNAME}
+      POSTGRESQL_PASSWORD: ${JEMPI_POSTGRESQL_PASSWORD}
       POSTGRESQL_NOTIFICATIONS_DB: ${POSTGRESQL_NOTIFICATIONS_DB}
       POSTGRESQL_AUDIT_DB: ${POSTGRESQL_AUDIT_DB}
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_HOSTS}
@@ -105,14 +106,15 @@ services:
       kafka:
       default:
       jempi:
+      postgres:
 
   jempi-bootstrapper:
     image: jembi/jempi-bootstrapper:${JEMPI_BOOTSTRAPPER_IMAGE_TAG}
     environment:
-      POSTGRESQL_IP: ${JEMPI_REPMGR_PRIMARY_HOST}
+      POSTGRESQL_IP: ${JEMPI_POSTGRES_DB}
       POSTGRESQL_PORT: 5432
-      POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
-      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
+      POSTGRESQL_USER: ${JEMPI_POSTGRESQL_USERNAME}
+      POSTGRESQL_PASSWORD: ${JEMPI_POSTGRESQL_PASSWORD}
       POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
       POSTGRESQL_USERS_DB: ${POSTGRESQL_USERS_DB}
       POSTGRESQL_NOTIFICATIONS_DB: ${POSTGRESQL_NOTIFICATIONS_DB}
@@ -126,38 +128,9 @@ services:
       kafka:
       default:
       jempi:
-
-  jempi-postgresql-01:
-    image: ${JEMPI_POSTGRESQL_IMAGE}
-    environment:
-      POSTGRESQL_USERNAME: ${POSTGRESQL_USERNAME}
-      POSTGRESQL_DATABASE: ${POSTGRESQL_DATABASE}
-      REPMGR_PASSWORD: ${JEMPI_REPMGR_PASSWORD}
-      REPMGR_PRIMARY_HOST: ${JEMPI_REPMGR_PRIMARY_HOST}
-      REPMGR_PARTNER_NODES: ${JEMPI_REPMGR_PARTNER_NODES}
-      REPMGR_NODE_NAME: jempi-postgresql-01
-      REPMGR_NODE_NETWORK_NAME: jempi-postgresql-01
-      ALLOW_EMPTY_PASSWORD: "yes"
-    deploy:
-      mode: replicated
-      replicas: 1
-      resources:
-        limits:
-          cpus: ${JEMPI_POSTGRES_CPU_LIMIT}
-          memory: ${JEMPI_POSTGRES_MEMORY_LIMIT}
-        reservations:
-          cpus: ${JEMPI_POSTGRES_CPU_RESERVE}
-          memory: ${JEMPI_POSTGRES_MEMORY_RESERVE}
-    volumes:
-      - "jempi-psql-01-data:/bitnami/postgresql"
-    configs:
-      - target: /docker-entrypoint-initdb.d/jempi_psql_init_db.sql
-        source: jempi_psql_init_db.sql
-    networks:
-      jempi:
+      postgres:
 
 volumes:
-  jempi-psql-01-data:
   jempi-shared-data:
 
 networks:
@@ -168,10 +141,6 @@ networks:
   jempi:
     name: jempi_public
     external: true
-
-configs:
-  jempi_psql_init_db.sql:
-    file: ./importer/jempi_psql_init_db.sql
-    name: jempi_psql_init_db.sql-${jempi_psql_init_db_sql_DIGEST:?err}
-    labels:
-      name: jempi
+  postgres:
+    name: postgres_public
+    external: true
