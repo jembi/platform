@@ -14,7 +14,7 @@
     "KAFKA_HOSTS": "kafka-01:9092",
     "JEMPI_POSTGRESQL_IMAGE": "bitnami/postgresql-repmgr:15.2.0",
     "JEMPI_ZERO_IMAGE": "dgraph/dgraph:v22.0.0",
-    "JEMBI_RATEL_IMAGE": "dgraph/ratel:v21.03.2",
+    "JEMPI_RATEL_IMAGE": "dgraph/ratel:v21.03.2",
     "JEMPI_ZERO_MEMORY_LIMIT": "3G",
     "JEMPI_ZERO_MEMORY_RESERVE": "500M",
     "JEMPI_ZERO_01_PLACEMENT": "node-1",
