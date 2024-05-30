@@ -1,0 +1,31 @@
+version: '3.9'
+
+services:
+  reprocess-mediator:
+    image: ${REPROCESS_MEDIATOR_VERSION}
+    networks:
+      openhim:
+      reprocess:
+    environment:
+      TRUST_SELF_SIGNED: ${TRUST_SELF_SIGNED}
+      OPENHIM_MEDIATOR_URL: ${OPENHIM_MEDIATOR_URL}
+      OPENHIM_USERNAME: ${OPENHIM_USERNAME}
+      OPENHIM_PASSWORD: ${OPENHIM_PASSWORD}
+      REGISTER_MEDIATOR: ${REGISTER_MEDIATOR}
+  
+  reprocess-mediator-ui:
+    image: ${REPROCESS_MEDIATOR_UI_VERSION}
+    networks:
+      openhim:
+      reprocess:
+    environment:
+      REPROCESSOR_API_BASE_URL: ${REPROCESSOR_API_BASE_URL}
+
+networks:
+  openhim:
+    name: openhim_public
+    external: true
+  reprocess:
+    name: reprocess_public
+    external: true
+

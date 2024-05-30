@@ -10,7 +10,9 @@
   },
   "json.schemas": [
     {
-      "fileMatch": ["package-metadata.json"],
+      "fileMatch": [
+        "package-metadata.json"
+      ],
       "url": "https://raw.githubusercontent.com/openhie/package-starter-kit/main/schema/package-metadata.schema.json"
     }
   ],

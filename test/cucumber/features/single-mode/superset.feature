@@ -5,6 +5,7 @@ Feature: Dashboard Visualiser Superset?
     Given I use parameters "package init -n=dashboard-visualiser-superset --dev --env-file=.env.local"
     When I launch the platform with params
     Then The service "dashboard-visualiser-superset" should be started with 1 replica
+    And The service "postgres-metastore" should be started with 1 replica
     And The service "superset-config-importer" should be removed
     And The service "dashboard-visualiser-superset" should have healthy containers
     And The service "dashboard-visualiser-superset" should be connected to the networks

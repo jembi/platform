@@ -1,0 +1,22 @@
+{
+  "name": "Search patient response by patient id",
+  "endpoint": {
+    "pattern": "/search-response/:patientId",
+    "method": "GET"
+  },
+  "transformation": {
+    "output": "JSON"
+  },
+  "inputMapping": {
+    "urlParams.patientId": "gid"
+  },
+  "requests": {
+    "response": {
+      "id": "jempiSearchGoldenRecordById",
+      "config": {
+        "method": "post",
+        "url": "http://jempi-api:50000/JeMPI/expandedGoldenRecord"
+      }
+    }
+  }
+}

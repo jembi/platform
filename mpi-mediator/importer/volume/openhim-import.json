@@ -40,6 +40,7 @@
         "PATCH"
       ],
       "type": "http",
+      "priority": null,
       "tcpPort": null,
       "tcpHost": null,
       "pollingSchedule": null,
@@ -93,7 +94,7 @@
       "urlPattern": "^/fhir.*$",
       "methods": ["GET", "POST"],
       "type": "http",
-      "priority": null,
+      "priority": 2,
       "tcpPort": null,
       "tcpHost": null,
       "pollingSchedule": null,
@@ -159,14 +160,32 @@
           "type": "http",
           "status": "enabled",
           "secured": false,
-          "host": "mpi-mediator",
-          "port": 3000,
-          "path": "",
+          "host": "hapi-fhir",
+          "port": 8080,
+          "path": "/fhir/Bundle/$validate",
           "pathTransform": "",
           "primary": true,
           "username": "",
           "password": "",
           "forwardAuthHeader": false
+        },
+        {
+          "name": "Kafka - 2xx-async topic",
+          "type": "kafka",
+          "status": "enabled",
+          "secured": false,
+          "host": "",
+          "port": null,
+          "path": "",
+          "pathTransform": "",
+          "primary": false,
+          "username": "",
+          "password": "",
+          "forwardAuthHeader": false,
+          "waitPrimaryResponse": true,
+          "statusCodesCheck": "200",
+          "kafkaClientId": "openhim-core",
+          "kafkaTopic": "2xx-async"
         }
       ],
       "matchContentTypes": [],
@@ -186,9 +205,75 @@
       "autoRetryEnabled": false,
       "autoRetryPeriodMinutes": 60,
       "updatedBy": {
-        "id": "65d47e98223a0672c3c9808b",
+        "id": "65c20de34f5c821e9597f9c8",
         "name": "Super User"
-      }
+      },
+      "description": "Sends a fhir bundle to hapi-fhir for validation, and then forwards it to a kafka if valid."
+    },
+    {
+      "name": "JeMPI Patient links endpoint in fhir",
+      "description": "JeMPI Patient endpoint for retrieving  using the patient interaction id",
+      "urlPattern": "^/fhir/links/Patient/?[^/]*$",
+      "isAsynchronousProcess": false,
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE",
+        "PUT",
+        "OPTIONS",
+        "HEAD",
+        "TRACE",
+        "CONNECT",
+        "PATCH"
+      ],
+      "type": "http",
+      "tcpPort": null,
+      "tcpHost": null,
+      "pollingSchedule": null,
+      "requestBody": true,
+      "responseBody": true,
+      "allow": ["instant"],
+      "whitelist": [],
+      "authType": "private",
+      "routes": [
+        {
+          "name": "Generic Mapping Mediator",
+          "type": "http",
+          "status": "enabled",
+          "secured": false,
+          "host": "openhim-mapping-mediator",
+          "port": 3003,
+          "path": "",
+          "pathTransform": "",
+          "primary": true,
+          "username": "",
+          "password": "",
+          "forwardAuthHeader": true,
+          "waitPrimaryResponse": false,
+          "statusCodesCheck": "2**"
+        }
+      ],
+      "matchContentTypes": [],
+      "matchContentRegex": null,
+      "matchContentXpath": null,
+      "matchContentJson": null,
+      "matchContentValue": null,
+      "properties": [],
+      "txViewAcl": [],
+      "txViewFullAcl": [],
+      "txRerunAcl": [],
+      "alerts": [],
+      "status": "enabled",
+      "rewriteUrls": false,
+      "addAutoRewriteRules": true,
+      "rewriteUrlsConfig": [],
+      "autoRetryEnabled": false,
+      "autoRetryPeriodMinutes": 60,
+      "updatedBy": {
+        "id": "661e3c1206d33f9dfbcb3094",
+        "name": "test test"
+      },
+      "priority": 1
     }
   ],
   "Mediators": [
@@ -264,8 +349,8 @@
         }
       ],
       "configDefs": [],
-      "_lastHeartbeat": "2024-02-22T16:09:55.511Z",
-      "_uptime": 4490.494161057
+      "_lastHeartbeat": "2024-02-06T12:23:22.769Z",
+      "_uptime": 5650.734193405
     }
   ],
   "ContactGroups": []

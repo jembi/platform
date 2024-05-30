@@ -71,6 +71,13 @@ Each service's resource allocations can be piped into their .yml file through en
 - Take note to not allocate less memory to ELK Stack services than their JVM heap sizes.
 - Exit code 137 indicates an out-of-memory failure. When running into this, it means that the service has been allocated too little memory.
 
+## Build multi-platform docker images
+It's essential to make sure that any docker image should be available for multiple platforms : AMD, ARM, ... (not only linux, but MacOS as well). To do so you can follow the steps below :
+1. Create your own custom builder by running `docker buildx create --name mycustombuilder --driver docker-container --bootstrap`
+2. Ask docker to use this new builder for future builds by running `docker buildx use mycustombuilder`
+3. Inspect buildx to see if docker has indeed switched builders to the new one you asked it to use by running `docker buildx inspect`
+4. Then you can perform the build and push, for example : `docker buildx build --platform linux/amd64,linux/arm64 --push -t jembi/hapi:v7.0.3-wget  .`
+
 ## Tests
 
 Tests are located in `/test`
