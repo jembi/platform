@@ -6,7 +6,7 @@ const database = process.env.POSTGRES_DATABASE || 'jempi'
 const password = process.env.POSTGRES_PASSWORD || 'instant101'
 const port = process.env.POSTGRES_PORT || 5432
 const newDb = process.env.NEW_DATABASE_NAME || 'jempi'
-const newUser = process.env.NEW_DATABASE_USER || 'keycloak'
+const newUser = process.env.NEW_DATABASE_USER || 'jempi'
 const newUserPassword = process.env.NEW_DATABASE_PASSWORD || 'instant101'
 
 const pool = new Pool({
