@@ -9,7 +9,7 @@ services:
     environment:
       TOKEN_ISSUER: ${KC_API_URL}/realms/${KC_REALM_NAME}
       ACCESS_CHECKER: ${ACCESS_CHECKER}
-      PROXY_TO: ${MPI_PROXY_URL}
+      PROXY_TO: ${GATEWAY_MPI_PROXY_URL}
       BACKEND_TYPE: ${BACKEND_TYPE}
       RUN_MODE: ${RUN_MODE}
     deploy:

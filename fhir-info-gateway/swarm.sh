@@ -46,7 +46,7 @@ function initialize_package() {
   fi
 
   (
-    docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$package_dev_compose_filename"
+    docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$package_dev_compose_filename" "docker-compose-smart_keycloak.yml"
   ) || {
     log error "Failed to deploy package"
     exit 1
