@@ -26,9 +26,10 @@ services:
       replicas: ${JEMPI_API_INSTANCES}
       labels:
         - traefik.enable=true
-        - traefik.docker.network=reverse-proxy
-        - traefik.http.routers.jempi-api.rule=Host(`${JEMPI_API_TRAEFIK_HOST_NAME}`)
+        - traefik.docker.network=reverse-proxy-traefik_public
+        - traefik.http.routers.jempi-api.service=jempi-api
         - traefik.http.services.jempi-api.loadbalancer.server.port=50000
+        - traefik.http.routers.jempi-api.rule=Host(`${JEMPI_API_TRAEFIK_HOST_NAME}`)
       resources:
         limits:
           memory: ${JEMPI_API_MEMORY_LIMIT}

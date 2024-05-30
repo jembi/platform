@@ -93,7 +93,7 @@
     "KAFKA_APPLICATION_ID_BOOTSTRAPPER": "app-id-bootstrapper",
     "JEMPI_BOOTSTRAPPER_IMAGE_TAG": "1.0.1-beta",
     "JEMPI_API_KC_TRAEFIK_HOST_NAME": "jempi-api-kc",
-    "JEMPI_API_TRAEFIK_HOST_NAME": "jempi-api",
-    "JEMPI_WEB_TRAEFIK_HOST_NAME": "jempi-web"
+    "JEMPI_API_TRAEFIK_HOST_NAME": "jempi-api.localhost",
+    "JEMPI_WEB_TRAEFIK_HOST_NAME": "jempi-web.localhost"
   }
 }

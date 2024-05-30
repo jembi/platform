@@ -18,8 +18,9 @@ services:
       labels:
         - traefik.enable=true
         - traefik.docker.network=reverse-proxy-traefik_public
-        - traefik.http.routers.jempi-web.rule=Host(`${JEMPI_WEB_TRAEFIK_HOST_NAME}`)
+        - traefik.http.routers.jempi-web.service=jempi-web
         - traefik.http.services.jempi-web.loadbalancer.server.port=3000
+        - traefik.http.routers.jempi-web.rule=Host(`${JEMPI_WEB_TRAEFIK_HOST_NAME}`)
       placement:
         max_replicas_per_node: 1
       resources:
