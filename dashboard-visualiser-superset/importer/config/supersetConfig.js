@@ -50,7 +50,7 @@ const getAccessToken = async () => {
 };
 
 const importZipConfig = async (accessToken) => {
-  var data = new FormData();
+  const data = new FormData();
 
   if (CONFIG_FILE) {
     data.append(
@@ -102,7 +102,7 @@ const replaceClickhouseConnectionString = async (accessToken) => {
     uuid: "868ecd6d-f099-46ab-a100-dd91173bc63f"
   };
 
-  var config = {
+  const config = {
     method: 'POST',
     url: `${protocol}://${SUPERSET_SERVICE_NAME}:${SUPERSET_API_PORT}${SUPERSET_DATABASE_PUT_PATH}`,
     headers: {
