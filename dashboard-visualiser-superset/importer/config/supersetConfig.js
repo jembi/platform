@@ -29,7 +29,7 @@ const getAccessToken = async () => {
     refresh: true,
   });
 
-  var config = {
+  const config = {
     method: 'POST',
     url: `${protocol}://${SUPERSET_SERVICE_NAME}:${SUPERSET_API_PORT}${SUPERSET_LOGIN_PATH}`,
     headers: {
@@ -58,7 +58,7 @@ const importZipConfig = async (accessToken) => {
       fs.createReadStream(path.resolve(__dirname, CONFIG_FILE))
     );
 
-    var config = {
+    const config = {
       method: 'POST',
       url: `${protocol}://${SUPERSET_SERVICE_NAME}:${SUPERSET_API_PORT}${SUPERSET_IMPORT_PATH}`,
       headers: {
@@ -86,7 +86,6 @@ const replaceClickhouseConnectionString = async (accessToken) => {
   const CLICKHOUSE_PASSWORD = process.env.CLICKHOUSE_PASSWORD || 'dev_password_only';
 
   const databaseConfig = {
-
     allow_ctas: false,
     allow_cvas: false,
     allow_dml: false,
