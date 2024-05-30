@@ -36,6 +36,7 @@ services:
       clickhouse:
       keycloak:
       reverse-proxy:
+      postgres:
       default:
 
 configs:
@@ -72,5 +73,8 @@ networks:
     external: true
   reverse-proxy:
     name: reverse-proxy_public
+    external: true
+  postgres:
+    name: postgres_public
     external: true
   default:
