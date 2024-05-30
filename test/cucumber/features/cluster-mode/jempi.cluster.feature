@@ -43,7 +43,6 @@ Feature: Client Registry JeMPI?
     And The service "mongo-1" should be started with 1 replica
     And The service "jempi-api" should be connected to the networks
       | kafka_public | jempi_default |
-    And The service "jempi-postgresql-01" should be started with 1 replica
     And The service "jempi-web" should be started with 3 replica
     And The service "jempi-web" should be connected to the networks
       | reverse-proxy_public | keycloak_public | jempi_default |
@@ -73,7 +72,6 @@ Feature: Client Registry JeMPI?
     And The service "jempi-zero-01" should be removed
     And The service "jempi-api" should be removed
     And The service "jempi-web" should be removed
-    And The service "jempi-postgresql-01" should be removed
     And The service "mongo-1" should be removed
     And The service "mongo-2" should be removed
     And The service "mongo-3" should be removed
