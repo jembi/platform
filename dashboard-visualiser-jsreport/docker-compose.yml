@@ -31,10 +31,7 @@ services:
       co.elastic.metrics/module: "docker"
       co.elastic.metrics/metricsets: "cpu,memory,diskio,info,healthcheck,container"
     environment:
-<<<<<<< HEAD
       appPath: /jsreport
-=======
->>>>>>> main
       allowLocalFilesAccess: "true"
       extensions_fsStore_dataDirectory: "jsreport/data"
       extensions_fsStore_externalModificationsSync: "true"
