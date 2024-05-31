@@ -11,11 +11,13 @@ services:
     command:
       - --log
       - --log.level=${LOG_LEVEL}
+      - --accesslog=true
       - --providers.swarm.exposedbydefault=false
       - --providers.swarm.endpoint=unix:///var/run/docker.sock
       - --serversTransport.insecureSkipVerify=${INSECURE_SKIP_VERIFY}
       - --api.insecure=${ENABLE_TRAEFIK_DASHBOARD}
       - --entrypoints.web.address=:80
+      - --entryPoints.websecure.address=:443
       - --providers.docker.network=reverse-proxy-traefik_public
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
