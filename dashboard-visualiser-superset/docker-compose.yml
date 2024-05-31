@@ -43,6 +43,7 @@ services:
       keycloak:
       reverse-proxy:
       traefik:
+      postgres:
       default:
 
 configs:
@@ -82,5 +83,8 @@ networks:
     external: true
   traefik:
     name: reverse-proxy-traefik_public
+    external: true
+  postgres:
+    name: postgres_public
     external: true
   default:

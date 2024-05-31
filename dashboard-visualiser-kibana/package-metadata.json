@@ -9,6 +9,7 @@
     "KIBANA_INSTANCES": 1,
     "ES_LEADER_NODE": "analytics-datastore-elastic-search",
     "ES_KIBANA_SYSTEM": "dev_password_only",
+    "KIBANA_IMAGE": "docker.elastic.co/kibana/kibana:7.13.0",
     "KIBANA_PASSWORD": "dev_password_only",
     "KIBANA_USERNAME": "elastic",
     "KIBANA_YML_CONFIG": "kibana-kibana.yml",

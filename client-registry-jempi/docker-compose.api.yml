@@ -5,10 +5,10 @@ services:
     image: jembi/jempi-api:${JEMPI_API_IMAGE_TAG}
     environment:
       LOG4J2_LEVEL: ${LOG4J2_LEVEL}
-      POSTGRESQL_IP: ${JEMPI_REPMGR_PRIMARY_HOST}
+      POSTGRESQL_IP: ${JEMPI_POSTGRES_DB}
       POSTGRESQL_PORT: 5432
-      POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
-      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
+      POSTGRESQL_USER: ${JEMPI_POSTGRESQL_USERNAME}
+      POSTGRESQL_PASSWORD: ${JEMPI_POSTGRESQL_PASSWORD}
       POSTGRESQL_NOTIFICATIONS_DB: ${POSTGRESQL_NOTIFICATIONS_DB}
       POSTGRESQL_AUDIT_DB: ${POSTGRESQL_AUDIT_DB}
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_HOSTS}
@@ -40,6 +40,8 @@ services:
       kafka:
       traefik:
       default:
+      jempi:
+      postgres:
 
   jempi-api-kc:
     image: jembi/jempi-api-kc:${JEMPI_API_KC_IMAGE_TAG}
@@ -54,10 +56,10 @@ services:
       JEMPI_SESSION_SECRET: ${JEMPI_SESSION_SECRET}
       JEMPI_SESSION_SECURE: ${JEMPI_SESSION_SECURE}
       JEMPI_SESSION_DOMAIN_NAME: ${JEMPI_SESSION_DOMAIN_NAME}
-      POSTGRESQL_IP: ${JEMPI_REPMGR_PRIMARY_HOST}
+      POSTGRESQL_IP: ${JEMPI_POSTGRES_DB}
       POSTGRESQL_PORT: 5432
-      POSTGRESQL_USER: ${POSTGRESQL_USERNAME}
-      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
+      POSTGRESQL_USER: ${JEMPI_POSTGRESQL_USERNAME}
+      POSTGRESQL_PASSWORD: ${JEMPI_POSTGRESQL_PASSWORD}
       POSTGRESQL_USERS_DB: ${POSTGRESQL_USERS_DB}
       POSTGRESQL_NOTIFICATIONS_DB: ${POSTGRESQL_NOTIFICATIONS_DB}
       POSTGRESQL_AUDIT_DB: ${POSTGRESQL_AUDIT_DB}
@@ -84,6 +86,8 @@ services:
       kafka:
       traefik:
       default:
+      jempi:
+      postgres:
 
 volumes:
   jempi-shared-data:
@@ -94,6 +98,12 @@ networks:
     external: true
   traefik:
     name: reverse-proxy-traefik_public
+    external: true
+  jempi:
+    name: jempi_public
+    external: true
+  postgres:
+    name: postgres_public
     external: true
   kafka:
     name: kafka_public

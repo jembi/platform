@@ -1,8 +1,8 @@
-version: '3.9'
+version: "3.9"
 
 services:
   hapi-proxy:
-    image: jembi/springproxyserver:20211217-170809.3f57ef5
+    image: ${HAPI_PROXY_IMAGE}
     hostname: hapi-proxy
     environment:
       HAPI_SERVER_URL: ${HAPI_SERVER_URL}

@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   identity-access-manager-keycloak:
-    image: keycloak/keycloak:20.0
+    image: ${KEYCLOAK_IMAGE}
     command:
       [
         "start",
@@ -44,7 +44,7 @@ services:
       KC_OPENHIM_ROOT_URL: ${KC_OPENHIM_ROOT_URL}
     deploy:
       placement:
-        max_replicas_per_node: 1
+        max_replicas_per_node: ${KEYCLOAK_MAX_REPLICAS_PER_NODE}
       labels:
         - traefik.enable=true
         - traefik.docker.network=reverse-proxy-traefik_public

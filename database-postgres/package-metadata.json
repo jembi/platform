@@ -9,6 +9,14 @@
     "REPMGR_PRIMARY_HOST": "postgres-1",
     "REPMGR_PARTNER_NODES": "postgres-1",
     "REPMGR_PASSWORD": "instant101",
+    "POSTGRES_IMAGE": "bitnami/postgresql-repmgr:14",
+    "POSTGRES_1_PLACEMENT": "node-1",
+    "POSTGRES_2_PLACEMENT": "node-2",
+    "POSTGRES_3_PLACEMENT": "node-3",
+    "PG_POOL_IMAGE": "bitnami/pgpool:4.4.3",
+    "PGPOOL_1_PLACEMENT": "node-1",
+    "PGPOOL_2_PLACEMENT": "node-2",
+    "PGPOOL_3_PLACEMENT": "node-3",
     "POSTGRES_REPLICA_SET": "postgres-1:5432",
     "POSTGRES_CPU_LIMIT": "0",
     "POSTGRES_CPU_RESERVE": "0.05",
@@ -27,6 +35,7 @@
     "PGPOOL_MEMORY_RESERVE": "50M",
     "HF_PGPOOL_ENABLED": "true",
     "POSTGRES_FAILOVER": "automatic",
-    "POSTGRES_DEGRADED_MONITORING_TIMEOUT": "5"
+    "POSTGRES_DEGRADED_MONITORING_TIMEOUT": "5",
+    "POSTGRES_REPLICAS": "1"
   }
 }

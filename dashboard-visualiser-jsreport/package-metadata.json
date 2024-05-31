@@ -6,7 +6,9 @@
   "version": "0.0.1",
   "dependencies": ["analytics-datastore-elastic-search"],
   "environmentVariables": {
+    "JS_REPORT_IMAGE": "jsreport/jsreport:3.2.0",
     "JS_REPORT_INSTANCES": "1",
+    "JS_REPORT_MAX_REPLICAS_PER_NODE": "1",
     "JS_REPORT_USERNAME": "admin",
     "JS_REPORT_SECRET": "dev_secret_only",
     "JS_REPORT": "dev_password_only",

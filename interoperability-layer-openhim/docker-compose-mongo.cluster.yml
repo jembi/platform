@@ -1,23 +1,23 @@
-version: '3.9'
+version: "3.9"
 
 services:
   mongo-1:
-    command: ['--replSet', 'mongo-set', '--wiredTigerCacheSizeGB', '0.5']
+    command: ["--replSet", "mongo-set", "--wiredTigerCacheSizeGB", "0.5"]
     deploy:
       placement:
         constraints:
-          - "node.labels.name==node-1"
+          - "node.labels.name==${MONGO_1_PLACEMENT}"
 
   mongo-2:
-    image: mongo:4.2
+    image: ${MONGO_IMAGE}
     volumes:
-      - 'openhim-mongo-02:/data/db'
-      - 'openhim-mongo-02-config:/data/configdb'
-    command: ['--replSet', 'mongo-set', '--wiredTigerCacheSizeGB', '0.5']
+      - "openhim-mongo-02:/data/db"
+      - "openhim-mongo-02-config:/data/configdb"
+    command: ["--replSet", "mongo-set", "--wiredTigerCacheSizeGB", "0.5"]
     deploy:
       placement:
         constraints:
-          - "node.labels.name==node-2"
+          - "node.labels.name==${MONGO_2_PLACEMENT}"
       replicas: 1
       resources:
         limits:
@@ -32,15 +32,15 @@ services:
       mongo_backup_net:
 
   mongo-3:
-    image: mongo:4.2
+    image: ${MONGO_IMAGE}
     volumes:
-      - 'openhim-mongo-03:/data/db'
-      - 'openhim-mongo-03-config:/data/configdb'
-    command: ['--replSet', 'mongo-set', '--wiredTigerCacheSizeGB', '0.5']
+      - "openhim-mongo-03:/data/db"
+      - "openhim-mongo-03-config:/data/configdb"
+    command: ["--replSet", "mongo-set", "--wiredTigerCacheSizeGB", "0.5"]
     deploy:
       placement:
         constraints:
-          - "node.labels.name==node-3"
+          - "node.labels.name==${MONGO_3_PLACEMENT}"
       replicas: 1
       resources:
         limits:

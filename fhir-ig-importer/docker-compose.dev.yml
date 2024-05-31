@@ -1,0 +1,14 @@
+version: '3.9'
+
+services:
+  fhir-ig-importer-mediator:
+    ports:
+      - target: 3001
+        published: 3333
+        mode: host
+
+  fhir-ig-importer-ui:
+    ports:
+      - target: 8080
+        published: 3334
+        mode: host

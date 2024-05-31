@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   dashboard-visualiser-jsreport:
-    image: jsreport/jsreport:3.2.0
+    image: ${JS_REPORT_IMAGE}
     healthcheck:
       test: wget --no-verbose --tries=1 --spider -q http://localhost:5488/api/ping || exit 1
       interval: 10s
@@ -11,7 +11,7 @@ services:
       start_period: 10s
     deploy:
       placement:
-        max_replicas_per_node: 1
+        max_replicas_per_node: ${JS_REPORT_MAX_REPLICAS_PER_NODE}
       replicas: ${JS_REPORT_INSTANCES}
       labels:
         - traefik.enable=true
@@ -31,7 +31,10 @@ services:
       co.elastic.metrics/module: "docker"
       co.elastic.metrics/metricsets: "cpu,memory,diskio,info,healthcheck,container"
     environment:
+<<<<<<< HEAD
       appPath: /jsreport
+=======
+>>>>>>> main
       allowLocalFilesAccess: "true"
       extensions_fsStore_dataDirectory: "jsreport/data"
       extensions_fsStore_externalModificationsSync: "true"

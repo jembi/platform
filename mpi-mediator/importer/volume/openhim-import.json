@@ -5,9 +5,7 @@
       "surname": "User",
       "email": "root@openhim.org",
       "provider": "token",
-      "groups": [
-        "admin"
-      ],
+      "groups": ["admin"],
       "passwordAlgorithm": "sha512",
       "passwordHash": "ea3824f17cf1379eb118a36bc7c8cf0f45712e2af7748567fca5313dec6fa66d61064e82a5e5cb88e998486ee3c7d0dac235bbeda8c341d6edc1c77406be2ab6",
       "passwordSalt": "d4f622c0404f09bd959bfb263efa3452",
@@ -21,9 +19,7 @@
     {
       "clientID": "test",
       "name": "Test Client",
-      "roles": [
-        "instant"
-      ],
+      "roles": ["instant"],
       "customTokenID": "test"
     }
   ],
@@ -98,7 +94,7 @@
       "urlPattern": "^/fhir.*$",
       "methods": ["GET", "POST"],
       "type": "http",
-      "priority": null,
+      "priority": 2,
       "tcpPort": null,
       "tcpHost": null,
       "pollingSchedule": null,
@@ -147,9 +143,7 @@
     {
       "name": "MPI Orchestration for fhir bundles - Asynchronous flow",
       "urlPattern": "^/async/fhir/?$",
-      "methods": [
-        "POST"
-      ],
+      "methods": ["POST"],
       "type": "http",
       "priority": null,
       "tcpPort": null,
@@ -157,9 +151,7 @@
       "pollingSchedule": null,
       "requestBody": true,
       "responseBody": true,
-      "allow": [
-        "instant"
-      ],
+      "allow": ["instant"],
       "whitelist": [],
       "authType": "private",
       "routes": [
@@ -217,6 +209,71 @@
         "name": "Super User"
       },
       "description": "Sends a fhir bundle to hapi-fhir for validation, and then forwards it to a kafka if valid."
+    },
+    {
+      "name": "JeMPI Patient links endpoint in fhir",
+      "description": "JeMPI Patient endpoint for retrieving  using the patient interaction id",
+      "urlPattern": "^/fhir/links/Patient/?[^/]*$",
+      "isAsynchronousProcess": false,
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE",
+        "PUT",
+        "OPTIONS",
+        "HEAD",
+        "TRACE",
+        "CONNECT",
+        "PATCH"
+      ],
+      "type": "http",
+      "tcpPort": null,
+      "tcpHost": null,
+      "pollingSchedule": null,
+      "requestBody": true,
+      "responseBody": true,
+      "allow": ["instant"],
+      "whitelist": [],
+      "authType": "private",
+      "routes": [
+        {
+          "name": "Generic Mapping Mediator",
+          "type": "http",
+          "status": "enabled",
+          "secured": false,
+          "host": "openhim-mapping-mediator",
+          "port": 3003,
+          "path": "",
+          "pathTransform": "",
+          "primary": true,
+          "username": "",
+          "password": "",
+          "forwardAuthHeader": true,
+          "waitPrimaryResponse": false,
+          "statusCodesCheck": "2**"
+        }
+      ],
+      "matchContentTypes": [],
+      "matchContentRegex": null,
+      "matchContentXpath": null,
+      "matchContentJson": null,
+      "matchContentValue": null,
+      "properties": [],
+      "txViewAcl": [],
+      "txViewFullAcl": [],
+      "txRerunAcl": [],
+      "alerts": [],
+      "status": "enabled",
+      "rewriteUrls": false,
+      "addAutoRewriteRules": true,
+      "rewriteUrlsConfig": [],
+      "autoRetryEnabled": false,
+      "autoRetryPeriodMinutes": 60,
+      "updatedBy": {
+        "id": "661e3c1206d33f9dfbcb3094",
+        "name": "test test"
+      },
+      "priority": 1
     }
   ],
   "Mediators": [
@@ -261,14 +318,9 @@
         {
           "name": "MPI mediator",
           "urlPattern": "^(/async)?/fhir.*$",
-          "methods": [
-            "POST",
-            "GET"
-          ],
+          "methods": ["POST", "GET"],
           "type": "http",
-          "allow": [
-            "instant"
-          ],
+          "allow": ["instant"],
           "whitelist": [],
           "authType": "private",
           "routes": [
