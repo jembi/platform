@@ -1,7 +1,6 @@
 version: '3.9'
 
 services:
-
   jempi-controller:
     ports:
       - published: 50020
@@ -14,10 +13,4 @@ services:
       - published: 50010
         target: 50000
         protocol: tcp
-        mode: host
-
-  jempi-postgresql-01:
-    ports:
-      - published: 5435
-        target: 5432
         mode: host
