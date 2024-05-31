@@ -20,7 +20,7 @@ services:
       - target: /bitnami/postgresql/conf/conf.d/custom_postgresql.conf
         source: postgresql.conf
     deploy:
-      replicas: 1
+      replicas: ${POSTGRES_REPLICAS}
       resources:
         limits:
           cpus: ${POSTGRES_CPU_LIMIT}

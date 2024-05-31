@@ -1,8 +1,8 @@
-version: '3.9'
+version: "3.9"
 
 services:
   jempi-zero-01:
-    image: dgraph/dgraph:v22.0.0
+    image: ${JEMPI_ZERO_IMAGE}
     volumes:
       - jempi-zero-01-data:/dgraph
     deploy:

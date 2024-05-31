@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   jempi-async-receiver:
@@ -21,7 +21,6 @@ services:
       default:
       jempi:
 
-
   jempi-etl:
     image: jembi/jempi-etl:${JEMPI_ETL_IMAGE_TAG}
     environment:
@@ -39,7 +38,6 @@ services:
       kafka:
       default:
       jempi:
-
 
   jempi-controller:
     image: jembi/jempi-controller:${JEMPI_CONTROLLER_IMAGE_TAG}
@@ -74,7 +72,6 @@ services:
       default:
       jempi:
       postgres:
-
 
   jempi-linker:
     image: jembi/jempi-linker:${JEMPI_LINKER_IMAGE_TAG}
@@ -111,7 +108,6 @@ services:
       jempi:
       postgres:
 
-
   jempi-bootstrapper:
     image: jembi/jempi-bootstrapper:${JEMPI_BOOTSTRAPPER_IMAGE_TAG}
     environment:
@@ -134,10 +130,8 @@ services:
       jempi:
       postgres:
 
-
 volumes:
   jempi-shared-data:
-
 
 networks:
   kafka:

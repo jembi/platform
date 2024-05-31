@@ -1,24 +1,24 @@
-version: '3.9'
+version: "3.9"
 
 services:
   jempi-zero-01:
     deploy:
       placement:
         constraints:
-          - node.labels.name == node-1
+          - node.labels.name == ${JEMPI_ZERO_01_PLACEMENT}
     command: dgraph zero --my=jempi-zero-01:5080 --replicas 3 --bindall --raft "idx=1"
     networks:
       jempi:
 
   jempi-zero-02:
-    image: dgraph/dgraph:v22.0.0
+    image: ${JEMPI_ZERO_IMAGE}
     volumes:
       - jempi-zero-02-data:/dgraph
     deploy:
       replicas: 1
       placement:
         constraints:
-          - node.labels.name == node-2
+          - node.labels.name == ${JEPMI_ZERO_02_PLACEMENT}
       resources:
         limits:
           memory: ${JEMPI_ZERO_MEMORY_LIMIT}
@@ -31,14 +31,14 @@ services:
       jempi:
 
   jempi-zero-03:
-    image: dgraph/dgraph:v22.0.0
+    image: ${JEMPI_ZERO_IMAGE}
     volumes:
       - jempi-zero-03-data:/dgraph
     deploy:
       replicas: 1
       placement:
         constraints:
-          - node.labels.name == node-3
+          - node.labels.name == ${JEMPI_ZERO_03_PLACEMENT}
       resources:
         limits:
           memory: ${JEMPI_ZERO_MEMORY_LIMIT}
