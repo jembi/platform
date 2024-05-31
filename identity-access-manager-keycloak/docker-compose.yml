@@ -47,9 +47,10 @@ services:
         max_replicas_per_node: 1
       labels:
         - traefik.enable=true
-        - traefik.docker.network=reverse-proxy
-        - traefik.http.routers.identity-access-manager-keycloak.rule=Host(`${KC_TRAEFIK_HOST_NAME}`)
+        - traefik.docker.network=reverse-proxy-traefik_public
+        - traefik.http.routers.identity-access-manager-keycloak.service=identity-access-manager-keycloak
         - traefik.http.services.identity-access-manager-keycloak.loadbalancer.server.port=8080
+        - traefik.http.routers.identity-access-manager-keycloak.rule=Host(`${KC_TRAEFIK_HOST_NAME}`)
     networks:
       reverse-proxy:
       public:

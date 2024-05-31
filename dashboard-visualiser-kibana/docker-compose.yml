@@ -16,6 +16,7 @@ services:
       labels:
         - traefik.enable=true
         - traefik.docker.network=reverse-proxy-public
+        - traefik.http.routers.dashboard-visualiser-kibana.service=identity-access-manager-keycloak
         - traefik.http.routers.dashboard-visualiser-kibana.rule=Host(`${KIBANA_TRAEFIK_HOST_NAME}`)
         - traefik.http.services.dashboard-visualiser-kibana.loadbalancer.server.port=5601
       resources:
