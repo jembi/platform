@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   reprocess-mediator:
@@ -12,12 +12,13 @@ services:
       OPENHIM_USERNAME: ${OPENHIM_USERNAME}
       OPENHIM_PASSWORD: ${OPENHIM_PASSWORD}
       REGISTER_MEDIATOR: ${REGISTER_MEDIATOR}
-  
+
   reprocess-mediator-ui:
     image: ${REPROCESS_MEDIATOR_UI_VERSION}
     networks:
       openhim:
       reprocess:
+      reverse-proxy:
     environment:
       REPROCESSOR_API_BASE_URL: ${REPROCESSOR_API_BASE_URL}
 
@@ -28,4 +29,6 @@ networks:
   reprocess:
     name: reprocess_public
     external: true
-
+  reverse-proxy:
+    name: reverse-proxy_public
+    external: true
