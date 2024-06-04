@@ -8,6 +8,7 @@ services:
     ports:
       - 80:80
       - 8080:8080
+      - 443:443
     command:
       - --log
       - --log.level=${LOG_LEVEL}

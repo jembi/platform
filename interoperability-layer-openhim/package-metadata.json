@@ -43,6 +43,7 @@
     "KC_OPENHIM_CLIENT_SECRET": "tZKfEbWf0Ka5HBNZwFrdSyQH2xT1sNMR",
     "KC_OPENHIM_ROOT_URL": "http://localhost:9000",
     "KC_API_URL": "http://identity-access-manager-keycloak:8080",
+    "OPENHIM_HOST_NAME": "health.org",
     "OPENHIM_CONSOLE_HOST_NAME": "openhim-console",
     "OPENHIM_CORE_HOST_NAME": "openhim-core",
     "OPENHIM_COMMS_HOST_NAME": "openhim-comms",
