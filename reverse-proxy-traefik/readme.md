@@ -1,56 +1,78 @@
 # Reverse Proxy Traefik
 
-The following package is an alternative reverse proxy which uses both domain and subdirectory to host the following services:
+The package is an alternative reverse proxy nginx, this reverse proxy exposes packages using both domain and subdirectory to host the following services:
 
-| Package  | Hosted        |
-|----------|---------------|
-| Superset | Domain        |
-| Jempi    | Domain        |
-| Santempi | Domain        |
-| Minio    | Sub Directory |
-| Grafana  | Sub Directory |
-| JSReport | Sub Directory |
-| OpenHim  | Sub Directory |
+| Package  | Hosted                                    |
+|----------|-------------------------------------------|
+| Superset | Domain                                    |
+| Jempi    | Domain                                    |
+| Santempi | Domain                                    |
+| Kibana   | Domain                             |
+| Minio    | Sub Directory                             |
+| Grafana  | Sub Directory                             |
+| JSReport | Sub Directory                             |
+| OpenHim  | Domain (Frontend) Sub Directory (Backend) |
 
 ## Domain Based Reverse Proxy
 
+The following packages do not support subdomain and require the uses of domain/subdomain to access over the reverse proxy
+
 ### Superset
 
-Set the following environment variables in the package-metadata.json in the "" directory
+Set the following environment variable in the package-metadata.json in the "./dashboard-visualiser-superset" directory
 
 ```bash
 "environmentVariables": 
 {
 # Other Configurations
 ...
-    
+    "SUPERSET_TRAEFIK_HOST_NAME": "superset-health.org"
 }
 ```
 
 ### Jempi
 
-Set the following environment variables in the package-metadata.json in the "" directory
+Set the following environment variables in the package-metadata.json in the "./client-registry-jempi" directory
 
 ```bash
 "environmentVariables": 
 {
 # Other Configurations
 ...
-    
+    "REACT_APP_JEMPI_BASE_API_HOST": "jempi-api-health.org",
+    "REACT_APP_JEMPI_BASE_API_PORT": "443", 
+    "JEMPI_API_TRAEFIK_HOST_NAME": "jempi-api-health.org",
+    "JEMPI_WEB_TRAEFIK_HOST_NAME": "jempi-web-health.org",
 }
 ```
 
 ### Santempi
 
-Set the following environment variables in the package-metadata.json in the "" directory
+Set the following environment variables in the package-metadata.json in the "./client-registry-santempi" directory
 
 ```bash
 "environmentVariables": 
 {
 # Other Configurations
 ...
-    
+    "SANTEDB_WWW_TRAEFIK_HOST_NAME": "santewww-health.org",
+    "SANTEDB_MPI_TRAEFIK_HOST_NAME": "santempi-health.org"
 }
+```
+
+### Enabling Kibana
+
+Set the following environment variables in the package-metadata.json in the "./dashboard-visualiser-kibana" directory
+
+```bash
+
+"environmentVariables": 
+{
+# Other Configurations
+...
+    "KIBANA_TRAEFIK_HOST_NAME": "kibana-health.org"
+}
+
 ```
 
 ## Subdirectory
@@ -66,7 +88,7 @@ Set the following environment variables in the package-metadata.json in the "mon
 # Other Configurations
 ...
     "MINIO_SERVER_DOMAIN": "health.org",
-    "MINIO_BROWSER_REDIRECT_URL": "http://health.org/minio"
+    "MINIO_BROWSER_REDIRECT_URL": "https://health.org/minio/"
 }
 
 ```
@@ -82,7 +104,8 @@ Set the following environment variables in the package-metadata.json in the "mon
 # Other Configurations
 ...
     "KC_GRAFANA_ROOT_URL": "%(protocol)s://%(domain)s/grafana/",
-    "GF_SERVER_DOMAIN": "heath.org",
+    "GF_SERVER_DOMAIN": "health.org",
+    "GF_SERVER_SERVE_FROM_SUB_PATH": "true",
 }
 
 ```
@@ -96,19 +119,24 @@ Set the following environment variables in the package-metadata.json in the "das
 {
 # Other Configurations
 ...
-    
+    "JS_REPORT_HOST": "health.org",
+    "JS_REPORT_PATH_PREFIX": "/jsreport"
 }
 ```
 
 ### OpenHIM
 
-Set the following environment variables in the package-metadata.json in the "interoperability-layer-openhim" directory
+Set the following environment variables in the package-metadata.json in the "./interoperability-layer-openhim" directory
+> Note: Only the Backend services are accessible through subdirectory paths, not the frontend
 
 ```bash
 "environmentVariables": 
 {
 # Other Configurations
 ...
-    
+    "OPENHIM_HOST_NAME": "health.org",
+    "OPENHIM_CONSOLE_BASE_URL": "http://health.org"
+    "OPENHIM_CORE_MEDIATOR_HOSTNAME": "health.org/openhimcomms",
+    "OPENHIM_MEDIATOR_API_PORT": "443"
 }
 ```

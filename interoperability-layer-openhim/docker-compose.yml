@@ -49,9 +49,9 @@ services:
         - traefik.http.services.openhimcomms.loadbalancer.server.scheme=https
         - traefik.http.routers.openhimcomms.tls=true
         - traefik.http.routers.openhimcomms.entrypoints=websecure
-        - traefik.http.routers.openhimcomms.rule=Host(`${OPENHIM_HOST_NAME}`) && PathPrefix(`/openhimcomms`)
+        - traefik.http.routers.openhimcomms.rule=Host(`${OPENHIM_HOST_NAME}`) && PathPrefix(`/openhimcomms:${OPENHIM_MEDIATOR_API_PORT}`)
         - traefik.http.routers.openhimcomms.middlewares=openhimcomms
-        - traefik.http.middlewares.openhimcomms.stripprefix.prefixes=/openhimcomms
+        - traefik.http.middlewares.openhimcomms.stripprefix.prefixes=/openhimcomms:${OPENHIM_MEDIATOR_API_PORT}
 
         - traefik.http.routers.openhimcore.service=openhimcore
         - traefik.http.services.openhimcore.loadbalancer.server.port=5001
@@ -87,9 +87,8 @@ services:
         - traefik.docker.network=reverse-proxy-traefik_public
         - traefik.http.services.openhim-console.loadbalancer.server.scheme=http
         - traefik.http.routers.openhim-console.service=openhim-console
-        - traefik.http.routers.openhim-console.tls=true
-        - traefik.http.routers.openhim-console.entrypoints=websecure
-        - traefik.http.routers.openhim-console.rule=Host(`localhost`)
+        - traefik.http.routers.openhim-console.entrypoints=web
+        - traefik.http.routers.openhim-console.rule=Host(`${OPENHIM_HOST_NAME}`)
         - traefik.http.services.openhim-console.loadbalancer.server.port=80
       placement:
         max_replicas_per_node: ${OPENHIM_CONSOLE_MAX_REPLICAS_PER_NODE}
