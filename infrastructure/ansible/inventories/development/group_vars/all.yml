@@ -26,6 +26,9 @@ sudoers:
     key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCwfQ8ypu5+4rGNfMeSzB+ADffE4qT/519AFVDTIWgV4FaJipsgHdYFTVnxkJHAiixTKAqEJ2SF1RJ2/pIH2hX5p2GNWhrXuOmnqiOZEByPSsqidSNS8aMCfIzt7UZ6XvIPhagZnEQ7NCA1BOuOqzWISIEKjSqA3MvfZ5kniis5J9cbTqkGB+pgW75fuQIxtmK7iCZbwuXOO735PzkKgeT/vfg4fTlbmOeikSNO6QaamGRZ+NJfprCIx5j5GKc970k6V9d4RcQltHojgWI7Wl2VRLsprm7Xy2keaTGXfjnCDwQ2cQRUgBqIoWyDoUzNqvDYXrEAfM19sNEICMx90fXaJeGrNbMg2jjWuyPacSnB0moDtECt4zd2svozGEWnVvdY8KDAWgMbTUlrufNOzh7hyrDMpaBSmSN9npyTpekM0kWlykfU++oEexXMi41b0cZLJc9ocPJCeKZ0fzpachHW35zsUh2E6OCgbXdDxNugVrG4ecz9nUqjJGyYhCX6mhz9VxpB46wEPQ/E2rTsnIfd+xMYoyLqLzCfKf/Z8CL8/Ifq7uDRxczRmo5sCrjByOdwyUGY+JoFQMc5OcEzfyepVmcwfuhuASBGAZOr1zM1ituqG614d7W+GDRHwCeAS8zUZKFdYvL5C4nOg+OxojqnC8zSGwN3ZcnMXHvvzKdQHw==
 
 docker_users:
+  - name: Default user
+    username: ubuntu
+    state: present
   - name: bradford.sawadye@jembi.org
     username: bradfordsawadye
     state: present
@@ -56,14 +59,3 @@ firewall_subnet_restriction: "10.1.10.0/16"
 # docker_swarm_hostname_1: ip-172-31-36-41
 # docker_swarm_hostname_2: ip-172-31-35-12
 # docker_swarm_hostname_3: ip-172-31-38-234
-
-# Credentials for logging in to docker hub
-docker_username: ethiopiacdrbot
-docker_email: ryan+ethiopiacdrbot@jembi.org
-docker_password: !vault |
-  $ANSIBLE_VAULT;1.1;AES256
-  34323064326163323965306565316239366335633632633862333339323965633539376162623138
-  3166356333333635656337383236306535343164636632640a323031326166653339663162663763
-  39356130373863326163306139343332396262353036333532303530383363376237336138336136
-  3262303664386464380a613834373538376639373330363361396165333533343137613464653761
-  36383536633362653535343666333731333630383639613065393935346336613636
