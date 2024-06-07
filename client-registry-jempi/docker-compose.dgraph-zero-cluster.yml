@@ -18,7 +18,7 @@ services:
       replicas: 1
       placement:
         constraints:
-          - node.labels.name == ${JEPMI_ZERO_02_PLACEMENT}
+          - node.labels.name == ${JEMPI_ZERO_02_PLACEMENT}
       resources:
         limits:
           memory: ${JEMPI_ZERO_MEMORY_LIMIT}
