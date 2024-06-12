@@ -26,6 +26,7 @@ packages:
   - database-postgres
   - reprocess-mediator
   - fhir-ig-importer
+  - fhir-info-gateway
 
 profiles:
   - name: cdr-dw
