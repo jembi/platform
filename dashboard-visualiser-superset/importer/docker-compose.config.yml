@@ -13,12 +13,17 @@ services:
       SUPERSET_API_USERNAME: ${SUPERSET_USERNAME}
       CONFIG_FILE: ${SUPERSET_CONFIG_FILE}
       SUPERSET_SSL: ${SUPERSET_SSL}
+      CLICKHOUSE_HOST: ${CLICKHOUSE_HOST}
+      CLICKHOUSE_PORT: ${CLICKHOUSE_PORT}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
     configs:
       - source: config-importer-supersetConfig.js
         target: /supersetConfig.js
       - source: config-importer-superset-export.zip
         target: /superset-export.zip
     command: sh -c "cd / && npm i axios form-data && node /supersetConfig.js"
+    networks:
+      clickhouse:
 
 configs:
   config-importer-supersetConfig.js:
@@ -31,3 +36,8 @@ configs:
     name: config-importer-superset-export.zip-${config_importer_superset_export_zip_DIGEST:?err}
     labels:
       name: superset
+
+networks:
+  clickhouse:
+    name: clickhouse_public
+    external: true
