@@ -9,7 +9,7 @@ description: What you need to start using OpenHIM Platform.
 Before getting started with OpenHIM Platform you will need to have Instant OpenHIE tool installed and functional. [Please follow this guide here](https://app.gitbook.com/s/TwrbQZir3ZdvejunAFia/getting-started/quick-start).
 
 {% hint style="info" %}
-* If you're a _**Windows**_** user and are** using WSL2 to be able to run the platform: you should limit the amount of RAM/CPU that will be used by WSL, for more details please check the following link: [Limiting memory usage in WSL2](https://www.aleksandrhovhannisyan.com/blog/limiting-memory-usage-in-wsl-2/).
+* If you're a _**Windows**_** user** and are using WSL2 to be able to run the platform: you should limit the amount of RAM/CPU that will be used by WSL, for more details please check the following link: [Limiting memory usage in WSL2](https://www.aleksandrhovhannisyan.com/blog/limiting-memory-usage-in-wsl-2/).
 {% endhint %}
 
 ## Quick Start
@@ -47,6 +47,14 @@ instant package destroy --name interoperability-layer-openhim --name message-bus
 ```
 
 Next, you might want to browse the [recipes](recipes/) available in OpenHIM Platform. Each recipe bundles a set of packages and configuration to setup an HIE for a particular purpose.
+
+For example, this command allows the most [comprehensive recipe](recipes/central-data-repository-with-data-warehousing.md) to be deployed with one command:
+
+```bash
+wget https://github.com/jembi/platform/releases/latest/download/cdr-dw.env && \
+wget https://github.com/jembi/platform/releases/latest/download/config.yaml && \
+instant package init -p cdr-dw --dev
+```
 
 Alternatively you can also browse the individual set of [packages](packages/) that OpenHIM Platform offers. Each package's documentation lists the environment variables used to configure them.
 
