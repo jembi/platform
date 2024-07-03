@@ -52,6 +52,7 @@
   * [Reverse Proxy Nginx](packages/reverse-proxy-nginx/README.md)
     * [Local Development](packages/reverse-proxy-nginx/local-development.md)
     * [Environment Variables](packages/reverse-proxy-nginx/environment-variables.md)
+* [🗒️ Cheat sheet](cheat-sheet.md)
 * [Provisioning remote servers](provisioning-up-remote-servers/README.md)
   * [Ansible](provisioning-up-remote-servers/ansible.md)
   * [Terraform](provisioning-up-remote-servers/terraform.md)
