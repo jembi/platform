@@ -7,3 +7,4 @@ description: >-
 
 # 📦 Packages
 
+Package can be stood up individually using the `instant package init -n <package_name>` command, or they can be included in your own recipes. This can be accomplished by [creating a profile](https://app.gitbook.com/s/TwrbQZir3ZdvejunAFia/getting-started/config#launching-a-profile) that includes the necessary packages and any custom configuration packages.
