@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   kibana-config-importer:
-    image: jembi/api-config-importer:1.1.0
+    image: jembi/api-config-importer:latest
     environment:
       SERVICE_NAME: 'dashboard-visualiser-kibana'
       SERVICE_API_PORT: 5601

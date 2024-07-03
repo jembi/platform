@@ -55,6 +55,7 @@
 * [Provisioning remote servers](provisioning-up-remote-servers/README.md)
   * [Ansible](provisioning-up-remote-servers/ansible.md)
   * [Terraform](provisioning-up-remote-servers/terraform.md)
+* [Architecture](architecture.md)
 * [Resource Allocations](resource-allocations.md)
 * [Development](development/README.md)
   * [Config Importing](development/config-importing.md)

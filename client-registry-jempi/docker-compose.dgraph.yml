@@ -1,8 +1,8 @@
-version: '3.9'
+version: "3.9"
 
 services:
   jempi-alpha-01:
-    image: dgraph/dgraph:v22.0.0
+    image: ${JEMPI_ZERO_IMAGE}
     hostname: alpha-01
     volumes:
       - jempi-alpha-01-data:/dgraph
@@ -20,7 +20,7 @@ services:
       jempi:
 
   jempi-alpha-02:
-    image: dgraph/dgraph:v22.0.0
+    image: ${JEMPI_ZERO_IMAGE}
     hostname: alpha-02
     volumes:
       - jempi-alpha-02-data:/dgraph
@@ -38,7 +38,7 @@ services:
       jempi:
 
   jempi-alpha-03:
-    image: dgraph/dgraph:v22.0.0
+    image: ${JEMPI_ZERO_IMAGE}
     hostname: alpha-03
     volumes:
       - jempi-alpha-03-data:/dgraph
@@ -56,7 +56,7 @@ services:
       jempi:
 
   jempi-ratel:
-    image: dgraph/ratel:v21.03.2
+    image: ${JEMPI_RATEL_IMAGE}
     deploy:
       replicas: 1
       resources:

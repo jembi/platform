@@ -9,7 +9,7 @@ This recipe sets up an HIE that deploys JeMPI behind the OpenHIM with a mapping 
 To launch this package in dev mode copy and paste this into your terminal in a new folder (ensure you have the [instant CLI installed](https://jembi.gitbook.io/instant-v2/getting-started/quick-start)):
 
 ```bash
-wget https://raw.githubusercontent.com/jembi/platform/main/mpi.env && \
-wget https://raw.githubusercontent.com/jembi/platform/main/config.yaml && \
+wget https://github.com/jembi/platform/releases/latest/download/mpi.env && \
+wget https://github.com/jembi/platform/releases/latest/download/config.yaml && \
 instant package init -p mpi --dev
 ```

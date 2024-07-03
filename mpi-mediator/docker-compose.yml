@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   mpi-mediator:
@@ -36,7 +36,7 @@ services:
       PATIENT_PROFILE_FOR_STUB_PATIENT: ${PATIENT_PROFILE_FOR_STUB_PATIENT}
     deploy:
       placement:
-        max_replicas_per_node: 1
+        max_replicas_per_node: ${MPI_MEDIATOR_MAX_REPLICAS_PER_NODE}
       replicas: ${MPI_MEDIATOR_INSTANCES}
 
 networks:
