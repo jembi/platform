@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   fhir-ig-importer-mediator:
@@ -6,6 +6,7 @@ services:
     networks:
       hapi-fhir:
       openhim:
+      default:
     environment:
       HAPI_FHIR_BASE_URL: ${HAPI_FHIR_BASE_URL}
       HAPI_FHIR_INSTANCES: ${HAPI_FHIR_INSTANCES}
@@ -17,6 +18,7 @@ services:
     networks:
       hapi-fhir:
       openhim:
+      reverse-proxy:
     environment:
       FHIR_IG_IMPORTER_CORE_URL: ${FHIR_IG_IMPORTER_CORE_URL}
 
@@ -27,4 +29,7 @@ networks:
   openhim:
     name: openhim_public
     external: true
-  
+  reverse-proxy:
+    name: reverse-proxy_public
+    external: true
+  default:

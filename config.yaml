@@ -24,6 +24,7 @@ packages:
   - identity-access-manager-keycloak
   - openhim-mapping-mediator
   - database-postgres
+  - reprocess-mediator
   - fhir-ig-importer
 
 profiles:
@@ -43,6 +44,8 @@ profiles:
       - openhim-mapping-mediator
       - kafka-mapper-consumer
       - kafka-unbundler-consumer
+      - fhir-ig-importer
+      - reprocess-mediator
     envFiles:
       - cdr-dw.env
 

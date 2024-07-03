@@ -18,11 +18,11 @@ Feature: Kafka and its dependent packages?
     And There should be 1 volumes
 
   Scenario: Init Kafka Mapper Consumer
-    Given I use parameters "package init -n=kafka-mapper-consumer --only --dev --env-file=.env.local"
+    Given I use parameters "package init -n=interoperability-layer-openhim,kafka-mapper-consumer --only --dev --env-file=.env.local"
     When I launch the platform with params
     Then The service "kafka-mapper-consumer" should be started with 1 replica
     And The service "kafka-mapper-consumer" should be connected to the networks
-      | clickhouse_public | kafka_public |
+      | clickhouse_public | kafka_public | openhim_public |
 
   Scenario: Init Message Bus Kafka
     Given I use parameters "package init -n=kafka-unbundler-consumer --only --dev --env-file=.env.local"
@@ -32,7 +32,7 @@ Feature: Kafka and its dependent packages?
       | kafka_public |
 
   Scenario: Destroy Kafka and its dependent packages
-    Given I use parameters "package destroy -n=kafka-mapper-consumer,kafka-unbundler-consumer --dev --env-file=.env.local"
+    Given I use parameters "package destroy -n=kafka-mapper-consumer,kafka-unbundler-consumer,interoperability-layer-openhim --dev --env-file=.env.local"
     When I launch the platform with params
     And The service "kafka-01" should be removed
     And The service "kafdrop" should be removed
@@ -43,4 +43,4 @@ Feature: Kafka and its dependent packages?
     And There should be 0 volume
     And There should be 0 config
     And There should not be network
-      | kafka_public  | clickhouse_public | prometheus_public |
+      | kafka_public | clickhouse_public | prometheus_public | openhim_public |

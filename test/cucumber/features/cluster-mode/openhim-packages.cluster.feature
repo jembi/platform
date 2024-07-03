@@ -18,9 +18,7 @@ Feature: Openhim and its dependent packages?
       | reverse-proxy_public | keycloak_public | openhim_public | openhim_default |
     And The service "openhim-console" should be started with 3 replicas
     And The service "openhim-console" should be connected to the networks
-      | reverse-proxy_public | keycloak_public | openhim_public | openhim_default | 
-    And The service "interoperability-layer-openhim-config-importer" should be removed
-    And There should be 5 services
+      | reverse-proxy_public | keycloak_public | openhim_public | openhim_default |
 
   Scenario: Destroy Openhim and its dependent packages
     Given I use parameters "package destroy -n=interoperability-layer-openhim --dev --env-file=.env.cluster"

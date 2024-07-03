@@ -11,6 +11,7 @@ services:
       public:
       default:
       prometheus:
+      reprocess:
     environment:
       - mongo_url=${OPENHIM_MONGO_URL}
       - mongo_atnaUrl=${OPENHIM_MONGO_ATNAURL}
@@ -22,10 +23,11 @@ services:
       - api_openid_callbackUrl=${KC_OPENHIM_ROOT_URL}
       - api_openid_clientId=${KC_OPENHIM_CLIENT_ID}
       - api_openid_clientSecret=${KC_OPENHIM_CLIENT_SECRET}
+      - openhimConsoleBaseUrl=${OPENHIM_CONSOLE_BASE_URL}
     deploy:
       replicas: ${OPENHIM_CORE_INSTANCES}
       placement:
-        max_replicas_per_node: 1
+        max_replicas_per_node: ${OPENHIM_CORE_MAX_REPLICAS_PER_NODE}
       resources:
         limits:
           cpus: ${OPENHIM_CPU_LIMIT}
@@ -39,7 +41,7 @@ services:
         - prometheus-port=8080
 
   openhim-console:
-    image: ${OPENHIM_CONSOLE_VERSION}
+    image: ${OPENHIM_CONSOLE_IMAGE}
     environment:
       OPENHIM_CORE_MEDIATOR_HOSTNAME: ${OPENHIM_CORE_MEDIATOR_HOSTNAME}
       OPENHIM_MEDIATOR_API_PORT: ${OPENHIM_MEDIATOR_API_PORT}
@@ -48,6 +50,8 @@ services:
       KC_REALM_NAME: ${KC_REALM_NAME}
       KC_FRONTEND_URL: ${KC_FRONTEND_URL}
       OPENHIM_CONSOLE_SHOW_LOGIN: ${OPENHIM_CONSOLE_SHOW_LOGIN}
+      REACT_APP_OPENHIM_API_BASE_URL: ${OPENHIM_API_BASE_URL}
+      NODE_TLS_REJECT_UNAUTHORIZED: 0
     networks:
       reverse-proxy:
       keycloak:
@@ -56,7 +60,7 @@ services:
     deploy:
       replicas: ${OPENHIM_CONSOLE_INSTANCES}
       placement:
-        max_replicas_per_node: 1
+        max_replicas_per_node: ${OPENHIM_CONSOLE_MAX_REPLICAS_PER_NODE}
       resources:
         limits:
           cpus: ${OPENHIM_CONSOLE_CPU_LIMIT}
@@ -83,5 +87,8 @@ networks:
     external: true
   prometheus:
     name: prometheus_public
+    external: true
+  reprocess:
+    name: reprocess_public
     external: true
   default:

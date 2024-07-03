@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   kafka-mapper-consumer:
@@ -21,11 +21,13 @@ services:
     networks:
       clickhouse:
       kafka:
-      
+      openhim:
+      default:
   kafka-mapper-consumer-ui:
     image: ${KAFKA_CONSUMER_MAPPER_UI_VERSION}
     networks:
       kafka:
+      reverse-proxy:
 
 configs:
   fhir-mapping.json:
@@ -41,3 +43,10 @@ networks:
   kafka:
     name: kafka_public
     external: true
+  openhim:
+    name: openhim_public
+    external: true
+  reverse-proxy:
+    name: reverse-proxy_public
+    external: true
+  default:

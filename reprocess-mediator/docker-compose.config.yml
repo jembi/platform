@@ -1,0 +1,42 @@
+version: '3.9'
+
+services:
+  # container for executing config import scripts for creating the OpenHIM channels used by the Mediator
+  reprocess-config-importer:
+    image: node:erbium-alpine
+    networks:
+      openhim:
+      default:
+    environment:
+      OPENHIM_API_USERNAME: ${OPENHIM_USERNAME}
+      OPENHIM_API_PASSWORD: ${OPENHIM_PASSWORD}
+      # Reject unauthorised is only needed if the OpenHIM's SSL is not setup
+      NODE_TLS_REJECT_UNAUTHORIZED: 0
+    command: sh -c "node openhimConfig.js"
+    configs:
+      - source: reprocess-openhimConfig.js
+        target: /openhimConfig.js
+      - source: reprocess-ui-app.json
+        target: /reprocess-ui-app.json
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: none
+
+configs:
+  reprocess-openhimConfig.js:
+    file: ./openhimConfig.js
+    name: reprocess-openhimConfig.js-${reprocess_openhimConfig_js_DIGEST:?err}
+    labels:
+      name: reprocess-mediator
+  reprocess-ui-app.json:
+    file: ./reprocess-ui-app.json
+    name: reprocess-ui-app.json-${reprocess_ui_json_DIGEST:?err}
+    labels:
+      name: reprocess-mediator
+
+networks:
+  openhim:
+    name: openhim_public
+    external: true
+  default:
