@@ -12,7 +12,10 @@ function init_vars() {
   MODE=$2
 
   COMPOSE_FILE_PATH=$(
-    cd "$(dirname "${BASH_SOURCE[0]}")" || exit
+    cd "$(dirname "${BASH_SOURCE[0]}")" || {
+      echo "Failed to change directory"
+      exit 1
+    }
     pwd -P
   )
 
