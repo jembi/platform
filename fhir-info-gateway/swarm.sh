@@ -4,7 +4,6 @@ declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare SERVICE_NAMES=()
 declare STACK="fhir-info-gateway"
 
 function init_vars() {
