@@ -20,9 +20,6 @@ function init_vars() {
 
   UTILS_PATH="${COMPOSE_FILE_PATH}/../utils"
 
-  SERVICE_NAMES=(
-    "fhir-info-gateway"
-  )
 
   readonly ACTION
   readonly MODE
