@@ -31,7 +31,7 @@ services:
       placement:
         max_replicas_per_node: 1
         constraints:
-          - node.role == leader
+          - node.role == ${PLACEMENT_ROLE_CONSTRAINTS}
       resources:
         limits:
           cpus: "0.5"

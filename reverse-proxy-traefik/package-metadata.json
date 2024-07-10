@@ -13,7 +13,8 @@
     "TK_MEMORY_LIMIT": "3G",
     "TK_MEMORY_RESERVE": "500M",
     "INSECURE_SKIP_VERIFY": "true",
-    "ENABLE_TRAEFIK_DASHBOARD": "true",
+    "ENABLE_TRAEFIK_DASHBOARD": "false",
+    "PLACEMENT_ROLE_CONSTRAINTS": "leader",
     "ACME_EMAIL": ""
   }
 }
