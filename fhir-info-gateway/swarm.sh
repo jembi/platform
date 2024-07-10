@@ -25,7 +25,6 @@ function init_vars() {
   readonly MODE
   readonly COMPOSE_FILE_PATH
   readonly UTILS_PATH
-  readonly SERVICE_NAMES
   readonly STACK
 }
 
