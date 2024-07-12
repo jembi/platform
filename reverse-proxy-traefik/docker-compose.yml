@@ -19,26 +19,53 @@ services:
       - --api.insecure=${ENABLE_TRAEFIK_DASHBOARD}
       - --entrypoints.web.address=:80
       - --entryPoints.websecure.address=:443
-      - --providers.docker.network=reverse-proxy-traefik_public
+      #certificate resolver
+      - --certificatesresolvers.le.acme.email=${ACME_EMAIL?Variable not set}
+      - --certificatesresolvers.le.acme.storage=/certificates/acme.json
+      - --certificatesresolvers.le.acme.tlschallenge=true
+      - --certificatesresolvers.le.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory
+      - --certificatesresolvers.le.acme.dnschallenge.delaybeforecheck=0
+
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - traefik-public-certificates:/certificates
     deploy:
       replicas: 1
       labels:
-        #TODO: Are these 2 lines necessary?
-        - traefik.enable=true
-        - traefik.http.services.reverse-proxy-traefik.loadbalancer.server.port=80
+        - traefik.docker.lbswarm=true
+        - traefik.http.routers.to-https.rule=HostRegexp(`{host:.+}`)
+        - traefik.http.routers.to-https.entrypoints=http
+        - traefik.http.routers.to-https.middlewares=to-https
+
+        - traefik.http.routers.traefik.rule=Host(`${DOMAIN_NAME}`) && PathPrefix(`/dashboard`)
+        - traefik.http.routers.traefik.entrypoints=http
+        - traefik.http.routers.traefik.middlewares=auth
+        - traefik.http.routers.traefik.service=api@internal
+        - traefik.http.routers.traefik.tls=true
+        - traefik.http.routers.traefik.tls.certresolver=${CERT_RESOLVER}
+        - traefik.http.services.openhim-console.loadbalancer.server.port=8080
+
+        - traefik.http.middlewares.to-https.redirectscheme.scheme=https
+        - traefik.http.middlewares.auth.basicauth.users=${USERNAME}:${PASSWORD}
+
       placement:
         max_replicas_per_node: 1
         constraints:
           - node.role == ${PLACEMENT_ROLE_CONSTRAINTS}
       resources:
         limits:
-          cpus: "0.5"
-          memory: 256M
+          cpus: "1"
+          memory: 1G
         reservations:
           cpus: "0.1"
           memory: 64M
+
+volumes:
+  # Create a volume to store the certificates, there is a constraint to make sure
+  # Traefik is always deployed to the same Docker node with the same volume containing
+  # the HTTPS certificates
+  traefik-public-certificates:
+
 
 networks:
   traefik:

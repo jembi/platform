@@ -6,8 +6,8 @@
   "type": "infrastructure",
   "dependencies": [],
   "environmentVariables": {
-    "OPENHIM_CORE_IMAGE": "jembi/openhim-core:v8.4.3",
-    "OPENHIM_CONSOLE_IMAGE": "jembi/openhim-console:poc-microfrontend",
+    "OPENHIM_CORE_IMAGE": "jembi/openhim-core:prerelease",
+    "OPENHIM_CONSOLE_IMAGE": "jembi/openhim-console:poc-microfrontend-prelease",
     "MONGO_IMAGE": "mongo:4.2",
     "AWAIT_HELPER_IMAGE": "jembi/await-helper:1.0.1",
     "MONGO_1_PLACEMENT": "node-1",
@@ -43,8 +43,7 @@
     "KC_OPENHIM_CLIENT_SECRET": "tZKfEbWf0Ka5HBNZwFrdSyQH2xT1sNMR",
     "KC_OPENHIM_ROOT_URL": "http://localhost:9000",
     "KC_API_URL": "http://identity-access-manager-keycloak:8080",
-    "OPENHIM_SUBDOMAIN": "openhim",
-    "OPENHIM_CONSOLE_BASE_URL": "localhost:9000",
+    "OPENHIM_CONSOLE_BASE_URL": "https://localhost:9000",
     "OPENHIM_API_HOST": "localhost",
     "OPENHIM_API_PORT": "5001"
   }
