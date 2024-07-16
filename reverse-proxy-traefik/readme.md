@@ -1,17 +1,17 @@
 # Reverse Proxy Traefik
 
-The package is an alternative reverse proxy nginx, this reverse proxy exposes packages using both domain and subdirectory to host the following services:
+The package is an alternative reverse proxy nginx, this reverse proxy exposes packages using both subdomains and subdirectory to host the following services:
 
-| Package  | Hosted                                    |
-|----------|-------------------------------------------|
-| Superset | Domain                                    |
-| Jempi    | Domain                                    |
-| Santempi | Domain                                    |
-| Kibana   | Domain                             |
-| Minio    | Sub Directory                             |
-| Grafana  | Sub Directory                             |
-| JSReport | Sub Directory                             |
-| OpenHim  | Domain (Frontend) Sub Directory (Backend) |
+| Package  | Hosted                                                                                                 |
+| -------- | ------------------------------------------------------------------------------------------------------ |
+| Superset | Sub Domain (e.g. superset.<domain>)                                                                    |
+| Jempi    | Sub Domain (e.g. jembi.<domain>)                                                                       |
+| Santempi | Sub Domain (e.g. santempi.<domain>)                                                                    |
+| Kibana   | Sub Domain (e.g. kibana.<domain>)                                                                      |
+| Minio    | Sub Directory (e.g. monitoring.<domain>/minio)                                                         |
+| Grafana  | Sub Directory (e.g. monitoring.<domain>/grafana)                                                       |
+| JSReport | Sub Directory (e.g. monitoring.<domain>/jsreport)                                                      |
+| OpenHim  | Sub Domain (Frontend) Sub Directory (Backend) (e.g. openhim.<domain> and openhim.<domain>/openhimcore) |
 
 ## Domain Based Reverse Proxy
 
@@ -22,7 +22,7 @@ The following packages do not support subdomain and require the uses of domain/s
 Set the following environment variable in the package-metadata.json in the "./dashboard-visualiser-superset" directory
 
 ```bash
-"environmentVariables": 
+"environmentVariables":
 {
 # Other Configurations
 ...
@@ -35,12 +35,12 @@ Set the following environment variable in the package-metadata.json in the "./da
 Set the following environment variables in the package-metadata.json in the "./client-registry-jempi" directory
 
 ```bash
-"environmentVariables": 
+"environmentVariables":
 {
 # Other Configurations
 ...
     "REACT_APP_JEMPI_BASE_API_HOST": "jempi-api-health.org",
-    "REACT_APP_JEMPI_BASE_API_PORT": "443", 
+    "REACT_APP_JEMPI_BASE_API_PORT": "443",
     "JEMPI_API_TRAEFIK_HOST_NAME": "jempi-api-health.org",
     "JEMPI_WEB_TRAEFIK_HOST_NAME": "jempi-web-health.org",
 }
@@ -51,7 +51,7 @@ Set the following environment variables in the package-metadata.json in the "./c
 Set the following environment variables in the package-metadata.json in the "./client-registry-santempi" directory
 
 ```bash
-"environmentVariables": 
+"environmentVariables":
 {
 # Other Configurations
 ...
@@ -66,7 +66,7 @@ Set the following environment variables in the package-metadata.json in the "./d
 
 ```bash
 
-"environmentVariables": 
+"environmentVariables":
 {
 # Other Configurations
 ...
@@ -83,7 +83,7 @@ Set the following environment variables in the package-metadata.json in the "mon
 
 ```bash
 
-"environmentVariables": 
+"environmentVariables":
 {
 # Other Configurations
 ...
@@ -99,7 +99,7 @@ Set the following environment variables in the package-metadata.json in the "mon
 
 ```bash
 
-"environmentVariables": 
+"environmentVariables":
 {
 # Other Configurations
 ...
@@ -115,7 +115,7 @@ Set the following environment variables in the package-metadata.json in the "mon
 Set the following environment variables in the package-metadata.json in the "dashboard-visualiser-jsreport" directory
 
 ```bash
-"environmentVariables": 
+"environmentVariables":
 {
 # Other Configurations
 ...
@@ -127,10 +127,11 @@ Set the following environment variables in the package-metadata.json in the "das
 ### OpenHIM
 
 Set the following environment variables in the package-metadata.json in the "./interoperability-layer-openhim" directory
+
 > Note: Only the Backend services are accessible through subdirectory paths, not the frontend
 
 ```bash
-"environmentVariables": 
+"environmentVariables":
 {
 # Other Configurations
 ...

@@ -54,7 +54,7 @@ services:
         - traefik.http.middlewares.openhimcomms.stripprefix.prefixes=/openhimcomms:${OPENHIM_MEDIATOR_API_PORT}
 
         - traefik.http.routers.openhimcore.service=openhimcore
-        - traefik.http.services.openhimcore.loadbalancer.server.port=5001
+        - traefik.http.services.openhimcore.loadbalancer.server.port=5000
         - traefik.http.services.openhimcore.loadbalancer.server.scheme=https
         - traefik.http.routers.openhimcore.tls=true
         - traefik.http.routers.openhimcore.entrypoints=websecure
