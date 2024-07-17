@@ -1,0 +1,84 @@
+version: "3.9"
+
+services:
+  postgres-1:
+    environment:
+      REPMGR_PARTNER_NODES: ${REPMGR_PARTNER_NODES}
+    deploy:
+      placement:
+        constraints:
+          - "node.labels.name==${POSTGRES_1_PLACEMENT}"
+
+  postgres-2:
+    image: ${POSTGRES_IMAGE}
+    environment:
+      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
+      REPMGR_NODE_NETWORK_NAME: postgres-2
+      REPMGR_PASSWORD: ${REPMGR_PASSWORD}
+      REPMGR_RECONNECT_INTERVAL: 3
+      REPMGR_NODE_NAME: postgres-2
+      REPMGR_PRIMARY_HOST: ${REPMGR_PRIMARY_HOST}
+      REPMGR_PARTNER_NODES: ${REPMGR_PARTNER_NODES}
+      POSTGRESQL_POSTGRES_PASSWORD: ${POSTGRESQL_PASSWORD}
+      REPMGR_FAILOVER: ${POSTGRES_FAILOVER}
+      REPMGR_DEGRADED_MONITORING_TIMEOUT: ${POSTGRES_DEGRADED_MONITORING_TIMEOUT}
+    volumes:
+      - "hapi-postgres-2-data:/bitnami/postgresql"
+    configs:
+      - target: /bitnami/postgresql/conf/conf.d/custom_postgresql.conf
+        source: postgresql.conf
+    deploy:
+      placement:
+        constraints:
+          - "node.labels.name==${POSTGRES_2_PLACEMENT}"
+      replicas: 1
+      resources:
+        limits:
+          cpus: ${POSTGRES_CPU_LIMIT}
+          memory: ${POSTGRES_MEMORY_LIMIT}
+        reservations:
+          cpus: ${POSTGRES_CPU_RESERVE}
+          memory: ${POSTGRES_MEMORY_RESERVE}
+    networks:
+      default:
+      pg_backup_net:
+      postgres:
+
+  postgres-3:
+    image: ${POSTGRES_IMAGE}
+    environment:
+      POSTGRESQL_PASSWORD: ${POSTGRESQL_PASSWORD}
+      REPMGR_NODE_NETWORK_NAME: postgres-3
+      REPMGR_PASSWORD: ${REPMGR_PASSWORD}
+      REPMGR_RECONNECT_INTERVAL: 3
+      REPMGR_NODE_NAME: postgres-3
+      REPMGR_PRIMARY_HOST: ${REPMGR_PRIMARY_HOST}
+      REPMGR_PARTNER_NODES: ${REPMGR_PARTNER_NODES}
+      POSTGRESQL_POSTGRES_PASSWORD: ${POSTGRESQL_PASSWORD}
+      REPMGR_FAILOVER: ${POSTGRES_FAILOVER}
+      REPMGR_DEGRADED_MONITORING_TIMEOUT: ${POSTGRES_DEGRADED_MONITORING_TIMEOUT}
+    volumes:
+      - "hapi-postgres-3-data:/bitnami/postgresql"
+    configs:
+      - target: /bitnami/postgresql/conf/conf.d/custom_postgresql.conf
+        source: postgresql.conf
+    deploy:
+      placement:
+        constraints:
+          - "node.labels.name==${POSTGRES_3_PLACEMENT}"
+      replicas: 1
+      resources:
+        limits:
+          cpus: ${POSTGRES_CPU_LIMIT}
+          memory: ${POSTGRES_MEMORY_LIMIT}
+        reservations:
+          cpus: ${POSTGRES_CPU_RESERVE}
+          memory: ${POSTGRES_MEMORY_RESERVE}
+    networks:
+      default:
+      pg_backup_net:
+      postgres:
+
+volumes:
+  hapi-postgres-2-data:
+  hapi-postgres-3-data:

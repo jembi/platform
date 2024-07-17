@@ -1,17 +1,33 @@
-version: '3.9'
+version: "3.9"
 
 services:
   openhim-core:
-    image: jembi/openhim-core:7
+    image: ${OPENHIM_CORE_IMAGE}
+    networks:
+      kafka:
+      hapi-fhir:
+      reverse-proxy:
+      keycloak:
+      public:
+      default:
+      prometheus:
+      reprocess:
     environment:
       - mongo_url=${OPENHIM_MONGO_URL}
       - mongo_atnaUrl=${OPENHIM_MONGO_ATNAURL}
-      - api_authenticationTypes=["token", "basic"]
+      - api_authenticationTypes=["token", "basic", "openid", "local"]
       - authentication_enableCustomTokenAuthentication=true
+      - router_kafkaBrokers=${KAFKA_HOSTS}
+      - api_openid_url=${KC_API_URL}/realms/${KC_REALM_NAME}
+      - api_openid_issuerUrl=${KC_FRONTEND_URL}/realms/${KC_REALM_NAME}
+      - api_openid_callbackUrl=${KC_OPENHIM_ROOT_URL}
+      - api_openid_clientId=${KC_OPENHIM_CLIENT_ID}
+      - api_openid_clientSecret=${KC_OPENHIM_CLIENT_SECRET}
+      - openhimConsoleBaseUrl=${OPENHIM_CONSOLE_BASE_URL}
     deploy:
       replicas: ${OPENHIM_CORE_INSTANCES}
       placement:
-        max_replicas_per_node: 1
+        max_replicas_per_node: ${OPENHIM_CORE_MAX_REPLICAS_PER_NODE}
       resources:
         limits:
           cpus: ${OPENHIM_CPU_LIMIT}
@@ -19,16 +35,34 @@ services:
         reservations:
           cpus: ${OPENHIM_CPU_RESERVE}
           memory: ${OPENHIM_MEMORY_RESERVE}
+      labels:
+        - prometheus-job-task=openhim
+        - prometheus-scheme=https
+        - prometheus-port=8080
 
   openhim-console:
-    image: jembi/openhim-console:1.14.4
-    configs:
-      - source: console-default.json
-        target: /usr/share/nginx/html/config/default.json
+    image: ${OPENHIM_CONSOLE_IMAGE}
+    environment:
+      OPENHIM_CORE_MEDIATOR_HOSTNAME: ${OPENHIM_CORE_MEDIATOR_HOSTNAME}
+      OPENHIM_MEDIATOR_API_PORT: ${OPENHIM_MEDIATOR_API_PORT}
+      KC_OPENHIM_SSO_ENABLED: ${KC_OPENHIM_SSO_ENABLED}
+      KC_OPENHIM_CLIENT_ID: ${KC_OPENHIM_CLIENT_ID}
+      KC_REALM_NAME: ${KC_REALM_NAME}
+      KC_FRONTEND_URL: ${KC_FRONTEND_URL}
+      OPENHIM_CONSOLE_SHOW_LOGIN: ${OPENHIM_CONSOLE_SHOW_LOGIN}
+      REACT_APP_OPENHIM_API_BASE_URL: ${OPENHIM_API_BASE_URL}
+      OPENHIM_API_HOST: ${OPENHIM_API_HOST}
+      OPENHIM_API_PORT: ${OPENHIM_API_PORT}
+      NODE_TLS_REJECT_UNAUTHORIZED: 0
+    networks:
+      reverse-proxy:
+      keycloak:
+      public:
+      default:
     deploy:
       replicas: ${OPENHIM_CONSOLE_INSTANCES}
       placement:
-        max_replicas_per_node: 1
+        max_replicas_per_node: ${OPENHIM_CONSOLE_MAX_REPLICAS_PER_NODE}
       resources:
         limits:
           cpus: ${OPENHIM_CONSOLE_CPU_LIMIT}
@@ -37,9 +71,26 @@ services:
           cpus: ${OPENHIM_CONSOLE_CPU_RESERVE}
           memory: ${OPENHIM_CONSOLE_MEMORY_RESERVE}
 
-configs:
-  console-default.json:
-    file: ./importer/volume/default.json
-    name: console.config-${console_config_DIGEST:?err}
-    labels:
-      name: openhim
+networks:
+  kafka:
+    name: kafka_public
+    external: true
+  hapi-fhir:
+    name: hapi-fhir_public
+    external: true
+  reverse-proxy:
+    name: reverse-proxy_public
+    external: true
+  keycloak:
+    name: keycloak_public
+    external: true
+  public:
+    name: openhim_public
+    external: true
+  prometheus:
+    name: prometheus_public
+    external: true
+  reprocess:
+    name: reprocess_public
+    external: true
+  default:

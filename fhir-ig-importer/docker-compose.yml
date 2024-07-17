@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  fhir-ig-importer-mediator:
+    image: jembi/fhir-ig-importer-mediator:${FHIR_IG_IMPORTER_CORE_VERSION}
+    networks:
+      hapi-fhir:
+      openhim:
+      default:
+    environment:
+      HAPI_FHIR_BASE_URL: ${HAPI_FHIR_BASE_URL}
+      HAPI_FHIR_INSTANCES: ${HAPI_FHIR_INSTANCES}
+      FHIR_IG_IMPORTER_CORE_PORT: ${FHIR_IG_IMPORTER_CORE_PORT}
+      FHIR_IG_IMPORTER_CORE_HOST: ${FHIR_IG_IMPORTER_CORE_HOST}
+
+  fhir-ig-importer-ui:
+    image: jembi/fhir-ig-importer-mediator-ui:${FHIR_IG_IMPORTER_UI_VERSION}
+    networks:
+      hapi-fhir:
+      openhim:
+      reverse-proxy:
+    environment:
+      FHIR_IG_IMPORTER_CORE_URL: ${FHIR_IG_IMPORTER_CORE_URL}
+
+networks:
+  hapi-fhir:
+    name: hapi-fhir_public
+    external: true
+  openhim:
+    name: openhim_public
+    external: true
+  reverse-proxy:
+    name: reverse-proxy_public
+    external: true
+  default:

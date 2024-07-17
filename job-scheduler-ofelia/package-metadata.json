@@ -6,10 +6,12 @@
   "version": "0.0.1",
   "dependencies": [],
   "environmentVariables": {
+    "JOB_SCHEDULER_OFELIA_IMAGE": "mcuadros/ofelia:v0.3.6",
     "RENEWAL_EMAIL": "dummy@jembi.org",
     "STAGING": "true",
     "DOMAIN_NAME": "localhost",
     "SUBDOMAINS": "",
-    "OPENHIM_MONGO_URL": "mongodb://mongo-1:27017/openhim"
+    "OPENHIM_MONGO_URL": "mongodb://mongo-1:27017/openhim",
+    "REVERSE_PROXY_STACK_NAME": "reverse-proxy"
   }
 }

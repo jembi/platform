@@ -1,23 +1,35 @@
-version: '3.9'
+version: "3.9"
 
 services:
   hapi-fhir:
-    image: jembi/hapi:v5.7.0-wget
+    image: jembi/hapi:${HF_IMAGE_TAG}
+    networks:
+      mpi:
+      public:
+      default:
+      postgres:
     environment:
-      - spring.datasource.url=jdbc:postgresql://${POSTGRES_REPLICA_SET}/hapi?targetServerType=primary
-      - spring.datasource.username=admin
-      - spring.datasource.password=instant101
+      - spring.datasource.url=jdbc:postgresql://${HAPI_DB_SET}/${HF_POSTGRESQL_DATABASE}?targetServerType=primary
+      - spring.datasource.username=${HF_POSTGRESQL_USERNAME}
+      - spring.datasource.password=${HF_POSTGRESQL_PASSWORD}
       - spring.datasource.driverClassName=org.postgresql.Driver
-      - spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQL95Dialect
+      - spring.jpa.properties.hibernate.dialect=ca.uhn.fhir.jpa.model.dialect.HapiFhirPostgres94Dialect
+      - spring.datasource.hikari.maximumPoolSize=${HF_MAX_POOL_SIZE}
+      - spring.datasource.hikari.minimumIdle=20
+      - spring.datasource.hikari.connectionTimeout=60000
+      - spring.datasource.hikari.idleTimeout=600000
       - hapi.fhir.allow_external_references=true
       - hapi.fhir.bulk_export_enabled=true
+      - hapi.fhir.ips_enabled=${IPS_ENABLED}
+      - hapi.fhir.ig_runtime_upload_enabled=${ENABLE_RUNTIME_IG_UPLOAD}
       - hapi.fhir.enable_repository_validating_interceptor=true
-      - JAVA_TOOL_OPTIONS=-Xmx2g
-      - CATALINA_OPTS=-Xmx2g
+      - hapi.fhir.fhir_version=${FHIR_VERSION}
+      - JAVA_TOOL_OPTIONS=${HF_JAVA_OPTS}
+      - CATALINA_OPTS=${HF_JAVA_OPTS}
     deploy:
       replicas: ${HAPI_FHIR_INSTANCES}
       placement:
-        max_replicas_per_node: 1
+        max_replicas_per_node: ${HAPI_FHIR_MAX_REPLICAS_PER_NODE}
       resources:
         limits:
           cpus: ${HAPI_FHIR_CPU_LIMIT}
@@ -26,8 +38,20 @@ services:
           cpus: ${HAPI_FHIR_CPU_RESERVE}
           memory: ${HAPI_FHIR_MEMORY_RESERVE}
     healthcheck:
-      test: /bin/wget --no-verbose --tries=1 --spider http://localhost:8080
+      test: /bin/wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health
       interval: 30s
       timeout: 5s
       retries: 5
       start_period: 2m
+
+networks:
+  mpi:
+    name: mpi_public
+    external: true
+  public:
+    name: hapi-fhir_public
+    external: true
+  default:
+  postgres:
+    name: postgres_public
+    external: true

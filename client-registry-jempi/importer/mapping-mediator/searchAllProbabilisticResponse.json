@@ -1,0 +1,74 @@
+{
+  "name": "Search Response Endpoint deterministic",
+  "endpoint": {
+    "pattern": "/search-response-probabilistic",
+    "method": "POST"
+  },
+  "transformation": {
+    "input": "JSON",
+    "output": "JSON"
+  },
+  "inputValidation": {
+    "type": "object",
+    "properties": {
+      "requestBody": {
+        "type": "object",
+        "properties": {
+          "parameter": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "valueString": {
+                  "type": "string"
+                },
+                "part": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "valueString": {
+                        "type": "string"
+                      },
+                      "valueInteger": {
+                        "type": "number"
+                      }
+                    },
+                    "required": ["name"]
+                  }
+                }
+              },
+              "required": ["name", "valueString", "part"]
+            },
+            "minItems": 1
+          }
+        },
+        "required": ["parameter"]
+      }
+    }
+  },
+  "inputTransforms": {
+    "operands": "$append([], $map(requestBody.parameter, function($v) {{'operator': $single($v.part, function($v) {$v.name = 'operator'}).valueString, 'operand': {'fn': $single($v.part, function($v) {$v.name = 'fn'}).valueString, 'distance': $single($v.part, function($v) {$v.name = 'distance'}).valueInteger, 'name': $v.name, 'value': $v.valueString}}}))"
+  },
+  "inputMapping": {
+    "transforms.operands": "operands",
+    "transforms.operands[0].operand": "operand"
+  },
+  "requests": {
+    "response": [
+      {
+        "id": "jempiSearchAllProbabilisticResponse",
+        "config": {
+          "method": "post",
+          "url": "http://jempi-api:50000/JeMPI/crFind"
+        }
+      }
+    ]
+  }
+}

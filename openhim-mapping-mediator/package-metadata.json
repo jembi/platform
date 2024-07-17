@@ -6,10 +6,14 @@
   "version": "0.0.1",
   "dependencies": ["interoperability-layer-openhim"],
   "environmentVariables": {
+    "OPENHIM_MAPPING_MEDIATOR_IMAGE": "jembi/openhim-mediator-mapping:v3.3.0",
     "OPENHIM_URL": "https://openhim-core:8080",
     "OPENHIM_USERNAME": "root@openhim.org",
     "OPENHIM_MONGO_URL": "mongodb://mongo-1:27017/openhim",
     "OPENHIM_REGISTER": "true",
-    "OPENHIM_PASSWORD": "instant101"
+    "OPENHIM_PASSWORD": "instant101",
+    "KAFKA_BROKERS": "kafka-01:9092",
+    "KAFKA_CLIENTID": "mapping-mediator",
+    "KAFKA_CONSUMER_GROUPID": "mapping-mediator"
   }
 }

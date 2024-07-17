@@ -1,0 +1,44 @@
+{
+  "name": "Register Patient response",
+  "endpoint": {
+    "pattern": "/register-response",
+    "method": "POST"
+  },
+  "transformation": {
+    "input": "JSON",
+    "output": "JSON"
+  },
+  "inputTransforms": {
+    "currentDate": "$now()",
+    "sourcePatient": "$exists(requestBody.identifier) and $exists(requestBody.identifier[0]) and $exists(requestBody.identifier[0].value) ? {'patient': requestBody.identifier[0].value, 'facility': requestBody.identifier[0].system} : null",
+    "nationalId": "$exists(requestBody.identifier) and $exists(requestBody.identifier[0]) and $count($filter(requestBody.identifier, function($v) {$contains($v.system, 'NationalID')})) > 0 ? $filter(requestBody.identifier, function($v) {$contains($v.system, 'NationalID')})[0].value : null",
+    "name": "$exists(requestBody.name) and $exists(requestBody.name[0]) and $exists(requestBody.name[0].given[0]) ? requestBody.name[0].given[0] : null",
+    "familyName": "$exists(requestBody.name) and $exists(requestBody.name[0]) ? requestBody.name[0].family : null",
+    "city": "$exists(requestBody.address) and $exists(requestBody.address[0]) ? requestBody.address[0].city : null",
+    "phoneNumber": "$exists(requestBody.telecom) and $exists(requestBody.telecom[0]) ? requestBody.telecom[0].value : null"
+  },
+  "inputMapping": {
+    "transforms.sourcePatient": "sourceId",
+    "transforms.nationalId": "demographicData.nationalId",
+    "transforms.familyName": "demographicData.familyName",
+    "transforms.name": "demographicData.givenName",
+    "requestBody.gender": "demographicData.gender",
+    "requestBody.birthDate": "demographicData.dob",
+    "transforms.city": "demographicData.city",
+    "transforms.phoneNumber": "demographicData.phoneNumber",
+    "transforms.currentDate": "uniqueInteractionData.auxDateCreated"
+  },
+  "requests": {
+    "response": {
+      "id": "jempi",
+      "primary": true,
+      "config": {
+        "method": "post",
+        "headers": {
+          "contentType": "application/fhir+json"
+        },
+        "url": "http://jempi-api:50000/JeMPI/crLink"
+      }
+    }
+  }
+}

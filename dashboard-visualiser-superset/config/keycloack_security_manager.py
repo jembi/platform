@@ -6,6 +6,7 @@ from flask_appbuilder.security.views import AuthOIDView
 from flask_login import login_user
 from urllib.parse import quote
 from flask_appbuilder.views import ModelView, SimpleFormView, expose
+import logging
 import urllib.parse
 
 class OIDCSecurityManager(SupersetSecurityManager):
@@ -57,3 +58,14 @@ class AuthOIDCView(AuthOIDView):
 
         return redirect(
             oidc.client_secrets.get('issuer') + '/protocol/openid-connect/logout?client_id=' + oidc.client_secrets.get('client_id') + '&post_logout_redirect_uri=' + quote(redirect_url))
+
+
+    @expose('/backchannel-logout/', methods=['GET', 'POST'])
+    def backchannel_logout(self):
+        oidc = self.appbuilder.sm.oid
+
+        oidc.logout()
+        super(AuthOIDCView, self).logout()        
+        redirect_url = request.url_root.strip('/') + self.appbuilder.get_url_for_login
+        
+        return redirect(oidc.client_secrets.get('issuer') + '/protocol/openid-connect/logout')

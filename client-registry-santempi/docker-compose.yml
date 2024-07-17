@@ -1,15 +1,21 @@
-version: '3.9'
+version: "3.9"
 
 services:
   santedb-mpi:
-    image: santesuite/santedb-mpi:2.2.3
+    image: ${SANTEMPI_IMAGE}
+    networks:
+      mpi:
+      public:
+      reverse-proxy:
+      default:
+      postgres:
     environment:
       - SDB_FEATURE=LOG;DATA_POLICY;AUDIT_REPO;ADO;PUBSUB_ADO;RAMCACHE;SEC;SWAGGER;OPENID;FHIR;HL7;HDSI;AMI;BIS;MDM;MATCHING;ADO_FTS
       - SDB_MATCHING_MODE=WEIGHTED
       - SDB_MDM_RESOURCE=Patient=org.santedb.matching.patient.default
       - SDB_MDM_AUTO_MERGE=false
-      - SDB_DB_MAIN=server=${SANTEMPI_REPMGR_PRIMARY_HOST};port=5432; database=santedb; user id=${SANTEMPI_POSTGRESQL_USERNAME}; password=${SANTEMPI_POSTGRESQL_PASSWORD}; pooling=true; MinPoolSize=5; MaxPoolSize=15; Timeout=60;
-      - SDB_DB_AUDIT=server=${SANTEMPI_REPMGR_PRIMARY_HOST};port=5432; database=auditdb; user id=${SANTEMPI_POSTGRESQL_USERNAME}; password=${SANTEMPI_POSTGRESQL_PASSWORD}; pooling=true; MinPoolSize=5; MaxPoolSize=15; Timeout=60;
+      - SDB_DB_MAIN=server=${SANTEMPI_DB_REP_SET};port=5432; database=santedb; user id=${POSTGRESQL_USERNAME}; password=${POSTGRESQL_PASSWORD}; pooling=true; MinPoolSize=5; MaxPoolSize=15; Timeout=60;
+      - SDB_DB_AUDIT=server=${SANTEMPI_DB_REP_SET};port=5432; database=auditdb; user id=${POSTGRESQL_USERNAME}; password=${POSTGRESQL_PASSWORD}; pooling=true; MinPoolSize=5; MaxPoolSize=15; Timeout=60;
       - SDB_DB_MAIN_PROVIDER=Npgsql
       - SDB_DB_AUDIT_PROVIDER=Npgsql
       - SDB_DATA_POLICY_ACTION=HIDE
@@ -18,11 +24,29 @@ services:
     deploy:
       replicas: ${SANTEMPI_INSTANCES}
     volumes:
-         - santedb-data:/santedb
-         
+      - santedb-data:/santedb
+
   santedb-www:
-    image: santesuite/santedb-www:2.2.1.10
+    image: ${SANTEDB_WWW_IMAGE}
+    networks:
+      default:
+      reverse-proxy:
 
 # Sante's Match configuration is stored in the container. This will prevent the matching rules of the client registry from being lost. A docker config cannot be used for this case as the settings can be changed on Sante's UI.
-volumes: 
+volumes:
   santedb-data:
+
+networks:
+  mpi:
+    name: mpi_public
+    external: true
+  public:
+    name: santedb_public
+    external: true
+  reverse-proxy:
+    name: reverse-proxy_public
+    external: true
+  default:
+  postgres:
+    name: postgres_public
+    external: true

@@ -22,18 +22,31 @@
 #
 
 # A list of available feature flags is available at https://github.com/apache/superset/blob/master/RESOURCES/FEATURE_FLAGS.md
-# FEATURE_FLAGS = {
-# }
+# The environment variable SUPERSET_ENABLED_FEATURE_FLAGS (e.g: "DASHBOARD_RBAC,ENABLE_TEMPLATE_PROCESSING") is a comma seperated list of flags to enable
+# And allows for flags to be enabled/disabled without having to redploy the superset package
+import os
+
+FLAGS = os.getenv('SUPERSET_ENABLED_FEATURE_FLAGS')
+FEATURE_FLAGS = { key: True for key in FLAGS.split(',') if key != '' }
 
 # Variables for use in Superset with Jinja templating 
 # JINJA_CONTEXT_ADDONS = {
 # }
 
+# --------------------------- POSTGRESQL METASTORE ----------------------------
 
-# ---------------------------KEYCLOACK ----------------------------
-import os
+METASTORE_USERNAME = os.getenv('SUPERSET_POSTGRESQL_USERNAME')
+METASTORE_PASSWORD = os.getenv('SUPERSET_POSTGRESQL_PASSWORD')
+METASTORE_DATABASE = os.getenv('SUPERSET_POSTGRESQL_DATABASE')
+METASTORE_URL = os.getenv('SUPERSET_POSTGRESQL_URL')
+SQLALCHEMY_DATABASE_URI = f'postgresql://{METASTORE_USERNAME}:{METASTORE_PASSWORD}@{METASTORE_URL}/{METASTORE_DATABASE}'
+
+
+# --------------------------- KEYCLOACK ----------------------------
 
 KC_SUPERSET_SSO_ENABLED = os.getenv('KC_SUPERSET_SSO_ENABLED')
+
+WTF_CSRF_ENABLED = False
 
 if KC_SUPERSET_SSO_ENABLED == "true":
     SECRET_KEY = os.getenv('SUPERSET_SECRET_KEY')
@@ -50,11 +63,11 @@ if KC_SUPERSET_SSO_ENABLED == "true":
     OIDC_CLIENT_SECRETS = '/app/pythonpath/client_secret.json'
     OIDC_ID_TOKEN_COOKIE_SECURE = False
     OIDC_REQUIRE_VERIFIED_EMAIL = False
-    WTF_CSRF_ENABLED = False
     OIDC_OPENID_REALM: OIDC_OPENID_REALM
     OIDC_INTROSPECTION_AUTH_METHOD: 'client_secret_post'
     CUSTOM_SECURITY_MANAGER = OIDCSecurityManager
     AUTH_USER_REGISTRATION = True
     AUTH_USER_REGISTRATION_ROLE = AUTH_USER_REGISTRATION_ROLE
     OIDC_VALID_ISSUERS = [KC_FRONTEND_URL + '/realms/' + KC_REALM_NAME]
+    ENABLE_PROXY_FIX = True
 

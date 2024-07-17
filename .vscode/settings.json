@@ -6,11 +6,13 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "editor.codeActionsOnSave": {
-    "source.fixAll": true
+    "source.fixAll": "explicit"
   },
   "json.schemas": [
     {
-      "fileMatch": ["package-metadata.json"],
+      "fileMatch": [
+        "package-metadata.json"
+      ],
       "url": "https://raw.githubusercontent.com/openhie/package-starter-kit/main/schema/package-metadata.schema.json"
     }
   ],

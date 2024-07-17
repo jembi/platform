@@ -6,7 +6,9 @@
   "version": "0.0.1",
   "dependencies": ["analytics-datastore-elastic-search"],
   "environmentVariables": {
+    "LOGSTASH_IMAGE": "docker.elastic.co/logstash/logstash:7.12.1",
     "LOGSTASH_INSTANCES": "1",
+    "LOGSTASH_MAX_REPLICAS_PER_NODE": "1",
     "LS_JAVA_OPTS": "-Xmx2g -Xms2g",
     "LOGSTASH_YML_CONFIG": "logstash-logstash.yml",
     "LOGSTASH_DEV_MOUNT": "false",

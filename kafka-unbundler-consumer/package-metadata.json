@@ -6,6 +6,7 @@
   "version": "0.0.1",
   "dependencies": ["message-bus-kafka"],
   "environmentVariables": {
+    "KAFKA_UNBUNDLER_CONSUMER_IMAGE": "jembi/kafka-unbundler-consumer:0.0.3",
     "KAFKA_HOST": "kafka-01",
     "KAFKA_PORT": "9092"
   }

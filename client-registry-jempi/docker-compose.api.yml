@@ -4,18 +4,100 @@ services:
   jempi-api:
     image: jembi/jempi-api:${JEMPI_API_IMAGE_TAG}
     environment:
-      KC_REALM_NAME: ${KC_REALM_NAME}
-      KC_JEMPI_CLIENT_ID: ${KC_JEMPI_CLIENT_ID}
-      KC_JEMPI_CLIENT_SECRET: ${KC_JEMPI_CLIENT_SECRET}
-      KC_API_URL: ${KC_API_URL}
-      KC_JEMPI_ROOT_URL: ${KC_JEMPI_ROOT_URL}
-      JEMPI_SESSION_SECRET: ${JEMPI_SESSION_SECRET}
-      kafka.bootstrap.servers: ${KAFKA_HOSTS}
-      JEMPI_FILE_IMPORT_MAX_SIZE_BYTE: ${JEMPI_FILE_IMPORT_MAX_SIZE_BYTE}
+      LOG4J2_LEVEL: ${LOG4J2_LEVEL}
+      POSTGRESQL_IP: ${JEMPI_POSTGRES_DB}
+      POSTGRESQL_PORT: 5432
+      POSTGRESQL_USER: ${JEMPI_POSTGRESQL_USERNAME}
+      POSTGRESQL_PASSWORD: ${JEMPI_POSTGRESQL_PASSWORD}
+      POSTGRESQL_NOTIFICATIONS_DB: ${POSTGRESQL_NOTIFICATIONS_DB}
+      POSTGRESQL_AUDIT_DB: ${POSTGRESQL_AUDIT_DB}
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_HOSTS}
+      KAFKA_APPLICATION_ID: ${KAFKA_APPLICATION_ID_API}
+      DGRAPH_HOSTS: ${DGRAPH_HOSTS}
+      DGRAPH_PORTS: ${DGRAPH_PORTS}
+      API_HTTP_PORT: 50000
+      LINKER_IP: jempi-linker
+      LINKER_HTTP_PORT: 50000
+      CONTROLLER_IP: jempi-controller
+      CONTROLLER_HTTP_PORT: 50000
+    volumes:
+      - "jempi-shared-data:/app/csv"
     deploy:
-      replicas: 1
+      replicas: ${JEMPI_API_INSTANCES}
       resources:
         limits:
           memory: ${JEMPI_API_MEMORY_LIMIT}
         reservations:
           memory: ${JEMPI_API_MEMORY_RESERVE}
+    networks:
+      reverse-proxy:
+      kafka:
+      default:
+      jempi:
+      postgres:
+
+
+  jempi-api-kc:
+    image: jembi/jempi-api-kc:${JEMPI_API_KC_IMAGE_TAG}
+    environment:
+      LOG4J2_LEVEL: ${LOG4J2_LEVEL}
+      KC_REALM_NAME: ${KC_REALM_NAME}
+      KC_API_URL: ${KC_API_URL}
+      KC_JEMPI_CLIENT_ID: ${KC_JEMPI_CLIENT_ID}
+      KC_JEMPI_CLIENT_SECRET: ${KC_JEMPI_CLIENT_SECRET}
+      KC_JEMPI_ROOT_URL: ${KC_JEMPI_ROOT_URL}
+      KC_FRONTEND_URL: ${KC_FRONTEND_URL}
+      JEMPI_SESSION_SECRET: ${JEMPI_SESSION_SECRET}
+      JEMPI_SESSION_SECURE: ${JEMPI_SESSION_SECURE}
+      JEMPI_SESSION_DOMAIN_NAME: ${JEMPI_SESSION_DOMAIN_NAME}
+      POSTGRESQL_IP: ${JEMPI_POSTGRES_DB}
+      POSTGRESQL_PORT: 5432
+      POSTGRESQL_USER: ${JEMPI_POSTGRESQL_USERNAME}
+      POSTGRESQL_PASSWORD: ${JEMPI_POSTGRESQL_PASSWORD}
+      POSTGRESQL_USERS_DB: ${POSTGRESQL_USERS_DB}
+      POSTGRESQL_NOTIFICATIONS_DB: ${POSTGRESQL_NOTIFICATIONS_DB}
+      POSTGRESQL_AUDIT_DB: ${POSTGRESQL_AUDIT_DB}
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_HOSTS}
+      KAFKA_APPLICATION_ID: ${KAFKA_APPLICATION_ID_API}
+      DGRAPH_HOSTS: ${DGRAPH_HOSTS}
+      DGRAPH_PORTS: ${DGRAPH_PORTS}
+      API_KC_HTTP_PORT: 50000
+      LINKER_IP: jempi-linker
+      LINKER_HTTP_PORT: 50000
+      CONTROLLER_IP: jempi-controller
+      CONTROLLER_HTTP_PORT: 50000
+    volumes:
+      - "jempi-shared-data:/app/csv"
+    deploy:
+      replicas: ${JEMPI_API_INSTANCES}
+      resources:
+        limits:
+          memory: ${JEMPI_API_MEMORY_LIMIT}
+        reservations:
+          memory: ${JEMPI_API_MEMORY_RESERVE}
+    networks:
+      reverse-proxy:
+      kafka:
+      default:
+      jempi:
+      postgres:
+
+
+volumes:
+  jempi-shared-data:
+
+
+networks:
+  reverse-proxy:
+    name: reverse-proxy_public
+    external: true
+  jempi:
+    name: jempi_public
+    external: true
+  postgres:
+    name: postgres_public
+    external: true
+  kafka:
+    name: kafka_public
+    external: true
+  default:

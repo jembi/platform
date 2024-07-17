@@ -6,6 +6,17 @@
   "version": "0.0.1",
   "dependencies": [],
   "environmentVariables": {
+    "GRAFANA_IMAGE": "grafana/grafana-oss:9.2.3",
+    "LOKI_IMAGE": "grafana/loki:2.6.1",
+    "PROMTAIL_IMAGE": "grafana/promtail:2.6.1",
+    "PROMETHEUS_BACKUP_IMAGE": "prom/prometheus:v2.38.0",
+    "MINIO_IMAGE": "quay.io/minio/minio:RELEASE.2022-10-24T18-35-07Z",
+    "PROMETHEUS_PLACEMENT": "node-1",
+    "PROMETHEUS_BACKUP_PLACEMENT": "node-1",
+    "MINIO_01_PLACEMENT": "node-1",
+    "MINIO_02_PLACEMENT": "node-1",
+    "MINIO_03_PLACEMENT": "node-2",
+    "MINIO_04_PLACEMENT": "node-3",
     "GF_SECURITY_ADMIN_USER": "admin",
     "GF_SECURITY_ADMIN_PASSWORD": "dev_password_only",
     "GF_SMTP_ENABLED": "false",
@@ -18,9 +29,10 @@
     "KC_API_URL": "http://identity-access-manager-keycloak:8080",
     "KC_GRAFANA_CLIENT_ID": "grafana-oauth",
     "KC_GRAFANA_CLIENT_SECRET": "CV14QfwnpYFj1IH5dK5lScPNCYAIYP1c",
+    "KC_GRAFANA_ROOT_URL": "http://localhost:3000",
     "GF_SERVER_DOMAIN": "localhost",
-    "GF_SERVER_ROOT_URL": "http://localhost:3000",
     "MO_SECURITY_ADMIN_USER": "admin",
-    "MO_SECURITY_ADMIN_PASSWORD": "dev_password_only"
+    "MO_SECURITY_ADMIN_PASSWORD": "dev_password_only",
+    "MO_RETENTION_TIME": "15d"
   }
 }

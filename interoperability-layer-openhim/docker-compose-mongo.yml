@@ -2,7 +2,8 @@ version: "3.9"
 
 services:
   mongo-1:
-    image: mongo:4.2
+    image: ${MONGO_IMAGE}
+    command: ["--replSet", "mongo-set", "--wiredTigerCacheSizeGB", "0.5"]
     volumes:
       - "openhim-mongo-01:/data/db"
       - "openhim-mongo-01-config:/data/configdb"
@@ -17,16 +18,18 @@ services:
           memory: ${OPENHIM_MONGO_MEMORY_RESERVE}
     networks:
       default:
-      mongo_backup_net: {}
+      openhim-mongo:
+      mongo_backup_net:
 
 volumes:
   openhim-mongo-01:
   openhim-mongo-01-config:
 
-
 networks:
   default:
-    name: instant_default
+  openhim-mongo:
+    name: openhim_mongo_public
+    external: true
   mongo_backup_net:
     name: mongo_backup
     driver: overlay

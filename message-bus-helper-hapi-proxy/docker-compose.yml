@@ -1,13 +1,14 @@
-version: '3.9'
+version: "3.9"
 
 services:
   hapi-proxy:
-    image: jembi/springproxyserver:20211217-170809.3f57ef5
+    image: ${HAPI_PROXY_IMAGE}
     hostname: hapi-proxy
     environment:
       HAPI_SERVER_URL: ${HAPI_SERVER_URL}
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_HOSTS}
       HAPI_SERVER_VALIDATE_FORMAT: ${HAPI_SERVER_VALIDATE_FORMAT}
+      JAVA_OPTS: "-XX:MaxRAMPercentage=90"
     deploy:
       placement:
         max_replicas_per_node: 1
@@ -19,3 +20,18 @@ services:
         reservations:
           cpus: ${HAPI_PROXY_CPU_RESERVE}
           memory: ${HAPI_PROXY_MEMORY_RESERVE}
+    networks:
+      hapi-fhir:
+      kafka:
+      openhim:
+
+networks:
+  hapi-fhir:
+    name: hapi-fhir_public
+    external: true
+  kafka:
+    name: kafka_public
+    external: true
+  openhim:
+    name: openhim_public
+    external: true

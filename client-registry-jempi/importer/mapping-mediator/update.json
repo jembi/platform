@@ -1,0 +1,44 @@
+{
+    "name": "Update Patient",
+    "endpoint": {
+      "pattern": "/fhir/Patient/:patientId",
+      "method": "PUT"
+    },
+    "transformation": {
+      "input": "JSON",
+      "output": "JSON"
+    },
+    "inputMapping": {
+      "urlParams.patientId": "id",
+      "requestBody.resourceType": "resourceType",
+      "requestBody.identifier": "identifier",
+      "requestBody.name": "name",
+      "requestBody.gender": "gender",
+      "requestBody.birthDate": "birthDate",
+      "requestBody.address": "address",
+      "requestBody.telecom": "telecom"
+    },
+    "requests": {
+      "lookup": [
+        {
+          "id": "jempiUpdate",
+          "forwardExistingRequestBody": true,
+          "config": {
+            "method": "post",
+            "params": {
+              "url": {
+                "patientId": {
+                  "path": "urlParams.patientId"
+                }
+              }
+            },
+            "headers": {
+              "contentType": "application/json"
+            },
+            "url": "http://openhim-mapping-mediator:3003/update-patient-response/:patientId"
+          },
+          "fhirResponse": true
+        }
+      ]
+    }
+  }

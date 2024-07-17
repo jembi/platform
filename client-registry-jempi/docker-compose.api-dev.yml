@@ -5,5 +5,10 @@ services:
     ports:
       - published: 50000
         target: 50000
-        protocol: tcp
+        mode: host
+
+  jempi-api-kc:
+    ports:
+      - published: 50001
+        target: 50000
         mode: host

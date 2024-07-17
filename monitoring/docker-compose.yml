@@ -1,8 +1,8 @@
-version: '3.9'
+version: "3.9"
 
 services:
   grafana:
-    image: grafana/grafana-oss:9.2.3
+    image: ${GRAFANA_IMAGE}
     volumes:
       - grafana-data:/var/lib/grafana
     environment:
@@ -31,7 +31,8 @@ services:
       GF_AUTH_GENERIC_OAUTH_API_URL: "${KC_API_URL}/realms/${KC_REALM_NAME}/protocol/openid-connect/userinfo"
       GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH: "contains(roles[*], 'admin') && 'Admin' || contains(roles[*], 'editor') && 'Editor' || 'Viewer'"
       GF_SERVER_DOMAIN: ${GF_SERVER_DOMAIN}
-      GF_SERVER_ROOT_URL: ${GF_SERVER_ROOT_URL}
+      GF_SERVER_ROOT_URL: ${KC_GRAFANA_ROOT_URL}
+      GF_AUTH_SIGNOUT_REDIRECT_URL: "${KC_FRONTEND_URL}/realms/${KC_REALM_NAME}/protocol/openid-connect/logout?client_id=${KC_GRAFANA_CLIENT_ID}&post_logout_redirect_uri=${KC_GRAFANA_ROOT_URL}/login"
     configs:
       - target: /etc/grafana/grafana.ini
         source: grafana.ini
@@ -49,10 +50,18 @@ services:
         source: kminion-groups_rev1.json
       - target: /etc/grafana/provisioning/dashboards/applications/kminion-topic_rev1.json
         source: kminion-topic_rev1.json
+      - target: /etc/grafana/provisioning/dashboards/applications/openhim_nodejs_dashboard.json
+        source: openhim_nodejs_dashboard.json
+      - target: /etc/grafana/provisioning/dashboards/applications/openhim_transactions_dashboard.json
+        source: openhim_transactions_dashboard.json
       - target: /etc/grafana/provisioning/dashboards/containers/logging-universal-dashboard_rev1.json
         source: logging-universal-dashboard_rev1.json
       - target: /etc/grafana/provisioning/dashboards/security/auditlogs.json
         source: auditlogs.json
+    networks:
+      keycloak:
+      reverse-proxy:
+      default:
 
   prometheus:
     image: prom/prometheus:v2.38.0
@@ -64,11 +73,15 @@ services:
       - target: /etc/prometheus/prometheus.yml
         source: prometheus.yml
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--web.enable-lifecycle'
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/etc/prometheus/console_libraries"
+      - "--web.console.templates=/etc/prometheus/consoles"
+      - "--web.enable-lifecycle"
+      - "--storage.tsdb.retention.time=${MO_RETENTION_TIME}"
+    networks:
+      public:
+      default:
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.45.0
@@ -86,14 +99,14 @@ services:
     image: quay.io/prometheus/node-exporter:v1.3.1
     hostname: "{{.Node.ID}}"
     command:
-      - '--path.rootfs=/host'
+      - "--path.rootfs=/host"
     volumes:
-      - '/:/host:ro,rslave'
+      - "/:/host:ro,rslave"
     deploy:
       mode: global
 
   loki:
-    image: grafana/loki:2.6.1
+    image: ${LOKI_IMAGE}
     volumes:
       - loki-data:/tmp/loki
     environment:
@@ -109,7 +122,7 @@ services:
         - prometheus-address=loki:3100
 
   promtail:
-    image: grafana/promtail:2.6.1
+    image: ${PROMTAIL_IMAGE}
     volumes:
       - /var/lib/docker/containers:/host/containers
       - /var/log:/var/log:ro
@@ -128,13 +141,7 @@ services:
       MINIO_ROOT_USER: ${MO_SECURITY_ADMIN_USER}
       MINIO_ROOT_PASSWORD: ${MO_SECURITY_ADMIN_PASSWORD}
     healthcheck:
-      test:
-        [
-          "CMD",
-          "curl",
-          "-f",
-          "http://localhost:9000/minio/health/live"
-        ]
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
       timeout: 20s
       retries: 3
@@ -144,6 +151,9 @@ services:
       - minio-01-data2:/data2
     deploy:
       replicas: 1
+    networks:
+      reverse-proxy:
+      default:
 
 configs:
   grafana.ini:
@@ -186,6 +196,16 @@ configs:
     name: kminion-topic_rev1.json-${kminion_topic_rev1_json_DIGEST:?err}
     labels:
       name: grafana
+  openhim_nodejs_dashboard.json:
+    file: ./grafana/dashboards/applications/openhim_nodejs_dashboard.json
+    name: openhim_nodejs_dashboard.json-${openhim_nodejs_dashboard_json_DIGEST:?err}
+    labels:
+      name: grafana
+  openhim_transactions_dashboard.json:
+    file: ./grafana/dashboards/applications/openhim_transactions_dashboard.json
+    name: openhim_transactions_dashboard.json-${openhim_transactions_dashboard_json_DIGEST:?err}
+    labels:
+      name: grafana
   logging-universal-dashboard_rev1.json:
     file: ./grafana/dashboards/containers/logging-universal-dashboard_rev1.json
     name: logging-universal-dashboard_rev1.json-${logging_universal_dashboard_rev1_json_DIGEST:?err}
@@ -218,3 +238,15 @@ volumes:
   loki-data:
   minio-01-data1:
   minio-01-data2:
+
+networks:
+  keycloak:
+    name: keycloak_public
+    external: true
+  reverse-proxy:
+    name: reverse-proxy_public
+    external: true
+  public:
+    name: prometheus_public
+    external: true
+  default:

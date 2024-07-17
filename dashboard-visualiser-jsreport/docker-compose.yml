@@ -1,8 +1,8 @@
-version: '3.9'
+version: "3.9"
 
 services:
   dashboard-visualiser-jsreport:
-    image: jsreport/jsreport:3.2.0
+    image: ${JS_REPORT_IMAGE}
     healthcheck:
       test: wget --no-verbose --tries=1 --spider -q http://localhost:5488/api/ping || exit 1
       interval: 10s
@@ -11,7 +11,7 @@ services:
       start_period: 10s
     deploy:
       placement:
-        max_replicas_per_node: 1
+        max_replicas_per_node: ${JS_REPORT_MAX_REPLICAS_PER_NODE}
       replicas: ${JS_REPORT_INSTANCES}
       resources:
         limits:
@@ -21,20 +21,33 @@ services:
           cpus: ${JS_REPORT_CPU_RESERVE}
           memory: ${JS_REPORT_MEMORY_RESERVE}
     labels:
-      co.elastic.metrics/module: 'docker'
-      co.elastic.metrics/metricsets: 'cpu,memory,diskio,info,healthcheck,container'
+      co.elastic.metrics/module: "docker"
+      co.elastic.metrics/metricsets: "cpu,memory,diskio,info,healthcheck,container"
     environment:
-      allowLocalFilesAccess: 'true'
-      extensions_fsStore_dataDirectory: 'jsreport/data'
-      extensions_fsStore_externalModificationsSync: 'true'
+      allowLocalFilesAccess: "true"
+      extensions_fsStore_dataDirectory: "jsreport/data"
+      extensions_fsStore_externalModificationsSync: "true"
       extensions_authentication_cookieSession_secret: ${JS_REPORT_SECRET}
-      extensions_authentication_admin_username: 'admin'
+      extensions_authentication_admin_username: "admin"
       extensions_authentication_admin_password: ${JS_REPORT}
       ES_PASSWORD: ${ES_ELASTIC}
       licenseKey: ${JS_REPORT_LICENSE_KEY}
       ES_HOSTS: ${ES_HOSTS}
     volumes:
       - jsreport-data:/jsreport
+    networks:
+      reverse-proxy:
+      elastic:
+      default:
 
 volumes:
   jsreport-data:
+
+networks:
+  reverse-proxy:
+    name: reverse-proxy_public
+    external: true
+  elastic:
+    name: elastic_public
+    external: true
+  default:

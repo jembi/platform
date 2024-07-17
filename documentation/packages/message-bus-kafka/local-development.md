@@ -14,4 +14,4 @@ where topics are separated by commas. &#x20;
 
 ## Accessing Kafdrop
 
-Kafdrop - [http://127.0.0.1:9013/](http://localhost:5601/)&#x20;
+Kafdrop - [http://127.0.0.1:9013/](http://localhost:9013/)&#x20;

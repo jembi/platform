@@ -1,16 +1,33 @@
-version: '3.9'
+version: "3.9"
 
 services:
   kafka-mapper-consumer:
-    image: jembi/kafka-mapper-consumer:0.0.3
+    image: ${KAFKA_CONSUMER_MAPPER_MEDIATOR_VERSION}
     environment:
       KAFKA_HOST: ${KAFKA_HOST}
       KAFKA_PORT: ${KAFKA_PORT}
+      KAFKA_FROM_BEGINNING: ${KAFKA_FROM_BEGINNING}
+      CONSUMER_GROUP_ID: ${CONSUMER_GROUP_ID}
+      TRUST_SELF_SIGNED: ${TRUST_SELF_SIGNED}
+      OPENHIM_API_URL: ${OPENHIM_API_URL}
+      OPENHIM_USERNAME: ${OPENHIM_USERNAME}
+      OPENHIM_PASSWORD: ${OPENHIM_PASSWORD}
+      REGISTER_MEDIATOR: ${REGISTER_MEDIATOR}
       CLICKHOUSE_HOST: ${CLICKHOUSE_HOST}
       CLICKHOUSE_PORT: ${CLICKHOUSE_PORT}
     configs:
       - target: /app/src/data/fhir-mapping.json
         source: fhir-mapping.json
+    networks:
+      clickhouse:
+      kafka:
+      openhim:
+      default:
+  kafka-mapper-consumer-ui:
+    image: ${KAFKA_CONSUMER_MAPPER_UI_VERSION}
+    networks:
+      kafka:
+      reverse-proxy:
 
 configs:
   fhir-mapping.json:
@@ -18,3 +35,18 @@ configs:
     name: fhir-mapping.json-${fhir_mapping_json_DIGEST:?err}
     labels:
       name: kafka-mapper-consumer
+
+networks:
+  clickhouse:
+    name: clickhouse_public
+    external: true
+  kafka:
+    name: kafka_public
+    external: true
+  openhim:
+    name: openhim_public
+    external: true
+  reverse-proxy:
+    name: reverse-proxy_public
+    external: true
+  default:

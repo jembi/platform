@@ -1,17 +1,18 @@
-version: '3.9'
+version: "3.9"
 
 services:
   job-scheduler-ofelia:
-    image: mcuadros/ofelia:v0.3.6
+    image: ${JOB_SCHEDULER_OFELIA_IMAGE}
     command: daemon --config=/tmp/config.ini
     configs:
       - target: /tmp/config.ini
         source: ofelia-config.ini
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+
 configs:
   ofelia-config.ini:
     file: ./config.ini
     name: ofelia-config.ini-${ofelia_config_ini_DIGEST:?err}
-    labels: 
+    labels:
       name: ofelia

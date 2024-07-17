@@ -4,7 +4,9 @@
   "description": "A package to test the platform",
   "scripts": {
     "test:single": "cucumber-js 'features/single-mode/**/*.feature'",
+    "test:single:recipe": "cucumber-js 'features/single-mode/recipe.feature'",
     "test:cluster": "cucumber-js 'features/cluster-mode/**/*.feature'",
+    "test:cluster:recipe": "cucumber-js 'features/cluster-mode/recipe.cluster.feature'",
     "test:single:clickhouse": "cucumber-js 'features/single-mode/clickhouse.feature'",
     "test:cluster:clickhouse": "cucumber-js 'features/cluster-mode/clickhouse.cluster.feature'",
     "test:single:elk": "cucumber-js 'features/single-mode/elastic-packages.feature'",
@@ -24,15 +26,18 @@
     "test:single:jsreport": "cucumber-js 'features/single-mode/jsreport.feature'",
     "test:single:superset": "cucumber-js 'features/single-mode/superset.feature'",
     "test:single:jempi": "cucumber-js 'features/single-mode/jempi.feature'",
+    "test:cluster:jempi": "cucumber-js 'features/cluster-mode/jempi.cluster.feature'",
     "test:single:mpi-mediator": "cucumber-js 'features/single-mode/mpi-mediator.feature'",
     "test:single:monitoring": "cucumber-js 'features/single-mode/monitoring.feature'",
     "test:cluster:monitoring": "cucumber-js 'features/cluster-mode/monitoring.feature'"
   },
   "devDependencies": {
     "@cucumber/cucumber": "8.5.0",
+    "axios": "^1.6.8",
     "chai": "4.3.6",
     "chai-arrays": "2.2.0",
     "chai-things": "0.2.0",
+    "clickhouse": "^2.6.0",
     "dockerode": "3.3.2"
   }
 }

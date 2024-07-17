@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       debug_enabled:
-        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'     
+        description: "Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)"
         required: false
         default: false
 jobs:
@@ -36,6 +36,7 @@ jobs:
         shell: bash
         env:
           SSH_KEY: ${{ secrets.DEPLOY_KEY_PUB }}
+      - run: cp ../../test/cucumber/features/resources/testsSecurity.tf ./security.tf
       - run: terraform init
       - run: terraform apply -auto-approve
       - name: Upload terraform state
@@ -71,7 +72,7 @@ jobs:
   run-e2e-tests:
     runs-on: ubuntu-20.04
     needs: configure-e2e-server
-    timeout-minutes: 80
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v3
         with:
@@ -80,10 +81,9 @@ jobs:
         id: changed-files
         uses: tj-actions/changed-files@v29.0.3
         with:
-          since_last_remote_commit: 'true'
-          dir_names: 'true'
+          since_last_remote_commit: "true"
+          dir_names: "true"
       - run: ./get-cli.sh linux
-      - run: ./build-image.sh
       - run: sudo sh -c 'echo "    ServerAliveInterval 30" >> /etc/ssh/ssh_config'
       - run: sudo sh -c 'echo "    ServerAliveCountMax 999" >> /etc/ssh/ssh_config'
       - run: sudo service ssh restart
@@ -96,7 +96,6 @@ jobs:
       - run: sed -i 's/OPENHIM_MEDIATOR_API_PORT=8080/OPENHIM_MEDIATOR_API_PORT=443/g' .env.local
       - run: sed -i 's/INSECURE=true/INSECURE=false/g' .env.local
       - run: sed -i 's/domain/${{ github.run_id }}.jembi.cloud/g' .env.local
-
       - name: Install dependencies
         working-directory: ./test/cucumber
         run: yarn

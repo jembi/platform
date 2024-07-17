@@ -1,22 +1,27 @@
-version: '3.9'
+version: "3.9"
 
 services:
   jempi-zero-01:
-    image: dgraph/dgraph:v22.0.0
+    image: ${JEMPI_ZERO_IMAGE}
     volumes:
       - jempi-zero-01-data:/dgraph
     deploy:
       replicas: 1
       resources:
         limits:
-          memory: ${JEMPI_ZERO_01_MEMORY_LIMIT}
+          memory: ${JEMPI_ZERO_MEMORY_LIMIT}
         reservations:
-          memory: ${JEMPI_ZERO_01_MEMORY_RESERVE}
+          memory: ${JEMPI_ZERO_MEMORY_RESERVE}
       restart_policy:
         condition: on-failure
     command: dgraph zero --my=jempi-zero-01:5080 --replicas 1
+    networks:
+      jempi:
 
 volumes:
   jempi-zero-01-data:
 
-
+networks:
+  jempi:
+    name: jempi_public
+    external: true

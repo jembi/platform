@@ -6,14 +6,4 @@ description: >-
 
 # Environment Variables
 
-| Variable Name             | Type   | Relevance                                         | Required | Default   |
-| ------------------------- | ------ | ------------------------------------------------- | -------- | --------- |
-| DOMAIN\_NAME              | String | Domain name                                       | Yes      | localhost |
-| SUBDOMAINS                | String | Subdomain names                                   | Yes      |           |
-| RENEWAL\_EMAIL            | String | Renewal email                                     | Yes      |           |
-| REVERSE\_PROXY\_INSTANCES | Number | Number of instances                               | No       | 1         |
-| STAGING                   | String | Generate fake or real certificate (true for fake) | No       | false     |
-| NGINX\_CPU\_LIMIT         | Number | CPU usage limit                                   | No       | 0         |
-| NGINX\_CPU\_RESERVE       | Number | Reserved CPU                                      | No       | 0.05      |
-| NGINX\_MEMORY\_LIMIT      | String | RAM usage limit                                   | No       | 3G        |
-| NGINX\_MEMORY\_RESERVE    | String | Reserved RAM                                      | No       | 500M      |
+<table><thead><tr><th width="244">Variable Name</th><th width="96">Type</th><th width="171">Relevance</th><th width="102">Required</th><th>Default</th></tr></thead><tbody><tr><td>DOMAIN_NAME</td><td>String</td><td>Domain name</td><td>Yes</td><td>localhost</td></tr><tr><td>SUBDOMAINS</td><td>String</td><td>Subdomain names</td><td>Yes</td><td></td></tr><tr><td>RENEWAL_EMAIL</td><td>String</td><td>Renewal email</td><td>Yes</td><td></td></tr><tr><td>REVERSE_PROXY_INSTANCES</td><td>Number</td><td>Number of instances</td><td>No</td><td>1</td></tr><tr><td>STAGING</td><td>String</td><td>Generate fake or real certificate (true for fake)</td><td>No</td><td>false</td></tr><tr><td>NGINX_CPU_LIMIT</td><td>Number</td><td>CPU usage limit</td><td>No</td><td>0</td></tr><tr><td>NGINX_CPU_RESERVE</td><td>Number</td><td>Reserved CPU</td><td>No</td><td>0.05</td></tr><tr><td>NGINX_MEMORY_LIMIT</td><td>String</td><td>RAM usage limit</td><td>No</td><td>3G</td></tr><tr><td>NGINX_MEMORY_RESERVE</td><td>String</td><td>Reserved RAM</td><td>No</td><td>500M</td></tr></tbody></table>

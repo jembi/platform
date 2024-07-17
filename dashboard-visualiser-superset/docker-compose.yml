@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   dashboard-visualiser-superset:
-    image: jembi/superset:latest
+    image: ${SUPERSET_IMAGE}
     environment:
       KC_SUPERSET_SSO_ENABLED: ${KC_SUPERSET_SSO_ENABLED}
       KC_SUPERSET_CLIENT_ID: ${KC_SUPERSET_CLIENT_ID}
@@ -12,12 +12,15 @@ services:
       KC_API_URL: ${KC_API_URL}
       SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY}
       AUTH_USER_REGISTRATION_ROLE: ${AUTH_USER_REGISTRATION_ROLE}
-      SUPERSET_SERVER_ROOT_URL: ${SUPERSET_SERVER_ROOT_URL}
+      SUPERSET_SERVER_ROOT_URL: ${KC_SUPERSET_ROOT_URL}
+      SUPERSET_POSTGRESQL_USERNAME: ${SUPERSET_POSTGRESQL_USERNAME}
+      SUPERSET_POSTGRESQL_PASSWORD: ${SUPERSET_POSTGRESQL_PASSWORD}
+      SUPERSET_POSTGRESQL_DATABASE: ${SUPERSET_POSTGRESQL_DATABASE}
+      SUPERSET_POSTGRESQL_URL: ${SUPERSET_POSTGRESQL_URL}
+      SUPERSET_ENABLED_FEATURE_FLAGS: ${SUPERSET_ENABLED_FEATURE_FLAGS}
     volumes:
       - superset_home:/app/superset_home
-      - superset:/app/superset
-      - superset-frontend:/app/superset-frontend
-    command: sh -c "superset fab create-admin \ --username ${SUPERSET_USERNAME} \ --firstname ${SUPERSET_FIRSTNAME}  \ --lastname ${SUPERSET_LASTNAME} \ --email ${SUPERSET_EMAIL} \ --password ${SUPERSET_PASSWORD} && superset db upgrade && superset init && cd /usr/bin && ./run-server.sh"
+    command: sh -c "pip install --no-cache-dir -r "/app/docker/requirements-local.txt" && superset fab create-admin \ --username ${SUPERSET_USERNAME} \ --firstname ${SUPERSET_FIRSTNAME}  \ --lastname ${SUPERSET_LASTNAME} \ --email ${SUPERSET_EMAIL} \ --password ${SUPERSET_PASSWORD} && superset db upgrade && superset init && cd /usr/bin && ./run-server.sh"
     configs:
       - source: superset_config.py
         target: /app/pythonpath/superset_config.py
@@ -27,6 +30,14 @@ services:
         target: /app/pythonpath/client_secret.json
       - source: keycloack_security_manager.py
         target: /app/pythonpath/keycloack_security_manager.py
+      - source: requirements-local.txt
+        target: /app/docker/requirements-local.txt
+    networks:
+      clickhouse:
+      keycloak:
+      reverse-proxy:
+      postgres:
+      default:
 
 configs:
   superset_config.py:
@@ -44,8 +55,26 @@ configs:
     name: keycloack_security_manager.py-${keycloack_security_manager_py_DIGEST:?err}
     labels:
       name: superset
+  requirements-local.txt:
+    file: ./config/requirements-local.txt
+    name: requirements-local.txt-${requirements_local_txt_DIGEST:?err}
+    labels:
+      name: superset
 
 volumes:
   superset_home:
-  superset:
-  superset-frontend:
+
+networks:
+  clickhouse:
+    name: clickhouse_public
+    external: true
+  keycloak:
+    name: keycloak_public
+    external: true
+  reverse-proxy:
+    name: reverse-proxy_public
+    external: true
+  postgres:
+    name: postgres_public
+    external: true
+  default:

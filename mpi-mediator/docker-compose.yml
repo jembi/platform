@@ -1,8 +1,14 @@
-version: '3.9'
+version: "3.9"
 
 services:
   mpi-mediator:
-    image: jembi/mpi-mediator:v1.1.0
+    image: jembi/mpi-mediator:${MPI_MEDIATOR_VERSION}
+    networks:
+      openhim:
+      kafka:
+      clickhouse:
+      public:
+      default:
     environment:
       OPENHIM_USERNAME: ${OPENHIM_USERNAME}
       OPENHIM_PASSWORD: ${OPENHIM_PASSWORD}
@@ -15,6 +21,7 @@ services:
       MPI_CLIENT_ID: ${MPI_CLIENT_ID}
       MPI_CLIENT_SECRET: ${MPI_CLIENT_SECRET}
       MPI_AUTH_ENABLED: ${MPI_AUTH_ENABLED}
+      MPI_PROXY_URL: ${MPI_PROXY_URL}
       KAFKA_BROKERS: ${KAFKA_HOSTS}
       KAFKA_BUNDLE_TOPIC: ${KAFKA_BUNDLE_TOPIC}
       KAFKA_ASYNC_BUNDLE_TOPIC: ${KAFKA_ASYNC_BUNDLE_TOPIC}
@@ -23,7 +30,26 @@ services:
       FHIR_DATASTORE_HOST: ${FHIR_DATASTORE_HOST}
       FHIR_DATASTORE_PORT: ${FHIR_DATASTORE_PORT}
       DISABLE_VALIDATION: ${DISABLE_VALIDATION}
+      ENABLE_JEMPI_GOLDEN_ID_UPDATE: ${ENABLE_JEMPI_GOLDEN_ID_UPDATE}
+      CLICKHOUSE_HOST: ${CLICKHOUSE_HOST}
+      CLICKHOUSE_PORT: ${CLICKHOUSE_PORT}
+      PATIENT_PROFILE_FOR_STUB_PATIENT: ${PATIENT_PROFILE_FOR_STUB_PATIENT}
     deploy:
       placement:
-        max_replicas_per_node: 1
+        max_replicas_per_node: ${MPI_MEDIATOR_MAX_REPLICAS_PER_NODE}
       replicas: ${MPI_MEDIATOR_INSTANCES}
+
+networks:
+  openhim:
+    name: openhim_public
+    external: true
+  kafka:
+    name: kafka_public
+    external: true
+  clickhouse:
+    name: clickhouse_public
+    external: true
+  public:
+    name: mpi_public
+    external: true
+  default:
