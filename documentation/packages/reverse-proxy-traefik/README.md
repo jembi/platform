@@ -1,3 +1,11 @@
+---
+description: Reverse proxy for secure traefik configurations.
+---
+
+# Reverse Proxy Traefik
+
+&#x20;
+
 # Reverse Proxy Traefik
 
 The package is an alternative reverse proxy nginx, this reverse proxy exposes packages using both subdomains and subdirectory to host the following services:

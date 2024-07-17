@@ -49,9 +49,9 @@ services:
         - traefik.http.services.openhimcomms.loadbalancer.server.scheme=https
         - traefik.http.routers.openhimcomms.tls=true
         - traefik.http.routers.openhimcomms.entrypoints=websecure
-        - traefik.http.routers.openhimcomms.rule=Host(`${OPENHIM_HOST_NAME}`) && PathPrefix(`/openhimcomms:${OPENHIM_MEDIATOR_API_PORT}`)
+        - traefik.http.routers.openhimcomms.rule=Host(`${OPENHIM_HOST_NAME}`) && PathPrefix(`/openhimcomms`)
         - traefik.http.routers.openhimcomms.middlewares=openhimcomms
-        - traefik.http.middlewares.openhimcomms.stripprefix.prefixes=/openhimcomms:${OPENHIM_MEDIATOR_API_PORT}
+        - traefik.http.middlewares.openhimcomms.stripprefix.prefixes=/openhimcomms
 
         - traefik.http.routers.openhimcore.service=openhimcore
         - traefik.http.services.openhimcore.loadbalancer.server.port=5000
