@@ -13,7 +13,7 @@ The package is an alternative reverse proxy nginx, this reverse proxy exposes pa
 | Package  | Hosted                                                                                                 |
 | -------- | ------------------------------------------------------------------------------------------------------ |
 | Superset | Sub Domain (e.g. superset.<domain>)                                                                    |
-| Jempi    | Sub Domain (e.g. jembi.<domain>)                                                                       |
+| Jempi    | Sub Domain (e.g. jempi.<domain>)                                                                       |
 | Santempi | Sub Domain (e.g. santempi.<domain>)                                                                    |
 | Kibana   | Sub Domain (e.g. kibana.<domain>)                                                                      |
 | Minio    | Sub Directory (e.g. <domain>/minio)                                                                    |
