@@ -11,7 +11,7 @@ services:
         - traefik.docker.network=reverse-proxy-traefik_public
         - traefik.http.routers.grafana.service=grafana
         - traefik.http.services.grafana.loadbalancer.server.port=3000
-        - traefik.http.routers.grafana.rule=Host(`${GF_SERVER_DOMAIN}`) && PathPrefix(`/grafana`)
+        - traefik.http.routers.grafana.rule=Host(${DOMAIN_NAME_HOST_TRAEFIK} && PathPrefix(`/grafana`)
     environment:
       GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER}
       GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
@@ -163,7 +163,7 @@ services:
       labels:
         - traefik.enable=true
         - traefik.docker.network=reverse-proxy-traefik_public
-        - traefik.http.routers.minio.rule=Host(`${MINIO_SERVER_DOMAIN}`) && PathPrefix(`/minio`)
+        - traefik.http.routers.minio.rule=${DOMAIN_NAME_HOST_TRAEFIK} && PathPrefix(`/minio`)
         - traefik.http.services.minio.loadbalancer.server.port=9001
         - traefik.http.middlewares.minio-stripprefix.stripprefix.prefixes=/minio
         - traefik.http.routers.minio.middlewares=minio-stripprefix

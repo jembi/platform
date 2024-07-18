@@ -24,7 +24,6 @@
     "JS_REPORT_PACKAGE_PATH": "",
     "JS_REPORT_LICENSE_KEY": "",
     "JS_REPORT_TRAEFIK_HOST_NAME": "reports",
-    "JS_REPORT_HOST": "health.org",
     "JS_REPORT_PATH_PREFIX": ""
   }
 }

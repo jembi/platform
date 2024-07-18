@@ -33,6 +33,6 @@
     "SUPERSET_POSTGRESQL_PASSWORD": "instant101",
     "SUPERSET_POSTGRESQL_DATABASE": "superset",
     "SUPERSET_POSTGRESQL_URL": "postgres-1:5432",
-    "SUPERSET_TRAEFIK_HOST_NAME": "superset-health.org"
+    "SUPERSET_TRAEFIK_SUBDOMAIN": "superset"
   }
 }

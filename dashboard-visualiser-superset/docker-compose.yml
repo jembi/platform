@@ -7,7 +7,7 @@ services:
       labels:
         - traefik.enable=true
         - traefik.docker.network=reverse-proxy-traefik_public
-        - traefik.http.routers.dashboard-visualiser-superset.rule=Host(`${SUPERSET_TRAEFIK_HOST_NAME}`)
+        - traefik.http.routers.dashboard-visualiser-superset.rule=Host(`${SUPERSET_TRAEFIK_SUBDOMAIN}.${DOMAIN_NAME_HOST_TRAEFIK}`)
         - traefik.http.services.dashboard-visualiser-superset.loadbalancer.server.port=8088
     environment:
       KC_SUPERSET_SSO_ENABLED: ${KC_SUPERSET_SSO_ENABLED}

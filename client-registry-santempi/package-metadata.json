@@ -21,7 +21,7 @@
     "PSQL_1_PLACEMENT": "node-1",
     "PSQL_2_PLACEMENT": "node-2",
     "PSQL_3_PLACEMENT": "node-3",
-    "SANTEDB_WWW_TRAEFIK_HOST_NAME": "santewww-health.org",
-    "SANTEDB_MPI_TRAEFIK_HOST_NAME": "santempi-health.org"
+    "SANTEDB_WWW_TRAEFIK_SUBDOMAIN": "santewww-health.org",
+    "SANTEDB_MPI_TRAEFIK_SUBDOMAIN": "santempi-health.org"
   }
 }

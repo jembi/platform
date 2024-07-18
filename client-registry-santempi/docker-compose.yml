@@ -29,7 +29,7 @@ services:
         - traefik.docker.network=reverse-proxy-traefik_public
         - traefik.http.routers.santedb-mpi.service=santedb-mpi
         - traefik.http.services.santedb-mpi.loadbalancer.server.port=8080
-        - traefik.http.routers.santedb-mpi.rule=Host(`${SANTEDB_MPI_TRAEFIK_HOST_NAME}`)
+        - traefik.http.routers.santedb-mpi.rule=Host(`${SANTEDB_MPI_TRAEFIK_SUBDOMAIN}.${DOMAIN_NAME_HOST_TRAEFIK}`)
     volumes:
       - santedb-data:/santedb
 
@@ -41,7 +41,7 @@ services:
         - traefik.docker.network=reverse-proxy-traefik_public
         - traefik.http.routers.santedb-www.service=santedb-www
         - traefik.http.services.santedb-www.loadbalancer.server.port=9200
-        - traefik.http.routers.santedb-www.rule=Host(`${SANTEDB_WWW_TRAEFIK_HOST_NAME}`)
+        - traefik.http.routers.santedb-www.rule=Host(`${SANTEDB_WWW_TRAEFIK_SUBDOMAIN}.${DOMAIN_NAME_HOST_TRAEFIK}`)
     networks:
       default:
       reverse-proxy:
