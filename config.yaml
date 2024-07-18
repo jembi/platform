@@ -77,12 +77,3 @@ profiles:
       - openhim-mapping-mediator
     envFiles:
       - mpi.env
-
-  - name: dev
-    packages:
-      # - interoperability-layer-openhim
-      - reprocess-mediator
-    envFiles:
-      - .env
-    dev: true
-    only: false
