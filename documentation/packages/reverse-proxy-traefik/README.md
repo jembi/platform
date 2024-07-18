@@ -16,10 +16,12 @@ The package is an alternative reverse proxy nginx, this reverse proxy exposes pa
 | Jempi    | Sub Domain (e.g. jembi.<domain>)                                                                       |
 | Santempi | Sub Domain (e.g. santempi.<domain>)                                                                    |
 | Kibana   | Sub Domain (e.g. kibana.<domain>)                                                                      |
-| Minio    | Sub Directory (e.g. monitoring.<domain>/minio)                                                         |
-| Grafana  | Sub Directory (e.g. monitoring.<domain>/grafana)                                                       |
-| JSReport | Sub Directory (e.g. monitoring.<domain>/jsreport)                                                      |
+| Minio    | Sub Directory (e.g. <domain>/minio)                                                                    |
+| Grafana  | Sub Directory (e.g. <domain>/grafana)                                                                  |
+| JSReport | Sub Directory (e.g. <domain>/jsreport)                                                                 |
 | OpenHim  | Sub Domain (Frontend) Sub Directory (Backend) (e.g. openhim.<domain> and openhim.<domain>/openhimcore) |
+
+> Please ensure that the ENV "DOMAIN_NAME_HOST_TRAEFIK" is set, in this documentation we will be using the place holder "domain" for its value
 
 ## Domain Based Reverse Proxy
 
@@ -34,7 +36,7 @@ Set the following environment variable in the package-metadata.json in the "./da
 {
 # Other Configurations
 ...
-    "SUPERSET_TRAEFIK_HOST_NAME": "superset-health.org"
+    "SUPERSET_TRAEFIK_SUBDOMAIN": "superset"
 }
 ```
 
@@ -47,10 +49,10 @@ Set the following environment variables in the package-metadata.json in the "./c
 {
 # Other Configurations
 ...
-    "REACT_APP_JEMPI_BASE_API_HOST": "jempi-api-health.org",
+    "REACT_APP_JEMPI_BASE_API_HOST": "jempi-api.domain",
     "REACT_APP_JEMPI_BASE_API_PORT": "443",
-    "JEMPI_API_TRAEFIK_HOST_NAME": "jempi-api-health.org",
-    "JEMPI_WEB_TRAEFIK_HOST_NAME": "jempi-web-health.org",
+    "JEMPI_API_TRAEFIK_SUBDOMAIN": "jempi-api",
+    "JEMPI_WEB_TRAEFIK_HOST_NAME": "jempi-web",
 }
 ```
 
@@ -63,8 +65,8 @@ Set the following environment variables in the package-metadata.json in the "./c
 {
 # Other Configurations
 ...
-    "SANTEDB_WWW_TRAEFIK_HOST_NAME": "santewww-health.org",
-    "SANTEDB_MPI_TRAEFIK_HOST_NAME": "santempi-health.org"
+    "SANTEDB_WWW_TRAEFIK_SUBDOMAIN": "santewww",
+    "SANTEDB_MPI_TRAEFIK_SUBDOMAIN": "santempi"
 }
 ```
 
@@ -78,7 +80,7 @@ Set the following environment variables in the package-metadata.json in the "./d
 {
 # Other Configurations
 ...
-    "KIBANA_TRAEFIK_HOST_NAME": "kibana-health.org"
+    "KIBANA_TRAEFIK_SUBDOMAIN": "kibana"
 }
 
 ```
@@ -95,8 +97,7 @@ Set the following environment variables in the package-metadata.json in the "mon
 {
 # Other Configurations
 ...
-    "MINIO_SERVER_DOMAIN": "health.org",
-    "MINIO_BROWSER_REDIRECT_URL": "https://health.org/minio/"
+    "MINIO_BROWSER_REDIRECT_URL": "https://domain/minio/"
 }
 
 ```
@@ -112,7 +113,7 @@ Set the following environment variables in the package-metadata.json in the "mon
 # Other Configurations
 ...
     "KC_GRAFANA_ROOT_URL": "%(protocol)s://%(domain)s/grafana/",
-    "GF_SERVER_DOMAIN": "health.org",
+    "GF_SERVER_DOMAIN": "domain",
     "GF_SERVER_SERVE_FROM_SUB_PATH": "true",
 }
 
@@ -127,7 +128,6 @@ Set the following environment variables in the package-metadata.json in the "das
 {
 # Other Configurations
 ...
-    "JS_REPORT_HOST": "health.org",
     "JS_REPORT_PATH_PREFIX": "/jsreport"
 }
 ```
@@ -143,9 +143,9 @@ Set the following environment variables in the package-metadata.json in the "./i
 {
 # Other Configurations
 ...
-    "OPENHIM_HOST_NAME": "health.org",
-    "OPENHIM_CONSOLE_BASE_URL": "http://health.org"
-    "OPENHIM_CORE_MEDIATOR_HOSTNAME": "health.org/openhimcomms",
+    "OPENHIM_SUBDOMAIN": "domain",
+    "OPENHIM_CONSOLE_BASE_URL": "http://domain"
+    "OPENHIM_CORE_MEDIATOR_HOSTNAME": "domain/openhimcomms",
     "OPENHIM_MEDIATOR_API_PORT": "443"
 }
 ```
