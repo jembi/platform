@@ -60,10 +60,10 @@ scrape_configs:
           expression: 'key="(?P<label>\S*)"'
       - regex:
           expression: 'proctitle=(?P<proctitle>\S*)'
-      - template:
-          source: proctitle
-          template: '{{ printf "%s" .Value }}' # Use template formatting to decode the hexadecimal value
+      - regex:
+          expression: 'node=(?P<node>\S*)'
       - labels:
           label:
           type:
           proctitle:
+          node:
