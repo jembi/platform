@@ -52,7 +52,7 @@
     "JEMPI_ETL_INSTANCES": 1,
     "JEMPI_OPENHIM_PASSWORD": "instant101",
     "JEMPI_SESSION_SECRET": "c05ll3lesrinf39t7mc5h6un6r0c69lgfno69dsak3vabeqamouq4328cuaekros401ajdpkh60rrt",
-    "JEMPI_FILE_IMPORT_MAX_SIZE_BYTE": 128000000,
+    "JEMPI_FILE_IMPORT_MAX_SIZE_BYTE": "128m",
     "REACT_APP_JEMPI_BASE_API_HOST": "http://localhost",
     "REACT_APP_JEMPI_BASE_API_PORT": "50000",
     "REACT_APP_MOCK_BACKEND": "false",
@@ -69,7 +69,7 @@
     "KC_JEMPI_ROOT_URL": "http://localhost:3033",
     "POSTGRES_SERVICE": "postgres-1",
     "JEMPI_POSTGRES_DB": "postgres-1",
-    "JEMPI_POSTGRESQL_USER": "jempi",
+    "JEMPI_POSTGRESQL_USERNAME": "jempi",
     "JEMPI_POSTGRESQL_PASSWORD": "instant101",
     "POSTGRESQL_USERS_DB": "users_db",
     "POSTGRESQL_NOTIFICATIONS_DB": "notifications_db",
@@ -95,6 +95,14 @@
     "KAFKA_APPLICATION_ID_CTRL": "app-id-ctrl",
     "KAFKA_CLIENT_ID_CTRL": "client-id-ctrl",
     "KAFKA_APPLICATION_ID_BOOTSTRAPPER": "app-id-bootstrapper",
-    "JEMPI_BOOTSTRAPPER_IMAGE_TAG": "1.0.1-beta"
+    "JEMPI_BOOTSTRAPPER_IMAGE_TAG": "1.0.1-beta",
+    "JEMPI_EM_SCALA_IMAGE_TAG": "dev",
+    "JEMPI_EM_SCALA_INSTANCES": "1",
+    "JEMPI_EM_SCALA_MEMORY_LIMIT": "3G",
+    "JEMPI_EM_SCALA_MEMORY_RESERVE": "500M",
+    "SYSTEM_CONFIG_DIR": "/app/conf_system",
+    "API_CONFIG_REFERENCE_FILENAME": "config.json",
+    "API_CONFIG_MASTER_FILENAME": "config-master.json",
+    "API_FIELDS_CONFIG_FILENAME": "config-api.json"
   }
 }

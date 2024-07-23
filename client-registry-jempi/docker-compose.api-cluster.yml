@@ -1,0 +1,8 @@
+version: "3.9"
+
+services:
+  jempi-api-kc:
+    deploy:
+      placement:
+        constraints:
+          - "node.labels.name==node-2"

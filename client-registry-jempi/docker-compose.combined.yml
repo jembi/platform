@@ -3,6 +3,9 @@ version: "3.9"
 services:
   jempi-async-receiver:
     image: jembi/jempi-async-receiver:${JEMPI_ASYNC_RECEIVER_IMAGE_TAG}
+    configs:
+      - target: /app/conf_system/config.json
+        source: config.json
     environment:
       LOG4J2_LEVEL: ${LOG4J2_LEVEL}
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_HOSTS}
@@ -23,6 +26,9 @@ services:
 
   jempi-etl:
     image: jembi/jempi-etl:${JEMPI_ETL_IMAGE_TAG}
+    configs:
+      - target: /app/conf_system/config.json
+        source: config.json
     environment:
       LOG4J2_LEVEL: ${LOG4J2_LEVEL}
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_HOSTS}
@@ -41,6 +47,9 @@ services:
 
   jempi-controller:
     image: jembi/jempi-controller:${JEMPI_CONTROLLER_IMAGE_TAG}
+    configs:
+      - target: /app/conf_system/config.json
+        source: config.json
     environment:
       LOG4J2_LEVEL: ${LOG4J2_LEVEL}
       POSTGRESQL_IP: ${JEMPI_POSTGRES_DB}
@@ -72,9 +81,32 @@ services:
       default:
       jempi:
       postgres:
+  
+  jempi-em-scala:
+    image: jembi/jempi-em-scala:${JEMPI_EM_SCALA_IMAGE_TAG}
+    configs:
+      - target: /app/conf_system/config.json
+        source: config.json
+    environment:
+      LOG4J2_LEVEL: ${LOG4J2_LEVEL}
+      KAFKA_SERVERS: ${KAFKA_HOSTS}
+    deploy:
+      replicas: ${JEMPI_EM_SCALA_INSTANCES}
+      resources:
+        limits:
+          memory: ${JEMPI_EM_SCALA_MEMORY_LIMIT}
+        reservations:
+          memory: ${JEMPI_EM_SCALA_MEMORY_RESERVE}
+    networks:
+      kafka:
+      default:
+      jempi:
 
   jempi-linker:
     image: jembi/jempi-linker:${JEMPI_LINKER_IMAGE_TAG}
+    configs:
+      - target: /app/conf_system/config.json
+        source: config.json
     environment:
       LOG4J2_LEVEL: ${LOG4J2_LEVEL}
       POSTGRESQL_IP: ${JEMPI_POSTGRES_DB}
@@ -110,6 +142,9 @@ services:
 
   jempi-bootstrapper:
     image: jembi/jempi-bootstrapper:${JEMPI_BOOTSTRAPPER_IMAGE_TAG}
+    configs:
+      - target: /app/conf_system/config.json
+        source: config.json
     environment:
       POSTGRESQL_IP: ${POSTGRES_SERVICE}
       POSTGRESQL_PORT: 5432
@@ -144,3 +179,10 @@ networks:
   postgres:
     name: postgres_public
     external: true
+
+configs:
+  config.json:
+    file: ./config/config.json
+    name: config.json-${config_json_DIGEST:?err}
+    labels:
+      name: jempi

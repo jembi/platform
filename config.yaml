@@ -77,3 +77,16 @@ profiles:
       - openhim-mapping-mediator
     envFiles:
       - mpi.env
+
+  - name: mpi-qa
+    packages:
+      - interoperability-layer-openhim
+      - reverse-proxy-nginx
+      - message-bus-kafka
+      - job-scheduler-ofelia
+      - monitoring
+      - client-registry-jempi
+      - identity-access-manager-keycloak
+      - openhim-mapping-mediator
+    envFiles:
+      - mpi-qa.env
