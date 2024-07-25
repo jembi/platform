@@ -1,8 +1,14 @@
-version: '3.9'
+version: "3.9"
 
 services:
   dashboard-visualiser-superset:
     image: ${SUPERSET_IMAGE}
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=reverse-proxy-traefik_public
+        - traefik.http.routers.dashboard-visualiser-superset.rule=Host(`${SUPERSET_TRAEFIK_SUBDOMAIN}.${DOMAIN_NAME_HOST_TRAEFIK}`)
+        - traefik.http.services.dashboard-visualiser-superset.loadbalancer.server.port=8088
     environment:
       KC_SUPERSET_SSO_ENABLED: ${KC_SUPERSET_SSO_ENABLED}
       KC_SUPERSET_CLIENT_ID: ${KC_SUPERSET_CLIENT_ID}
@@ -36,6 +42,7 @@ services:
       clickhouse:
       keycloak:
       reverse-proxy:
+      traefik:
       postgres:
       default:
 
@@ -73,6 +80,9 @@ networks:
     external: true
   reverse-proxy:
     name: reverse-proxy_public
+    external: true
+  traefik:
+    name: reverse-proxy-traefik_public
     external: true
   postgres:
     name: postgres_public

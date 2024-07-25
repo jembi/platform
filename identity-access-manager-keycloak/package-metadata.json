@@ -46,6 +46,7 @@
     "POSTGRES_PORT": 5432,
     "POSTGRESQL_USER": "postgres",
     "POSTGRESQL_PASSWORD": "instant101",
-    "POSTGRESS_DATABASE": "postgres"
+    "POSTGRESS_DATABASE": "postgres",
+    "KC_TRAEFIK_SUBDOMAIN": "keycloak"
   }
 }
