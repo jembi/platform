@@ -48,7 +48,6 @@ profiles:
       - kafka-unbundler-consumer
       - fhir-ig-importer
       - reprocess-mediator
-      - fhir-ig-importer
       - fhir-info-gateway
     envFiles:
       - cdr-dw.env
