@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:
+  reverse-proxy-traefik:
+    image: traefik:v3.0.0
+    networks:
+      - traefik
+    ports:
+      - 80:80
+      - 8080:8080
+      - 443:443
+    command:
+      - --log
+      - --log.level=${LOG_LEVEL}
+      - --accesslog=true
+      - --providers.swarm.exposedbydefault=false
+      - --providers.swarm.endpoint=unix:///var/run/docker.sock
+      - --serversTransport.insecureSkipVerify=${INSECURE_SKIP_VERIFY}
+      - --api.insecure=${ENABLE_TRAEFIK_DASHBOARD}
+      - --entrypoints.web.address=:80
+      - --entryPoints.websecure.address=:443
+      - --providers.docker.network=reverse-proxy-traefik_public
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      replicas: 1
+      labels:
+        #TODO: Are these 2 lines necessary?
+        - traefik.enable=true
+        - traefik.http.services.reverse-proxy-traefik.loadbalancer.server.port=80
+      placement:
+        max_replicas_per_node: 1
+        constraints:
+          - node.role == ${PLACEMENT_ROLE_CONSTRAINTS}
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.1"
+          memory: 64M
+
+networks:
+  traefik:
+    name: reverse-proxy-traefik_public
+    external: true
