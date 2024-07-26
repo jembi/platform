@@ -5,6 +5,13 @@ services:
     image: ${GRAFANA_IMAGE}
     volumes:
       - grafana-data:/var/lib/grafana
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=reverse-proxy-traefik_public
+        - traefik.http.routers.grafana.service=grafana
+        - traefik.http.services.grafana.loadbalancer.server.port=3000
+        - traefik.http.routers.grafana.rule=Host(${DOMAIN_NAME_HOST_TRAEFIK} && PathPrefix(`/grafana`)
     environment:
       GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER}
       GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
@@ -32,6 +39,7 @@ services:
       GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH: "contains(roles[*], 'admin') && 'Admin' || contains(roles[*], 'editor') && 'Editor' || 'Viewer'"
       GF_SERVER_DOMAIN: ${GF_SERVER_DOMAIN}
       GF_SERVER_ROOT_URL: ${KC_GRAFANA_ROOT_URL}
+      GF_SERVER_SERVE_FROM_SUB_PATH: ${GF_SERVER_SERVE_FROM_SUB_PATH}
       GF_AUTH_SIGNOUT_REDIRECT_URL: "${KC_FRONTEND_URL}/realms/${KC_REALM_NAME}/protocol/openid-connect/logout?client_id=${KC_GRAFANA_CLIENT_ID}&post_logout_redirect_uri=${KC_GRAFANA_ROOT_URL}/login"
     configs:
       - target: /etc/grafana/grafana.ini
@@ -61,6 +69,7 @@ services:
     networks:
       keycloak:
       reverse-proxy:
+      traefik:
       default:
 
   prometheus:
@@ -140,6 +149,8 @@ services:
     environment:
       MINIO_ROOT_USER: ${MO_SECURITY_ADMIN_USER}
       MINIO_ROOT_PASSWORD: ${MO_SECURITY_ADMIN_PASSWORD}
+      MINIO_BROWSER_REDIRECT_URL: ${MINIO_BROWSER_REDIRECT_URL}
+      MINIO_SERVER_URL: http://localhost:9000
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
@@ -151,8 +162,16 @@ services:
       - minio-01-data2:/data2
     deploy:
       replicas: 1
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=reverse-proxy-traefik_public
+        - traefik.http.routers.minio.rule=${DOMAIN_NAME_HOST_TRAEFIK} && PathPrefix(`/minio`)
+        - traefik.http.services.minio.loadbalancer.server.port=9001
+        - traefik.http.middlewares.minio-stripprefix.stripprefix.prefixes=/minio
+        - traefik.http.routers.minio.middlewares=minio-stripprefix
     networks:
       reverse-proxy:
+      traefik:
       default:
 
 configs:
@@ -248,5 +267,8 @@ networks:
     external: true
   public:
     name: prometheus_public
+    external: true
+  traefik:
+    name: reverse-proxy-traefik_public
     external: true
   default:
