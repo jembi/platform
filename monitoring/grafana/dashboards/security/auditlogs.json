@@ -120,7 +120,7 @@
             "uid": "P00201832B18B88C3"
           },
           "editorMode": "builder",
-          "expr": "sum(count_over_time({label=~\"T1219.*|recon|.*susp.*\", node=\"$node\"} |= `$query` [$__interval]))",
+          "expr": "sum(count_over_time({label=~\"T1219.*|recon|.*susp.*\", node=~\"$node\"} |= `$query` [$__interval]))",
           "queryType": "range",
           "refId": "A"
         }
@@ -158,7 +158,7 @@
             "uid": "P00201832B18B88C3"
           },
           "editorMode": "builder",
-          "expr": "{job=\"auditlogs\", label=~\"T1219.*|recon|.*susp.*\", node=\"$node\"} |= `$query`",
+          "expr": "{job=\"auditlogs\", label=~\"T1219.*|recon|.*susp.*\", node=~\"$node\"} |= `$query`",
           "key": "Q-9181c263-cf75-42fe-bf50-036eeff7207a-0",
           "queryType": "range",
           "refId": "A"
@@ -197,7 +197,7 @@
             "uid": "P00201832B18B88C3"
           },
           "editorMode": "builder",
-          "expr": "{job=\"auditlogs\", node=\"$node\"} |= `$query`",
+          "expr": "{job=\"auditlogs\", node=~\"$node\"} |= `$query`",
           "key": "Q-9181c263-cf75-42fe-bf50-036eeff7207a-0",
           "queryType": "range",
           "refId": "A"
@@ -265,7 +265,7 @@
     ]
   },
   "time": {
-    "from": "now-5m",
+    "from": "now-15m",
     "to": "now"
   },
   "timepicker": {},
