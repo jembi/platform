@@ -19,6 +19,7 @@
     "USERNAME": "admin",
     "PASSWORD": "test",
     "DOMAIN": "platform.cloud.jembi",
-    "CERT_RESOLVER": "le"
+    "CERT_RESOLVER": "le",
+    "CA_SERVER": "https://acme-staging-v02.api.letsencrypt.org/directory"
   }
 }

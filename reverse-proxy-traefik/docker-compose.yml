@@ -23,7 +23,7 @@ services:
       - --certificatesresolvers.le.acme.email=${ACME_EMAIL?Variable not set}
       - --certificatesresolvers.le.acme.storage=/certificates/acme.json
       - --certificatesresolvers.le.acme.tlschallenge=true
-      - --certificatesresolvers.le.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory
+      - --certificatesresolvers.le.acme.caserver=${CA_SERVER}
       - --certificatesresolvers.le.acme.dnschallenge.delaybeforecheck=0
 
     volumes:
