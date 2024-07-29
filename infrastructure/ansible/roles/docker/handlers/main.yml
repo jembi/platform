@@ -1,4 +1,4 @@
 ---
-- include: reload_ufw.yml
-- include: reload_docker.yml
-- include: restart_docker.yml
+- import_tasks: reload_ufw.yml
+- import_tasks: reload_docker.yml
+- import_tasks: restart_docker.yml
