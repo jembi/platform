@@ -4,3 +4,4 @@
     - common
     - docker
     - ufw
+    - auditd
