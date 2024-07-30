@@ -12,10 +12,10 @@
     "OPENHIM_PASSWORD": "instant101",
     "REGISTER_MEDIATOR": "true",
     "REPROCESSOR_API_BASE_URL": "http://reprocess-mediator:3000",
-    "REPROCESS_MEDIATOR_VERSION": "jembi/reprocess-mediator:v0.1.0",
-    "REPROCESS_MEDIATOR_UI_VERSION": "jembi/reprocess-mediator-ui:v0.1.0",
+    "REPROCESS_MEDIATOR_VERSION": "jembi/reprocess-mediator:latest",
+    "REPROCESS_MEDIATOR_UI_VERSION": "jembi/reprocess-mediator-ui:latest",
     "MONGODB_CONNECTION_STRING": "mongodb://mongo-1:27017/openhim",
     "MONGODB_DIRECT_CONNECTION": false,
-    "OPENHIM_CONSOLE_URL": "http://localhost:9000"
+    "OPENHIM_CONSOLE_BASE_URL": "http://localhost:9000"
   }
 }

@@ -44,7 +44,7 @@
     "KC_OPENHIM_ROOT_URL": "http://localhost:9000",
     "KC_API_URL": "http://identity-access-manager-keycloak:8080",
     "OPENHIM_SUBDOMAIN": "openhim",
-    "OPENHIM_CONSOLE_BASE_URL": "localhost:9000",
+    "OPENHIM_CONSOLE_BASE_URL": "http://localhost:9000",
     "OPENHIM_API_HOST": "localhost",
     "OPENHIM_API_PORT": "5001"
   }

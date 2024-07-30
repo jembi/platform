@@ -37,6 +37,16 @@ function makeRequest(options, data) {
 const appJsonData = JSON.parse(
   fs.readFileSync(path.resolve(__dirname, "consumer-ui-app.json"))
 );
+//Substitute the url with environ variable
+
+let url = appJsonData.url;
+let newUrl = url.replace(
+  "<openhim-console-url>",
+  process.env.OPENHIM_CONSOLE_BASE_URL
+);
+
+appJsonData.url = newUrl;
+
 const appData = JSON.stringify(appJsonData);
 
 const options = {

@@ -17,8 +17,8 @@
     "REGISTER_MEDIATOR": "true",
     "CLICKHOUSE_HOST": "analytics-datastore-clickhouse",
     "CLICKHOUSE_PORT": "8123",
-    "KAFKA_CONSUMER_MAPPER_MEDIATOR_VERSION": "jembi/kafka-mapper-consumer:v0.0.1",
-    "KAFKA_CONSUMER_MAPPER_UI_VERSION": "jembi/kafka-mapper-consumer-ui:v0.0.1",
-    "OPENHIM_CONSOLE_URL": "http://localhost:9000"
+    "KAFKA_CONSUMER_MAPPER_MEDIATOR_VERSION": "jembi/kafka-mapper-consumer:latest",
+    "KAFKA_CONSUMER_MAPPER_UI_VERSION": "jembi/kafka-mapper-consumer-ui:latest",
+    "OPENHIM_CONSOLE_BASE_URL": "http://localhost:9000"
   }
 }
