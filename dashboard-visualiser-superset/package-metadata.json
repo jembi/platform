@@ -33,6 +33,9 @@
     "SUPERSET_POSTGRESQL_PASSWORD": "instant101",
     "SUPERSET_POSTGRESQL_DATABASE": "superset",
     "SUPERSET_POSTGRESQL_URL": "postgres-1:5432",
+    "CLICKHOUSE_HOST": "analytics-datastore-clickhouse",
+    "CLICKHOUSE_PORT": 8123,
+    "CLICKHOUSE_PASSWORD": "dev_password_only",
     "SUPERSET_TRAEFIK_SUBDOMAIN": "superset"
   }
 }

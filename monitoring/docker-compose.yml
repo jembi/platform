@@ -64,6 +64,8 @@ services:
         source: openhim_transactions_dashboard.json
       - target: /etc/grafana/provisioning/dashboards/containers/logging-universal-dashboard_rev1.json
         source: logging-universal-dashboard_rev1.json
+      - target: /etc/grafana/provisioning/dashboards/security/auditlogs.json
+        source: auditlogs.json
     networks:
       keycloak:
       reverse-proxy:
@@ -226,6 +228,11 @@ configs:
   logging-universal-dashboard_rev1.json:
     file: ./grafana/dashboards/containers/logging-universal-dashboard_rev1.json
     name: logging-universal-dashboard_rev1.json-${logging_universal_dashboard_rev1_json_DIGEST:?err}
+    labels:
+      name: grafana
+  auditlogs.json:
+    file: ./grafana/dashboards/security/auditlogs.json
+    name: auditlogs.json-${auditlogs_json_DIGEST:?err}
     labels:
       name: grafana
   prometheus.yml:
