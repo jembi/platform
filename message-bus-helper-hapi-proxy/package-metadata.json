@@ -6,6 +6,7 @@
   "type": "infrastructure",
   "dependencies": ["message-bus-kafka", "fhir-datastore-hapi-fhir"],
   "environmentVariables": {
+    "HAPI_PROXY_IMAGE": "jembi/springproxyserver:20211217-170809.3f57ef5",
     "HAPI_PROXY_INSTANCES": 1,
     "HAPI_PROXY_CPU_LIMIT": "0",
     "HAPI_PROXY_CPU_RESERVE": "0.05",

@@ -1,0 +1,277 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 6,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "# Notes\n\n* Some `proctitles` are hex encoded due to the posibility of special chars. Use a hex to ascii decoder to view these.\n* Multiple lines might refer to the same event, in that case the audit identifier (i.e. `msg=audit(...:...)`) will be the same. Use the find input to easily see all line for an event by searching for this audit identifier.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "9.2.3",
+      "title": "Notes",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "P00201832B18B88C3"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "scaleDistribution": {
+              "type": "linear"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 4
+      },
+      "id": 3,
+      "options": {
+        "calculate": false,
+        "cellGap": 1,
+        "color": {
+          "exponent": 0.5,
+          "fill": "dark-orange",
+          "mode": "scheme",
+          "reverse": true,
+          "scale": "exponential",
+          "scheme": "Oranges",
+          "steps": 64
+        },
+        "exemplars": {
+          "color": "rgba(255,0,255,0.7)"
+        },
+        "filterValues": {
+          "le": 1e-9
+        },
+        "legend": {
+          "show": true
+        },
+        "rowsFrame": {
+          "layout": "auto"
+        },
+        "tooltip": {
+          "show": true,
+          "yHistogram": false
+        },
+        "yAxis": {
+          "axisPlacement": "left",
+          "reverse": false
+        }
+      },
+      "pluginVersion": "9.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "P00201832B18B88C3"
+          },
+          "editorMode": "builder",
+          "expr": "sum(count_over_time({label=~\"T1219.*|recon|.*susp.*\", node=~\"$node\"} |= `$query` [$__interval]))",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Suspicious activity",
+      "type": "heatmap"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "P00201832B18B88C3"
+      },
+      "description": "Filter for security auditlogs that that are potentially suspicious.",
+      "gridPos": {
+        "h": 17,
+        "w": 24,
+        "x": 0,
+        "y": 10
+      },
+      "id": 1,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "P00201832B18B88C3"
+          },
+          "editorMode": "builder",
+          "expr": "{job=\"auditlogs\", label=~\"T1219.*|recon|.*susp.*\", node=~\"$node\"} |= `$query`",
+          "key": "Q-9181c263-cf75-42fe-bf50-036eeff7207a-0",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Suspicious activity",
+      "type": "logs"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "P00201832B18B88C3"
+      },
+      "description": "All captured logs from auditd",
+      "gridPos": {
+        "h": 17,
+        "w": 24,
+        "x": 0,
+        "y": 27
+      },
+      "id": 4,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "P00201832B18B88C3"
+          },
+          "editorMode": "builder",
+          "expr": "{job=\"auditlogs\", node=~\"$node\"} |= `$query`",
+          "key": "Q-9181c263-cf75-42fe-bf50-036eeff7207a-0",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "All audit logs",
+      "type": "logs"
+    }
+  ],
+  "refresh": false,
+  "schemaVersion": 37,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "",
+          "value": ""
+        },
+        "hide": 0,
+        "label": "Find",
+        "name": "query",
+        "options": [
+          {
+            "selected": true,
+            "text": "",
+            "value": ""
+          }
+        ],
+        "query": "",
+        "skipUrlSync": false,
+        "type": "textbox"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": ["All"],
+          "value": ["$__all"]
+        },
+        "datasource": {
+          "type": "loki",
+          "uid": "P00201832B18B88C3"
+        },
+        "definition": "",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Hostname",
+        "multi": true,
+        "name": "node",
+        "options": [],
+        "query": {
+          "label": "node",
+          "refId": "LokiVariableQueryEditor-VariableQuery",
+          "stream": "",
+          "type": 1
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Audit logs",
+  "uid": "1KG6epL4z",
+  "version": 1,
+  "weekStart": ""
+}

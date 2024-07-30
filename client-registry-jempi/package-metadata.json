@@ -12,8 +12,14 @@
   ],
   "environmentVariables": {
     "KAFKA_HOSTS": "kafka-01:9092",
+    "JEMPI_POSTGRESQL_IMAGE": "bitnami/postgresql-repmgr:15.2.0",
+    "JEMPI_ZERO_IMAGE": "dgraph/dgraph:v22.0.0",
+    "JEMPI_RATEL_IMAGE": "dgraph/ratel:v21.03.2",
     "JEMPI_ZERO_MEMORY_LIMIT": "3G",
     "JEMPI_ZERO_MEMORY_RESERVE": "500M",
+    "JEMPI_ZERO_01_PLACEMENT": "node-1",
+    "JEMPI_ZERO_02_PLACEMENT": "node-2",
+    "JEMPI_ZERO_03_PLACEMENT": "node-3",
     "JEMPI_ALPHA_01_MEMORY_LIMIT": "3G",
     "JEMPI_ALPHA_01_MEMORY_RESERVE": "500M",
     "JEMPI_ALPHA_02_MEMORY_LIMIT": "3G",
@@ -89,6 +95,9 @@
     "KAFKA_APPLICATION_ID_CTRL": "app-id-ctrl",
     "KAFKA_CLIENT_ID_CTRL": "client-id-ctrl",
     "KAFKA_APPLICATION_ID_BOOTSTRAPPER": "app-id-bootstrapper",
-    "JEMPI_BOOTSTRAPPER_IMAGE_TAG": "1.0.1-beta"
+    "JEMPI_BOOTSTRAPPER_IMAGE_TAG": "1.0.1-beta",
+    "JEMPI_API_KC_TRAEFIK_SUBDOMAIN": "jempi-api-kc",
+    "JEMPI_API_TRAEFIK_SUBDOMAIN": "jempi-api",
+    "JEMPI_WEB_TRAEFIK_SUBDOMAIN": "jempi-web"
   }
 }

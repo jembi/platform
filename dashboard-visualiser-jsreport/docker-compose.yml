@@ -13,6 +13,13 @@ services:
       placement:
         max_replicas_per_node: ${JS_REPORT_MAX_REPLICAS_PER_NODE}
       replicas: ${JS_REPORT_INSTANCES}
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=reverse-proxy-traefik_public
+        - traefik.http.routers.dashboard-visualiser-jsreport.rule=Host(`${DOMAIN_NAME_HOST_TRAEFIK}`) && PathPrefix(`${JS_REPORT_PATH_PREFIX}`)
+        - traefik.http.middlewares.jsreport-stripprefix.stripprefix.prefixes=${JS_REPORT_PATH_PREFIX}
+        - traefik.http.routers.dashboard-visualiser-jsreport.middlewares=jsreport-stripprefix
+        - traefik.http.services.dashboard-visualiser-jsreport.loadbalancer.server.port=5488
       resources:
         limits:
           cpus: ${JS_REPORT_CPU_LIMIT}
@@ -24,6 +31,7 @@ services:
       co.elastic.metrics/module: "docker"
       co.elastic.metrics/metricsets: "cpu,memory,diskio,info,healthcheck,container"
     environment:
+      appPath: ${JS_REPORT_PATH_PREFIX}
       allowLocalFilesAccess: "true"
       extensions_fsStore_dataDirectory: "jsreport/data"
       extensions_fsStore_externalModificationsSync: "true"
@@ -37,6 +45,7 @@ services:
       - jsreport-data:/jsreport
     networks:
       reverse-proxy:
+      traefik:
       elastic:
       default:
 
@@ -49,5 +58,8 @@ networks:
     external: true
   elastic:
     name: elastic_public
+    external: true
+  traefik:
+    name: reverse-proxy-traefik_public
     external: true
   default:

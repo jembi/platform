@@ -20,7 +20,7 @@ As a default, each package contained in Platform is allocated a maximum of 3 GB 
 
 ## Allocating Resources per Package
 
-The resource allocation can be set on a per-package basis, as specified by the relevant environment variables found in the relevant [Packages section](packages/).
+The resource allocation can be set on a per-package basis, as specified by the relevant environment variables found in the relevant [Packages section](../packages/).
 
 ## Notes
 

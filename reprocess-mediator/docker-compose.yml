@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   reprocess-mediator:
@@ -6,18 +6,22 @@ services:
     networks:
       openhim:
       reprocess:
+      openhim-mongo:
     environment:
       TRUST_SELF_SIGNED: ${TRUST_SELF_SIGNED}
       OPENHIM_MEDIATOR_URL: ${OPENHIM_MEDIATOR_URL}
       OPENHIM_USERNAME: ${OPENHIM_USERNAME}
       OPENHIM_PASSWORD: ${OPENHIM_PASSWORD}
       REGISTER_MEDIATOR: ${REGISTER_MEDIATOR}
-  
+      MONGODB_CONNECTION_STRING: ${MONGODB_CONNECTION_STRING}
+      MONGODB_DIRECT_CONNECTION: ${MONGODB_DIRECT_CONNECTION}
+
   reprocess-mediator-ui:
     image: ${REPROCESS_MEDIATOR_UI_VERSION}
     networks:
       openhim:
       reprocess:
+      reverse-proxy:
     environment:
       REPROCESSOR_API_BASE_URL: ${REPROCESSOR_API_BASE_URL}
 
@@ -28,4 +32,9 @@ networks:
   reprocess:
     name: reprocess_public
     external: true
-
+  reverse-proxy:
+    name: reverse-proxy_public
+    external: true
+  openhim-mongo:
+    name: openhim_mongo_public
+    external: true
