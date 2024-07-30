@@ -3,7 +3,7 @@
   "description": "Kafka mapper consumer microfrontends app",
   "category": "HIE Configuration",
   "type": "esmodule",
-  "url": "http://localhost:8091/jembi-kafka-mapper-consumer-ui.js",
+  "url": "<openhim-console-url>/jembi-kafka-mapper-consumer-ui.js",
   "showInPortal": true,
   "showInSideBar": false,
   "access_roles": ["admin"],
