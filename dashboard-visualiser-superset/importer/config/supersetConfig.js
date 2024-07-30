@@ -14,6 +14,8 @@ const SUPERSET_LOGIN_PATH =
   process.env.SUPERSET_LOGIN_PATH || '/api/v1/security/login';
 const SUPERSET_IMPORT_PATH =
   process.env.SUPERSET_IMPORT_PATH || '/api/v1/assets/import/';
+const SUPERSET_DATABASE_PUT_PATH =
+  process.env.SUPERSET_DATABASE_PUT_PATH || '/api/v1/database';
 const CONFIG_FILE = process.env.CONFIG_FILE;
 const SUPERSET_SSL = process.env.SUPERSET_SSL || 'false';
 
@@ -27,7 +29,7 @@ const getAccessToken = async () => {
     refresh: true,
   });
 
-  var config = {
+  const config = {
     method: 'POST',
     url: `${protocol}://${SUPERSET_SERVICE_NAME}:${SUPERSET_API_PORT}${SUPERSET_LOGIN_PATH}`,
     headers: {
@@ -47,39 +49,81 @@ const getAccessToken = async () => {
   }
 };
 
+const importZipConfig = async (accessToken) => {
+  const data = new FormData();
+
+  if (CONFIG_FILE) {
+    data.append(
+      'bundle',
+      fs.createReadStream(path.resolve(__dirname, CONFIG_FILE))
+    );
+
+    const config = {
+      method: 'POST',
+      url: `${protocol}://${SUPERSET_SERVICE_NAME}:${SUPERSET_API_PORT}${SUPERSET_IMPORT_PATH}`,
+      headers: {
+        'Content-Type': 'application/zip',
+        Authorization: `Bearer ${accessToken}`,
+        ...data.getHeaders(),
+      },
+      data: data,
+    };
+
+    const res = await axios(config);
+
+    console.log('\n', res.data);
+    console.log('\nConfig imported successfully. exit.');
+  } else {
+    throw new Error(
+      '\nNo path was provided. Please provide the path of the config.'
+    );
+  }
+}
+
+const replaceClickhouseConnectionString = async (accessToken) => {
+  const CLICKHOUSE_HOST = process.env.CLICKHOUSE_HOST || 'analytics-datastore-clickhouse';
+  const CLICKHOUSE_PORT = process.env.CLICKHOUSE_PORT || '8123';
+  const CLICKHOUSE_PASSWORD = process.env.CLICKHOUSE_PASSWORD || 'dev_password_only';
+
+  const databaseConfig = {
+    allow_ctas: false,
+    allow_cvas: false,
+    allow_dml: false,
+    allow_file_upload: false,
+    allow_run_async: false,
+    cache_timeout: 0,
+    configuration_method: "sqlalchemy_form",
+    database_name: "Clickhouse connection",
+    driver: "connect",
+    engine: "clickhousedb",
+    expose_in_sqllab: true,
+    sqlalchemy_uri: `clickhousedb+connect://default:${CLICKHOUSE_PASSWORD}@${CLICKHOUSE_HOST}:${CLICKHOUSE_PORT}/default`,
+    uuid: "868ecd6d-f099-46ab-a100-dd91173bc63f"
+  };
+
+  const config = {
+    method: 'POST',
+    url: `${protocol}://${SUPERSET_SERVICE_NAME}:${SUPERSET_API_PORT}${SUPERSET_DATABASE_PUT_PATH}`,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    },
+    data: databaseConfig,
+  };
+
+  const res = await axios(config);
+
+  console.log('\n', res.data);
+  console.log('\Database connection updated successfully. exit.');
+}
+
 (async () => {
   try {
     const accessToken = await getAccessToken();
 
     if (accessToken) {
-      var data = new FormData();
-
-      if (CONFIG_FILE) {
-        data.append(
-          'bundle',
-          fs.createReadStream(path.resolve(__dirname, CONFIG_FILE))
-        );
-
-        var config = {
-          method: 'POST',
-          url: `${protocol}://${SUPERSET_SERVICE_NAME}:${SUPERSET_API_PORT}${SUPERSET_IMPORT_PATH}`,
-          headers: {
-            'Content-Type': 'application/zip',
-            Authorization: `Bearer ${accessToken}`,
-            ...data.getHeaders(),
-          },
-          data: data,
-        };
-
-        const res = await axios(config);
-
-        console.log('\n', res.data);
-        console.log('\nConfig imported successfully. exit.');
-      } else {
-        throw new Error(
-          '\nNo path was provided. Please provide the path of the config.'
-        );
-      }
+      await importZipConfig(accessToken);
+      await replaceClickhouseConnectionString(accessToken);
     } else {
       throw new Error('\nNo access token was generated.');
     }

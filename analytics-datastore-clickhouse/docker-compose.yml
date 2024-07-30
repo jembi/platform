@@ -5,6 +5,8 @@ services:
     image: ${CLICKHOUSE_IMAGE}
     ulimits:
       noFile: 262144
+    environment:
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
     volumes:
       - clickhouse-data:/var/lib/clickhouse/
     configs:
@@ -18,6 +20,7 @@ services:
         source: clickhouse_trace_log.xml
     networks:
       public:
+      reverse-proxy:
       default:
 
 volumes:
@@ -48,5 +51,8 @@ configs:
 networks:
   public:
     name: clickhouse_public
+    external: true
+  reverse-proxy:
+    name: reverse-proxy_public
     external: true
   default:
