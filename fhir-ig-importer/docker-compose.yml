@@ -21,6 +21,8 @@ services:
       reverse-proxy:
     environment:
       FHIR_IG_IMPORTER_CORE_URL: ${FHIR_IG_IMPORTER_CORE_URL}
+      OPENHIM_API_USERNAME: ${OPENHIM_USERNAME}
+      OPENHIM_API_PASSWORD: ${OPENHIM_PASSWORD}
 
 networks:
   hapi-fhir:
