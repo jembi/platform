@@ -25,6 +25,10 @@ services:
       - api_openid_clientId=${KC_OPENHIM_CLIENT_ID}
       - api_openid_clientSecret=${KC_OPENHIM_CLIENT_SECRET}
       - openhimConsoleBaseUrl=${OPENHIM_CONSOLE_BASE_URL}
+      - authentication_enableJWTAuthentication=true
+      - authentication_jwt_jwksUri=${KC_API_URL}/realms/${KC_REALM_NAME}/protocol/openid-connect/certs
+      - authentication_jwt_algorithms=RS256
+      - authentication_jwt_issuer=${KC_FRONTEND_URL}/realms/${KC_REALM_NAME}
     deploy:
       replicas: ${OPENHIM_CORE_INSTANCES}
       placement:

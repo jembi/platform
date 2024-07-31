@@ -1,0 +1,8 @@
+version: '3.9'
+
+services:
+  fhir-info-gateway:
+    ports:
+      - target: 8080
+        published: 8880
+        mode: host
