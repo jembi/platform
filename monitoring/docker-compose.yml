@@ -77,7 +77,7 @@ services:
     user: root
     volumes:
       - prometheus-data:/prometheus
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${DOCKER_SOCK_FOLDER}:/var/run/docker.sock:ro
     configs:
       - target: /etc/prometheus/prometheus.yml
         source: prometheus.yml
@@ -99,7 +99,7 @@ services:
       - /:/rootfs:ro
       - /var/run:/var/run
       - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker
+      - ${DOCKER_LIB_FOLDER}:/var/lib/docker
       - /dev/disk/:/dev/disk:ro
     deploy:
       mode: global
@@ -133,7 +133,7 @@ services:
   promtail:
     image: ${PROMTAIL_IMAGE}
     volumes:
-      - /var/lib/docker/containers:/host/containers
+      - ${DOCKER_LIB_FOLDER}/containers:/host/containers
       - /var/log:/var/log:ro
     configs:
       - target: /etc/promtail/promtail-config.yml

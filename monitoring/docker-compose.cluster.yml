@@ -18,7 +18,7 @@ services:
       replicas: 1
     volumes:
       - prometheus_data_backup:/prometheus
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${DOCKER_SOCK_FOLDER}:/var/run/docker.sock:ro
     configs:
       - target: /etc/prometheus/prometheus.yml
         source: prometheus.yml
