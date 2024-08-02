@@ -52,7 +52,7 @@ services:
         - traefik.http.routers.openhimcomms.rule=Host(`${DOMAIN_NAME_HOST_TRAEFIK}`) && PathPrefix(`/openhimcomms`)
         - traefik.http.middlewares.openhimcomms-stripprefix.stripprefix.prefixes=/openhimcomms
         - traefik.http.routers.openhimcomms.middlewares=openhimcomms-stripprefix
-        - "traefik.http.routers.openhimcomms.tls.certresolver=le"
+        - traefik.http.routers.openhimcomms.tls.certresolver=le
         
         - traefik.http.routers.openhimcore.service=openhimcore
         - traefik.http.services.openhimcore.loadbalancer.server.port=5000
@@ -62,7 +62,7 @@ services:
         - traefik.http.routers.openhimcore.rule=Host(`${DOMAIN_NAME_HOST_TRAEFIK}`) && PathPrefix(`/openhimcore`)
         - traefik.http.middlewares.openhimcore-stripprefix.stripprefix.prefixes=/openhimcore
         - traefik.http.routers.openhimcore.middlewares=openhimcore-stripprefix
-        - "traefik.http.routers.openhimcore.tls.certresolver=le"
+        - traefik.http.routers.openhimcore.tls.certresolver=le
 
 
 
@@ -95,7 +95,7 @@ services:
         - traefik.http.services.openhim-console.loadbalancer.server.scheme=http
         - traefik.http.routers.openhim-console.service=openhim-console
         - traefik.http.routers.openhim-console.entrypoints=websecure
-        - 'traefik.http.routers.openhim-console.tls=true'
+        - traefik.http.routers.openhim-console.tls=true
         - traefik.http.routers.openhim-console.rule=Host(`${DOMAIN_NAME}`)
         - traefik.http.services.openhim-console.loadbalancer.server.port=80
       placement:
