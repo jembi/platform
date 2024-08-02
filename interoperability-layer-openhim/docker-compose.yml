@@ -53,7 +53,6 @@ services:
         - traefik.http.middlewares.openhimcomms-stripprefix.stripprefix.prefixes=/openhimcomms
         - traefik.http.routers.openhimcomms.middlewares=openhimcomms-stripprefix
         - traefik.http.routers.openhimcomms.tls.certresolver=le
-        
         - traefik.http.routers.openhimcore.service=openhimcore
         - traefik.http.services.openhimcore.loadbalancer.server.port=5000
         - traefik.http.services.openhimcore.loadbalancer.server.scheme=https
