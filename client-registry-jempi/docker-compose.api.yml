@@ -29,7 +29,11 @@ services:
         - traefik.docker.network=reverse-proxy-traefik_public
         - traefik.http.routers.jempi-api.service=jempi-api
         - traefik.http.services.jempi-api.loadbalancer.server.port=50000
-        - traefik.http.routers.jempi-api.rule=Host(`${JEMPI_API_TRAEFIK_SUBDOMAIN}.${DOMAIN_NAME_HOST_TRAEFIK}`)
+        - traefik.http.routers.jempi-api.rule=Host(`${JEMPI_API_TRAEFIK_SUBDOMAIN}.${DOMAIN_NAME}`)
+        - traefik.http.routers.jempi-api.entrypoints=websecure
+        - traefik.http.routers.jempi-api.tls=true
+        - traefik.http.routers.jempi-api.tls.certresolver=${CERT_RESOLVER}
+        - traefik.http.services.jempi-api.loadbalancer.server.scheme=http
       resources:
         limits:
           memory: ${JEMPI_API_MEMORY_LIMIT}
@@ -42,6 +46,7 @@ services:
       default:
       jempi:
       postgres:
+
 
   jempi-api-kc:
     image: jembi/jempi-api-kc:${JEMPI_API_KC_IMAGE_TAG}
@@ -89,8 +94,10 @@ services:
       jempi:
       postgres:
 
+
 volumes:
   jempi-shared-data:
+
 
 networks:
   reverse-proxy:

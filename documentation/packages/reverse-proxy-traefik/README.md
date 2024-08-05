@@ -21,7 +21,7 @@ The package is an alternative reverse proxy Nginx, this reverse proxy exposes pa
 | JSReport | Sub Directory (e.g. <domain>/jsreport)                                                                 |
 | OpenHim  | Sub Domain (Frontend) Sub Directory (Backend) (e.g. openhim.<domain> and openhim.<domain>/openhimcore) |
 
-> Please ensure that the ENV "DOMAIN_NAME_HOST_TRAEFIK" is set, in this documentation we will be using the placeholder "domain" for its value
+> Please ensure that the ENV "DOMAIN_NAME" is set, in this documentation we will be using the placeholder "domain" for its value
 
 ## Subdomain-Based Reverse Proxy
 

@@ -11,7 +11,7 @@ services:
         - traefik.docker.network=reverse-proxy-traefik_public
         - traefik.http.routers.grafana.service=grafana
         - traefik.http.services.grafana.loadbalancer.server.port=3000
-        - traefik.http.routers.grafana.rule=Host(${DOMAIN_NAME_HOST_TRAEFIK} && PathPrefix(`/grafana`)
+        - traefik.http.routers.grafana.rule=Host(`${DOMAIN_NAME}`) && PathPrefix(`/grafana`)
     environment:
       GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER}
       GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
@@ -72,6 +72,7 @@ services:
       traefik:
       default:
 
+
   prometheus:
     image: prom/prometheus:v2.38.0
     user: root
@@ -91,6 +92,7 @@ services:
     networks:
       public:
       default:
+
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.45.0
@@ -152,7 +154,13 @@ services:
       MINIO_BROWSER_REDIRECT_URL: ${MINIO_BROWSER_REDIRECT_URL}
       MINIO_SERVER_URL: http://localhost:9000
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "http://localhost:9000/minio/health/live"
+        ]
       interval: 30s
       timeout: 20s
       retries: 3
@@ -165,7 +173,7 @@ services:
       labels:
         - traefik.enable=true
         - traefik.docker.network=reverse-proxy-traefik_public
-        - traefik.http.routers.minio.rule=${DOMAIN_NAME_HOST_TRAEFIK} && PathPrefix(`/minio`)
+        - traefik.http.routers.minio.rule=Host(`${DOMAIN_NAME}`) && PathPrefix(`/minio`)
         - traefik.http.services.minio.loadbalancer.server.port=9001
         - traefik.http.middlewares.minio-stripprefix.stripprefix.prefixes=/minio
         - traefik.http.routers.minio.middlewares=minio-stripprefix
@@ -173,6 +181,7 @@ services:
       reverse-proxy:
       traefik:
       default:
+
 
 configs:
   grafana.ini:
@@ -257,6 +266,7 @@ volumes:
   loki-data:
   minio-01-data1:
   minio-01-data2:
+
 
 networks:
   keycloak:

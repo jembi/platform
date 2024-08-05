@@ -16,7 +16,7 @@ services:
       labels:
         - traefik.enable=true
         - traefik.docker.network=reverse-proxy-traefik_public
-        - traefik.http.routers.dashboard-visualiser-jsreport.rule=Host(`${DOMAIN_NAME_HOST_TRAEFIK}`) && PathPrefix(`${JS_REPORT_PATH_PREFIX}`)
+        - traefik.http.routers.dashboard-visualiser-jsreport.rule=Host(`${DOMAIN_NAME}`) && PathPrefix(`${JS_REPORT_PATH_PREFIX}`)
         - traefik.http.middlewares.jsreport-stripprefix.stripprefix.prefixes=${JS_REPORT_PATH_PREFIX}
         - traefik.http.routers.dashboard-visualiser-jsreport.middlewares=jsreport-stripprefix
         - traefik.http.services.dashboard-visualiser-jsreport.loadbalancer.server.port=5488
