@@ -10,8 +10,13 @@ services:
         - traefik.enable=true
         - traefik.docker.network=reverse-proxy-traefik_public
         - traefik.http.routers.grafana.service=grafana
-        - traefik.http.services.grafana.loadbalancer.server.port=3000
-        - traefik.http.routers.grafana.rule=Host(${DOMAIN_NAME_HOST_TRAEFIK} && PathPrefix(`/grafana`)
+        - traefik.http.routers.grafana.rule=Host(`${DOMAIN_NAME_HOST_TRAEFIK}`) && PathPrefix(`/grafana`)
+        - traefik.http.routers.grafana.tls=true
+        - traefik.http.services.grafana.loadbalancer.server.scheme=http
+        - traefik.http.routers.grafana.entrypoints=websecure
+        - traefik.http.routers.grafana.tls.certresolver=le
+        - traefik.http.middlewares.grafana-stripprefix.stripprefix.prefixes=/grafana
+        - traefik.http.routers.grafana.middlewares=grafana-stripprefix
     environment:
       GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER}
       GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
@@ -37,8 +42,8 @@ services:
       GF_AUTH_GENERIC_OAUTH_TOKEN_URL: "${KC_API_URL}/realms/${KC_REALM_NAME}/protocol/openid-connect/token"
       GF_AUTH_GENERIC_OAUTH_API_URL: "${KC_API_URL}/realms/${KC_REALM_NAME}/protocol/openid-connect/userinfo"
       GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH: "contains(roles[*], 'admin') && 'Admin' || contains(roles[*], 'editor') && 'Editor' || 'Viewer'"
-      GF_SERVER_DOMAIN: ${GF_SERVER_DOMAIN}
-      GF_SERVER_ROOT_URL: ${KC_GRAFANA_ROOT_URL}
+      GF_SERVER_DOMAIN: ${DOMAIN_NAME_HOST_TRAEFIK}
+      GF_SERVER_ROOT_URL: ${DOMAIN_NAME_HOST_TRAEFIK}
       GF_SERVER_SERVE_FROM_SUB_PATH: ${GF_SERVER_SERVE_FROM_SUB_PATH}
       GF_AUTH_SIGNOUT_REDIRECT_URL: "${KC_FRONTEND_URL}/realms/${KC_REALM_NAME}/protocol/openid-connect/logout?client_id=${KC_GRAFANA_CLIENT_ID}&post_logout_redirect_uri=${KC_GRAFANA_ROOT_URL}/login"
     configs:
@@ -72,6 +77,7 @@ services:
       traefik:
       default:
 
+
   prometheus:
     image: prom/prometheus:v2.38.0
     user: root
@@ -91,6 +97,7 @@ services:
     networks:
       public:
       default:
+
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.45.0
@@ -152,7 +159,13 @@ services:
       MINIO_BROWSER_REDIRECT_URL: ${MINIO_BROWSER_REDIRECT_URL}
       MINIO_SERVER_URL: http://localhost:9000
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "http://localhost:9000/minio/health/live"
+        ]
       interval: 30s
       timeout: 20s
       retries: 3
@@ -165,14 +178,20 @@ services:
       labels:
         - traefik.enable=true
         - traefik.docker.network=reverse-proxy-traefik_public
-        - traefik.http.routers.minio.rule=${DOMAIN_NAME_HOST_TRAEFIK} && PathPrefix(`/minio`)
+        - traefik.http.routers.minio.service=minio
+        - traefik.http.routers.minio.rule=Host(`${DOMAIN_NAME_HOST_TRAEFIK}`) && PathPrefix(`/minio`)
         - traefik.http.services.minio.loadbalancer.server.port=9001
+        - traefik.http.routers.minio.tls=true
+        - traefik.http.services.minio.loadbalancer.server.scheme=http
+        - traefik.http.routers.minio.entrypoints=websecure
+        - traefik.http.routers.minio.tls.certresolver=le
         - traefik.http.middlewares.minio-stripprefix.stripprefix.prefixes=/minio
         - traefik.http.routers.minio.middlewares=minio-stripprefix
     networks:
       reverse-proxy:
       traefik:
       default:
+
 
 configs:
   grafana.ini:
@@ -257,6 +276,7 @@ volumes:
   loki-data:
   minio-01-data1:
   minio-01-data2:
+
 
 networks:
   keycloak:
