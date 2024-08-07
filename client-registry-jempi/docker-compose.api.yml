@@ -43,6 +43,7 @@ services:
       jempi:
       postgres:
 
+
   jempi-api-kc:
     image: jembi/jempi-api-kc:${JEMPI_API_KC_IMAGE_TAG}
     environment:
@@ -89,8 +90,10 @@ services:
       jempi:
       postgres:
 
+
 volumes:
   jempi-shared-data:
+
 
 networks:
   reverse-proxy:

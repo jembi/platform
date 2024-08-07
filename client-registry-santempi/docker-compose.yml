@@ -47,9 +47,10 @@ services:
       reverse-proxy:
       traefik:
 
-# Sante's Match configuration is stored in the container. This will prevent the matching rules of the client registry from being lost. A docker config cannot be used for this case as the settings can be changed on Sante's UI.
+        # Sante's Match configuration is stored in the container. This will prevent the matching rules of the client registry from being lost. A docker config cannot be used for this case as the settings can be changed on Sante's UI.
 volumes:
   santedb-data:
+
 
 networks:
   mpi:

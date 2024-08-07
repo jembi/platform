@@ -46,6 +46,7 @@ services:
       postgres:
       default:
 
+
 configs:
   superset_config.py:
     file: ./config/superset_config.py
@@ -70,6 +71,7 @@ configs:
 
 volumes:
   superset_home:
+
 
 networks:
   clickhouse:

@@ -49,8 +49,10 @@ services:
       elastic:
       default:
 
+
 volumes:
   jsreport-data:
+
 
 networks:
   reverse-proxy:

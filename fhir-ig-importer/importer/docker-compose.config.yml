@@ -9,9 +9,10 @@ services:
       default:
     environment:
       OPENHIM_API_USERNAME: ${OPENHIM_USERNAME}
-      OPENHIM_API_PASSWORD: ${OPENHIM_PASSWORD}
+      OPENHIM_IG_PASSWORD: ${OPENHIM_PASSWORD}
       # Reject unauthorised is only needed if the OpenHIM's SSL is not setup
       NODE_TLS_REJECT_UNAUTHORIZED: 0
+      OPENHIM_CONSOLE_BASE_URL: ${OPENHIM_CONSOLE_BASE_URL}
     command: sh -c "node openhimConfig.js"
     configs:
       - source: fhir-ig-importer-config-importer-openhimConfig.js

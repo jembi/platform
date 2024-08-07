@@ -6,7 +6,7 @@ services:
     image: node:erbium-alpine
     environment:
       OPENHIM_API_USERNAME: 'root@openhim.org'
-      OPENHIM_API_PASSWORD: 'openhim-password'
+      OPENHIM_DEFAULT_PASSWORD: 'openhim-password'
       # Reject unauthorised is only needed if the OpenHIM's SSL is not setup
       NODE_TLS_REJECT_UNAUTHORIZED: 0
     command: sh -c "node openhimConfig.js"

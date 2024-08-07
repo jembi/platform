@@ -80,7 +80,7 @@
     "POSTGRESQL_PASSWORD": "instant101",
     "JEMPI_SESSION_SECURE": false,
     "JEMPI_SESSION_DOMAIN_NAME": "localhost",
-    "DOMAIN_NAME": "",
+    "DOMAIN_NAME": "localhost",
     "KAFKA_APPLICATION_ID_API": "api-app-id",
     "DGRAPH_HOSTS": "jempi-alpha-01,jempi-alpha-02,jempi-alpha-03",
     "DGRAPH_PORTS": "9080,9081,9082",

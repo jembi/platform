@@ -33,6 +33,7 @@ services:
       elastic:
       default:
 
+
 configs:
   kibana-kibana.yml:
     file: ./kibana.yml
