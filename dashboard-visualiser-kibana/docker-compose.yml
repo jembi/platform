@@ -17,7 +17,7 @@ services:
         - traefik.enable=true
         - traefik.docker.network=reverse-proxy-traefik_public
         - traefik.http.routers.dashboard-visualiser-kibana.service=dashboard-visualiser-kibana
-        - traefik.http.routers.dashboard-visualiser-kibana.rule=Host(`${KIBANA_TRAEFIK_SUBDOMAIN}.${DOMAIN_NAME_HOST_TRAEFIK}`)
+        - traefik.http.routers.dashboard-visualiser-kibana.rule=Host(`${KIBANA_TRAEFIK_SUBDOMAIN}.${DOMAIN_NAME}`)
         - traefik.http.services.dashboard-visualiser-kibana.loadbalancer.server.port=5601
       resources:
         limits:

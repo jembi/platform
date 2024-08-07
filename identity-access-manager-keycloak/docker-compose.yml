@@ -50,7 +50,7 @@ services:
         - traefik.docker.network=reverse-proxy-traefik_public
         - traefik.http.routers.identity-access-manager-keycloak.service=identity-access-manager-keycloak
         - traefik.http.services.identity-access-manager-keycloak.loadbalancer.server.port=8080
-        - traefik.http.routers.identity-access-manager-keycloak.rule=Host(`${KC_TRAEFIK_SUBDOMAIN}.${DOMAIN_NAME_HOST_TRAEFIK}`)
+        - traefik.http.routers.identity-access-manager-keycloak.rule=Host(`${KC_TRAEFIK_SUBDOMAIN}.${DOMAIN_NAME}`)
         - traefik.http.routers.identity-access-manager-keycloak.tls=true
         - traefik.http.routers.identity-access-manager-keycloak.tls.certresolver=${CERT_RESOLVER}
     networks:
