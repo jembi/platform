@@ -63,9 +63,6 @@ services:
         - traefik.http.routers.openhimcore.middlewares=openhimcore-stripprefix
         - traefik.http.routers.openhimcore.tls.certresolver=le
 
-
-
-
   openhim-console:
     image: ${OPENHIM_CONSOLE_IMAGE}
     environment:
@@ -95,7 +92,7 @@ services:
         - traefik.http.routers.openhim-console.service=openhim-console
         - traefik.http.routers.openhim-console.entrypoints=websecure
         - traefik.http.routers.openhim-console.tls=true
-        - traefik.http.routers.openhim-console.rule=Host(`${DOMAIN_NAME}`)
+        - traefik.http.routers.openhim-console.rule=Host(`${DOMAIN_NAME_HOST_TRAEFIK}`)
         - traefik.http.services.openhim-console.loadbalancer.server.port=80
       placement:
         max_replicas_per_node: ${OPENHIM_CONSOLE_MAX_REPLICAS_PER_NODE}

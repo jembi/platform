@@ -43,6 +43,18 @@ const appJsonData = JSON.parse(
   fs.readFileSync(path.resolve(__dirname, "ig-importer-app.json"))
 );
 
+//Substitute the url with environ variable
+
+let url = appJsonData.url;
+if (!process.env.OPENHIM_CONSOLE_BASE_URL) {
+  throw new Error("Environment variable OPENHIM_CONSOLE_BASE_URL is not set");
+}
+let newUrl = url.replace(
+  "<openhim-console-url>",
+  process.env.OPENHIM_CONSOLE_BASE_URL
+);
+
+appJsonData.url = newUrl;
 const data = JSON.stringify(jsonData);
 const appData = JSON.stringify(appJsonData);
 

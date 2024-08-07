@@ -3,7 +3,7 @@
   "description": "Reprocess microfrontends app",
   "category": "HIE Configuration",
   "type": "esmodule",
-  "url": "http://localhost:3030/jembi-reprocessor-mediator-microfrontend.js",
+  "url": "<openhim-console-url>/reprocess-mediator-ui",
   "showInPortal": true,
   "showInSideBar": false,
   "access_roles": ["admin"],
