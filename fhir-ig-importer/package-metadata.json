@@ -14,7 +14,10 @@
     "FHIR_IG_IMPORTER_CORE_PORT": 3001,
     "FHIR_IG_IMPORTER_CORE_HOST": "0.0.0.0",
     "FHIR_IG_IMPORTER_CORE_URL": "http://0.0.0.0:3001/fhir/ig/v1.0",
-    "FHIR_IG_IMPORTER_UI_VERSION": "v1.0.0",
-    "FHIR_IG_IMPORTER_CORE_VERSION": "v1.0.0"
+    "FHIR_IG_IMPORTER_UI_VERSION": "latest",
+    "FHIR_IG_IMPORTER_CORE_VERSION": "latest",
+    "OPENHIM_CONSOLE_BASE_URL": "http://localhost:9000",
+    "OPENHIM_API_USERNAME": "root@openhim.org",
+    "OPENHIM_API_PASSWORD": "instant101"
   }
 }

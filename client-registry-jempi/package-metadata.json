@@ -103,6 +103,9 @@
     "SYSTEM_CONFIG_DIR": "/app/conf_system",
     "API_CONFIG_REFERENCE_FILENAME": "config.json",
     "API_CONFIG_MASTER_FILENAME": "config-master.json",
-    "API_FIELDS_CONFIG_FILENAME": "config-api.json"
+    "API_FIELDS_CONFIG_FILENAME": "config-api.json",
+    "JEMPI_API_KC_TRAEFIK_SUBDOMAIN": "jempi-api-kc",
+    "JEMPI_API_TRAEFIK_SUBDOMAIN": "jempi-api",
+    "JEMPI_WEB_TRAEFIK_SUBDOMAIN": "jempi-web"
   }
 }

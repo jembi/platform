@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   jempi-api:
@@ -34,6 +34,12 @@ services:
       - "jempi-shared-data:/app/csv"
     deploy:
       replicas: ${JEMPI_API_INSTANCES}
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=reverse-proxy-traefik_public
+        - traefik.http.routers.jempi-api.service=jempi-api
+        - traefik.http.services.jempi-api.loadbalancer.server.port=50000
+        - traefik.http.routers.jempi-api.rule=Host(`${JEMPI_API_TRAEFIK_SUBDOMAIN}.${DOMAIN_NAME_HOST_TRAEFIK}`)
       resources:
         limits:
           memory: ${JEMPI_API_MEMORY_LIMIT}
@@ -42,10 +48,10 @@ services:
     networks:
       reverse-proxy:
       kafka:
+      traefik:
       default:
       jempi:
       postgres:
-
 
   jempi-api-kc:
     image: jembi/jempi-api-kc:${JEMPI_API_KC_IMAGE_TAG}
@@ -98,18 +104,20 @@ services:
     networks:
       reverse-proxy:
       kafka:
+      traefik:
       default:
       jempi:
       postgres:
 
-
 volumes:
   jempi-shared-data:
-
 
 networks:
   reverse-proxy:
     name: reverse-proxy_public
+    external: true
+  traefik:
+    name: reverse-proxy-traefik_public
     external: true
   jempi:
     name: jempi_public

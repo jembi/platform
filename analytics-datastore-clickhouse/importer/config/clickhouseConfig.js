@@ -7,11 +7,16 @@ const CLICKHOUSE_HOST =
   process.env.CLICKHOUSE_HOST || 'analytics-datastore-clickhouse';
 const CLICKHOUSE_PORT = parseInt(process.env.CLICKHOUSE_PORT || '8123');
 const CLICKHOUSE_DEBUG = Boolean(process.env.CLICKHOUSE_DEBUG || false);
+const CLICKHOUSE_PASSWORD = process.env.CLICKHOUSE_PASSWORD || '';
 
 const clickhouse = new ClickHouse({
   url: CLICKHOUSE_HOST,
   port: CLICKHOUSE_PORT,
   debug: CLICKHOUSE_DEBUG,
+  basicAuth: {
+    username: 'default',
+    password: CLICKHOUSE_PASSWORD,
+  },
   raw: true,
 });
 

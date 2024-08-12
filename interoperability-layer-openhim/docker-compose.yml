@@ -7,6 +7,7 @@ services:
       kafka:
       hapi-fhir:
       reverse-proxy:
+      traefik:
       keycloak:
       public:
       default:
@@ -40,6 +41,31 @@ services:
         - prometheus-scheme=https
         - prometheus-port=8080
 
+        - traefik.enable=true
+        - traefik.docker.network=reverse-proxy-traefik_public
+
+        - traefik.http.routers.openhimcomms.service=openhimcomms
+        - traefik.http.services.openhimcomms.loadbalancer.server.port=8080
+        - traefik.http.services.openhimcomms.loadbalancer.server.scheme=https
+        - traefik.http.routers.openhimcomms.tls=true
+        - traefik.http.routers.openhimcomms.entrypoints=websecure
+        - traefik.http.routers.openhimcomms.rule=Host(`${DOMAIN_NAME_HOST_TRAEFIK}`) && PathPrefix(`/openhimcomms`)
+        - traefik.http.middlewares.openhimcomms-stripprefix.stripprefix.prefixes=/openhimcomms
+        - traefik.http.routers.openhimcomms.middlewares=openhimcomms-stripprefix
+        - traefik.http.routers.openhimcomms.tls.certresolver=le
+        - traefik.http.routers.openhimcore.service=openhimcore
+        - traefik.http.services.openhimcore.loadbalancer.server.port=5000
+        - traefik.http.services.openhimcore.loadbalancer.server.scheme=https
+        - traefik.http.routers.openhimcore.tls=true
+        - traefik.http.routers.openhimcore.entrypoints=websecure
+        - traefik.http.routers.openhimcore.rule=Host(`${DOMAIN_NAME_HOST_TRAEFIK}`) && PathPrefix(`/openhimcore`)
+        - traefik.http.middlewares.openhimcore-stripprefix.stripprefix.prefixes=/openhimcore
+        - traefik.http.routers.openhimcore.middlewares=openhimcore-stripprefix
+        - traefik.http.routers.openhimcore.tls.certresolver=le
+
+
+
+
   openhim-console:
     image: ${OPENHIM_CONSOLE_IMAGE}
     environment:
@@ -51,14 +77,26 @@ services:
       KC_FRONTEND_URL: ${KC_FRONTEND_URL}
       OPENHIM_CONSOLE_SHOW_LOGIN: ${OPENHIM_CONSOLE_SHOW_LOGIN}
       REACT_APP_OPENHIM_API_BASE_URL: ${OPENHIM_API_BASE_URL}
+      OPENHIM_API_HOST: ${OPENHIM_API_HOST}
+      OPENHIM_API_PORT: ${OPENHIM_API_PORT}
       NODE_TLS_REJECT_UNAUTHORIZED: 0
     networks:
       reverse-proxy:
+      traefik:
       keycloak:
       public:
       default:
     deploy:
       replicas: ${OPENHIM_CONSOLE_INSTANCES}
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=reverse-proxy-traefik_public
+        - traefik.http.services.openhim-console.loadbalancer.server.scheme=http
+        - traefik.http.routers.openhim-console.service=openhim-console
+        - traefik.http.routers.openhim-console.entrypoints=websecure
+        - traefik.http.routers.openhim-console.tls=true
+        - traefik.http.routers.openhim-console.rule=Host(`${DOMAIN_NAME}`)
+        - traefik.http.services.openhim-console.loadbalancer.server.port=80
       placement:
         max_replicas_per_node: ${OPENHIM_CONSOLE_MAX_REPLICAS_PER_NODE}
       resources:
@@ -78,6 +116,9 @@ networks:
     external: true
   reverse-proxy:
     name: reverse-proxy_public
+    external: true
+  traefik:
+    name: reverse-proxy-traefik_public
     external: true
   keycloak:
     name: keycloak_public

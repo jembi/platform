@@ -30,9 +30,12 @@
     "KC_GRAFANA_CLIENT_ID": "grafana-oauth",
     "KC_GRAFANA_CLIENT_SECRET": "CV14QfwnpYFj1IH5dK5lScPNCYAIYP1c",
     "KC_GRAFANA_ROOT_URL": "http://localhost:3000",
-    "GF_SERVER_DOMAIN": "localhost",
     "MO_SECURITY_ADMIN_USER": "admin",
     "MO_SECURITY_ADMIN_PASSWORD": "dev_password_only",
-    "MO_RETENTION_TIME": "15d"
+    "MO_RETENTION_TIME": "15d",
+    "GF_SERVER_SERVE_FROM_SUB_PATH": "false",
+    "MINIO_BROWSER_REDIRECT_URL": "",
+    "DOCKER_SOCK_FOLDER": "/var/run/docker.sock",
+    "DOCKER_LIB_FOLDER": "/var/lib/docker/"
   }
 }

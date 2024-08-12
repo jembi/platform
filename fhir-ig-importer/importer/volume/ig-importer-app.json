@@ -3,7 +3,7 @@
   "description": "FHIR IG microfrontend app",
   "category": "HIE Configuration",
   "type": "esmodule",
-  "url": "http://localhost:3334/jembi-fhir-ig-importer.js",
+  "url": "<openhim-console-url>/fhir-ig-importer",
   "showInPortal": true,
   "showInSideBar": true,
   "access_roles": ["admin"],
