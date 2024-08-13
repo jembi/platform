@@ -1,0 +1,31 @@
+{
+  "id": "openfn",
+  "name": "OpenFn",
+  "description": "Lightning ⚡ (OpenFn v2) is a workflow automation platform that&#39;s used to automate critical business processes and integrate information systems.",
+  "type": "infrastructure",
+  "version": "0.0.1",
+  "dependencies": ["database-postgres"],
+  "environmentVariables": {
+    "DATABASE_URL": "postgresql://openfn:instant101@postgres-1:5432/lightning_dev",
+    "DISABLE_DB_SSL": "true",
+    "IS_RESETTABLE_DEMO": "true",
+    "LISTEN_ADDRESS": "0.0.0.0",
+    "LOG_LEVEL": "debug",
+    "ORIGINS": "http://localhost:4000",
+    "PRIMARY_ENCRYPTION_KEY": "secret_here",
+    "SECRET_KEY_BASE": "secret_key_here",
+    "WORKER_RUNS_PRIVATE_KEY": "<RSA PRIVATE KEY HERE>",
+    "WORKER_SECRET": "secret_here",
+    "POSTGRES_USER": "postgres",
+    "POSTGRES_SERVICE": "postgres-1",
+    "POSTGRES_DATABASE": "postgres",
+    "POSTGRES_PASSWORD": "instant101",
+    "POSTGRES_PORT": "5432",
+    "OpenFn_POSTGRESQL_DB": "lightning_dev",
+    "OpenFn_POSTGRESQL_USERNAME": "openfn",
+    "OpenFn_POSTGRESQL_PASSWORD": "instant101",
+    "WORKER_LIGHTNING_PUBLIC_KEY": "<RSA PUBLIC KEY HERE>",
+    "OpenFn_IMAGE": "openfn/lightning:v2.6.0-kt9",
+    "OpenFn_WORKER_IMAGE": "openfn/ws-worker:latest"
+  }
+}

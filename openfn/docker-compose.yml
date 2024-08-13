@@ -1,0 +1,70 @@
+version: '3.9'
+
+services:
+  openfn:
+    image: ${OpenFn_IMAGE}
+    stop_grace_period: '3s'
+    tty: ${TTY:-false}
+    deploy:
+      resources:
+        limits:
+          cpus: '${DOCKER_WEB_CPUS:-0}'
+          memory: '${DOCKER_WEB_MEMORY:-0}'
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - DISABLE_DB_SSL=${DISABLE_DB_SSL}
+      - IS_RESETTABLE_DEMO=${IS_RESETTABLE_DEMO}
+      - LISTEN_ADDRESS=${LISTEN_ADDRESS}
+      - LOG_LEVEL=${LOG_LEVEL}
+      - ORIGINS=${ORIGINS}
+      - PRIMARY_ENCRYPTION_KEY=${PRIMARY_ENCRYPTION_KEY}
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
+      - WORKER_RUNS_PRIVATE_KEY=${WORKER_RUNS_PRIVATE_KEY}
+      - WORKER_SECRET=${WORKER_SECRET}
+    healthcheck:
+      test: '${DOCKER_WEB_HEALTHCHECK_TEST:-curl localhost:4000/health_check}'
+      interval: '10s'
+      timeout: '3s'
+      start_period: '5s'
+      retries: 3
+    networks:
+      - kafka_public
+      - postgres
+  worker:
+    image: ${OpenFn_WORKER_IMAGE}
+    deploy:
+      resources:
+        limits:
+          cpus: '${DOCKER_WORKER_CPUS:-0}'
+          memory: '${DOCKER_WEB_MEMORY:-0}'
+    environment:
+      - WORKER_LIGHTNING_PUBLIC_KEY=${WORKER_LIGHTNING_PUBLIC_KEY}
+      - WORKER_SECRET=${WORKER_SECRET}
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'curl -f http://openfn:${URL_PORT-4000}/health_check || exit 1'
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    command:
+      [
+        'pnpm',
+        'start:prod',
+        '-l',
+        'ws://openfn:${URL_PORT-4000}/worker'
+      ]
+    stop_grace_period: '3s'
+
+    networks:
+      - kafka_public
+      - postgres
+networks:
+  kafka_public:
+    name: kafka_public
+    external: true
+  postgres:
+    name: postgres_public
+    external: true
