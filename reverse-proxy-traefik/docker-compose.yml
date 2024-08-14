@@ -46,6 +46,7 @@ services:
         - traefik.http.services.openhim-console.loadbalancer.server.port=8080
 
         - traefik.http.middlewares.to-https.redirectscheme.scheme=https
+        - traefik.http.middlewares.to-https.redirectscheme.permanent=true
         - traefik.http.middlewares.auth.basicauth.users=${USERNAME}:${PASSWORD}
 
       placement:

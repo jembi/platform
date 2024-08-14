@@ -55,6 +55,9 @@ services:
         - traefik.http.routers.identity-access-manager-keycloak.tls=true
         - traefik.http.routers.identity-access-manager-keycloak.tls.certresolver=${CERT_RESOLVER}
         - traefik.http.routers.identity-access-manager-keycloak.entrypoints=websecure
+        - traefik.http.middlewares.identity-access-manager-keycloak-redirect.redirectscheme.scheme=https
+        - traefik.http.middlewares.identity-access-manager-keycloak-redirect.redirectscheme.permanent=true
+
     networks:
       reverse-proxy:
       public:

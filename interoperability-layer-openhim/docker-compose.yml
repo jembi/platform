@@ -52,7 +52,7 @@ services:
         - traefik.http.routers.openhimcomms.rule=Host(`${DOMAIN_NAME_HOST_TRAEFIK}`) && PathPrefix(`/openhimcomms`)
         - traefik.http.middlewares.openhimcomms-stripprefix.stripprefix.prefixes=/openhimcomms
         - traefik.http.routers.openhimcomms.middlewares=openhimcomms-stripprefix
-        - traefik.http.routers.openhimcomms.tls.certresolver=le
+        - traefik.http.routers.openhimcomms.tls.certresolver=${CERT_RESOLVER-le}
         - traefik.http.routers.openhimcore.service=openhimcore
         - traefik.http.services.openhimcore.loadbalancer.server.port=5000
         - traefik.http.services.openhimcore.loadbalancer.server.scheme=https
@@ -61,10 +61,7 @@ services:
         - traefik.http.routers.openhimcore.rule=Host(`${DOMAIN_NAME_HOST_TRAEFIK}`) && PathPrefix(`/openhimcore`)
         - traefik.http.middlewares.openhimcore-stripprefix.stripprefix.prefixes=/openhimcore
         - traefik.http.routers.openhimcore.middlewares=openhimcore-stripprefix
-        - traefik.http.routers.openhimcore.tls.certresolver=le
-
-
-
+        - traefik.http.routers.openhimcore.tls.certresolver=${CERT_RESOLVER-le}
 
   openhim-console:
     image: ${OPENHIM_CONSOLE_IMAGE}
@@ -97,6 +94,9 @@ services:
         - traefik.http.routers.openhim-console.tls=true
         - traefik.http.routers.openhim-console.rule=Host(`${DOMAIN_NAME}`)
         - traefik.http.services.openhim-console.loadbalancer.server.port=80
+        - traefik.http.middlewares.openhim-console-redirect.redirectscheme.scheme=https
+        - traefik.http.middlewares.openhim-console-redirect.redirectscheme.permanent=true
+
       placement:
         max_replicas_per_node: ${OPENHIM_CONSOLE_MAX_REPLICAS_PER_NODE}
       resources:

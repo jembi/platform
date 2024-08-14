@@ -21,6 +21,13 @@ services:
         - traefik.http.routers.jempi-web.service=jempi-web
         - traefik.http.services.jempi-web.loadbalancer.server.port=3000
         - traefik.http.routers.jempi-web.rule=Host(`${JEMPI_WEB_TRAEFIK_SUBDOMAIN}.${DOMAIN_NAME_HOST_TRAEFIK}`)
+        - traefik.http.routers.jempi-web.entrypoints=websecure
+        - traefik.http.routers.jempi-web.tls=true
+        - traefik.http.routers.jempi-web.tls.certresolver=${CERT_RESOLVER}
+        - traefik.http.services.jempi-web.loadbalancer.server.scheme=http
+        - traefik.http.middlewares.jempi-web-redirect.redirectscheme.scheme=https
+        - traefik.http.middlewares.jempi-web-redirect.redirectscheme.permanent=true
+
       placement:
         max_replicas_per_node: 1
       resources:
@@ -33,6 +40,7 @@ services:
       traefik:
       keycloak:
       default:
+
 
 networks:
   reverse-proxy:
