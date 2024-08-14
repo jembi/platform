@@ -22,8 +22,21 @@ services:
       openhim:
       reprocess:
       reverse-proxy:
+      traefik:
     environment:
       REPROCESSOR_API_BASE_URL: ${REPROCESSOR_API_BASE_URL}
+    deploy:
+      replicas: 1
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=reverse-proxy-traefik_public
+        - traefik.http.routers.reprocess-mediator-ui.rule=PathPrefix(`/reprocess-mediator-ui`)
+        - traefik.http.services.reprocess-mediator-ui.loadbalancer.server.port=80
+        - traefik.http.services.reprocess-mediator-ui.loadbalancer.server.url=http://reprocess-mediator-ui:80/jembi-reprocessor-mediator-microfrontend.js
+        - traefik.http.routers.reprocess-mediator-ui.tls=true
+        - traefik.http.routers.reprocess-mediator-ui.entrypoints=websecure
+        - traefik.http.routers.reprocess-mediator-ui.middlewares=reprocess-mediator-ui-stripprefix
+        - traefik.http.middlewares.reprocess-mediator-ui-stripprefix.stripprefix.prefixes=/reprocess-mediator-ui
 
 networks:
   openhim:
@@ -37,4 +50,7 @@ networks:
     external: true
   openhim-mongo:
     name: openhim_mongo_public
+    external: true
+  traefik:
+    name: reverse-proxy-traefik_public
     external: true
