@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   smart-config:
-    image: jembi/keycloak-config
+    image: jembi/keycloak-config:v0.0.1
     networks:
       keycloak:
     environment:
@@ -10,10 +10,8 @@ services:
       KEYCLOAK_USER: ${KC_ADMIN_USERNAME}
       KEYCLOAK_PASSWORD: ${KC_ADMIN_PASSWORD}
       KEYCLOAK_REALM: ${KC_REALM_NAME}
-    restart: on-failure
-    command: ["-configFile", "config/backend-services-config.json"]
+    command: [ "-configFile", "config/backend-services-config.json" ]
 networks:
   keycloak:
-      name: keycloak_public
-      external: true
-
+    name: keycloak_public
+    external: true

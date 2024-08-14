@@ -9,7 +9,7 @@
     "GATEWAY_MPI_PROXY_URL": "http://mpi-mediator:3000/fhir",
     "ACCESS_CHECKER": "patient",
     "RUN_MODE": "DEV",
-    "FHIR_INFO_GATEWAY_IMAGE": "jembi/fhir-info-gateway:v0.0.2",
+    "FHIR_INFO_GATEWAY_IMAGE": "jembi/fhir-info-gateway:scope-checker",
     "BACKEND_TYPE": "HAPI",
     "KC_API_URL": "http://identity-access-manager-keycloak:9088",
     "KC_REALM_NAME": "platform-realm",

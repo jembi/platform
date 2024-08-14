@@ -80,6 +80,483 @@
               "consent.screen.text": "Retain access while you are online"
             }
           },
+          "system/*.rs": {
+            "protocol": "openid-connect",
+            "description": "Read access and search to all data",
+            "attributes": {
+              "consent.screen.text": "Read access to all data"
+            },
+            "mappers": {
+              "Audience Mapper": {
+                "protocol": "openid-connect",
+                "protocolmapper": "oidc-audience-mapper",
+                "config": {
+                  "included.custom.audience": "${FHIR_BASE_URL}",
+                  "access.token.claim": "true"
+                }
+              }
+            }
+          },
+          "system/Observation.rs": {
+            "protocol": "openid-connect",
+            "description": "Read access to Observation",
+            "attributes": {
+              "consent.screen.text": "Read access to Observation"
+            },
+            "mappers": {
+              "Audience Mapper": {
+                "protocol": "openid-connect",
+                "protocolmapper": "oidc-audience-mapper",
+                "config": {
+                  "included.custom.audience": "${FHIR_BASE_URL}",
+                  "access.token.claim": "true"
+                }
+              }
+            }
+          },
+          "system/Encounter.cud": {
+            "protocol": "openid-connect",
+            "description": "Create, update and delete access to Encounter",
+            "attributes": {
+              "consent.screen.text": "Create, update and delete access to Encounter"
+            },
+            "mappers": {
+              "Audience Mapper": {
+                "protocol": "openid-connect",
+                "protocolmapper": "oidc-audience-mapper",
+                "config": {
+                  "included.custom.audience": "${FHIR_BASE_URL}",
+                  "access.token.claim": "true"
+                }
+              }
+            }
+          },
+          "system/Encounter.rs": {
+            "protocol": "openid-connect",
+            "description": "Read access to Encounter",
+            "attributes": {
+              "consent.screen.text": "Read access to Encounter"
+            },
+            "mappers": {
+              "Audience Mapper": {
+                "protocol": "openid-connect",
+                "protocolmapper": "oidc-audience-mapper",
+                "config": {
+                  "included.custom.audience": "${FHIR_BASE_URL}",
+                  "access.token.claim": "true"
+                }
+              }
+            }
+          },
+          "system/Patient.cud": {
+            "protocol": "openid-connect",
+            "description": "Create, update and delete access to Patient",
+            "attributes": {
+              "consent.screen.text": "Create, update and delete access to Patient"
+            },
+            "mappers": {
+              "Audience Mapper": {
+                "protocol": "openid-connect",
+                "protocolmapper": "oidc-audience-mapper",
+                "config": {
+                  "included.custom.audience": "${FHIR_BASE_URL}",
+                  "access.token.claim": "true"
+                }
+              }
+            }
+          },
+          "system/Patient.rs": {
+            "protocol": "openid-connect",
+            "description": "Read access to Patient",
+            "attributes": {
+              "consent.screen.text": "Read access to Patient"
+            },
+            "mappers": {
+              "Audience Mapper": {
+                "protocol": "openid-connect",
+                "protocolmapper": "oidc-audience-mapper",
+                "config": {
+                  "included.custom.audience": "${FHIR_BASE_URL}",
+                  "access.token.claim": "true"
+                }
+              }
+            }
+          },
+          "system/Practitioner.cud": {
+            "protocol": "openid-connect",
+            "description": "Create, update and delete access to Practitioner",
+            "attributes": {
+              "consent.screen.text": "Create, update and delete access to Practitioner"
+            },
+            "mappers": {
+              "Audience Mapper": {
+                "protocol": "openid-connect",
+                "protocolmapper": "oidc-audience-mapper",
+                "config": {
+                  "included.custom.audience": "${FHIR_BASE_URL}",
+                  "access.token.claim": "true"
+                }
+              }
+            }
+          },
+          "system/Practitioner.rs": {
+            "protocol": "openid-connect",
+            "description": "Read access to Practitioner",
+            "attributes": {
+              "consent.screen.text": "Read access to Practitioner"
+            },
+            "mappers": {
+              "Audience Mapper": {
+                "protocol": "openid-connect",
+                "protocolmapper": "oidc-audience-mapper",
+                "config": {
+                  "included.custom.audience": "${FHIR_BASE_URL}",
+                  "access.token.claim": "true"
+                }
+              }
+            }
+          },
+          "system/PractitionerRole.cud": {
+            "protocol": "openid-connect",
+            "description": "Create, update and delete access to PractitionerRole",
+            "attributes": {
+              "consent.screen.text": "Create, update and delete access to PractitionerRole"
+            },
+            "mappers": {
+              "Audience Mapper": {
+                "protocol": "openid-connect",
+                "protocolmapper": "oidc-audience-mapper",
+                "config": {
+                  "included.custom.audience": "${FHIR_BASE_URL}",
+                  "access.token.claim": "true"
+                }
+              }
+            }
+          },
+          "system/PractitionerRole.rs": {
+            "protocol": "openid-connect",
+            "description": "Read access to PractitionerRole",
+            "attributes": {
+              "consent.screen.text": "Read access to PractitionerRole"
+            },
+            "mappers": {
+              "Audience Mapper": {
+                "protocol": "openid-connect",
+                "protocolmapper": "oidc-audience-mapper",
+                "config": {
+                  "included.custom.audience": "${FHIR_BASE_URL}",
+                  "access.token.claim": "true"
+                }
+              }
+            }
+          },
+          "system/Organization.cud": {
+            "protocol": "openid-connect",
+            "description": "Create, update and delete access to Organization",
+            "attributes": {
+              "consent.screen.text": "Create, update and delete access to Organization"
+            },
+            "mappers": {
+              "Audience Mapper": {
+                "protocol": "openid-connect",
+                "protocolmapper": "oidc-audience-mapper",
+                "config": {
+                  "included.custom.audience": "${FHIR_BASE_URL}",
+                  "access.token.claim": "true"
+                }
+              }
+            }
+          },
+          "system/Organization.rs": {
+            "protocol": "openid-connect",
+            "description": "Read access to Organization",
+            "attributes": {
+              "consent.screen.text": "Read access to Organization"
+            },
+            "mappers": {
+              "Audience Mapper": {
+                "protocol": "openid-connect",
+                "protocolmapper": "oidc-audience-mapper",
+                "config": {
+                  "included.custom.audience": "${FHIR_BASE_URL}",
+                  "access.token.claim": "true"
+                }
+              }
+            }
+          },
+          "system/Device.cud": {
+            "protocol": "openid-connect",
+            "description": "Create, update and delete access to Device",
+            "attributes": {
+              "consent.screen.text": "Create, update and delete access to Device"
+            },
+            "mappers": {
+              "Audience Mapper": {
+                "protocol": "openid-connect",
+                "protocolmapper": "oidc-audience-mapper",
+                "config": {
+                  "included.custom.audience": "${FHIR_BASE_URL}",
+                  "access.token.claim": "true"
+                }
+              }
+            }
+          },
+          "system/Device.rs": {
+            "protocol": "openid-connect",
+            "description": "Read access to Device",
+            "attributes": {
+              "consent.screen.text": "Read access to Device"
+            },
+            "mappers": {
+              "Audience Mapper": {
+                "protocol": "openid-connect",
+                "protocolmapper": "oidc-audience-mapper",
+                "config": {
+                  "included.custom.audience": "${FHIR_BASE_URL}",
+                  "access.token.claim": "true"
+                }
+              }
+            }
+          },
+          "system/AllergyIntolerance.cud": {
+            "protocol": "openid-connect",
+            "description": "Create, update and delete access to AllergyIntolerance",
+            "attributes": {
+              "consent.screen.text": "Create, update and delete access to AllergyIntolerance"
+            },
+            "mappers": {
+              "Audience Mapper": {
+                "protocol": "openid-connect",
+                "protocolmapper": "oidc-audience-mapper",
+                "config": {
+                  "included.custom.audience": "${FHIR_BASE_URL}",
+                  "access.token.claim": "true"
+                }
+              }
+            }
+          },
+          "system/AllergyIntolerance.rs": {
+            "protocol": "openid-connect",
+            "description": "Read access to AllergyIntolerance",
+            "attributes": {
+              "consent.screen.text": "Read access to AllergyIntolerance"
+            },
+            "mappers": {
+              "Audience Mapper": {
+                "protocol": "openid-connect",
+                "protocolmapper": "oidc-audience-mapper",
+                "config": {
+                  "included.custom.audience": "${FHIR_BASE_URL}",
+                  "access.token.claim": "true"
+                }
+              }
+            }
+          },
+          "system/CarePlan.cud": {
+            "protocol": "openid-connect",
+            "description": "Create, update and delete access to CarePlan",
+            "attributes": {
+              "consent.screen.text": "Create, update and delete access to CarePlan"
+            },
+            "mappers": {
+              "Audience Mapper": {
+                "protocol": "openid-connect",
+                "protocolmapper": "oidc-audience-mapper",
+                "config": {
+                  "included.custom.audience": "${FHIR_BASE_URL}",
+                  "access.token.claim": "true"
+                }
+              }
+            }
+          },
+          "system/CarePlan.rs": {
+            "protocol": "openid-connect",
+            "description": "Read access to CarePlan",
+            "attributes": {
+              "consent.screen.text": "Read access to CarePlan"
+            },
+            "mappers": {
+              "Audience Mapper": {
+                "protocol": "openid-connect",
+                "protocolmapper": "oidc-audience-mapper",
+                "config": {
+                  "included.custom.audience": "${FHIR_BASE_URL}",
+                  "access.token.claim": "true"
+                }
+              }
+            }
+          },
+          "system/CareTeam.cud": {
+            "protocol": "openid-connect",
+            "description": "Create, update and delete access to CareTeam",
+            "attributes": {
+              "consent.screen.text": "Create, update and delete access to CareTeam"
+            },
+            "mappers": {
+              "Audience Mapper": {
+                "protocol": "openid-connect",
+                "protocolmapper": "oidc-audience-mapper",
+                "config": {
+                  "included.custom.audience": "${FHIR_BASE_URL}",
+                  "access.token.claim": "true"
+                }
+              }
+            }
+          },
+          "system/CareTeam.rs": {
+            "protocol": "openid-connect",
+            "description": "Read access to CareTeam",
+            "attributes": {
+              "consent.screen.text": "Read access to CareTeam"
+            },
+            "mappers": {
+              "Audience Mapper": {
+                "protocol": "openid-connect",
+                "protocolmapper": "oidc-audience-mapper",
+                "config": {
+                  "included.custom.audience": "${FHIR_BASE_URL}",
+                  "access.token.claim": "true"
+                }
+              }
+            }
+          },
+          "system/Condition.cud": {
+            "protocol": "openid-connect",
+            "description": "Create, update and delete access to Condition",
+            "attributes": {
+              "consent.screen.text": "Create, update and delete access to Condition"
+            },
+            "mappers": {
+              "Audience Mapper": {
+                "protocol": "openid-connect",
+                "protocolmapper": "oidc-audience-mapper",
+                "config": {
+                  "included.custom.audience": "${FHIR_BASE_URL}",
+                  "access.token.claim": "true"
+                }
+              }
+            }
+          },
+          "system/Condition.rs": {
+            "protocol": "openid-connect",
+            "description": "Read access to Condition",
+            "attributes": {
+              "consent.screen.text": "Read access to Condition"
+            },
+            "mappers": {
+              "Audience Mapper": {
+                "protocol": "openid-connect",
+                "protocolmapper": "oidc-audience-mapper",
+                "config": {
+                  "included.custom.audience": "${FHIR_BASE_URL}",
+                  "access.token.claim": "true"
+                }
+              }
+            }
+          },
+          "system/DiagnosticReport.cud": {
+            "protocol": "openid-connect",
+            "description": "Create, update and delete access to DiagnosticReport",
+            "attributes": {
+              "consent.screen.text": "Create, update and delete access to DiagnosticReport"
+            },
+            "mappers": {
+              "Audience Mapper": {
+                "protocol": "openid-connect",
+                "protocolmapper": "oidc-audience-mapper",
+                "config": {
+                  "included.custom.audience": "${FHIR_BASE_URL}",
+                  "access.token.claim": "true"
+                }
+              }
+            }
+          },
+          "system/DiagnosticReport.rs": {
+            "protocol": "openid-connect",
+            "description": "Read access to DiagnosticReport",
+            "attributes": {
+              "consent.screen.text": "Read access to DiagnosticReport"
+            },
+            "mappers": {
+              "Audience Mapper": {
+                "protocol": "openid-connect",
+                "protocolmapper": "oidc-audience-mapper",
+                "config": {
+                  "included.custom.audience": "${FHIR_BASE_URL}",
+                  "access.token.claim": "true"
+                }
+              }
+            }
+          },
+          "system/DocumentReference.cud": {
+            "protocol": "openid-connect",
+            "description": "Create, update and delete access to DocumentReference",
+            "attributes": {
+              "consent.screen.text": "Create, update and delete access to DocumentReference"
+            },
+            "mappers": {
+              "Audience Mapper": {
+                "protocol": "openid-connect",
+                "protocolmapper": "oidc-audience-mapper",
+                "config": {
+                  "included.custom.audience": "${FHIR_BASE_URL}",
+                  "access.token.claim": "true"
+                }
+              }
+            }
+          },
+          "system/DocumentReference.rs": {
+            "protocol": "openid-connect",
+            "description": "Read access to DocumentReference",
+            "attributes": {
+              "consent.screen.text": "Read access to DocumentReference"
+            },
+            "mappers": {
+              "Audience Mapper": {
+                "protocol": "openid-connect",
+                "protocolmapper": "oidc-audience-mapper",
+                "config": {
+                  "included.custom.audience": "${FHIR_BASE_URL}",
+                  "access.token.claim": "true"
+                }
+              }
+            }
+          },
+          "system/Bundle.cud": {
+            "protocol": "openid-connect",
+            "description": "Create, update and delete access to Bundle",
+            "attributes": {
+              "consent.screen.text": "Create, update and delete access to Bundle"
+            },
+            "mappers": {
+              "Audience Mapper": {
+                "protocol": "openid-connect",
+                "protocolmapper": "oidc-audience-mapper",
+                "config": {
+                  "included.custom.audience": "${FHIR_BASE_URL}",
+                  "access.token.claim": "true"
+                }
+              }
+            }
+          },
+          "system/Bundle.rs": {
+            "protocol": "openid-connect",
+            "description": "Read access to Bundle",
+            "attributes": {
+              "consent.screen.text": "Read access to Bundle"
+            },
+            "mappers": {
+              "Audience Mapper": {
+                "protocol": "openid-connect",
+                "protocolmapper": "oidc-audience-mapper",
+                "config": {
+                  "included.custom.audience": "${FHIR_BASE_URL}",
+                  "access.token.claim": "true"
+                }
+              }
+            }
+          },
+
           "patient/*.read": {
             "protocol": "openid-connect",
             "description": "Read access to all data",
