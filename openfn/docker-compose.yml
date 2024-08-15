@@ -3,8 +3,7 @@ version: '3.9'
 services:
   openfn:
     image: ${OpenFn_IMAGE}
-    stop_grace_period: '3s'
-    tty: ${TTY:-false}
+    command: sh -c '/app/bin/lightning eval "Lightning.Release.migrate()" && /app/bin/lightning eval "Lightning.Demo.reset_demo()" && /app/bin/lightning start'
     deploy:
       resources:
         limits:
@@ -21,6 +20,7 @@ services:
       - SECRET_KEY_BASE=${SECRET_KEY_BASE}
       - WORKER_RUNS_PRIVATE_KEY=${WORKER_RUNS_PRIVATE_KEY}
       - WORKER_SECRET=${WORKER_SECRET}
+      - KAFKA_TRIGGERS_ENABLED=${KAFKA_TRIGGERS_ENABLED}
     healthcheck:
       test: '${DOCKER_WEB_HEALTHCHECK_TEST:-curl localhost:4000/health_check}'
       interval: '10s'
@@ -30,37 +30,7 @@ services:
     networks:
       - kafka_public
       - postgres
-  worker:
-    image: ${OpenFn_WORKER_IMAGE}
-    deploy:
-      resources:
-        limits:
-          cpus: '${DOCKER_WORKER_CPUS:-0}'
-          memory: '${DOCKER_WEB_MEMORY:-0}'
-    environment:
-      - WORKER_LIGHTNING_PUBLIC_KEY=${WORKER_LIGHTNING_PUBLIC_KEY}
-      - WORKER_SECRET=${WORKER_SECRET}
-    healthcheck:
-      test:
-        [
-          'CMD-SHELL',
-          'curl -f http://openfn:${URL_PORT-4000}/health_check || exit 1'
-        ]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-    command:
-      [
-        'pnpm',
-        'start:prod',
-        '-l',
-        'ws://openfn:${URL_PORT-4000}/worker'
-      ]
-    stop_grace_period: '3s'
 
-    networks:
-      - kafka_public
-      - postgres
 networks:
   kafka_public:
     name: kafka_public

@@ -47,7 +47,16 @@ function initialize_package() {
     if [[ "${ACTION}" == "init" ]]; then
          docker::deploy_config_importer $STACK "$COMPOSE_FILE_PATH/importer/postgres/docker-compose.config.yml" "openfn_db_config" "openfn"
     fi
-    docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$package_dev_compose_filename"
+     
+     docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$package_dev_compose_filename"
+    
+    if docker service ps -q openfn_openfn &>/dev/null; then
+         echo "Service 'openfn_openfn' is running."
+         docker::deploy_config_importer $STACK "$COMPOSE_FILE_PATH/importer/workflows/docker-compose.config.yml" "openfn_workflow_config" "openfn_workflow"
+    else
+        echo "Service 'openfn_openfn' is not running."
+        log warn "Service 'interoperability-layer-openhim' does not appear to be running... skipping configuring of async/sync JeMPI channels"
+    fi
   ) || {
     log error "Failed to deploy package"
     exit 1
