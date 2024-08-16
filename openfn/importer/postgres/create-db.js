@@ -32,7 +32,7 @@ const insertQueries = [];
     );
 
     if (!result.rows.length) {
-      await client.query(`CREATE DATABASE ${db};`);
+      await client.query('CREATE DATABASE $1;', [db]);
 
       console.log(`Database '${db}' created successfully`);
     } else {
@@ -48,8 +48,7 @@ const insertQueries = [];
 
     if (!user.rows.length) {
       await client.query(
-        `CREATE USER ${newUser} WITH ENCRYPTED PASSWORD '${newUserPassword}';`
-      );
+        'CREATE USER $1 WITH ENCRYPTED PASSWORD $2;', [newUser, newUserPassword]
       await client.query(
         `GRANT ALL PRIVILEGES ON DATABASE ${newDb} TO ${newUser};`
       );
