@@ -8,9 +8,13 @@ To include additional extensions, refer to the following resources to build your
 
 - [Build a K6 Binary using Docker](https://k6.io/docs/extensions/guides/build-a-k6-binary-using-docker/)
 - [K6 Extensions Documentation](https://k6.io/docs/extensions/)
-- Faker Extension:
-  - [GitHub Repository](https://github.com/szkiba/xk6-faker)
-  - [Documentation](https://ivan.szkiba.hu/xk6-faker/index.html)
+
+Faker Extension:
+
+- [GitHub Repository](https://github.com/szkiba/xk6-faker)
+- [Documentation](https://ivan.szkiba.hu/xk6-faker/index.html)
+
+## Building a k6 binary
 
 Example command to build a binary with the Faker extension:
 
@@ -27,7 +31,7 @@ Different types of performance testing can be implemented to verify various aspe
 Ensure that all systems are connected and responding as intended.
 
 ```
-./k6 run scripts/smoke.js
+./k6 run scripts/volume.js
 ```
 
 #### Load test
@@ -53,3 +57,17 @@ Run the system under a sustained load for an extended period to identify any pot
 ```
 ./k6 run scripts/soak.js
 ```
+
+## Visualizing Results Output
+
+The example k6 binary comes with a prometheus remote write extension which allows you to specify the prometheus endpoint where the load testing results will be pushed to.
+
+To achieve this ensure the following variable is set correctly and the output flag enabled
+
+```
+K6_PROMETHEUS_RW_SERVER_URL=http://localhost:9090/api/v1/write \
+
+./k6 run -o experimental-prometheus-rw scripts/volume.js
+```
+
+For more environment variables follow this link [here](https://k6.io/docs/results-output/real-time/prometheus-remote-write/#time-series-visualization)
