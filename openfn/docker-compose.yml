@@ -30,6 +30,21 @@ services:
     networks:
       - kafka_public
       - postgres
+  worker:
+    image: ${OpenFn_WORKER_IMAGE}
+    deploy:
+      resources:
+        limits:
+          cpus: '${DOCKER_WORKER_CPUS:-0}'
+          memory: '${DOCKER_WEB_MEMORY:-0}'
+    environment:
+      - WORKER_LIGHTNING_PUBLIC_KEY=${WORKER_LIGHTNING_PUBLIC_KEY}
+      - WORKER_SECRET=${WORKER_SECRET}
+      - NODE_ENV=production
+    command: [ 'pnpm', 'start:prod', '-l', 'ws://openfn:${URL_PORT-4000}/worker' ]
+    networks:
+      - kafka_public
+      - postgres
 
 networks:
   kafka_public:
