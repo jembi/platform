@@ -27,6 +27,7 @@ packages:
   - database-postgres
   - reprocess-mediator
   - fhir-ig-importer
+  - genai
 
 profiles:
   - name: cdr-dw
@@ -78,3 +79,9 @@ profiles:
       - openhim-mapping-mediator
     envFiles:
       - mpi.env
+
+  - name: ai
+    packages:
+      - interoperability-layer-openhim
+      - genai
+      - monitoring

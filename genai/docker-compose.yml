@@ -1,0 +1,19 @@
+version: '3.9'
+
+services:
+  ollama:
+    image: ollama/ollama
+    environment:
+      - REQUEST_TIMEOUT_MS=600000
+    volumes:
+      - ollama:/root/.ollama
+    networks:
+      - openhim
+
+networks:
+  openhim:
+    name: openhim_public
+    external: true
+
+volumes:
+  ollama:

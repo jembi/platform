@@ -1,0 +1,8 @@
+version: '3.9'
+
+services:
+  ollama:
+    ports:
+      - target: 11434
+        published: 11435
+        mode: host
