@@ -30,8 +30,8 @@ services:
         - traefik.enable=true
         - traefik.docker.network=reverse-proxy-traefik_public
         - traefik.http.routers.fhir-ig-importer.rule=PathPrefix(`/fhir-ig-importer`)
-        - traefik.http.routers.fhir-ig-importer.entrypoints=websecure
-        - traefik.http.routers.fhir-ig-importer.tls=true
+        - traefik.http.routers.fhir-ig-importer.entrypoints=${WEB_ENTRY_POINT}
+        - traefik.http.routers.fhir-ig-importer.tls=${TLS}
         - traefik.http.services.fhir-ig-importer.loadbalancer.server.port=8080
         - traefik.http.services.fhir-ig-importer.loadbalancer.server.scheme=http
         - traefik.http.routers.fhir-ig-importer.middlewares=fhir-ig-importer-stripprefix

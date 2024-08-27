@@ -47,21 +47,21 @@ services:
         - traefik.http.routers.openhimcomms.service=openhimcomms
         - traefik.http.services.openhimcomms.loadbalancer.server.port=8080
         - traefik.http.services.openhimcomms.loadbalancer.server.scheme=https
-        - traefik.http.routers.openhimcomms.tls=true
-        - traefik.http.routers.openhimcomms.entrypoints=websecure
+        - traefik.http.routers.openhimcomms.tls=${TLS}
+        - traefik.http.routers.openhimcomms.entrypoints=${WEB_ENTRY_POINT}
         - traefik.http.routers.openhimcomms.rule=Host(`${DOMAIN_NAME_HOST_TRAEFIK}`) && PathPrefix(`/openhimcomms`)
         - traefik.http.middlewares.openhimcomms-stripprefix.stripprefix.prefixes=/openhimcomms
         - traefik.http.routers.openhimcomms.middlewares=openhimcomms-stripprefix
-        - traefik.http.routers.openhimcomms.tls.certresolver=${CERT_RESOLVER-le}
+        - traefik.http.routers.openhimcomms.tls.certresolver=${CERT_RESOLVER-""}
         - traefik.http.routers.openhimcore.service=openhimcore
         - traefik.http.services.openhimcore.loadbalancer.server.port=5000
         - traefik.http.services.openhimcore.loadbalancer.server.scheme=https
-        - traefik.http.routers.openhimcore.tls=true
-        - traefik.http.routers.openhimcore.entrypoints=websecure
+        - traefik.http.routers.openhimcore.tls=${TLS}
+        - traefik.http.routers.openhimcore.entrypoints=${WEB_ENTRY_POINT}
         - traefik.http.routers.openhimcore.rule=Host(`${DOMAIN_NAME_HOST_TRAEFIK}`) && PathPrefix(`/openhimcore`)
         - traefik.http.middlewares.openhimcore-stripprefix.stripprefix.prefixes=/openhimcore
         - traefik.http.routers.openhimcore.middlewares=openhimcore-stripprefix
-        - traefik.http.routers.openhimcore.tls.certresolver=${CERT_RESOLVER-le}
+        - traefik.http.routers.openhimcore.tls.certresolver=${CERT_RESOLVER-""}
 
   openhim-console:
     image: ${OPENHIM_CONSOLE_IMAGE}
@@ -90,12 +90,12 @@ services:
         - traefik.docker.network=reverse-proxy-traefik_public
         - traefik.http.services.openhim-console.loadbalancer.server.scheme=http
         - traefik.http.routers.openhim-console.service=openhim-console
-        - traefik.http.routers.openhim-console.entrypoints=websecure
-        - traefik.http.routers.openhim-console.tls=true
+        - traefik.http.routers.openhim-console.entrypoints=${WEB_ENTRY_POINT}
+        - traefik.http.routers.openhim-console.tls=${TLS}
         - traefik.http.routers.openhim-console.rule=Host(`${DOMAIN_NAME_HOST_TRAEFIK}`)
         - traefik.http.services.openhim-console.loadbalancer.server.port=80
         - traefik.http.middlewares.openhim-console-redirect.redirectscheme.scheme=https
-        - traefik.http.middlewares.openhim-console-redirect.redirectscheme.permanent=true
+        - traefik.http.middlewares.openhim-console-redirect.redirectscheme.permanent=${REDIRECT_TO_HTTPS}
         - traefik.http.routers.openhim-console.middlewares=openhim-console-redirect
 
       placement:

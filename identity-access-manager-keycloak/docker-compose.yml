@@ -3,13 +3,7 @@ version: "3.9"
 services:
   identity-access-manager-keycloak:
     image: ${KEYCLOAK_IMAGE}
-    command:
-      [
-        "start",
-        "--proxy=edge",
-        "--hostname-url=${KC_FRONTEND_URL}",
-        "--import-realm"
-      ]
+    command: [ "start", "--proxy=edge", "--hostname-url=${KC_FRONTEND_URL}", "--import-realm" ]
     hostname: identity-access-manager-keycloak
     healthcheck:
       test: curl --fail http://localhost:8080/health/ready || exit 1
@@ -52,11 +46,11 @@ services:
         - traefik.http.services.identity-access-manager-keycloak.loadbalancer.server.scheme=http
         - traefik.http.services.identity-access-manager-keycloak.loadbalancer.server.port=8080
         - traefik.http.routers.identity-access-manager-keycloak.rule=Host(`${KC_TRAEFIK_SUBDOMAIN}.${DOMAIN_NAME_HOST_TRAEFIK}`)
-        - traefik.http.routers.identity-access-manager-keycloak.tls=true
+        - traefik.http.routers.identity-access-manager-keycloak.tls=${TLS}
         - traefik.http.routers.identity-access-manager-keycloak.tls.certresolver=${CERT_RESOLVER}
-        - traefik.http.routers.identity-access-manager-keycloak.entrypoints=websecure
+        - traefik.http.routers.identity-access-manager-keycloak.entrypoints=${WEB_ENTRY_POINT}
         - traefik.http.middlewares.identity-access-manager-keycloak-redirect.redirectscheme.scheme=https
-        - traefik.http.middlewares.identity-access-manager-keycloak-redirect.redirectscheme.permanent=true
+        - traefik.http.middlewares.identity-access-manager-keycloak-redirect.redirectscheme.permanent=${REDIRECT_TO_HTTPS}
 
     networks:
       reverse-proxy:
