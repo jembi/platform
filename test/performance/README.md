@@ -70,7 +70,7 @@ Run the system under a sustained load for an extended period to identify any pot
 
 The example k6 binary comes with a prometheus remote write extension which allows you to specify the prometheus endpoint where the load testing results will be pushed to.
 
-To achieve this ensure the following variable is set correctly and the output flag enabled
+To achieve this, ensure the following variable is set correctly and the output flag enabled
 
 ```
 K6_PROMETHEUS_RW_SERVER_URL=http://localhost:9090/api/v1/write \
