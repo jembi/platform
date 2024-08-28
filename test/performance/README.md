@@ -78,7 +78,7 @@ K6_PROMETHEUS_RW_SERVER_URL=http://localhost:9090/api/v1/write \
 ./k6 run -o experimental-prometheus-rw scripts/volume.js
 ```
 
-For more environment variables follow this link [here](https://k6.io/docs/results-output/real-time/prometheus-remote-write/#time-series-visualization)
+For more environment variables, follow this link [here](https://k6.io/docs/results-output/real-time/prometheus-remote-write/#time-series-visualization)
 
 ## Sample Load test result
 
