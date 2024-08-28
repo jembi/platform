@@ -29,7 +29,7 @@ export const options = {
   discardResponseBodies: false,
 };
 
-function makeGetRequest() {
+function makePostRequest() {
   const data = generateBundle();
 
   const response = http.post(`${BASE_URL}/fhir`, JSON.stringify(data[0]), {
@@ -48,5 +48,5 @@ function makeGetRequest() {
 }
 
 export default function () {
-  makeGetRequest();
+  makePostRequest();
 }
