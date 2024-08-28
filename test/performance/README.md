@@ -1,4 +1,4 @@
-# Performance testing the IPS implementation
+# Performance testing
 
 ## Setup details
 
@@ -26,9 +26,17 @@ docker run --rm -u "$(id -u):$(id -g)" -v "${PWD}:/xk6" grafana/xk6 build --with
 
 Different types of performance testing can be implemented to verify various aspects of the system. Refer to the [Testing Guides](https://grafana.com/docs/k6/latest/testing-guides/test-types/) for an example guide.
 
+#### Smoke Test
+
+This test help to verify that the system works well under minimal load and to gather baseline performance values. It is adviced to run this test before any other to ensure that essential services are booted and ready to handle requests.
+
+```
+./k6 run scripts/smoke.js
+```
+
 #### Volume test
 
-Ensure that all systems are connected and responding as intended.
+Assess how the system performs under a typical load for your system or application.
 
 ```
 ./k6 run scripts/volume.js
@@ -71,3 +79,27 @@ K6_PROMETHEUS_RW_SERVER_URL=http://localhost:9090/api/v1/write \
 ```
 
 For more environment variables follow this link [here](https://k6.io/docs/results-output/real-time/prometheus-remote-write/#time-series-visualization)
+
+## Sample Load test result
+
+The test results were obtained from running on Ubuntu 22.04 OS, 64GB RAM and 12 Cores.
+✓ status code is 200
+| Metric | Value |
+|--------------------------------|-------------|
+| checks | 100.00% ✓ 188 ✗ 0 |
+| data_received | 2.3 MB 39 kB/s |
+| data_sent | 3.9 MB 65 kB/s |
+| dropped_iterations | 1613 26.656141/s |
+| http_req_blocked | avg=8.32µs min=3.54µs med=5.21µs max=259.88µs p(90)=6.87µs p(95)=8.18µs |
+| http_req_connecting | avg=1.61µs min=0s med=0s max=153.25µs p(90)=0s p(95)=0s |
+| http_req_duration | avg=619.01ms min=421.78ms med=621.54ms max=812.9ms p(90)=692.07ms p(95)=711.18ms |
+| http_req_failed | 0.00% ✓ 0 ✗ 188 |
+| http_req_receiving | avg=115.87µs min=60.86µs med=110.01µs max=508.35µs p(90)=152.09µs p(95)=158.61µs |
+| http_req_sending | avg=125.31µs min=63.72µs med=114.43µs max=825.81µs p(90)=150.33µs p(95)=191.61µs |
+| http_req_tls_handshaking | avg=0s min=0s med=0s max=0s p(90)=0s p(95)=0s |
+| http_req_waiting | avg=618.77ms min=421.58ms med=621.32ms max=812.7ms p(90)=691.81ms p(95)=710.93ms |
+| http_reqs | 188 3.106853/s |
+| iteration_duration | avg=625.32ms min=427.15ms med=628.41ms max=818.77ms p(90)=698.25ms p(95)=717.76ms |
+| iterations | 188 3.106853/s |
+| vus | 2 min=1 max=2 |
+| vus_max | 2 min=2 max=2 |

@@ -11,7 +11,7 @@ Package can be stood up individually using the `instant package init -n <package
 
 ## Performance Testing
 
-The performance scripts are located in the `test` folder. To run this script against a local or remote server, you can follow these steps:
+The performance scripts are located in the [test](https://github.com/jembi/platform/tree/main/test) folder. To run this script against a local or remote server, you can follow these steps:
 
 1. Make sure you have the necessary dependencies installed.More importantly the `k6` binary.
 

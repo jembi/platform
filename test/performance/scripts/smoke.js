@@ -6,20 +6,20 @@ const BASE_URL = __ENV.BASE_URL || "http://localhost:5001";
 
 export const options = {
   scenarios: {
-    load: {
+    smoke: {
       executor: "constant-arrival-rate",
-      rate: 30,
+      rate: 1,
       timeUnit: "1s",
       duration: "1m",
       preAllocatedVUs: 1,
-      maxVUs: 2,
+      maxVUs: 1,
     },
   },
   thresholds: {
     http_req_failed: ["rate<0.01"],
     http_req_sending: ["p(95)<20"],
     http_req_receiving: ["p(95)<20"],
-    http_req_duration: ["p(95)<1000"],
+    http_req_duration: ["p(95)<500"],
   },
   noVUConnectionReuse: false,
   discardResponseBodies: false,
@@ -38,8 +38,10 @@ function makePostRequest() {
       name: "POST Bundle",
     },
   });
+
   check(response, {
     "status code is 200": (r) => r.status === 200,
+    "response time is less than 500ms": (r) => r.timings.duration < 500,
   });
 }
 
