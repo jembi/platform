@@ -28,7 +28,7 @@ Different types of performance testing can be implemented to verify various aspe
 
 #### Smoke Test
 
-This test help to verify that the system works well under minimal load and to gather baseline performance values. It is adviced to run this test before any other to ensure that essential services are booted and ready to handle requests.
+This test helps to verify that the system works well under minimal load and to gather baseline performance values. It is adviced to run this test before any other to ensure that essential services are booted and ready to handle requests.
 
 ```
 ./k6 run scripts/smoke.js
