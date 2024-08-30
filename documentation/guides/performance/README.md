@@ -10,7 +10,7 @@ The performance scripts are located in the [test](https://github.com/jembi/platf
 
 3. If there are any additional dependencies or configurations required by the [`generateBundle`] function or any other imported modules, make sure those are set up correctly.
 
-4. Open your terminal or command prompt and navigate to the directory where the scripts are located e.g. [`load.js`]("/media/platform/test/performance/scripts/load.js")
+4. Open your terminal or command prompt and navigate to the directory where the scripts are located, e.g. [`load.js`]("/media/platform/test/performance/scripts/load.js")
 
 5. Run the script using the `k6 run` command followed by the filename. In this case, you would run [`k6 run load.js`]
 
