@@ -7,7 +7,7 @@
   "dependencies": [],
   "environmentVariables": {
     "OPENHIM_CORE_IMAGE": "jembi/openhim-core:v8.4.3",
-    "OPENHIM_CONSOLE_IMAGE": "jembi/openhim-console:poc-microfrontend",
+    "OPENHIM_CONSOLE_IMAGE": "jembi/openhim-console:v1.18.2",
     "MONGO_IMAGE": "mongo:4.2",
     "AWAIT_HELPER_IMAGE": "jembi/await-helper:1.0.1",
     "MONGO_1_PLACEMENT": "node-1",
