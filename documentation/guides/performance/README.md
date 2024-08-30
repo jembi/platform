@@ -20,7 +20,7 @@ The performance scripts are located in the [test](https://github.com/jembi/platf
 
 8. Monitor the output in the terminal to see the results of the script execution. It will display information such as the number of virtual users (VUs), request statistics, and any failures that occurred.
 
-9. To visualize the output in grafana run the `k6` scripts with the following environment variables and flag set `K6_PROMETHEUS_RW_SERVER_URL=http://localhost:9090/api/v1/write && ./k6 run -o experimental-prometheus-rw script.js`
+9. To visualize the output in grafana, run the `k6` scripts with the following environment variables and flag set `K6_PROMETHEUS_RW_SERVER_URL=http://localhost:9090/api/v1/write && ./k6 run -o experimental-prometheus-rw script.js`
 
 ## Sample load test result
 
