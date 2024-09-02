@@ -1,0 +1,70 @@
+{
+  "Channels": [
+    {
+      "name": "LLM API",
+      "urlPattern": "^/ai.*$",
+      "isAsynchronousProcess": false,
+      "methods": [
+        "GET",
+        "POST",
+        "DELETE",
+        "PUT",
+        "OPTIONS",
+        "HEAD",
+        "TRACE",
+        "CONNECT",
+        "PATCH"
+      ],
+      "type": "http",
+      "tcpPort": null,
+      "tcpHost": null,
+      "pollingSchedule": null,
+      "requestBody": true,
+      "responseBody": true,
+      "allow": ["instant"],
+      "whitelist": [],
+      "authType": "private",
+      "routes": [
+        {
+          "name": "Ollama API",
+          "type": "http",
+          "status": "enabled",
+          "secured": false,
+          "host": "ollama",
+          "port": 11434,
+          "path": "",
+          "pathTransform": "s/ai\\///g",
+          "primary": true,
+          "username": "",
+          "password": "",
+          "forwardAuthHeader": false,
+          "waitPrimaryResponse": false,
+          "statusCodesCheck": "",
+          "kafkaClientId": "",
+          "kafkaTopic": ""
+        }
+      ],
+      "matchContentTypes": [],
+      "matchContentRegex": null,
+      "matchContentXpath": null,
+      "matchContentJson": null,
+      "matchContentValue": null,
+      "properties": [],
+      "txViewAcl": [],
+      "txViewFullAcl": [],
+      "txRerunAcl": [],
+      "status": "enabled",
+      "rewriteUrls": false,
+      "addAutoRewriteRules": true,
+      "rewriteUrlsConfig": [],
+      "autoRetryEnabled": false,
+      "autoRetryPeriodMinutes": 60,
+      "updatedBy": {
+        "id": "66d1846eb734293c97dfe662",
+        "name": "test test"
+      },
+      "alerts": [],
+      "timeout": 600000
+    }
+  ]
+}
