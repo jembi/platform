@@ -6,15 +6,3 @@ services:
       placement:
         constraints:
           - "node.labels.name==node-1"
-
-  jempi-em-scala:
-    deploy:
-      placement:
-        constraints:
-          - "node.labels.name==node-1"
-  
-  jempi-async-receiver:
-    deploy:
-      placement:
-        constraints:
-          - "node.labels.name==node-2"

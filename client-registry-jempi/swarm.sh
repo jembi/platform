@@ -37,7 +37,6 @@ function initialize_package() {
   local combined_dev_compose_param=""
   local combined_cluster_compose_param=""
   local api_dev_compose_param=""
-  local api_cluster_compose_param=""
   local web_dev_compose_param=""
   local dgraph_cluster_compose_param=""
   local dgraph_zero_cluster_compose_param=""
@@ -57,7 +56,6 @@ function initialize_package() {
     dgraph_cluster_compose_param="docker-compose.dgraph-cluster.yml"
     dgraph_zero_cluster_compose_param="docker-compose.dgraph-zero-cluster.yml"
     combined_cluster_compose_param="docker-compose.combined-cluster.yml"
-    api_cluster_compose_param="docker-compose.api-cluster.yml"
   fi
 
   (
@@ -79,7 +77,7 @@ function initialize_package() {
     docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.combined.yml" "$combined_dev_compose_param" "$combined_cluster_compose_param"
 
     log info "Deploy JeMPI API"
-    docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.api.yml" "$api_dev_compose_param" "$api_cluster_compose_param"
+    docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.api.yml" "$api_dev_compose_param"
 
     log info "Deploy JeMPI WEB"
     docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.web.yml" "$web_dev_compose_param"
