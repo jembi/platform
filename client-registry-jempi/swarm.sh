@@ -34,7 +34,6 @@ function import_sources() {
 function initialize_package() {
   local dgraph_dev_compose_param=""
   local dgraph_zero_dev_compose_param=""
-  local combined_dev_compose_param=""
   local combined_cluster_compose_param=""
   local api_dev_compose_param=""
   local web_dev_compose_param=""
@@ -45,7 +44,6 @@ function initialize_package() {
     log info "Running package in DEV mode"
     dgraph_dev_compose_param="docker-compose.dgraph-dev.yml"
     dgraph_zero_dev_compose_param="docker-compose.dgraph-zero-dev.yml"
-    combined_dev_compose_param="docker-compose.combined-dev.yml"
     api_dev_compose_param="docker-compose.api-dev.yml"
     web_dev_compose_param="docker-compose.web-dev.yml"
   else
@@ -74,7 +72,7 @@ function initialize_package() {
     docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.dgraph.yml" "$dgraph_dev_compose_param" "$dgraph_cluster_compose_param"
 
     log info "Deploy other combined services"
-    docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.combined.yml" "$combined_dev_compose_param" "$combined_cluster_compose_param"
+    docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.combined.yml" "$combined_cluster_compose_param"
 
     log info "Deploy JeMPI API"
     docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.api.yml" "$api_dev_compose_param"

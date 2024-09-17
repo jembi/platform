@@ -15,6 +15,7 @@ services:
       REGISTER_MEDIATOR: ${REGISTER_MEDIATOR}
       CLICKHOUSE_HOST: ${CLICKHOUSE_HOST}
       CLICKHOUSE_PORT: ${CLICKHOUSE_PORT}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
     configs:
       - target: /app/src/data/fhir-mapping.json
         source: fhir-mapping.json

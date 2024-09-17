@@ -12,28 +12,6 @@ services:
         protocol: tcp
         mode: host
 
-  jempi-alpha-02:
-    ports:
-      - published: 8071
-        target: 8081
-        protocol: tcp
-        mode: host
-      - published: 9081
-        target: 9081
-        protocol: tcp
-        mode: host
-
-  jempi-alpha-03:
-    ports:
-      - published: 8072
-        target: 8082
-        protocol: tcp
-        mode: host
-      - published: 9082
-        target: 9082
-        protocol: tcp
-        mode: host
-
   jempi-ratel:
     ports:
       - published: 8010
