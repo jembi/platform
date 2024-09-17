@@ -1,15 +1,19 @@
 const axios = require("axios");
+const fs = require("fs");
 
 // Load the JSON payload
 const payload = require("./keycloak-config.json");
+const { get } = require("http");
 
 const serverUrl =
-  process.env.KEYCLOAK_SERVER_URL || "http://192.168.15.250:9088";
+  process.env.KEYCLOAK_SERVER_URL || "http://192.168.100.57:9088";
 const adminUser = process.env.KEYCLOAK_ADMIN_USER || "admin";
 const adminPassword =
   process.env.KEYCLOAK_ADMIN_PASSWORD || "dev_password_only";
 const adminClientId = process.env.KEYCLOAK_ADMIN_CLIENT_ID || "admin-cli";
 const realm = process.env.KEYCLOAK_REALM || "platform-realm";
+const serviceAccountUser =
+  process.env.KEYCLOAK_SERVICE_ACCOUNT_USER || "service-account"; // Add service account user
 
 // Function definitions
 async function getAdminToken(
@@ -70,7 +74,7 @@ async function getRoleByName(roleName, keycloakBaseUrl, realm, adminToken) {
 
 async function getOrCreateClient(client, keycloakBaseUrl, realm, adminToken) {
   try {
-    const clientResponse = await axios.get(
+    let clientResponse = await axios.get(
       `${keycloakBaseUrl}/admin/realms/${realm}/clients?clientId=${client.clientId}`,
       {
         headers: {
@@ -96,7 +100,7 @@ async function getOrCreateClient(client, keycloakBaseUrl, realm, adminToken) {
       console.log(`Updated client: ${client.clientId}`);
     } else {
       // Client does not exist, create a new one
-      const newClientResponse = await axios.post(
+      clientResponse = await axios.post(
         `${keycloakBaseUrl}/admin/realms/${realm}/clients`,
         client,
         {
@@ -107,8 +111,8 @@ async function getOrCreateClient(client, keycloakBaseUrl, realm, adminToken) {
         }
       );
       console.log(`Created client: ${client.clientId}`);
-      return newClientResponse.data;
     }
+    return clientResponse.data;
   } catch (error) {
     console.error(
       "Error creating or updating client:",
@@ -147,40 +151,12 @@ async function processKeycloakPayload(
       let roleId;
 
       try {
-        // Create or update client
+        // Create of update client
 
         // Step 1: Create or update a role for each client scope
-        roleId = await getRoleByName(name, keycloakBaseUrl, realm, adminToken);
-        if (roleId) {
-          // Role exists, update it
-          await axios.put(
-            `${keycloakBaseUrl}/admin/realms/${realm}/roles-by-id/${roleId}`,
-            role,
-            {
-              headers: {
-                Authorization: `Bearer ${adminToken}`,
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          console.log(`Updated role: ${name}`);
-        } else {
-          // Role does not exist, create a new one
-          const roleResponse = await axios.post(
-            `${keycloakBaseUrl}/admin/realms/${realm}/roles`,
-            role,
-            {
-              headers: {
-                Authorization: `Bearer ${adminToken}`,
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          roleId = roleResponse.data.id;
-          console.log(`Created role: ${name}`);
-        }
 
         // Step 2: Create or update the client scope
+
         const clientScopeResponse = await axios.get(
           `${keycloakBaseUrl}/admin/realms/${realm}/client-scopes`,
           {
@@ -230,10 +206,11 @@ async function processKeycloakPayload(
             }
           );
         }
-
+        roleId = await getRoleByName(name, keycloakBaseUrl, realm, adminToken);
         // Step 3: Map the created role to the client scope
         await axios.post(
           `${keycloakBaseUrl}/admin/realms/${realm}/client-scopes/${clientScope.id}/scope-mappings/realm`,
+
           [{ id: roleId, name }],
           {
             headers: {
@@ -249,9 +226,10 @@ async function processKeycloakPayload(
     })
   );
 
-  // Step 4: Create or update the service-account user
+  // Step 5: Create or update the service-account user
+  let userResponse, user, createdgroupResponse;
   try {
-    const groupResponse = await axios.get(
+    let groupResponse = await axios.get(
       `${keycloakBaseUrl}/admin/realms/${realm}/groups?search=${defaultGroup}`,
       {
         headers: {
@@ -260,12 +238,11 @@ async function processKeycloakPayload(
         },
       }
     );
-
     let groupId = "";
     if (groupResponse.data.length > 0) {
       // Group exists, update it
       groupId = groupResponse.data[0].id;
-      await axios.put(
+      createdgroupResponse = await axios.put(
         `${keycloakBaseUrl}/admin/realms/${realm}/groups/${groupId}`,
         {
           name: defaultGroup,
@@ -279,7 +256,7 @@ async function processKeycloakPayload(
       );
     } else {
       // Group does not exist, create a new one
-      const createdGroupResponse = await axios.post(
+      createdgroupResponse = await axios.post(
         `${keycloakBaseUrl}/admin/realms/${realm}/groups`,
         {
           name: defaultGroup,
@@ -291,10 +268,20 @@ async function processKeycloakPayload(
           },
         }
       );
-      groupId = createdGroupResponse.data.id;
-      console.log(`Created group: ${defaultGroup}`);
+      let createdGroup = await axios.get(
+        `${keycloakBaseUrl}/admin/realms/${realm}/groups?search=${defaultGroup}`,
+        {
+          headers: {
+            Authorization: `Bearer ${adminToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log(`Created group: `, createdGroup);
+      groupId = createdGroup.data[0].id;
     }
 
+    const createdGroup = createdgroupResponse.data[0];
     const usersResponse = await axios.get(
       `${keycloakBaseUrl}/admin/realms/${realm}/users`,
       {
@@ -306,14 +293,13 @@ async function processKeycloakPayload(
     );
 
     const users = usersResponse.data;
-    const user = users.find(
-      (u) => u.username === defaultUser.username.toLowerCase()
-    );
+    user = users.find((u) => u.username === defaultUser.username.toLowerCase());
 
     if (user) {
       // User exists, update it
-      await axios.put(
-        `${keycloakBaseUrl}/admin/realms/${realm}/users/${user.id}`,
+      const userId = user.id;
+      userResponse = await axios.put(
+        `${keycloakBaseUrl}/admin/realms/${realm}/users/${userId}`,
         defaultUser,
         {
           headers: {
@@ -325,7 +311,7 @@ async function processKeycloakPayload(
       console.log(`Updated user: ${defaultUser.username}`);
     } else {
       // User does not exist, create a new one
-      const userResponse = await axios.post(
+      userResponse = await axios.post(
         `${keycloakBaseUrl}/admin/realms/${realm}/users`,
         defaultUser,
         {
@@ -338,9 +324,13 @@ async function processKeycloakPayload(
       console.log(`Created user: ${defaultUser.username}`);
     }
 
+    const createdUser = userResponse.data;
+    console.log("here", user);
     // Reset the password
-    await axios.put(
-      `${keycloakBaseUrl}/admin/realms/${realm}/users/${user.id}/reset-password`,
+    const newPass = await axios.put(
+      `${keycloakBaseUrl}/admin/realms/${realm}/users/${
+        userResponse.id ? userResponse.id : user.id
+      }/reset-password`,
       resetPassword,
       {
         headers: {
@@ -349,11 +339,12 @@ async function processKeycloakPayload(
         },
       }
     );
-    console.log(`Reset password for user ${defaultUser.username}`);
-
-    // Add service-account user to the group
+    console.log(`Reset password for user ${createdUser}`, newPass.data);
+    // Step 5: Add service-account user to the group
     await axios.put(
-      `${keycloakBaseUrl}/admin/realms/${realm}/users/${user.id}/groups/${groupId}`,
+      `${keycloakBaseUrl}/admin/realms/${realm}/users/${
+        createdUser.id ? createdUser.id : user.id
+      }/groups/${groupId}`,
       {},
       {
         headers: {
@@ -362,22 +353,21 @@ async function processKeycloakPayload(
         },
       }
     );
-    console.log(`Added user ${defaultUser.username} to group ${defaultGroup}`);
-
+    console.log(`Added ${createdUser} to group ${createdgroupResponse}`);
     const uniqueRolesArray = await getUniqueRolesArray(payload);
     for (const role of uniqueRolesArray) {
-      const roleId = await getRoleByName(
+      const roleID = await getRoleByName(
         role.name,
         keycloakBaseUrl,
         realm,
         adminToken
       );
-
-      await axios.post(
+      console.log(roleID);
+      const roleMapping = await axios.post(
         `${keycloakBaseUrl}/admin/realms/${realm}/groups/${groupId}/role-mappings/realm`,
         [
           {
-            id: roleId,
+            id: roleID,
             clientRole: false,
             composite: false,
             containerId: realm,
@@ -392,7 +382,7 @@ async function processKeycloakPayload(
           },
         }
       );
-      console.log(`Added role mapping to group: ${role.name}`);
+      console.log(`Added role mapping to group ${roleMapping}`, role);
     }
   } catch (error) {
     console.error(
@@ -401,8 +391,23 @@ async function processKeycloakPayload(
     );
     throw error;
   }
-}
 
+  // Step 6: Add role mapping to the group
+  // Extract unique roles
+
+  //   const rolesToBeMapped = [];
+  //   uniqueRolesArray.forEach(async (role) => {
+  //     const rolesToBeMappedPayload = await getRoleByName(
+  //       role.name,
+  //       keycloakBaseUrl,
+  //       realm,
+  //       adminToken
+  //     );
+  //     console.log(rolesToBeMappedPayload);
+  //     rolesToBeMapped.push(rolesToBeMappedPayload);
+  //   });
+  //   console.log("sdsdsd", rolesToBeMapped);
+}
 async function getUniqueRolesArray(payload) {
   const rolesSet = new Set();
   const { clientScopes } = payload;
@@ -417,7 +422,6 @@ async function getUniqueRolesArray(payload) {
   const uniqueRolesArray = Array.from(rolesSet).map((role) => JSON.parse(role));
   return uniqueRolesArray;
 }
-
 // Call the function and handle the result
 async function main() {
   try {
@@ -428,14 +432,19 @@ async function main() {
       adminUser,
       adminPassword
     );
-
     const client = payload.client;
-    await getOrCreateClient(client, serverUrl, realm, adminToken);
-
+    const createorupdateClient = await getOrCreateClient(
+      client,
+      serverUrl,
+      realm,
+      adminToken
+    );
+    console.log(createorupdateClient);
     const uniqueRolesArray = await getUniqueRolesArray(payload);
+
     for (const role of uniqueRolesArray) {
       const { name } = role;
-      const roleId = await getRoleByName(name, serverUrl, realm, adminToken);
+      let roleId = await getRoleByName(name, serverUrl, realm, adminToken);
 
       if (roleId) {
         // Role exists, update it
@@ -462,10 +471,10 @@ async function main() {
             },
           }
         );
+        roleId = roleResponse.data.id;
         console.log(`Created role: ${name}`);
       }
     }
-
     await processKeycloakPayload(payload, serverUrl, realm, adminToken);
     console.log("Keycloak payload processed successfully");
   } catch (error) {

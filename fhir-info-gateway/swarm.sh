@@ -44,11 +44,17 @@ function initialize_package() {
   fi
 
   (
-    docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$package_dev_compose_filename" "docker-compose-smart_keycloak.yml"
+    docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.yml" "$package_dev_compose_filename" "importer/docker-compose-smart_keycloak.yml"
+
+    if [[ "${ACTION}" == "init" ]]; then
+      docker::deploy_config_importer $STACK "$COMPOSE_FILE_PATH/importer/docker-compose.config.yml" "update-keycloak-config" "fhirinfo"
+    fi
+     docker service rm fhir-info-gateway_smart-config >> /dev/null 2>&1
   ) || {
     log error "Failed to deploy package"
     exit 1
   }
+ 
 }
 
 function destroy_package() {
