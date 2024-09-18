@@ -151,12 +151,6 @@ async function processKeycloakPayload(
       let roleId;
 
       try {
-        // Create of update client
-
-        // Step 1: Create or update a role for each client scope
-
-        // Step 2: Create or update the client scope
-
         const clientScopeResponse = await axios.get(
           `${keycloakBaseUrl}/admin/realms/${realm}/client-scopes`,
           {
@@ -207,7 +201,7 @@ async function processKeycloakPayload(
           );
         }
         roleId = await getRoleByName(name, keycloakBaseUrl, realm, adminToken);
-        // Step 3: Map the created role to the client scope
+        // Map the created role to the client scope
         await axios.post(
           `${keycloakBaseUrl}/admin/realms/${realm}/client-scopes/${clientScope.id}/scope-mappings/realm`,
 
@@ -226,7 +220,7 @@ async function processKeycloakPayload(
     })
   );
 
-  // Step 5: Create or update the service-account user
+  // Create or update the service-account user
   let userResponse, user, createdgroupResponse;
   try {
     let groupResponse = await axios.get(
@@ -391,22 +385,6 @@ async function processKeycloakPayload(
     );
     throw error;
   }
-
-  // Step 6: Add role mapping to the group
-  // Extract unique roles
-
-  //   const rolesToBeMapped = [];
-  //   uniqueRolesArray.forEach(async (role) => {
-  //     const rolesToBeMappedPayload = await getRoleByName(
-  //       role.name,
-  //       keycloakBaseUrl,
-  //       realm,
-  //       adminToken
-  //     );
-  //     console.log(rolesToBeMappedPayload);
-  //     rolesToBeMapped.push(rolesToBeMappedPayload);
-  //   });
-  //   console.log("sdsdsd", rolesToBeMapped);
 }
 async function getUniqueRolesArray(payload) {
   const rolesSet = new Set();
