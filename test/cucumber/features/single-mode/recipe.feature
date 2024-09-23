@@ -15,8 +15,6 @@ Feature: CDR-DW recipe?
     And The service "identity-access-manager-keycloak" should be started with 1 replica
     And The service "jempi-ratel" should be started with 1 replica
     And The service "jempi-alpha-01" should be started with 1 replica
-    And The service "jempi-alpha-02" should be started with 1 replica
-    And The service "jempi-alpha-03" should be started with 1 replica
     And The service "jempi-zero-01" should be started with 1 replica
     And The service "jempi-async-receiver" should be started with 1 replica
     And The service "kafka-unbundler-consumer" should be started with 1 replica

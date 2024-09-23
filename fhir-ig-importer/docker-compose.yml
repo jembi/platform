@@ -19,10 +19,23 @@ services:
       hapi-fhir:
       openhim:
       reverse-proxy:
+      traefik:
     environment:
       FHIR_IG_IMPORTER_CORE_URL: ${FHIR_IG_IMPORTER_CORE_URL}
       OPENHIM_API_USERNAME: ${OPENHIM_USERNAME}
       OPENHIM_API_PASSWORD: ${OPENHIM_PASSWORD}
+    deploy:
+      replicas: 1
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=reverse-proxy-traefik_public
+        - traefik.http.routers.fhir-ig-importer.rule=PathPrefix(`/fhir-ig-importer`)
+        - traefik.http.routers.fhir-ig-importer.entrypoints=${WEB_ENTRY_POINT}
+        - traefik.http.routers.fhir-ig-importer.tls=${TLS}
+        - traefik.http.services.fhir-ig-importer.loadbalancer.server.port=8080
+        - traefik.http.services.fhir-ig-importer.loadbalancer.server.scheme=http
+        - traefik.http.routers.fhir-ig-importer.middlewares=fhir-ig-importer-stripprefix
+        - traefik.http.middlewares.fhir-ig-importer-stripprefix.stripprefix.prefixes=/fhir-ig-importer
 
 networks:
   hapi-fhir:
@@ -33,5 +46,8 @@ networks:
     external: true
   reverse-proxy:
     name: reverse-proxy_public
+    external: true
+  traefik:
+    name: reverse-proxy-traefik_public
     external: true
   default:
