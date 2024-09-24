@@ -14,8 +14,6 @@ Feature: Client Registry JeMPI?
     And The service "identity-access-manager-keycloak" should be started with 1 replica
     And The service "jempi-ratel" should be started with 1 replica
     And The service "jempi-alpha-01" should be started with 1 replica
-    And The service "jempi-alpha-02" should be started with 1 replica
-    And The service "jempi-alpha-03" should be started with 1 replica
     And The service "jempi-zero-01" should be started with 1 replica
     And The service "jempi-async-receiver" should be started with 1 replica
     And The service "jempi-async-receiver" should be connected to the networks
@@ -30,7 +28,7 @@ Feature: Client Registry JeMPI?
     # And The service "jempi-em-calculator" should be started with 1 replica
     # And The service "jempi-em-calculator" should be connected to the networks
     #   | kafka_public | jempi_default |
-    And The service "jempi-linker" should be started with 1 replica
+    And The service "jempi-linker" should be started with 3 replica
     And The service "jempi-linker" should be connected to the networks
       | kafka_public | jempi_default |
     And The service "jempi-api" should be started with 1 replica
@@ -51,8 +49,6 @@ Feature: Client Registry JeMPI?
     And The service "identity-access-manager-keycloak" should be removed
     And The service "jempi-ratel" should be removed
     And The service "jempi-alpha-01" should be removed
-    And The service "jempi-alpha-02" should be removed
-    And The service "jempi-alpha-03" should be removed
     And The service "jempi-async-receiver" should be removed
     And The service "jempi-etl" should be removed
     And The service "jempi-controller" should be removed

@@ -3,6 +3,11 @@ version: "3.9"
 services:
   jempi-api:
     image: jembi/jempi-api:${JEMPI_API_IMAGE_TAG}
+    configs:
+      - target: /app/conf_system/config.json
+        source: config.json
+      - target: /app/conf_system/config-api.json
+        source: config-api.json
     environment:
       LOG4J2_LEVEL: ${LOG4J2_LEVEL}
       POSTGRESQL_IP: ${JEMPI_POSTGRES_DB}
@@ -20,6 +25,11 @@ services:
       LINKER_HTTP_PORT: 50000
       CONTROLLER_IP: jempi-controller
       CONTROLLER_HTTP_PORT: 50000
+      SYSTEM_CONFIG_DIR: ${SYSTEM_CONFIG_DIR}
+      API_CONFIG_REFERENCE_FILENAME: ${API_CONFIG_REFERENCE_FILENAME}
+      API_CONFIG_MASTER_FILENAME: ${API_CONFIG_MASTER_FILENAME}
+      API_FIELDS_CONFIG_FILENAME: ${API_FIELDS_CONFIG_FILENAME}
+      JEMPI_FILE_IMPORT_MAX_SIZE_BYTE: ${JEMPI_FILE_IMPORT_MAX_SIZE_BYTE}
     volumes:
       - "jempi-shared-data:/app/csv"
     deploy:
@@ -45,6 +55,11 @@ services:
 
   jempi-api-kc:
     image: jembi/jempi-api-kc:${JEMPI_API_KC_IMAGE_TAG}
+    configs:
+      - target: /app/conf_system/config.json
+        source: config.json
+      - target: /app/conf_system/config-api.json
+        source: config-api.json
     environment:
       LOG4J2_LEVEL: ${LOG4J2_LEVEL}
       KC_REALM_NAME: ${KC_REALM_NAME}
@@ -72,6 +87,11 @@ services:
       LINKER_HTTP_PORT: 50000
       CONTROLLER_IP: jempi-controller
       CONTROLLER_HTTP_PORT: 50000
+      SYSTEM_CONFIG_DIR: ${SYSTEM_CONFIG_DIR}
+      API_CONFIG_REFERENCE_FILENAME: ${API_CONFIG_REFERENCE_FILENAME}
+      API_CONFIG_MASTER_FILENAME: ${API_CONFIG_MASTER_FILENAME}
+      API_FIELDS_CONFIG_FILENAME: ${API_FIELDS_CONFIG_FILENAME}
+      JEMPI_FILE_IMPORT_MAX_SIZE_BYTE: ${JEMPI_FILE_IMPORT_MAX_SIZE_BYTE}
     volumes:
       - "jempi-shared-data:/app/csv"
     deploy:
@@ -109,3 +129,15 @@ networks:
     name: kafka_public
     external: true
   default:
+
+configs:
+  config.json:
+    file: ./config/config.json
+    name: config.json-${config_json_DIGEST:?err}
+    labels:
+      name: jempi
+  config-api.json:
+    file: ./config/config-api.json
+    name: config-api.json-${config_api_json_DIGEST:?err}
+    labels:
+      name: jempi
