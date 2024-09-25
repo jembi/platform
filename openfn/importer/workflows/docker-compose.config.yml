@@ -5,12 +5,10 @@ services:
     image: node:18-alpine3.20
     command: sh -c "cd /workflows && ls && npm install -g @openfn/cli && ls && openfn deploy -c config.json --no-confirm"
     configs:
-      - target: /workflows/cdr-ndr.yaml
-        source: cdr-ndr.yaml
-      - target: /workflows/config.json
-        source: config.json
       - target: /workflows/project.yaml
         source: project.yaml
+      - target: /workflows/config.json
+        source: config.json
     networks:
       postgres:
     environment:
@@ -27,11 +25,6 @@ networks:
     external: true
 
 configs:
-  cdr-ndr.yaml:
-    file: ./example/cdr-ndr.yaml
-    name: cdr-ndr.yaml-${cdr_ndr_yaml_DIGEST:?err}
-    labels:
-      name: cdrproject
   config.json:
     file: ./example/config.json
     name: config.json-${config_json_DIGEST:?err}
