@@ -3,7 +3,7 @@ version: '3.9'
 services:
   openfn_workflow_config:
     image: node:18-alpine3.20
-    command: sh -c "cd /workflows && ls && npm install -g @openfn/cli && ls && openfn deploy -c config.json --no-confirm"
+    command: sh -c "cd /workflows && ls && npm install -g @openfn/cli && cat config.json && openfn deploy -c config.json --no-confirm"
     configs:
       - target: /workflows/project.yaml
         source: project.yaml

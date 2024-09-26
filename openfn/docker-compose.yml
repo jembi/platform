@@ -3,7 +3,8 @@ version: '3.9'
 services:
   openfn:
     image: ${OpenFn_IMAGE}
-    command: sh -c '/app/bin/lightning eval "Lightning.Release.migrate()" && /app/bin/lightning eval "Lightning.Demo.reset_demo()" && /app/bin/lightning start'
+    command: >
+      sh -c "/app/bin/lightning eval 'Lightning.Release.migrate()' && /app/bin/lightning eval 'Lightning.Setup.setup_user(%{first_name: \"Derrick\",last_name: \"Rono\",email: \"derrick.rono@jembi.org\",password: \"welcome12345\", role: :superuser}, \"apiKey\" ,[%{name: \"openhim ndr\", schema: \"http\", body: %{username: \"openfn\", password: \"PasswordHere\", baseUrl: \"http://urlHere\"}}])' && /app/bin/lightning start"
     deploy:
       resources:
         limits:

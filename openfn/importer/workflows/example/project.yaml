@@ -1,9 +1,9 @@
 name: jembi-cdc-ahie
 description: POC test project for ART patient use case
 credentials:
-  aleksa@openfn.org-ndr-fhir-test:
-    name: ndr-fhir-test
-    owner: aleksa@openfn.org
+  derrick.rono@jembi.org-openhim-ndr:
+    name: openhim ndr
+    owner: derrick.rono@jembi.org
 workflows:
   1-process-cdr-bundle:
     name: 1-process-cdr-bundle
@@ -38,10 +38,11 @@ workflows:
               inputs: state.data,
             }
           })
+
       Register-Organization:
         name: Register Organization
         adaptor: "@openfn/language-http@6.4.3"
-        credential: null
+        credential: derrick.rono@jembi.org-openhim-ndr
         body: |
           //For the POC test only we need to register the Organization first
           //... for each Bundle... and AFTER we can process the Bundle
@@ -115,21 +116,15 @@ workflows:
         adaptor: "@openfn/language-fhir-jembi@0.0.18"
         credential: null
         body: |
-          // map encounters
-
-          // This import is needed for code assist in VSC
-          // It is harmless to include in job code, but not needed in lightning
-          import { b, util } from '@openfn/language-fhir-jembi';
-
           fn(state => {
-            console.log('Parsing encounters...')
+            console.log('Parsing encounters...');
             state.encounters = [];
             return state;
           });
 
           each($.inputs.Encounter, state => {
             const input = state.data.resource;
-            console.log('Mapping encounter ', input.id)
+            console.log('Mapping encounter ', input.id);
 
             util.setSystemMap({
               'http://cdr.aacahb.gov.et/Encounter':
@@ -142,35 +137,40 @@ workflows:
             );
 
             const [_, patientId] = input.subject.reference.split('Patient/');
-            const patient = state.inputs.Patient.find((e) => e.resource.id === patientId)?.resource
+            const patient = state.inputs.Patient.find(
+              e => e.resource.id === patientId
+            )?.resource;
             if (!patient) {
-              console.log(`WARNING: COULD NOT FIND PATIENT ${patientId ?? input.subject} IN BUNDLE`)
+              console.log(
+                `WARNING: COULD NOT FIND PATIENT ${patientId ?? input.subject} IN BUNDLE`
+              );
             }
 
-
-            // TODO: work out whether this is an internal or external visit
-            //      and set the profile accordingly. I think the fields are the same,
-            //      we just need to decide the type
+            // TODO: Future phase work out whether this is a target-facility-encounter or a entry-from-outside-target-facility-encounter
             if (visitType) {
+              const serviceType = input.serviceType?.coding.find(
+                item =>
+                  item.system === 'http://terminology.hl7.org/CodeSystem/service-type'
+              );
+
               const result = builders.encounter('target-facility-encounter', {
                 id: input.id,
                 status: input.status,
-                
-                class: input.class ?? util.coding("Absent-or-unknown", "http://moh.gov.et/fhir/hiv/CodeSystem/absent-unknown-code-system"),
+
+                class:
+                  input.class ??
+                  util.coding(
+                    'Absent-or-unknown',
+                    'http://moh.gov.et/fhir/hiv/CodeSystem/absent-unknown-code-system'
+                  ),
                 identifier: input.identifier,
-                // TODO I'm not sure how these map?
-                serviceType: input.serviceType[0],
+                serviceType: serviceType && {
+                  coding: serviceType,
+                },
                 period: input.period,
                 subject: input.subject,
                 serviceProvider: patient.managingOrganization,
-
-                // TODO this won't map the system properly right now
-                // because we don't handle codeable concepts very smartly
-                serviceType: {
-                  coding: input.serviceType.coding.slice(0, 1),
-                },
                 type: input.type,
-                // visitType: visitType,
               });
 
               // Handle the visit type extension manually
@@ -182,21 +182,22 @@ workflows:
                   'http://moh.gov.et/fhir/hiv/CodeSystem/encounter-visit-type-code-system',
                 ])
               ),
-              // console.log(result);
-
-              state.encounters.push(result);
-             } else {
-              console.log("WARNING: no visit type found for Encounter ", input.id)
-             }
+                state.encounters.push(result);
+            } else {
+              console.log('WARNING: no visit type found for Encounter ', input.id);
+            }
 
             return state;
           });
 
-          fn((state) => {
-            console.log(`Finished parsing Encounters! Created ${state.encounters.length} Encounters`)
+          fn(state => {
+            console.log(
+              `Finished parsing Encounters! Created ${state.encounters.length} Encounters`
+            );
 
-            return state
-          })
+            return state;
+          });
+
       map-patients:
         name: map patients
         adaptor: "@openfn/language-fhir-jembi@0.0.18"
@@ -208,12 +209,11 @@ workflows:
           // It is harmless to include in job code, but not needed in lightning
           import { b, util } from '@openfn/language-fhir-jembi';
 
-
           const createId = (base, type) => {
-            let id = `${base}${type}`
-            if (id.length <=64) {
+            let id = `${base}${type}`;
+            if (id.length <= 64) {
               // If the id is too long, cut the difference out of the base id
-              id = `${base.substr(0, base.length - (id.length - 64))}${type}`
+              id = `${base.substr(0, base.length - (id.length - 64))}${type}`;
             }
             return id;
           };
@@ -398,8 +398,8 @@ workflows:
           // Create an NDR patient for each CDR patient
           each($.inputs.Patient, state => {
             const input = state.data.resource;
-            
-            console.log(`  Processing patient ${input.id}`)
+
+            console.log(`  Processing patient ${input.id}`);
 
             const religion = util.findExtension(
               input,
@@ -436,6 +436,8 @@ workflows:
           each($.inputs.Patient, state => {
             const input = state.data.resource;
             console.log(`  Processing observations for patient ${input.id}`);
+            // Assumes one encounter per bundle
+            const encounter = state.inputs.Encounter[0].resource;
 
             const occupation = util.findExtension(
               input,
@@ -449,7 +451,9 @@ workflows:
                     // what to do about id?
                     status: input.status ?? 'final',
 
-                    effectiveDateTime: input.period?.start,
+                    effective: encounter.period?.start,
+                    encounter,
+                    performer: input.managingOrganization ?? state.orgId,
 
                     // Map the occupation string without a coding
                     value: util.concept(occupation.valueString, [
@@ -485,7 +489,9 @@ workflows:
                     id: createId(input.id, 'HighestEducation'),
                     status: input.status ?? 'final',
 
-                    effectiveDateTime: input.period?.start,
+                    effective: encounter.period?.start,
+                    encounter,
+                    performer: input.managingOrganization ?? state.orgId,
                     subject: input,
                     value,
                   })
@@ -517,8 +523,9 @@ workflows:
                   b.observation('target-population-observation', {
                     id: createId(input.id, 'TargetPopulation'),
                     status: input.status ?? 'final',
-
-                    effectiveDateTime: input.period?.start,
+                    effective: encounter.period?.start,
+                    encounter,
+                    performer: input.managingOrganization ?? state.orgId,
                     subject: input,
                     value,
                   })
@@ -538,8 +545,6 @@ workflows:
             let patient;
             if (input.patient) {
               // Extract the actual ID out of the reference
-              // TODO we could use request.url I think?
-              // TODO maybe create an adaptor helpe called "getIdFromReference"
               const [_, patientId] = input.patient.reference.split('Patient/');
               patient = state.inputs.Patient.find(
                 e => e.resource.id === patientId
@@ -555,15 +560,13 @@ workflows:
               }
             }
 
-            // TODO can we just spread input onto this?
             const r = b.relatedPerson('related-person', {
               ...input, // this should cover the basics
               id: input.id,
+              extension: input.extension,
 
-              // I think this need special handling ?
               address: input.address?.map(mapAddress),
 
-              // TODO will the system map on this? If not that's an adaptor bug
               relationship: input.relationship.reduce(
                 (obj, next) => Object.assign(obj, next),
                 {}
@@ -588,10 +591,6 @@ workflows:
         adaptor: "@openfn/language-fhir-jembi@0.0.18"
         credential: null
         body: |
-          // this one will handle all types of medication
-
-          import { b, util } from '@openfn/language-fhir-jembi';
-
           const createId = (base, type) => {
             let id = `${base}${type}`;
             if (id.length > 64) {
@@ -627,6 +626,17 @@ workflows:
             'Virologic failure': 'Virologic-Failure',
             'Clinical failure': 'Clinical-Failure',
             'Immunologic failure': 'Immunologic-Failure',
+          };
+
+          const substituteReasonMap = {
+            'Risk of pregnancy': 'LA6531-3',
+            Pregnancy: 'LA6530-5',
+            'New drug available': 'LA6533-9',
+            'Due to new TB': 'LA6532-1',
+            'Drug stock-out': 'LA6534-7',
+            'Toxicity/Side effects': 'LA6529-7',
+            Other: 'LA6535-4',
+            Anemia: 'LA6535-4',
           };
 
           const stoppedReasonMap = {
@@ -685,12 +695,6 @@ workflows:
             state.requests ??= [];
             state.admin ??= [];
 
-            // TODO i would like each to warn, but not explode, if there's no array passed
-            state.inputs.MedicationDispense ??= [];
-            state.inputs.Medication ??= [];
-            state.inputs.MedicationAdministration ??= [];
-            state.inputs.MedicationRequest ??= [];
-
             return state;
           });
 
@@ -700,12 +704,11 @@ workflows:
             const codes = coding.find(
               c => c.system === 'http://cdr.aacahb.gov.et/hiv-regimen-codes'
             );
-            // This is the new coding
-            // TODO: codes.display is lost in the current mapping
             const c = [
               codes.code,
               'http://moh.gov.et/fhir/hiv/CodeSystem/arv-treatment-code-system',
             ];
+
             let value;
             if (text) {
               value = util.concept(text, c);
@@ -735,7 +738,8 @@ workflows:
                 subject: input.subject,
                 context: input.context,
                 request,
-                effective: encounter.period,
+                effective: end.valueDateTime,
+                //effective: encounter.period,
               });
               markNew(ma);
               return ma;
@@ -772,7 +776,6 @@ workflows:
                 value: dispense.id,
                 system: 'http://moh.gov.et/fhir/hiv/identifier/medication',
               },
-              // TODO this should just be reason no?
               reasonReference: util.reference(observation),
             });
 
@@ -781,7 +784,7 @@ workflows:
             return r;
           };
 
-          const extractCareplan = (state, input, encounter) => {
+          const extractCareplan = (state, input, encounter, patient) => {
             const cp = b.carePlan('art-follow-up-careplan', {
               id: createId(input.id, 'ARTFollowUpCareplan'),
               status: 'active',
@@ -789,9 +792,7 @@ workflows:
               subject: input.subject,
               encounter: input.context,
               created: encounter.period?.start,
-
-              // TODO the adaptor should handle this but isn't mapping text properly
-              // But it's cool that we can just override it here
+              performer: findServiceProvider(encounter, patient),
               category: [
                 {
                   coding: [
@@ -838,18 +839,16 @@ workflows:
               quantity: input.quantity && {
                 ...input.quantity,
                 value: parseInt(input.quantity.value),
-                // TODO could the adaptor deal with this for us one day?
                 unit: 'TAB',
                 code: 'TAB',
               },
               daysSupply: input.daysSupply && {
                 ...input.daysSupply,
                 value: parseInt(input.daysSupply.value),
-                // TODO could the adaptor deal with this for us one day?
                 unit: 'Days',
                 code: 'd',
               },
-              whenHandedOver: handover.valueDateTime,
+              whenHandedOver: handover?.valueDateTime,
               medication: input.reference,
               // missing properties will be added later in the script
             });
@@ -859,7 +858,7 @@ workflows:
           const extractObservations = (state, input, encounter, patient) => {
             const result = {};
             let stopReasonObs;
-            // TODO will this find one or many?
+
             const stopReason = util.findExtension(
               input,
               'http://cdr.aacahb.gov.et/medication-stopped-reason'
@@ -868,6 +867,8 @@ workflows:
               console.log(
                 `creating art-followup-stopped-reasons-observation for ${input.id}`
               );
+
+              //console.log('stopReason::', JSON.stringify(stopReason, null, 2));
 
               const stopReasonObs = b.observation(
                 'art-followup-stopped-reasons-observation',
@@ -882,12 +883,15 @@ workflows:
               );
 
               let text = stopReason.valueString ?? stopReason.valueCodeableConcept?.text;
+
+              //('stopReason text::', JSON.stringify(text, null, 2));
               if (!text) {
-                console.error(`No stop reason text found for `, input.id)
+                console.error(`No stop reason text found for `, input.id);
               }
 
               const value = {};
               const mapped = stoppedReasonMap[text.toLowerCase()];
+              //console.log('mapped stopReasonObs::', JSON.stringify(mapped, null, 2));
               if (mapped) {
                 util.addExtension(
                   value,
@@ -895,19 +899,30 @@ workflows:
                   util.concept(mapped.text, [mapped.code, 'http://loinc.org'])
                 );
 
-                stopReasonObs.valueCodeableConcept = value;
+                //console.log('stopReasonObs::', JSON.stringify(stopReasonObs, null, 2));
+
+                stopReasonObs['valueCodeableConcept'] = value;
+
+                // console.log(
+                //   'NEW stopReasonObs::',
+                //   JSON.stringify(stopReasonObs, null, 2)
+                // );
 
                 markNew(stopReasonObs);
 
                 // We have to write the concept like this because it's a strange structure
                 // the adaptor should handle this a lot better really
                 state.observations.push(stopReasonObs);
+                console.log('Stopped Obs pushed...');
               } else {
                 console.error('WARNING: NO MAPPED VALUE FOR  STOP-REASON: ', text);
               }
             }
 
             if (input.statusReasonCodeableConcept) {
+              const reason = Array.isArray(input.statusReasonCodeableConcept)
+                ? input.statusReasonCodeableConcept[0]
+                : input.statusReasonCodeableConcept;
               const o = b.observation('art-followup-status-observation', {
                 id: createId(input.id, 'ARTFollowupStatusObservation'),
                 status: 'final',
@@ -915,10 +930,11 @@ workflows:
                 encounter,
                 effective: encounter?.period?.start,
                 value: util.concept([
-                  input.statusReasonCodeableConcept.coding[0].code,
+                  reason.coding[0].code,
                   'http://moh.gov.et/fhir/hiv/CodeSystem/art-follow-up-status-code-system',
                 ]),
                 hasMember: stopReasonObs ? util.ref(stopReasonObs) : undefined,
+                performer: findServiceProvider(encounter, patient),
               });
               result.followUpStatus = o;
               state.observations.push(o);
@@ -961,8 +977,8 @@ workflows:
               if (extSwitchType) {
                 const code = categoryTypeMap[extSwitchType.valueString];
                 if (!code) {
-                  console.error('No mapped switch code found for ', input.id)
-                  console.log(extSwitchType)
+                  console.error('No mapped switch code found for ', input.id);
+                  console.log(extSwitchType);
                 }
                 value = util.concept([
                   code,
@@ -971,8 +987,8 @@ workflows:
               } else {
                 const code = categoryTypeMap[input.substitution?.type.text];
                 if (!code) {
-                  console.error('No mapped switch code found for ', input.id)
-                  console.log(input.substitution)
+                  console.error('No mapped switch code found for ', input.id);
+                  console.log(input.substitution);
                 }
                 value = util.concept([
                   code,
@@ -996,10 +1012,10 @@ workflows:
 
             if (extSwitchReason ?? input.substitution?.reason) {
               let reason;
-              if (extSwitchReason) {
+              if (extSwitchReason ?? input.substitution?.reason) {
                 reason =
-                  extSwitchReason.valueCodeableConcept?.coding[0].code ??
-                  extSwitchReason.valueString;
+                  extSwitchReason?.valueCodeableConcept?.coding[0].code ??
+                  extSwitchReason?.valueString;
               } else {
                 reason = input.substitution?.reason[0].text;
               }
@@ -1007,28 +1023,31 @@ workflows:
               let reasonLabel;
               if (extSwitchReason) {
                 reasonLabel =
-                  extSwitchReason.valueCodeableConcept?.coding[0].display ??
-                  extSwitchReason.valueString;
+                  extSwitchReason?.valueCodeableConcept?.coding[0].display ??
+                  extSwitchReason?.valueString;
               } else {
                 reasonLabel = input.substitution?.reason[0].text;
               }
+              //console.log('reasonLabel ::', reasonLabel);
 
               if (!reason) {
-                console.error('No reason observation found for ', input.id)
-                console.log(extSwitchReason || input.substitution)
+                console.error('No reason observation found for ', input.id);
+                console.log(extSwitchReason || input.substitution);
               }
 
               reason = treatmentFailureMap[reason] || 'LA46-8' /* Other */;
+              const reasonCode = substituteReasonMap[reasonLabel] || 'LA6535-4'; /*Other*/
+              //console.log('reasonCode ::', reasonCode);
 
-              const value = util.concept(reasonLabel, ['http://loinc.org', 'LA6535-4']);
+              const value = util.concept(reasonLabel, ['http://loinc.org', reasonCode]);
 
               // Add an extension to the new value concept
               util.addExtension(
                 value,
                 'http://moh.gov.et/fhir/hiv/StructureDefinition/cd4-vl-classification-for-treatment-failure',
                 util.concept([
-                  'http://moh.gov.et/fhir/hiv/CodeSystem/cd4-vl-classification-for-treatment-failure-code-system',
                   reason,
+                  'http://moh.gov.et/fhir/hiv/CodeSystem/cd4-vl-classification-for-treatment-failure-code-system',
                 ])
               );
 
@@ -1040,7 +1059,7 @@ workflows:
                 effective: encounter?.period?.start,
                 performer: findServiceProvider(encounter, patient),
                 value,
-                hasMember: changeObs, //reference live on child Obs arv-regimen-changed-observation
+                //hasMember: changeObs, //reference moved to Obs arv-regimen-changed-observation
               });
               markNew(changeReasonObs);
               state.observations.push(changeReasonObs);
@@ -1063,7 +1082,6 @@ workflows:
             let encounter;
             if (input.context) {
               // Extract the actual ID out of the reference
-              // TODO we could use request.url I think?
               const [_, encounterId] = input.context.reference.split('Encounter/');
               encounter = state.inputs.Encounter.find(
                 e => e.resource.id === encounterId
@@ -1091,7 +1109,7 @@ workflows:
             dispense.medicationReference = util.reference(med);
             state.medication.push(med);
 
-            const plan = extractCareplan(state, input, encounter);
+            const plan = extractCareplan(state, input, encounter, patient);
             state.careplans.push(plan);
 
             const o = extractObservations(state, input, encounter, patient);
@@ -1131,17 +1149,15 @@ workflows:
       send-to-NDR:
         name: send to NDR
         adaptor: "@openfn/language-http@6.4.3"
-        credential: null
+        credential: derrick.rono@jembi.org-openhim-ndr
         body: |
-          //We need to POST the bundle to this endpoint once ready to import
           fn(state => {
             console.log('Sending final bundle to NDR');
-            state.bundle = state.data;
             return state;
           });
 
           post('/fhir', {
-            body: state => state.data, //send final bundle
+            body: $.bundle,
             headers: { 'content-type': 'application/json' },
             parseAs: 'json',
           }).catch(async (response, state) => {
@@ -1165,17 +1181,17 @@ workflows:
       send-errors-to-kafka-topic:
         name: send errors to kafka topic
         adaptor: "@openfn/language-http@6.4.3"
-        credential: null
+        credential: derrick.rono@jembi.org-openhim-ndr
         body: |
-          //If FHIR import fails, we need to catch the errors AND the bundle --> send to 2 different Kafka topics
           fn(state => {
             console.log('Catching errors to send to kafka topic fhir-errors...');
             console.log(state.issue)
             return state;
           });
+
+           //send error message from FHIR API
           post('/openfn/fhir-errors', {
-            // Unsure why we need to stringify here??
-            body: JSON.stringify($.issue), //send error message from FHIR API
+            body: JSON.stringify($.issue),
             headers: { 'content-type': 'application/json' },
           });
 
@@ -1183,17 +1199,75 @@ workflows:
             console.log('Sending failed bundle to kafka topic dead-queue...');
             return state;
           });
+
+          //send final Bundle we mapped
           post('/openfn/dead-queue', {
-            body: $.bundle, //send final Bundle we mapped
+            body: $.bundle, 
             headers: { 'content-type': 'application/json' },
           });
+
+      build-bundle:
+        name: build bundle
+        adaptor: "@openfn/language-fhir-jembi@0.0.18"
+        credential: null
+        body: |
+          const wrapResource = (res) => {
+            const { __new__, ...resource } = res;
+            return {
+              request: {
+                method: __new__ ? "POST" : "PUT",
+                url: __new__ ? res.resourceType : `${res.resourceType}/${res.id}`
+              },
+              resource,
+            }
+          }
+
+          fn((state) => {
+            console.log('Building final bundle...')
+
+            delete state.inputs
+
+            const bundle = {
+              "resourceType": "Bundle",
+              "type": "transaction",
+              "entry": []
+            };
+
+            // Write all data onto state
+            for (const k in state) {
+              const arr = state[k]
+              if (Array.isArray(arr)) {
+                bundle.entry.push(...arr.filter(a => a.resourceType).map(wrapResource))
+              }
+            }
+
+            console.log(`Bundle built with ${bundle.entry.length} items`)
+
+            const counts = {}
+            for (const res of bundle.entry ) {
+              try {
+              const type = res.resource.meta.profile[0].split('StructureDefinition/')[1]
+              counts[type] ??= 0
+              counts[type] += 1
+              } catch(e) {
+                console.log(res)
+                throw e
+              }
+            }
+
+            console.log(counts)
+
+            return { bundle };
+
+          })
+
     triggers:
-      webhook:
+      kafka:
         type: webhook
         enabled: true
     edges:
-      webhook->parse-bundle:
-        source_trigger: webhook
+      kafka->parse-bundle:
+        source_trigger: kafka
         target_job: parse-bundle
         condition_type: always
         enabled: true
@@ -1217,15 +1291,20 @@ workflows:
         target_job: map-medications
         condition_type: on_job_success
         enabled: true
-      map-medications->send-to-NDR:
-        source_job: map-medications
-        target_job: send-to-NDR
-        condition_type: on_job_success
-        enabled: true
       send-to-NDR->send-errors-to-kafka-topic:
         source_job: send-to-NDR
         target_job: send-errors-to-kafka-topic
         condition_type: js_expression
         condition_label: import errors
         condition_expression: state.issue
+        enabled: true
+      map-medications->build-bundle:
+        source_job: map-medications
+        target_job: build-bundle
+        condition_type: on_job_success
+        enabled: true
+      build-bundle->send-to-NDR:
+        source_job: build-bundle
+        target_job: send-to-NDR
+        condition_type: on_job_success
         enabled: true
