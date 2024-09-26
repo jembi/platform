@@ -1,0 +1,8 @@
+version: '3.9'
+
+services:
+  package-ops:
+    ports:
+      - target: 8080
+        published: 8081
+        mode: host

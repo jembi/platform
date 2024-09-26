@@ -1,0 +1,9 @@
+{
+  "id": "package-ops",
+  "name": "Package Ops",
+  "description": "Deploys, manages and configures packages█",
+  "type": "infrastructure",
+  "version": "0.0.1",
+  "dependencies": [],
+  "environmentVariables": {}
+}
