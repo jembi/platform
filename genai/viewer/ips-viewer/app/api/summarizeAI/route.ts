@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-const useGroq = true; // Set this to false to use the local API
+const useGroq = false; // Set this to false to use the local API
 const groqApiKey = "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"; // Replace with your actual Groq API key
 
 export async function POST(request: Request) {
@@ -35,7 +35,7 @@ export async function POST(request: Request) {
           Authorization: "custom test",
         },
         body: JSON.stringify({
-          model: "gemma2:2b",
+          model: "llama3.2",
           prompt: prompt,
           stream: false,
         }),
