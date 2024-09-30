@@ -207,7 +207,7 @@ workflows:
 
           // This import is needed for code assist in VSC
           // It is harmless to include in job code, but not needed in lightning
-          import { b, util } from '@openfn/language-fhir-jembi';
+          import { b, util } from '@openfn/language-fhir-ndr-et';
 
           const createId = (base, type) => {
             let id = `${base}${type}`;
