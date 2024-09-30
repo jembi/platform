@@ -113,7 +113,7 @@ workflows:
 
       map-encounters:
         name: map encounters
-        adaptor: "@openfn/language-fhir-jembi@0.0.18"
+        adaptor: "@openfn/language-fhir-ndr-et@0.1.0"
         credential: null
         body: |
           fn(state => {
@@ -200,14 +200,14 @@ workflows:
 
       map-patients:
         name: map patients
-        adaptor: "@openfn/language-fhir-jembi@0.0.18"
+        adaptor: "@openfn/language-fhir-ndr-et@0.1.0"
         credential: null
         body: |
           // Handle patients (and related persons)
 
           // This import is needed for code assist in VSC
           // It is harmless to include in job code, but not needed in lightning
-          import { b, util } from '@openfn/language-fhir-jembi';
+          import { b, util } from '@openfn/language-fhir-ndr-et';
 
           const createId = (base, type) => {
             let id = `${base}${type}`;
@@ -588,7 +588,7 @@ workflows:
 
       map-medications:
         name: map medications
-        adaptor: "@openfn/language-fhir-jembi@0.0.18"
+        adaptor: "@openfn/language-fhir-ndr-et@0.1.0"
         credential: null
         body: |
           const createId = (base, type) => {
@@ -1208,7 +1208,7 @@ workflows:
 
       build-bundle:
         name: build bundle
-        adaptor: "@openfn/language-fhir-jembi@0.0.18"
+        adaptor: "@openfn/language-common@2.0.1"
         credential: null
         body: |
           const wrapResource = (res) => {
