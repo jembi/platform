@@ -1,9 +1,9 @@
 name: jembi-cdc-ahie
 description: POC test project for ART patient use case
 credentials:
-  derrick.rono@jembi.org-openhim-ndr:
+  root@openhim.org-openhim-ndr:
     name: openhim ndr
-    owner: derrick.rono@jembi.org
+    owner: root@openhim.org
 workflows:
   1-process-cdr-bundle:
     name: 1-process-cdr-bundle
@@ -42,7 +42,7 @@ workflows:
       Register-Organization:
         name: Register Organization
         adaptor: "@openfn/language-http@6.4.3"
-        credential: derrick.rono@jembi.org-openhim-ndr
+        credential: root@openhim.org-openhim-ndr
         body: |
           //For the POC test only we need to register the Organization first
           //... for each Bundle... and AFTER we can process the Bundle
@@ -1149,7 +1149,7 @@ workflows:
       send-to-NDR:
         name: send to NDR
         adaptor: "@openfn/language-http@6.4.3"
-        credential: derrick.rono@jembi.org-openhim-ndr
+        credential: root@openhim.org-openhim-ndr
         body: |
           fn(state => {
             console.log('Sending final bundle to NDR');
@@ -1181,7 +1181,7 @@ workflows:
       send-errors-to-kafka-topic:
         name: send errors to kafka topic
         adaptor: "@openfn/language-http@6.4.3"
-        credential: derrick.rono@jembi.org-openhim-ndr
+        credential: root@openhim.org-openhim-ndr
         body: |
           fn(state => {
             console.log('Catching errors to send to kafka topic fhir-errors...');

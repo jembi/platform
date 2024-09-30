@@ -3,8 +3,16 @@ version: '3.9'
 services:
   openfn:
     image: ${OpenFn_IMAGE}
+    # This command runs a shell script that performs the following actions:
+    # 1. Executes the Lightning.Release.migrate() function to handle database migrations.
+    # 2. Sets up a user with the provided first name, last name, email, password, and role using the Lightning.Setup.setup_user function.
+    #    - The user details are hardcoded with the first name "Test", last name "User", email "root@openhim.org", and password "instant101".
+    #    - The role assigned to the user is "superuser".
+    #    - The function also takes an API key from the environment variable ${OPENFN_API_KEY}.
+    #    - Additionally, it sets up a schema with the name "openhim ndr" and type "http", including credentials and a base URL from environment variables.
+    # 3. Starts the Lightning application using the /app/bin/lightning start command.
     command: >
-      sh -c "/app/bin/lightning eval 'Lightning.Release.migrate()' && /app/bin/lightning eval 'Lightning.Setup.setup_user(%{first_name: \"Derrick\",last_name: \"Rono\",email: \"derrick.rono@jembi.org\",password: \"welcome12345\", role: :superuser}, \"apiKey\" ,[%{name: \"openhim ndr\", schema: \"http\", body: %{username: \"openfn\", password: \"PasswordHere\", baseUrl: \"http://urlHere\"}}])' && /app/bin/lightning start"
+      sh -c "/app/bin/lightning eval 'Lightning.Release.migrate()' && /app/bin/lightning eval 'Lightning.Setup.setup_user(%{first_name: \"Test\",last_name: \"User\",email: \"root@openhim.org\",password: \"instant101\", role: :superuser}, \"${OPENFN_API_KEY}\" ,[%{name: \"openhim ndr\", schema: \"http\", body: %{username: \"${FHIR_SERVER_USERNAME}\", password: \"${FHIR_SERVER_PASSWORD}\", baseUrl: \"${FHIR_SERVER_BASE_URL}\"}}])' && /app/bin/lightning start"
     deploy:
       resources:
         limits:
@@ -37,7 +45,7 @@ services:
       resources:
         limits:
           cpus: '${DOCKER_WORKER_CPUS:-0}'
-          memory: '${DOCKER_WEB_MEMORY:-0}'
+          memory: '${DOCKER_WORKER_MEMORY:-0}'
     environment:
       - WORKER_LIGHTNING_PUBLIC_KEY=${WORKER_LIGHTNING_PUBLIC_KEY}
       - WORKER_SECRET=${WORKER_SECRET}

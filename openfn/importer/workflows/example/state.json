@@ -6,10 +6,10 @@
   "updated_at": "2024-09-26T10:04:11Z",
   "scheduled_deletion": null,
   "project_credentials": {
-    "derrick.rono@jembi.org-openhim-ndr": {
+    "root@openhim.org-openhim-ndr": {
       "id": "9ef53b55-f50b-4b3e-a610-5dd71ecf441d",
       "name": "openhim ndr",
-      "owner": "derrick.rono@jembi.org"
+      "owner": "root@openhim.org"
     }
   },
   "history_retention_period": null,

@@ -31,6 +31,11 @@
     "OPENFN_API_KEY": "apiKey",
     "OPENFN_ENDPOINT": "http://localhost:4000",
     "DOCKER_WEB_CPUS": "2",
-    "DOCKER_WEB_MEMORY": "4G"
+    "DOCKER_WEB_MEMORY": "4G",
+    "DOCKER_WORKER_CPUS": "2",
+    "DOCKER_WORKER_MEMORY": "4G",
+    "FHIR_SERVER_BASE_URL": "http://openhim-core:5001",
+    "FHIR_SERVER_USERNAME": "openfn_client",
+    "FHIR_SERVER_PASSWORD": "openfn_client_password"
   }
 }

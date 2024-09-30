@@ -12,7 +12,7 @@ Once you have added the `openfn` package, you can start using it in your project
 
 ## Demo
 
-To get a hands-on experience with the `openfn` package, you can try out the demo. The demo showcases the capabilities of the package and provides.
+To get a hands-on experience with the `openfn` package, try out the demo. The demo showcases the package's capabilities and provides a sample project used to export data from CDR to NDR with transformations. It utilizes a Kafka queue and a custom adapter to map Bundles to be compliant with the FHIR Implementation Guide (IG).
 
 ### Getting Started
 
@@ -22,9 +22,18 @@ To access the demo, follow these steps:
 2. Use the following demo credentials
 
 ```
-username: demo@openfn.org
-password: welcome123
+username: root@openhim.org
+password: instant101
 ```
+
+3. Configure the Kafka trigger
+   Change the trigger type from webhook to “Kafka Consumer”
+   Enter in configuration details → see [docs](https://docs.google.com/document/d/1cefHnp6IS6zvFwqQs8EsMQo5D4npsoE-S33R4OBpQjI/edit?usp=sharing)
+   Kafka topic: {whichever you want to use} (e.g., “cdr-ndr”)
+   Hosts: {cdr host name}
+   Initial offset reset policy: earliest
+   Connection timeout: 30 (default value, but can be adjusted)
+   Warning: Check Disable this trigger to ensure that consumption doesn’t start until you are ready to run the workflow! Once unchecked, it will immediately start consuming messages off the topic.
 
 ### Documentation
 
