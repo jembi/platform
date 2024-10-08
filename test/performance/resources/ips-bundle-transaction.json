@@ -1,0 +1,1093 @@
+{
+  "resourceType": "Bundle",
+  "id": "{{bundleUUID}}",
+  "meta": {
+    "profile": [
+      "http://techhub.jembi.cloud/ips/StructureDefinition/ips-transactional-bundle"
+    ]
+  },
+  "identifier": {
+    "system": "http://techhub.jembi.cloud/ips/identifier/ips-transactional",
+    "value": "{{bundleIdentifierUUID}}"
+  },
+  "type": "transaction",
+  "timestamp": "{{timestamp}}",
+  "entry": [
+    {
+      "fullUrl": "http://hapi-fhir:8080/fhir/Patient/{{patient}}",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "{{patient}}",
+        "meta": {
+          "profile": [
+            "http://techhub.jembi.cloud/ips/StructureDefinition/ips-patient"
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://techhub.jembi.cloud/ips/StructureDefinition/patient-registration-system",
+            "valueReference": {
+              "reference": "Device/{{deviceinformation}}"
+            }
+          }
+        ],
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://techhub.jembi.cloud/ips/CodeSystem/cs-identifier-types",
+                  "code": "PHN"
+                }
+              ],
+              "text": "Personal Health Number"
+            },
+            "system": "http://techhub.jembi.cloud/ips/identifier/phn",
+            "value": "{{PHN}}"
+          },
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "PPN"
+                }
+              ],
+              "text": "Passport number"
+            },
+            "system": "http://techhub.jembi.cloud/ips/identifier/passport",
+            "value": "{{PPN1}}"
+          },
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "PPN"
+                }
+              ],
+              "text": "Passport number"
+            },
+            "system": "http://techhub.jembi.cloud/ips/identifier/passport",
+            "value": "{{PPN2}}"
+          },
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "DL"
+                }
+              ],
+              "text": "Driver's license number"
+            },
+            "system": "http://techhub.jembi.cloud/ips/identifier/drivers",
+            "value": "{{DL1}}"
+          },
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "DL"
+                }
+              ],
+              "text": "Driver's license number"
+            },
+            "system": "http://techhub.jembi.cloud/ips/identifier/drivers",
+            "value": "{{DL2}}"
+          },
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://techhub.jembi.cloud/ips/CodeSystem/cs-identifier-types",
+                  "code": "NIC"
+                }
+              ],
+              "text": "National identity number"
+            },
+            "system": "http://techhub.jembi.cloud/ips/identifier/nic",
+            "value": "{{NIC1}}"
+          },
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://techhub.jembi.cloud/ips/CodeSystem/cs-identifier-types",
+                  "code": "NIC"
+                }
+              ],
+              "text": "National identity number"
+            },
+            "system": "http://techhub.jembi.cloud/ips/identifier/nic",
+            "value": "{{NIC2}}"
+          },
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://techhub.jembi.cloud/ips/CodeSystem/cs-identifier-types",
+                  "code": "SCN"
+                }
+              ],
+              "text": "Senior Citizen Number"
+            },
+            "system": "http://techhub.jembi.cloud/ips/identifier/scn",
+            "value": "{{SCN1}}"
+          },
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://techhub.jembi.cloud/ips/CodeSystem/cs-identifier-types",
+                  "code": "SCN"
+                }
+              ],
+              "text": "Senior Citizen Number"
+            },
+            "system": "http://techhub.jembi.cloud/ips/identifier/scn",
+            "value": "{{SCN2}}"
+          }
+        ],
+        "name": [
+          {
+            "use": "official",
+            "family": "{{patientLastName}}",
+            "given": ["{{patientFirstName1}}", "{{patientFirstName2}}"],
+            "prefix": ["{{patientNamePrefix}}"]
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "{{patientPhoneNumber}}"
+          },
+          {
+            "system": "email",
+            "value": "{{patientEmail1}}"
+          },
+          {
+            "system": "email",
+            "value": "{{patientEmail2}}"
+          }
+        ],
+        "gender": "{{patientGender}}",
+        "birthDate": "{{patientDOB}}",
+        "address": [
+          {
+            "type": "postal",
+            "line": ["177", "Nawala Road"],
+            "city": "Nugegoda",
+            "district": "Ampara",
+            "state": "Colombo",
+            "postalCode": "32350",
+            "country": "LK"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Patient/{{patient}}"
+      }
+    },
+    {
+      "fullUrl": "http://hapi-fhir:8080/fhir/Encounter/{{encounter}}",
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "{{encounter}}",
+        "meta": {
+          "profile": [
+            "http://techhub.jembi.cloud/ips/StructureDefinition/target-facility-encounter"
+          ]
+        },
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "AMB"
+        },
+        "subject": {
+          "reference": "Patient/{{patient}}"
+        },
+        "participant": [
+          {
+            "individual": {
+              "reference": "Practitioner/{{practitioner}}"
+            }
+          }
+        ],
+        "period": {
+          "start": "{{encounterDate}}",
+          "end": "{{encounterDate}}"
+        },
+        "reasonCode": [
+          {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "36989005"
+              }
+            ]
+          }
+        ],
+        "location": [
+          {
+            "location": {
+              "reference": "Location/{{location}}"
+            }
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Encounter/{{encounter}}"
+      }
+    },
+    {
+      "fullUrl": "http://hapi-fhir:8080/fhir/Condition/{{condition}}",
+      "resource": {
+        "resourceType": "Condition",
+        "id": "{{condition}}",
+        "meta": {
+          "profile": [
+            "http://techhub.jembi.cloud/ips/StructureDefinition/no-medical-history"
+          ]
+        },
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "inactive"
+            }
+          ]
+        },
+        "code": {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/uv/ips/CodeSystem/absent-unknown-uv-ips",
+              "code": "no-problem-info"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/{{patient}}"
+        },
+        "encounter": {
+          "reference": "Encounter/{{encounter}}"
+        },
+        "recordedDate": "{{conditionRecordedDate}}"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Condition/{{condition}}"
+      }
+    },
+    {
+      "fullUrl": "http://hapi-fhir:8080/fhir/Communication/{{communication}}",
+      "resource": {
+        "resourceType": "Communication",
+        "id": "{{communication}}",
+        "meta": {
+          "profile": [
+            "http://techhub.jembi.cloud/ips/StructureDefinition/notifiable-diseases-notified"
+          ]
+        },
+        "status": "completed",
+        "subject": {
+          "reference": "Patient/{{patient}}"
+        },
+        "encounter": {
+          "reference": "Encounter/{{encounter}}"
+        },
+        "sent": "{{communicationSent}}",
+        "sender": {
+          "reference": "Device/{{deviceinformation}}"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Communication/{{communication}}"
+      }
+    },
+    {
+      "fullUrl": "http://hapi-fhir:8080/fhir/Observation/{{obs-weight}}",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "{{obs-weight}}",
+        "meta": {
+          "profile": [
+            "http://techhub.jembi.cloud/ips/StructureDefinition/weight"
+          ]
+        },
+        "device": {
+          "reference": "Device/{{deviceinformation}}"
+        },
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "vital-signs"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "29463-7"
+            }
+          ],
+          "text": "Body Weight"
+        },
+        "subject": {
+          "reference": "Patient/{{patient}}"
+        },
+        "encounter": {
+          "reference": "Encounter/{{encounter}}"
+        },
+        "effectiveDateTime": "{{obs-weight-date}}",
+        "performer": [
+          {
+            "reference": "Organization/{{organization}}"
+          },
+          {
+            "reference": "Practitioner/{{practitioner}}"
+          }
+        ],
+        "valueQuantity": {
+          "value": 110,
+          "unit": "kg",
+          "system": "http://unitsofmeasure.org",
+          "code": "kg"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Observation/{{obs-weight}}"
+      }
+    },
+    {
+      "fullUrl": "http://hapi-fhir:8080/fhir/AllergyIntolerance/{{allergies}}",
+      "resource": {
+        "resourceType": "AllergyIntolerance",
+        "id": "{{allergies}}",
+        "meta": {
+          "profile": [
+            "http://techhub.jembi.cloud/ips/StructureDefinition/allergy-intolerance"
+          ]
+        },
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
+              "code": "confirmed"
+            }
+          ]
+        },
+        "type": "allergy",
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "414285001"
+            }
+          ],
+          "text": "Allergy to food"
+        },
+        "patient": {
+          "reference": "Patient/{{patient}}"
+        },
+        "encounter": {
+          "reference": "Encounter/{{encounter}}"
+        },
+        "onsetDateTime": "{{allergy-onset-date}}",
+        "recorder": {
+          "reference": "Practitioner/{{practitioner}}"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "AllergyIntolerance/{{allergies}}"
+      }
+    },
+    {
+      "fullUrl": "http://hapi-fhir:8080/fhir/MedicationRequest/{{medicationrequest}}",
+      "resource": {
+        "resourceType": "MedicationRequest",
+        "id": "{{medicationrequest}}",
+        "meta": {
+          "profile": [
+            "http://techhub.jembi.cloud/ips/StructureDefinition/medication-request"
+          ]
+        },
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "FILL",
+                  "display": "Filler Identifier"
+                }
+              ],
+              "text": "Prescription identifier"
+            },
+            "system": "http://techhub.jembi.cloud/ips/identifier/medication",
+            "value": "{{prescriptionId}}"
+          }
+        ],
+        "status": "completed",
+        "intent": "order",
+        "medicationCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://techhub.jembi.cloud/ips/CodeSystem/cs-medication-name-msd",
+              "code": "01103901"
+            }
+          ],
+          "text": "Medication"
+        },
+        "subject": {
+          "reference": "Patient/{{patient}}"
+        },
+        "encounter": {
+          "reference": "Encounter/{{encounter}}"
+        },
+        "authoredOn": "{{medication-request-authored-on}}",
+        "requester": {
+          "reference": "Practitioner/{{practitioner}}"
+        },
+        "performer": {
+          "reference": "Practitioner/{{practitioner}}"
+        },
+        "recorder": {
+          "reference": "Practitioner/{{practitioner}}"
+        },
+        "note": [
+          {
+            "authorReference": {
+              "reference": "Organization/{{organization}}"
+            },
+            "time": "2023-10-11T17:21:33-08:00",
+            "text": "Additional information regarding the patient's medication prescription"
+          }
+        ],
+        "dosageInstruction": [
+          {
+            "timing": {
+              "repeat": {
+                "count": 2,
+                "duration": 2,
+                "durationUnit": "d",
+                "frequency": 2,
+                "period": 3,
+                "periodUnit": "d"
+              },
+              "code": {
+                "coding": [
+                  {
+                    "system": "http://techhub.jembi.cloud/ips/CodeSystem/cs-drug-frequency",
+                    "code": "LK-DF-04"
+                  }
+                ]
+              }
+            },
+            "doseAndRate": [
+              {
+                "doseQuantity": {
+                  "value": 3
+                }
+              }
+            ]
+          }
+        ],
+        "dispenseRequest": {
+          "quantity": {
+            "value": 5
+          }
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "MedicationRequest/{{medicationrequest}}"
+      }
+    },
+    {
+      "fullUrl": "http://hapi-fhir:8080/fhir/MedicationDispense/{{medicationdispense}}",
+      "resource": {
+        "resourceType": "MedicationDispense",
+        "id": "{{medicationdispense}}",
+        "meta": {
+          "profile": [
+            "http://techhub.jembi.cloud/ips/StructureDefinition/drug-dispensation"
+          ]
+        },
+        "status": "completed",
+        "medicationCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://techhub.jembi.cloud/ips/CodeSystem/cs-medication-name-msd",
+              "code": "01103901"
+            }
+          ],
+          "text": "Medication"
+        },
+        "subject": {
+          "reference": "Patient/{{patient}}"
+        },
+        "context": {
+          "reference": "Encounter/{{encounter}}"
+        },
+        "performer": [
+          {
+            "actor": {
+              "reference": "Practitioner/{{practitioner}}"
+            }
+          }
+        ],
+        "location": {
+          "reference": "Location/{{location}}"
+        },
+        "authorizingPrescription": [
+          {
+            "reference": "MedicationRequest/{{medicationrequest}}"
+          }
+        ],
+        "whenHandedOver": "{{whenHandedOver}}",
+        "receiver": [
+          {
+            "reference": "Patient/{{patient}}"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "MedicationDispense/{{medicationdispense}}"
+      }
+    },
+    {
+      "fullUrl": "http://hapi-fhir:8080/fhir/MedicationAdministration/{{medicationadministration}}",
+      "resource": {
+        "resourceType": "MedicationAdministration",
+        "id": "{{medicationadministration}}",
+        "meta": {
+          "profile": [
+            "http://techhub.jembi.cloud/ips/StructureDefinition/injection"
+          ]
+        },
+        "status": "completed",
+        "medicationCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "2571007"
+            }
+          ],
+          "text": "Busulfan"
+        },
+        "subject": {
+          "reference": "Patient/{{patient}}"
+        },
+        "context": {
+          "reference": "Encounter/{{encounter}}"
+        },
+        "effectiveDateTime": "{{medicationadministration-date}}",
+        "performer": [
+          {
+            "actor": {
+              "reference": "Practitioner/{{practitioner}}"
+            }
+          }
+        ],
+        "dosage": {
+          "route": {
+            "coding": [
+              {
+                "system": "http://snomed.info/sct",
+                "code": "47625008"
+              }
+            ],
+            "text": "Intravenous route"
+          },
+          "dose": {
+            "value": 12
+          }
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "MedicationAdministration/{{medicationadministration}}"
+      }
+    },
+    {
+      "fullUrl": "http://hapi-fhir:8080/fhir/ImagingStudy/{{imagingstudy}}",
+      "resource": {
+        "resourceType": "ImagingStudy",
+        "id": "{{imagingstudy}}",
+        "meta": {
+          "profile": [
+            "http://techhub.jembi.cloud/ips/StructureDefinition/imaging-study"
+          ]
+        },
+        "status": "registered",
+        "subject": {
+          "reference": "Patient/{{patient}}"
+        },
+        "encounter": {
+          "reference": "Encounter/{{encounter}}"
+        },
+        "started": "{{imagingstudy-started}}",
+        "basedOn": [
+          {
+            "reference": "ServiceRequest/{{imagingservicerequest}}"
+          }
+        ],
+        "referrer": {
+          "reference": "Practitioner/{{practitioner}}"
+        },
+        "location": {
+          "reference": "Location/{{location}}"
+        },
+        "description": "Imaging Description",
+        "series": [
+          {
+            "uid": "2.16.124.113543.6003.1154777499.30246.19789.3503430045.1",
+            "modality": {
+              "system": "http://dicom.nema.org/resources/ontology/DCM",
+              "code": "DX"
+            },
+            "performer": [
+              {
+                "actor": {
+                  "reference": "Practitioner/{{practitioner}}"
+                }
+              }
+            ],
+            "instance": [
+              {
+                "uid": "2.16.124.113543.6003.1154777499.30246.19789.3503430045.1.1",
+                "sopClass": {
+                  "system": "urn:ietf:rfc:3986",
+                  "code": "urn:oid:1.2.840.10008.5.1.4.1.1.2"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ImagingStudy/{{imagingstudy}}"
+      }
+    },
+    {
+      "fullUrl": "http://hapi-fhir:8080/fhir/ServiceRequest/{{generalreferralservicerequest}}",
+      "resource": {
+        "resourceType": "ServiceRequest",
+        "id": "{{generalreferralservicerequest}}",
+        "meta": {
+          "profile": [
+            "http://techhub.jembi.cloud/ips/StructureDefinition/general-referral-request"
+          ]
+        },
+        "status": "completed",
+        "intent": "order",
+        "code": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "3457005"
+            }
+          ],
+          "text": "Patient referral"
+        },
+        "subject": {
+          "reference": "Patient/{{patient}}"
+        },
+        "encounter": {
+          "reference": "Encounter/{{encounter}}"
+        },
+        "occurrenceDateTime": "{{generalreferralservicerequest-date}}",
+        "requester": {
+          "reference": "Practitioner/{{practitioner}}"
+        },
+        "locationReference": [
+          {
+            "reference": "Location/{{location}}"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ServiceRequest/{{generalreferralservicerequest}}"
+      }
+    },
+    {
+      "fullUrl": "http://hapi-fhir:8080/fhir/ServiceRequest/{{investigationsservicerequest}}",
+      "resource": {
+        "resourceType": "ServiceRequest",
+        "id": "{{investigationsservicerequest}}",
+        "meta": {
+          "profile": [
+            "http://techhub.jembi.cloud/ips/StructureDefinition/investigations-request"
+          ]
+        },
+        "status": "completed",
+        "intent": "order",
+        "code": {
+          "coding": [
+            {
+              "system": "http://techhub.jembi.cloud/ips/CodeSystem/cs-investigation",
+              "code": "FBC-WBC-th/uL"
+            }
+          ],
+          "text": "Investigation requested"
+        },
+        "subject": {
+          "reference": "Patient/{{patient}}"
+        },
+        "encounter": {
+          "reference": "Encounter/{{encounter}}"
+        },
+        "occurrenceDateTime": "{{investigationsservicerequest-date}}",
+        "authoredOn": "{{investigationsorder-date}}",
+        "requester": {
+          "reference": "Practitioner/{{practitioner}}"
+        },
+        "locationReference": [
+          {
+            "reference": "Location/{{location}}"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ServiceRequest/{{investigationsservicerequest}}"
+      }
+    },
+    {
+      "fullUrl": "http://hapi-fhir:8080/fhir/ServiceRequest/{{procedureservicerequest}}",
+      "resource": {
+        "resourceType": "ServiceRequest",
+        "id": "{{procedureservicerequest}}",
+        "meta": {
+          "profile": [
+            "http://techhub.jembi.cloud/ips/StructureDefinition/procedures-request"
+          ]
+        },
+        "status": "completed",
+        "intent": "order",
+        "code": {
+          "coding": [
+            {
+              "system": "http://techhub.jembi.cloud/ips/CodeSystem/cs-procedure",
+              "code": "Cleaning-and-Dressing"
+            }
+          ],
+          "text": "Cleaning and Dressing"
+        },
+        "subject": {
+          "reference": "Patient/{{patient}}"
+        },
+        "encounter": {
+          "reference": "Encounter/{{encounter}}"
+        },
+        "occurrenceDateTime": "{{timestamp}}",
+        "requester": {
+          "reference": "Practitioner/{{practitioner}}"
+        },
+        "locationReference": [
+          {
+            "reference": "Location/{{location}}"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ServiceRequest/{{procedureservicerequest}}"
+      }
+    },
+    {
+      "fullUrl": "http://hapi-fhir:8080/fhir/ServiceRequest/{{imagingservicerequest}}",
+      "resource": {
+        "resourceType": "ServiceRequest",
+        "id": "{{imagingservicerequest}}",
+        "meta": {
+          "profile": [
+            "http://techhub.jembi.cloud/ips/StructureDefinition/imaging-request"
+          ]
+        },
+        "status": "completed",
+        "intent": "order",
+        "code": {
+          "coding": [
+            {
+              "system": "http://techhub.jembi.cloud/ips/CodeSystem/cs-procedure-imaging",
+              "code": "X-Ray"
+            }
+          ],
+          "text": "Imaging requested"
+        },
+        "subject": {
+          "reference": "Patient/{{patient}}"
+        },
+        "encounter": {
+          "reference": "Encounter/{{encounter}}"
+        },
+        "occurrenceDateTime": "{{imagingservicerequest-date}}",
+        "authoredOn": "{{imagingorder-date}}",
+        "requester": {
+          "reference": "Practitioner/{{practitioner}}"
+        },
+        "locationReference": [
+          {
+            "reference": "Location/{{location}}"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "ServiceRequest/{{imagingservicerequest}}"
+      }
+    },
+    {
+      "fullUrl": "http://hapi-fhir:8080/fhir/Task/{{ipsreferraltask}}",
+      "resource": {
+        "resourceType": "Task",
+        "id": "{{ipsreferraltask}}",
+        "meta": {
+          "profile": [
+            "http://techhub.jembi.cloud/ips/StructureDefinition/referral-task"
+          ]
+        },
+        "status": "completed",
+        "intent": "order",
+        "priority": "routine",
+        "description": "some information regarding the need for the referral request, if any.",
+        "focus": {
+          "reference": "ServiceRequest/{{generalreferralservicerequest}}"
+        },
+        "for": {
+          "reference": "Patient/{{patient}}"
+        },
+        "encounter": {
+          "reference": "Encounter/{{encounter}}"
+        },
+        "authoredOn": "{{ipsreferraltask-date}}",
+        "requester": {
+          "reference": "Practitioner/{{practitioner}}"
+        },
+        "location": {
+          "reference": "Location/{{location}}"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Task/{{ipsreferraltask}}"
+      }
+    },
+    {
+      "fullUrl": "http://hapi-fhir:8080/fhir/Practitioner/{{practitioner}}",
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "{{practitioner}}",
+        "meta": {
+          "profile": [
+            "http://techhub.jembi.cloud/ips/StructureDefinition/practitioner"
+          ]
+        },
+        "name": [
+          {
+            "family": "{{practitionerLastName}}",
+            "given": [
+              "{{practitionerFirstName1}}",
+              "{{practitionerFirstName2}}"
+            ],
+            "prefix": ["{{practitionerNamePrefix}}"]
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "{{practitionerPhoneNumber}}",
+            "use": "work"
+          },
+          {
+            "system": "email",
+            "value": "{{practitionerEmail}}",
+            "use": "home"
+          }
+        ]
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Practitioner/{{practitioner}}"
+      }
+    },
+    {
+      "fullUrl": "http://hapi-fhir:8080/fhir/Location/{{location}}",
+      "resource": {
+        "resourceType": "Location",
+        "id": "{{location}}",
+        "meta": {
+          "profile": [
+            "http://techhub.jembi.cloud/ips/StructureDefinition/providers-location"
+          ]
+        },
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://techhub.jembi.cloud/ips/CodeSystem/cs-identifier-types",
+                  "code": "PLOC"
+                }
+              ],
+              "text": "Provider location identifier"
+            },
+            "system": "http://techhub.jembi.cloud/ips/identifier/provider-location",
+            "value": "{{LOCID}}"
+          },
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://techhub.jembi.cloud/ips/CodeSystem/cs-identifier-types",
+                  "code": "PLOC"
+                }
+              ],
+              "text": "Provider location identifier"
+            },
+            "system": "http://techhub.jembi.cloud/ips/identifier/provider-location",
+            "value": "{{LOCID}}"
+          }
+        ],
+        "status": "active",
+        "name": "Name for the location",
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "{{locationPhoneNumber}}"
+          },
+          {
+            "system": "email",
+            "value": "{{locationEmail1}}"
+          },
+          {
+            "system": "email",
+            "value": "{{locationEmail2}}"
+          }
+        ],
+        "address": {
+          "type": "postal",
+          "line": ["177", "Nawala Road"],
+          "city": "Nugegoda",
+          "district": "Ampara",
+          "state": "Colombo",
+          "postalCode": "32350",
+          "country": "LK"
+        },
+        "managingOrganization": {
+          "reference": "Organization/{{organization}}"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Location/{{location}}"
+      }
+    },
+    {
+      "fullUrl": "http://hapi-fhir:8080/fhir/Organization/{{organization}}",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "{{organization}}",
+        "meta": {
+          "profile": [
+            "http://techhub.jembi.cloud/ips/StructureDefinition/organization"
+          ]
+        },
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "XX"
+                }
+              ],
+              "text": "Organization identifier"
+            },
+            "system": "http://techhub.jembi.cloud/ips/identifier/hin",
+            "value": "facility1"
+          }
+        ],
+        "name": "Some Health Facility"
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Organization/{{organization}}"
+      }
+    },
+    {
+      "fullUrl": "http://hapi-fhir:8080/fhir/Device/{{deviceinformation}}",
+      "resource": {
+        "resourceType": "Device",
+        "id": "{{deviceinformation}}",
+        "meta": {
+          "profile": [
+            "http://techhub.jembi.cloud/ips/StructureDefinition/device-information"
+          ]
+        },
+        "identifier": [
+          {
+            "system": "http://techhub.jembi.cloud/ips/identifier/system-id",
+            "value": "{{device-system-id}}"
+          }
+        ],
+        "status": "active",
+        "type": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "129465004"
+            }
+          ]
+        },
+        "version": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://techhub.jembi.cloud/ips/CodeSystem/cs-device-classification",
+                  "code": "OpenMRS"
+                }
+              ]
+            },
+            "value": "2.5.0"
+          }
+        ],
+        "owner": {
+          "reference": "Organization/{{organization}}"
+        },
+        "location": {
+          "reference": "Location/{{location}}"
+        }
+      },
+      "request": {
+        "method": "PUT",
+        "url": "Device/{{deviceinformation}}"
+      }
+    }
+  ]
+}
