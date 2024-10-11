@@ -216,7 +216,7 @@ function RecipeCard({
               <SettingsIcon className="h-4 w-4" />
             </Button>
           </DialogTrigger>
-          <DialogContent className="z-50 bg-white">
+          <DialogContent className="bg-background border shadow-lg">
             <DialogHeader>
               <DialogTitle>Configure {title}</DialogTitle>
             </DialogHeader>

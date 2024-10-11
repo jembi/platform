@@ -5,6 +5,7 @@ import {
   LayersIcon,
   UsersIcon,
   SettingsIcon,
+  PuzzleIcon, // Add this import
 } from "./Icons";
 
 interface SidebarProps {
@@ -15,6 +16,7 @@ interface SidebarProps {
 export function Sidebar({ onPageSelect, selectedPage }: SidebarProps) {
   const navItems = [
     { id: "recipes", label: "Recipes", icon: LayoutGridIcon },
+    { id: "addons", label: "Add-ons", icon: PuzzleIcon }, // Add this line
     { id: "packagesDeployed", label: "Packages Deployed", icon: LayersIcon },
     { id: "team", label: "Team", icon: UsersIcon },
     { id: "settings", label: "Settings", icon: SettingsIcon },
