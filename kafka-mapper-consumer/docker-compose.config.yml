@@ -27,7 +27,7 @@ services:
 configs:
   kafka-mapper-consumer-openhimConfig.js:
     file: ./openhimConfig.js
-    name: kafka-mapper-consumer-openhimConfig.js-${fhir_ig_importer_config_importer_openhimConfig_js_DIGEST:?err}
+    name: kafka-mapper-consumer-openhimConfig.js-${kafka_mapper_consumer_openhimConfig_js_DIGEST:?err}
     labels:
       name: kafka-mapper-consumer
   kafka-mapper-consumer-consumer-ui-app.json:

@@ -1,0 +1,6 @@
+{
+  "specPath": "project.yaml",
+  "statePath": "state.json",
+  "apiKey": "apiKey",
+  "endpoint": "http://openfn:4000"
+}
