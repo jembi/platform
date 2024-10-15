@@ -27,6 +27,7 @@ packages:
   - database-postgres
   - reprocess-mediator
   - fhir-ig-importer
+  - fhir-info-gateway
 
 profiles:
   - name: cdr-dw
@@ -47,6 +48,7 @@ profiles:
       - kafka-unbundler-consumer
       - fhir-ig-importer
       - reprocess-mediator
+      - fhir-info-gateway
     envFiles:
       - cdr-dw.env
 
@@ -63,6 +65,8 @@ profiles:
       - client-registry-jempi
       - identity-access-manager-keycloak
       - openhim-mapping-mediator
+      - fhir-ig-importer
+      - fhir-info-gateway
     envFiles:
       - cdr.env
 
