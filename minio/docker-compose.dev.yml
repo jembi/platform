@@ -1,0 +1,8 @@
+version: '3.9'
+
+services:
+  minio-01:
+    ports:
+      - target: 9001
+        published: 9005
+        mode: host

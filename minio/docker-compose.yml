@@ -1,0 +1,40 @@
+version: '3.9'
+
+services:
+  minio-01:
+    image: ${MINIO_IMAGE}
+    entrypoint: sh
+    command: -c 'mkdir -p /data1/loki /data2/loki && minio server --console-address ":9001" http://minio-0{1...${NUM_MINIO_SERVERS}}/data{1...2}'
+    environment:
+      MINIO_ROOT_USER: ${MO_SECURITY_ADMIN_USER}
+      MINIO_ROOT_PASSWORD: ${MO_SECURITY_ADMIN_PASSWORD}
+      MINIO_BROWSER_REDIRECT_URL: ${MINIO_BROWSER_REDIRECT_URL}
+      MINIO_SERVER_URL: http://localhost:9000
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    hostname: minio-01
+    volumes:
+      - minio-01-data1:/data1
+      - minio-01-data2:/data2
+    deploy:
+      replicas: 1
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=reverse-proxy-traefik_public
+        - traefik.http.routers.minio.rule=${DOMAIN_NAME_HOST_TRAEFIK} && PathPrefix(`/minio`)
+        - traefik.http.services.minio.loadbalancer.server.port=9001
+        - traefik.http.middlewares.minio-stripprefix.stripprefix.prefixes=/minio
+        - traefik.http.routers.minio.middlewares=minio-stripprefix
+    networks:
+      public:
+networks:
+  public:
+    name: minio_public
+    external: true
+
+volumes:
+  minio-01-data1:
+  minio-01-data2:
