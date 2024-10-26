@@ -71,6 +71,18 @@ function initialize_package() {
 
     docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.dgraph.yml" "$dgraph_dev_compose_param" "$dgraph_cluster_compose_param"
 
+    log info "Deploy Boostrapper"
+    docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.bootstrapper.yml" "$combined_cluster_compose_param"
+
+    if [[ "${ACTION}" == "init" ]]; then
+      log info "initiate bootstrapper data resetAll"
+      if docker service ps -q jempi_jempi-bootstrapper &>/dev/null; then
+        try "docker exec -i $(docker ps -q -f name=jempi_jempi-bootstrapper) ./bootstrapper.sh data resetAll" throw "Could not initiate bootstrapper "
+      else
+        log warn "Service 'jempi bootstrapper' does not appear to be running"
+      fi
+    fi
+
     log info "Deploy other combined services"
     docker::deploy_service $STACK "${COMPOSE_FILE_PATH}" "docker-compose.combined.yml" "$combined_cluster_compose_param"
 
@@ -87,14 +99,6 @@ function initialize_package() {
       log warn "Service 'interoperability-layer-openhim' does not appear to be running... skipping configuring of async/sync JeMPI channels"
     fi
 
-    if [[ "${ACTION}" == "init" ]]; then
-      log info "initiate bootstrapper data resetAll"
-      if docker service ps -q jempi_jempi-bootstrapper &>/dev/null; then
-        try "docker exec -i $(docker ps -q -f name=jempi_jempi-bootstrapper) ./bootstrapper.sh data resetAll" throw "Could not initiate bootstrapper "
-      else
-        log warn "Service 'jempi bootstrapper' does not appear to be running"
-      fi
-    fi
 
   ) ||
     {
