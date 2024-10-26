@@ -74,6 +74,7 @@
     "POSTGRESQL_USERS_DB": "users_db",
     "POSTGRESQL_NOTIFICATIONS_DB": "notifications_db",
     "POSTGRESQL_AUDIT_DB": "audit_db",
+    "POSTGRESQL_MPI_DB": "mpi_db",
     "POSTGRESQL_KC_TEST_DB": "kc_test_db",
     "POSTGRESQL_DATABASE": "jempi",
     "POSTGRESQL_USERNAME": "postgres",
