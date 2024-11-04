@@ -4,7 +4,7 @@
   "description": "A package for monitoring the platform services",
   "type": "infrastructure",
   "version": "0.0.1",
-  "dependencies": ["minio"],
+  "dependencies": ["datalake"],
   "environmentVariables": {
     "GRAFANA_IMAGE": "grafana/grafana-oss:9.2.3",
     "LOKI_IMAGE": "grafana/loki:2.6.1",

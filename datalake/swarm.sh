@@ -4,7 +4,7 @@ declare ACTION=""
 declare MODE=""
 declare COMPOSE_FILE_PATH=""
 declare UTILS_PATH=""
-declare STACK="minio"
+declare STACK="datalake"
 
 function init_vars() {
   ACTION=$1

@@ -1,6 +1,6 @@
 {
-  "id": "minio",
-  "name": "minio",
+  "id": "datalake",
+  "name": "datalake",
   "description": "Object storage for raw unstructured data, compatible with the s3 API",
   "type": "infrastructure",
   "version": "0.0.1",
