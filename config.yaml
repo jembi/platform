@@ -27,6 +27,7 @@ packages:
   - database-postgres
   - reprocess-mediator
   - fhir-ig-importer
+  - climate-mediator
 
 profiles:
   - name: cdr-dw
