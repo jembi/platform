@@ -6,3 +6,7 @@ services:
       - target: 9001
         published: 9005
         mode: host
+
+      - target: 9090
+        published: 9000
+        mode: host
