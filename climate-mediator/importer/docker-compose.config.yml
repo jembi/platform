@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  climate-mediator-config-importer:
+    image: ${CLIMATE_MEDIATOR_CONFIG_IMPORTER_IMAGE}
+    networks:
+      openhim:
+      default:
+    environment:
+      OPENHIM_API_USERNAME: ${OPENHIM_USERNAME}
+      OPENHIM_API_PASSWORD: ${OPENHIM_PASSWORD}
+      NODE_TLS_REJECT_UNAUTHORIZED: 0
+    command: sh -c "node openhimConfig.js"
+    configs:
+      - source: climate-mediator-config-importer-openhimConfig.js
+        target: /openhimConfig.js
+      - source: climate-mediator-config-importer-openhim-import.json
+        target: /openhim-import.json
+
+configs:
+  climate-mediator-config-importer-openhimConfig.js:
+    file: ./volume/openhimConfig.js
+    name: climate-mediator-config-importer-openhimConfig.js-${climate_mediator_config_importer_openhimConfig_js_DIGEST:?err}
+    labels:
+      name: climate-mediator
+  climate-mediator-config-importer-openhim-import.json:
+    file: ./volume/openhim-import.json
+    name: climate-mediator-config-importer-openhim-import.json-${climate_mediator_config_importer_openhim_import_js_DIGEST:?err}
+    labels:
+      name: climate-mediator
+
+networks:
+  openhim:
+    name: openhim_public
+    external: true
+  default:

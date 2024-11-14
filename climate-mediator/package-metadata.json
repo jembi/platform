@@ -1,0 +1,16 @@
+{
+  "id": "climate-mediator",
+  "name": "Climate Mediator",
+  "description": "This package creates a mediator service that is used in processing climate related data",
+  "type": "infrastructure",
+  "version": "0.0.1",
+  "dependencies": ["interoperability-layer-openhim"],
+  "environmentVariables": {
+    "TRUST_SELF_SIGNED": "true",
+    "OPENHIM_MEDIATOR_URL": "https://openhim-core:8080",
+    "OPENHIM_USERNAME": "root@openhim.org",
+    "OPENHIM_PASSWORD": "instant101",
+    "REGISTER_MEDIATOR": "true",
+    "CLIMATE_MEDIATOR_IMAGE": "jembi/climate-mediator:latest"
+  }
+}

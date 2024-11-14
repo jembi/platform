@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  climate-mediator:
+    image: ${CLIMATE_MEDIATOR_IMAGE}
+    networks:
+      openhim:
+      clickhouse:
+      public:
+      default:
+    environment:
+      OPENHIM_USERNAME: ${OPENHIM_USERNAME}
+      OPENHIM_PASSWORD: ${OPENHIM_PASSWORD}
+      REGISTER_MEDIATOR: ${REGISTER_MEDIATOR}
+      OPENHIM_MEDIATOR_URL: ${OPENHIM_MEDIATOR_URL}
+      TRUST_SELF_SIGNED: ${TRUST_SELF_SIGNED}
+
+networks:
+  openhim:
+    name: openhim_public
+    external: true
+    external: true
+  clickhouse:
+    name: clickhouse_public
+    external: true
+  public:
+    name: climate_public
+    external: true
+  default:

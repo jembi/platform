@@ -1,0 +1,138 @@
+{
+  "Users": [
+    {
+      "firstname": "Super",
+      "surname": "User",
+      "email": "root@openhim.org",
+      "provider": "token",
+      "groups": ["admin"],
+      "passwordAlgorithm": "sha512",
+      "passwordHash": "ea3824f17cf1379eb118a36bc7c8cf0f45712e2af7748567fca5313dec6fa66d61064e82a5e5cb88e998486ee3c7d0dac235bbeda8c341d6edc1c77406be2ab6",
+      "passwordSalt": "d4f622c0404f09bd959bfb263efa3452",
+      "expiry": null,
+      "locked": false,
+      "token": null,
+      "tokenType": null
+    }
+  ],
+  "Clients": [
+    {
+      "clientID": "instant-client",
+      "name": "Instant Client",
+      "roles": ["instant"],
+      "customTokenID": "test"
+    }
+  ],
+  "Channels": [
+    {
+      "name": "Climate Orchestrations - Create/Read operations for climate related data",
+      "description": "",
+      "urlPattern": "^/climate.*$",
+      "methods": ["GET", "POST"],
+      "type": "http",
+      "priority": 2,
+      "tcpPort": null,
+      "tcpHost": null,
+      "pollingSchedule": null,
+      "requestBody": true,
+      "responseBody": true,
+      "allow": ["instant"],
+      "whitelist": [],
+      "authType": "private",
+      "routes": [
+        {
+          "name": "Climate Mediator",
+          "type": "http",
+          "status": "enabled",
+          "secured": false,
+          "host": "climate-mediator",
+          "port": 3000,
+          "path": "",
+          "pathTransform": "",
+          "primary": true,
+          "username": "",
+          "password": "",
+          "forwardAuthHeader": false
+        }
+      ],
+      "matchContentTypes": [],
+      "matchContentRegex": null,
+      "matchContentXpath": null,
+      "matchContentJson": null,
+      "matchContentValue": null,
+      "properties": [],
+      "txViewAcl": [],
+      "txViewFullAcl": [],
+      "txRerunAcl": [],
+      "alerts": [],
+      "status": "enabled",
+      "rewriteUrls": false,
+      "addAutoRewriteRules": true,
+      "rewriteUrlsConfig": [],
+      "autoRetryEnabled": false,
+      "autoRetryPeriodMinutes": 60,
+      "updatedBy": {
+        "id": "65d47e98223a0672c3c9808b",
+        "name": "Super User"
+      }
+    }
+  ],
+  "Mediators": [
+    {
+      "urn": "urn:mediator:climate-mediator",
+      "version": "0.0.1",
+      "name": "Climate mediator",
+      "description": "A mediator handling interactions between the OpenHIM Core service and climate related data",
+      "endpoints": [
+        {
+          "name": "Climate Endpoint",
+          "type": "http",
+          "status": "enabled",
+          "host": "climate-mediator",
+          "port": 3000,
+          "path": "/climate",
+          "primary": true,
+          "forwardAuthHeader": false
+        }
+      ],
+      "defaultChannelConfig": [
+        {
+          "name": "Climate mediator",
+          "urlPattern": "^(/async)?/climate.*$",
+          "methods": ["POST", "GET"],
+          "type": "http",
+          "allow": ["instant"],
+          "whitelist": [],
+          "authType": "private",
+          "routes": [
+            {
+              "name": "Climate Endpoint",
+              "type": "http",
+              "status": "enabled",
+              "host": "climate-mediator",
+              "port": 3000,
+              "primary": true,
+              "forwardAuthHeader": false
+            }
+          ],
+          "matchContentTypes": [],
+          "properties": [],
+          "txViewAcl": [],
+          "txViewFullAcl": [],
+          "txRerunAcl": [],
+          "alerts": [],
+          "status": "enabled",
+          "rewriteUrls": false,
+          "addAutoRewriteRules": true,
+          "rewriteUrlsConfig": [],
+          "autoRetryEnabled": false,
+          "autoRetryPeriodMinutes": 60
+        }
+      ],
+      "configDefs": [],
+      "_lastHeartbeat": "2024-12-14T12:23:22.769Z",
+      "_uptime": 5650.734193405
+    }
+  ],
+  "ContactGroups": []
+}
