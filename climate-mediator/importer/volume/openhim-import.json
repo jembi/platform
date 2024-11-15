@@ -25,52 +25,21 @@
   ],
   "Channels": [
     {
-      "name": "Climate Orchestrations - Create/Read operations for climate related data",
-      "description": "",
+      "name": "Climate Mediator",
       "urlPattern": "^/climate.*$",
-      "methods": ["GET", "POST"],
-      "type": "http",
-      "priority": 2,
-      "tcpPort": null,
-      "tcpHost": null,
-      "pollingSchedule": null,
-      "requestBody": true,
-      "responseBody": true,
-      "allow": ["instant"],
-      "whitelist": [],
-      "authType": "private",
       "routes": [
         {
-          "name": "Climate Mediator",
-          "type": "http",
-          "status": "enabled",
-          "secured": false,
+          "name": "Climate Mediator Endpoint",
           "host": "climate-mediator",
-          "port": 3000,
-          "path": "",
-          "pathTransform": "",
+          "port": "3000",
           "primary": true,
-          "username": "",
-          "password": "",
-          "forwardAuthHeader": false
+          "type": "http",
+          "path": "/climate/upload"
         }
       ],
-      "matchContentTypes": [],
-      "matchContentRegex": null,
-      "matchContentXpath": null,
-      "matchContentJson": null,
-      "matchContentValue": null,
-      "properties": [],
-      "txViewAcl": [],
-      "txViewFullAcl": [],
-      "txRerunAcl": [],
-      "alerts": [],
-      "status": "enabled",
-      "rewriteUrls": false,
-      "addAutoRewriteRules": true,
-      "rewriteUrlsConfig": [],
-      "autoRetryEnabled": false,
-      "autoRetryPeriodMinutes": 60,
+      "allow": ["instant"],
+      "methods": ["POST", "GET"],
+      "type": "http",
       "updatedBy": {
         "id": "65d47e98223a0672c3c9808b",
         "name": "Super User"
@@ -97,36 +66,21 @@
       ],
       "defaultChannelConfig": [
         {
-          "name": "Climate mediator",
-          "urlPattern": "^(/async)?/climate.*$",
-          "methods": ["POST", "GET"],
-          "type": "http",
-          "allow": ["instant"],
-          "whitelist": [],
-          "authType": "private",
+          "name": "Climate Mediator",
+          "urlPattern": "^/climate.*$",
           "routes": [
             {
-              "name": "Climate Endpoint",
-              "type": "http",
-              "status": "enabled",
+              "name": "Climate Mediator Endpoint",
               "host": "climate-mediator",
-              "port": 3000,
+              "port": "3000",
               "primary": true,
-              "forwardAuthHeader": false
+              "type": "http",
+              "path": "/climate/upload"
             }
           ],
-          "matchContentTypes": [],
-          "properties": [],
-          "txViewAcl": [],
-          "txViewFullAcl": [],
-          "txRerunAcl": [],
-          "alerts": [],
-          "status": "enabled",
-          "rewriteUrls": false,
-          "addAutoRewriteRules": true,
-          "rewriteUrlsConfig": [],
-          "autoRetryEnabled": false,
-          "autoRetryPeriodMinutes": 60
+          "allow": ["instant"],
+          "methods": ["POST", "GET"],
+          "type": "http"
         }
       ],
       "configDefs": [],

@@ -11,6 +11,7 @@
     "OPENHIM_USERNAME": "root@openhim.org",
     "OPENHIM_PASSWORD": "instant101",
     "REGISTER_MEDIATOR": "true",
-    "CLIMATE_MEDIATOR_IMAGE": "jembi/climate-mediator:latest"
+    "CLIMATE_MEDIATOR_IMAGE": "jembi/climate-mediator:latest",
+    "CLIMATE_MEDIATOR_CONFIG_IMPORTER_IMAGE": "node:erbium-alpine"
   }
 }
