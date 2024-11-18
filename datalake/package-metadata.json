@@ -1,0 +1,21 @@
+{
+  "id": "datalake",
+  "name": "datalake",
+  "description": "Object storage for raw unstructured data, compatible with the s3 API",
+  "type": "infrastructure",
+  "version": "0.0.1",
+  "dependencies": [],
+  "environmentVariables": {
+    "NUM_MINIO_SERVERS": 1,
+    "MO_SECURITY_ADMIN_USER": "admin",
+    "MO_SECURITY_ADMIN_PASSWORD": "dev_password_only",
+    "MO_RETENTION_TIME": "15d",
+    "MINIO_BROWSER_REDIRECT_URL": "http://localhost:9001",
+    "DOMAIN_NAME_HOST_TRAEFIK": "localhost",
+    "MINIO_01_PLACEMENT": "minio-01",
+    "MINIO_02_PLACEMENT": "minio-02",
+    "MINIO_03_PLACEMENT": "minio-03",
+    "MINIO_04_PLACEMENT": "minio-04",
+    "MINIO_IMAGE": "minio/minio:RELEASE.2024-10-13T13-34-11Z.fips"
+  }
+}
