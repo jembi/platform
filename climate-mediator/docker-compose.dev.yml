@@ -5,4 +5,4 @@ services:
     ports:
       - target: 3000
         published: 3011
-        mode: host
+        mode: host  

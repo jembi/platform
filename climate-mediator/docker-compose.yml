@@ -19,7 +19,6 @@ networks:
   openhim:
     name: openhim_public
     external: true
-    external: true
   clickhouse:
     name: clickhouse_public
     external: true
