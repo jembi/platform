@@ -6,6 +6,7 @@ services:
     networks:
       openhim:
       clickhouse:
+      datalake:
       public:
       default:
     environment:
@@ -14,6 +15,11 @@ services:
       REGISTER_MEDIATOR: ${REGISTER_MEDIATOR}
       OPENHIM_MEDIATOR_URL: ${OPENHIM_MEDIATOR_URL}
       TRUST_SELF_SIGNED: ${TRUST_SELF_SIGNED}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+      MINIO_PORT: ${MINIO_PORT}
+      MINIO_BUCKET: ${MINIO_BUCKET}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
 
 networks:
   openhim:
@@ -21,6 +27,9 @@ networks:
     external: true
   clickhouse:
     name: clickhouse_public
+    external: true
+  datalake:
+    name: minio_public
     external: true
   public:
     name: climate_public

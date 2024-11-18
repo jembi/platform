@@ -4,7 +4,7 @@
   "description": "This package creates a mediator service that is used in processing climate related data",
   "type": "infrastructure",
   "version": "0.0.1",
-  "dependencies": ["interoperability-layer-openhim"],
+  "dependencies": ["interoperability-layer-openhim", "datalake"],
   "environmentVariables": {
     "TRUST_SELF_SIGNED": "true",
     "OPENHIM_MEDIATOR_URL": "https://openhim-core:8080",
@@ -12,6 +12,11 @@
     "OPENHIM_PASSWORD": "instant101",
     "REGISTER_MEDIATOR": "true",
     "CLIMATE_MEDIATOR_IMAGE": "jembi/climate-mediator:latest",
-    "CLIMATE_MEDIATOR_CONFIG_IMPORTER_IMAGE": "node:erbium-alpine"
+    "CLIMATE_MEDIATOR_CONFIG_IMPORTER_IMAGE": "node:erbium-alpine",
+    "MINIO_BUCKET": "climate-mediator",
+    "MINIO_ACCESS_KEY": "tCroZpZ3usDUcvPM3QT6",
+    "MINIO_SECRET_KEY": "suVjMHUpVIGyWx8fFJHTiZiT88dHhKgVpzvYTOKK",
+    "MINIO_ENDPOINT": "minio-01",
+    "MINIO_PORT": "9090"
   }
 }
