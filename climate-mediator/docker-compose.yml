@@ -6,7 +6,7 @@ services:
     networks:
       openhim:
       clickhouse:
-      datalake:
+      minio:
       public:
       default:
     environment:
@@ -28,7 +28,7 @@ networks:
   clickhouse:
     name: clickhouse_public
     external: true
-  datalake:
+  minio:
     name: minio_public
     external: true
   public:
