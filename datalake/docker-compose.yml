@@ -9,7 +9,7 @@ services:
       MINIO_ROOT_USER: ${MO_SECURITY_ADMIN_USER}
       MINIO_ROOT_PASSWORD: ${MO_SECURITY_ADMIN_PASSWORD}
       MINIO_BROWSER_REDIRECT_URL: ${MINIO_BROWSER_REDIRECT_URL}
-      MINIO_SERVER_URL: http://localhost:9090
+      MINIO_SERVER_URL: ${MINIO_SERVER_URL:-http://localhost:9000}
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:9090/minio/health/live" ]
       interval: 30s
