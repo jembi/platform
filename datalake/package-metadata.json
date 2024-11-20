@@ -16,6 +16,7 @@
     "MINIO_02_PLACEMENT": "minio-02",
     "MINIO_03_PLACEMENT": "minio-03",
     "MINIO_04_PLACEMENT": "minio-04",
-    "MINIO_IMAGE": "minio/minio:RELEASE.2024-10-13T13-34-11Z.fips"
+    "MINIO_IMAGE": "minio/minio:RELEASE.2024-10-13T13-34-11Z.fips",
+    "MINIO_SERVER_URL": "http://localhost:9000"
   }
 }
