@@ -1,7 +1,17 @@
 # Jembi Platform
 
+OpenHIM platform is an easy way to set up, manage and operate a Health Information Exchange (HIE). Specifically, it is the following:
+
+- A toolbox of open-source tools, grouped into packages, that are used within an HIE.
+- The glue that ties these tools together. These are often in the form of OpenHIM mediators which are just microservices that talk to OpenHIM.
+- A CLI tool to deploy and manage these packages.
+
+> [!NOTE]
+> 📚 Check out the [OpenHIM platform documentation](https://jembi.gitbook.io/openhim-platform) for more information!
+
 ## Tech Used
 
+- Instant OpenHIE
 - Docker
 - Golang (cli dev)
 - Terraform (remote cluster setup)
