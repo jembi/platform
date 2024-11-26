@@ -1,0 +1,8 @@
+version: '3.9'
+
+services:
+  smart-health-links-portal:
+    ports:
+      - target: 3000
+        published: ${SMART_HEALTH_LINKS_PORTAL_PORT}
+        mode: host

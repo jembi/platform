@@ -1,8 +1,9 @@
 projectName: platform
-image: jembi/platform:latest
+image: jembi/platform:local
 logPath: /tmp/logs
 
 packages:
+  - smart-health-links-portal
   - interoperability-layer-openhim
   - reverse-proxy-nginx
   - fhir-datastore-hapi-fhir
@@ -30,6 +31,7 @@ packages:
   - datalake
 
 profiles:
+
   - name: cdr-dw
     packages:
       - message-bus-kafka
@@ -93,3 +95,13 @@ profiles:
       - openhim-mapping-mediator
     envFiles:
       - mpi-qa.env
+
+  - name: smart-health-links-portal
+    packages:
+      - smart-health-links-portal
+      - interoperability-layer-openhim
+      - fhir-datastore-hapi-fhir
+      - database-postgres
+    envFiles:
+      - smart-health-links-portal.env
+    dev: true

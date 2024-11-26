@@ -76,6 +76,7 @@ typings/
 # generated files
 /docs/.docusaurus
 /docs/.cache-loader
+.history
 
 # Built Go Binaries
 platform-linux
