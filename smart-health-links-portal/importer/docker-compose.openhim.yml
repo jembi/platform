@@ -1,0 +1,43 @@
+version: '3.9'
+
+services:
+  # container for executing config import scripts for creating the OpenHIM channels used by the Mediator
+  shlp-openhim-config-importer:
+    image: node:erbium-alpine
+    networks:
+      openhim:
+      default:
+    environment:
+      OPENHIM_API_USERNAME: ${OPENHIM_USERNAME}
+      OPENHIM_API_PASSWORD: ${OPENHIM_PASSWORD}
+      # Reject unauthorised is only needed if the OpenHIM's SSL is not setup
+      NODE_TLS_REJECT_UNAUTHORIZED: 0
+      OPENHIM_CONSOLE_BASE_URL: ${OPENHIM_CONSOLE_BASE_URL}
+    command: sh -c "node openhimConfig.js"
+    configs:
+      - source: openhimConfig.js
+        target: /openhimConfig.js
+      - source: openhim-import.json
+        target: /openhim-import.json
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: none
+
+configs:
+  openhimConfig.js:
+    file: ./volume/openhim/openhimConfig.js
+    name: openhimConfig.js-${openhimConfig_js_DIGEST:?err}
+    labels:
+      name: smart-health-links-importer
+  openhim-import.json:
+    file: ./volume/openhim/openhim-import.json
+    name: openhim-import.json-${openhim_import_json_DIGEST:?err}
+    labels:
+      name: smart-health-links-importer
+
+networks:
+  openhim:
+    name: openhim_public
+    external: true
+  default:

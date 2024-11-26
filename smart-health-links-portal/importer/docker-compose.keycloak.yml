@@ -1,0 +1,41 @@
+version: '3.9'
+
+services:
+  # container for executing config import scripts for creating the Keycloak Realm used for SHLP User Auth
+  shlp-keycloak-config-importer:
+    image: node:erbium-alpine
+    networks:
+      public:
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      NEXTAUTH_URL: ${SHLP_NEXTAUTH_URL}
+      KEYCLOAK_CLIENT_SECRET: ${SHLP_KEYCLOAK_CLIENT_SECRET}
+
+    command: sh -c "node keycloakConfig.js"
+    configs:
+      - source: keycloakConfig.js
+        target: /keycloakConfig.js
+      - source: keycloak-realm.json
+        target: /keycloak-realm.json
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: none
+
+configs:
+  keycloakConfig.js:
+    file: ./volume/keycloak/keycloakConfig.js
+    name: keycloakConfig.js-${keycloakConfig_js_DIGEST:?err}
+    labels:
+      name: smart-health-links-importer
+  keycloak-realm.json:
+    file: ./volume/keycloak/keycloak-realm.json
+    name: keycloak-realm.json-${keycloak_realm_json_DIGEST:?err}
+    labels:
+      name: smart-health-links-importer
+
+networks:
+  public:
+    name: keycloak_public
+    external: true

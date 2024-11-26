@@ -1,5 +1,5 @@
 projectName: platform
-image: jembi/platform:local
+image: jembi/platform:latest
 logPath: /tmp/logs
 
 packages:
@@ -31,7 +31,6 @@ packages:
   - datalake
 
 profiles:
-
   - name: cdr-dw
     packages:
       - message-bus-kafka
@@ -104,4 +103,3 @@ profiles:
       - database-postgres
     envFiles:
       - smart-health-links-portal.env
-    dev: true

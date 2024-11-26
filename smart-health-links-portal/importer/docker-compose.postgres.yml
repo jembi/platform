@@ -1,0 +1,43 @@
+version: '3.9'
+
+services:
+  shlp_db_config:
+    image: node:erbium-alpine
+    command: sh -c "pwd && cd /importer && ls && npm i && ls && node create-db.js"
+    configs:
+      - source: package.json
+        target: /importer/package.json
+      - source: create-db.js
+        target: /importer/create-db.js
+    networks:
+      postgres:
+    environment:
+      POSTGRES_SERVICE: ${POSTGRES_SERVICE}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_USER: ${POSTGRES_USER_ADMIN}
+      POSTGRES_DATABASE: ${POSTGRES_USER_ADMIN_DATABASE}
+      POSTGRES_PASSWORD: ${POSTGRES_USER_ADMIN_PASSWORD}
+      NEW_DATABASE_NAME: ${SHLP_POSTGRES_DB}
+      NEW_DATABASE_USER: ${SHLP_POSTGRES_USER}
+      NEW_DATABASE_PASSWORD: ${SHLP_POSTGRES_PASSWORD}
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: none
+
+networks:
+  postgres:
+    name: postgres_public
+    external: true
+
+configs:
+  package.json:
+    file: ./volume/postgres/package.json
+    name: package.json-${package_json_DIGEST:?err}
+    labels:
+      name: smart-health-links-importer
+  create-db.js:
+    file: ./volume/postgres/create-db.js
+    name: create_db.js-${create_db_js_DIGEST:?err}
+    labels:
+      name: smart-health-links-importer

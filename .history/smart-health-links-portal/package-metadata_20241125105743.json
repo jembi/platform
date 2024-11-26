@@ -1,0 +1,47 @@
+{
+  "id": "smart-health-links-portal",
+  "name": "Smart Health Links Portal",
+  "description": "The package provides a Backend and Frontend for managing Patient's Smart Health Links for sharing their medical data",
+  "type": "infrastructure",
+  "version": "0.0.1",
+  "dependencies": [
+    "interoperability-layer-openhim",
+    "fhir-datastore-hapi-fhir",
+    "identity-access-manager-keycloak",
+    "database-postgres"
+  ],
+  "environmentVariables": {
+    "HAPI_FHIR_BASE_URL": "http://hapi-fhir:8080/fhir",
+    "HAPI_FHIR_INSTANCES": 1,
+    "SMART_HEALTH_LINKS_PORTAL_PORT": 7457,
+    "SMART_HEALTH_LINKS_PORTAL_VERSION": "latest",
+    "OPENHIM_CONSOLE_BASE_URL": "http://localhost:9000",
+    "OPENHIM_API_USERNAME": "root@openhim.org",
+    "OPENHIM_API_PASSWORD": "instant101",
+    "POSTGRES_DB": "keycloak_db",
+    "POSTGRES_USER": "keycloak_db_user",
+    "POSTGRES_PASSWORD": "keycloak_db_user_password",
+    "KEYCLOAK_ADMIN": "admin",
+    "KEYCLOAK_ADMIN_PASSWORD": "dev_password_only",
+    "SHLP_KEYCLOAK_CLIENT_ID": "nextjs",
+    "SHLP_KEYCLOAK_CLIENT_SECRET": "keycloak_client_secret",
+    "SHLP_KEYCLOAK_ISSUER": "https://localhost:9088/realms/shlp",
+    "SHLP_NEXTAUTH_URL": "http://localhost:3000",
+    "SHLP_NEXTAUTH_SECRET": "nextauth_secret",
+    "SHLP_NEXT_CONTAINER_KEYCLOAK_ENDPOINT": "http://identity-access-manager-keycloak:8080",
+    "SHLP_NEXT_LOCAL_KEYCLOAK_URL": "http://localhost:9088",
+    "SHLP_VIEWER_DOMAIN": "http://localhost:3000",
+    "SHLP_EXTERNAL_URL": "http://localhost:3000",
+    "POSTGRES_PRISMA_URL": "postgresql://shlp_user:shlp_password@postgres-1:5432/shlp",
+
+    "SHLP_POSTGRES_DB": "shlp",
+    "SHLP_POSTGRES_USER": "shlp_user",
+    "SHLP_POSTGRES_PASSWORD": "shlp_password",
+
+    "POSTGRES_SERVICE": "postgres-1",
+    "POSTGRES_PORT": 5432,
+    "POSTGRES_USER_ADMIN": "postgres",
+    "POSTGRES_USER_ADMIN_PASSWORD": "instant101",
+    "POSTGRES_USER_ADMIN_DATABASE": "postgres"
+  }
+}

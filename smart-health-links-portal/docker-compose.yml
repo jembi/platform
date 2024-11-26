@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:
+  smart-health-links-portal:
+    image: jembi/smart-health-links-portal:${SMART_HEALTH_LINKS_PORTAL_VERSION}
+    networks:
+      hapi-fhir:
+      openhim:
+      reverse-proxy:
+      postgres:
+    environment:
+      HAPI_FHIR_BASE_URL: ${HAPI_FHIR_BASE_URL}
+      HAPI_FHIR_INSTANCES: ${HAPI_FHIR_INSTANCES}
+      OPENHIM_CONSOLE_BASE_URL: ${OPENHIM_CONSOLE_BASE_URL}
+      OPENHIM_API_USERNAME: ${OPENHIM_USERNAME}
+      OPENHIM_API_PASSWORD: ${OPENHIM_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KEYCLOAK_CLIENT_ID: ${SHLP_KEYCLOAK_CLIENT_ID}
+      KEYCLOAK_CLIENT_SECRET: ${SHLP_KEYCLOAK_CLIENT_SECRET}
+      KEYCLOAK_ISSUER: ${SHLP_KEYCLOAK_ISSUER}
+      NEXTAUTH_URL: ${SHLP_NEXTAUTH_URL}
+      NEXTAUTH_SECRET: ${SHLP_NEXTAUTH_SECRET}
+      NEXT_CONTAINER_KEYCLOAK_ENDPOINT: ${SHLP_NEXT_CONTAINER_KEYCLOAK_ENDPOINT}
+      NEXT_LOCAL_KEYCLOAK_URL: ${SHLP_NEXT_LOCAL_KEYCLOAK_URL}
+      NEXT_PUBLIC_DOMAIN: ${SHLP_VIEWER_DOMAIN}
+      EXTERNAL_URL: ${SHLP_EXTERNAL_URL}
+      POSTGRES_PRISMA_URL: ${POSTGRES_PRISMA_URL}
+
+networks:
+  hapi-fhir:
+    name: hapi-fhir_public
+    external: true
+  openhim:
+    name: openhim_public
+    external: true
+  reverse-proxy:
+    name: reverse-proxy_public
+    external: true
+  postgres:
+    name: postgres_public
+    external: true
+  default:
