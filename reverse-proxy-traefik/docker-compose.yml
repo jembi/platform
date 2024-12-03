@@ -22,7 +22,7 @@ services:
       #certificate resolver
       - --certificatesresolvers.le.acme.email=${ACME_EMAIL?Variable not set}
       - --certificatesresolvers.le.acme.storage=/certificates/acme.json
-      - --certificatesresolvers.le.acme.tlschallenge=true
+      - --certificatesresolvers.le.acme.tlschallenge=${TLS_CHALLENGE}
       - --certificatesresolvers.le.acme.caserver=${CA_SERVER}
       - --certificatesresolvers.le.acme.dnschallenge.delaybeforecheck=0
 
@@ -41,11 +41,12 @@ services:
         - traefik.http.routers.traefik.entrypoints=http
         - traefik.http.routers.traefik.middlewares=auth
         - traefik.http.routers.traefik.service=api@internal
-        - traefik.http.routers.traefik.tls=true
-        - traefik.http.routers.traefik.tls.certresolver=${CERT_RESOLVER}
+        - traefik.http.routers.traefik.tls=${TLS}
+        - traefik.http.routers.traefik.tls.certresolver=${CERT_RESOLVER-""}
         - traefik.http.services.openhim-console.loadbalancer.server.port=8080
 
         - traefik.http.middlewares.to-https.redirectscheme.scheme=https
+        - traefik.http.middlewares.to-https.redirectscheme.permanent=${REDIRECT_TO_HTTPS}
         - traefik.http.middlewares.auth.basicauth.users=${USERNAME}:${PASSWORD}
 
       placement:

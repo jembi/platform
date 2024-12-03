@@ -27,6 +27,7 @@ packages:
   - database-postgres
   - reprocess-mediator
   - fhir-ig-importer
+  - datalake
 
 profiles:
   - name: cdr-dw
@@ -47,6 +48,7 @@ profiles:
       - kafka-unbundler-consumer
       - fhir-ig-importer
       - reprocess-mediator
+      - datalake
     envFiles:
       - cdr-dw.env
 
@@ -78,3 +80,16 @@ profiles:
       - openhim-mapping-mediator
     envFiles:
       - mpi.env
+
+  - name: mpi-qa
+    packages:
+      - interoperability-layer-openhim
+      - reverse-proxy-nginx
+      - message-bus-kafka
+      - job-scheduler-ofelia
+      - monitoring
+      - client-registry-jempi
+      - identity-access-manager-keycloak
+      - openhim-mapping-mediator
+    envFiles:
+      - mpi-qa.env

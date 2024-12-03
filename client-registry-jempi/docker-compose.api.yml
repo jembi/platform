@@ -3,6 +3,11 @@ version: "3.9"
 services:
   jempi-api:
     image: jembi/jempi-api:${JEMPI_API_IMAGE_TAG}
+    configs:
+      - target: /app/conf_system/config.json
+        source: config.json
+      - target: /app/conf_system/config-api.json
+        source: config-api.json
     environment:
       LOG4J2_LEVEL: ${LOG4J2_LEVEL}
       POSTGRESQL_IP: ${JEMPI_POSTGRES_DB}
@@ -20,6 +25,11 @@ services:
       LINKER_HTTP_PORT: 50000
       CONTROLLER_IP: jempi-controller
       CONTROLLER_HTTP_PORT: 50000
+      SYSTEM_CONFIG_DIR: ${SYSTEM_CONFIG_DIR}
+      API_CONFIG_REFERENCE_FILENAME: ${API_CONFIG_REFERENCE_FILENAME}
+      API_CONFIG_MASTER_FILENAME: ${API_CONFIG_MASTER_FILENAME}
+      API_FIELDS_CONFIG_FILENAME: ${API_FIELDS_CONFIG_FILENAME}
+      JEMPI_FILE_IMPORT_MAX_SIZE_BYTE: ${JEMPI_FILE_IMPORT_MAX_SIZE_BYTE}
     volumes:
       - "jempi-shared-data:/app/csv"
     deploy:
@@ -30,6 +40,13 @@ services:
         - traefik.http.routers.jempi-api.service=jempi-api
         - traefik.http.services.jempi-api.loadbalancer.server.port=50000
         - traefik.http.routers.jempi-api.rule=Host(`${JEMPI_API_TRAEFIK_SUBDOMAIN}.${DOMAIN_NAME_HOST_TRAEFIK}`)
+        - traefik.http.routers.jempi-api.entrypoints=${WEB_ENTRY_POINT}
+        - traefik.http.routers.jempi-api.tls=${TLS}
+        - traefik.http.routers.jempi-api.tls.certresolver=${CERT_RESOLVER}
+        - traefik.http.services.jempi-api.loadbalancer.server.scheme=http
+        - traefik.http.middlewares.jempi-api-redirect.redirectscheme.scheme=https
+        - traefik.http.middlewares.jempi-api-redirect.redirectscheme.permanent=${REDIRECT_TO_HTTPS}
+
       resources:
         limits:
           memory: ${JEMPI_API_MEMORY_LIMIT}
@@ -43,8 +60,14 @@ services:
       jempi:
       postgres:
 
+
   jempi-api-kc:
     image: jembi/jempi-api-kc:${JEMPI_API_KC_IMAGE_TAG}
+    configs:
+      - target: /app/conf_system/config.json
+        source: config.json
+      - target: /app/conf_system/config-api.json
+        source: config-api.json
     environment:
       LOG4J2_LEVEL: ${LOG4J2_LEVEL}
       KC_REALM_NAME: ${KC_REALM_NAME}
@@ -72,6 +95,11 @@ services:
       LINKER_HTTP_PORT: 50000
       CONTROLLER_IP: jempi-controller
       CONTROLLER_HTTP_PORT: 50000
+      SYSTEM_CONFIG_DIR: ${SYSTEM_CONFIG_DIR}
+      API_CONFIG_REFERENCE_FILENAME: ${API_CONFIG_REFERENCE_FILENAME}
+      API_CONFIG_MASTER_FILENAME: ${API_CONFIG_MASTER_FILENAME}
+      API_FIELDS_CONFIG_FILENAME: ${API_FIELDS_CONFIG_FILENAME}
+      JEMPI_FILE_IMPORT_MAX_SIZE_BYTE: ${JEMPI_FILE_IMPORT_MAX_SIZE_BYTE}
     volumes:
       - "jempi-shared-data:/app/csv"
     deploy:
@@ -89,8 +117,10 @@ services:
       jempi:
       postgres:
 
+
 volumes:
   jempi-shared-data:
+
 
 networks:
   reverse-proxy:
@@ -109,3 +139,15 @@ networks:
     name: kafka_public
     external: true
   default:
+
+configs:
+  config.json:
+    file: ./config/config.json
+    name: config.json-${config_json_DIGEST:?err}
+    labels:
+      name: jempi
+  config-api.json:
+    file: ./config/config-api.json
+    name: config-api.json-${config_api_json_DIGEST:?err}
+    labels:
+      name: jempi
