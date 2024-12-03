@@ -29,6 +29,19 @@ services:
     networks:
       kafka:
       reverse-proxy:
+      traefik:
+    deploy:
+      replicas: 1
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=reverse-proxy-traefik_public
+        - traefik.http.routers.kafka-mapper-consumer-ui.rule=PathPrefix(`/kafka-mapper-consumer-ui`)
+        - traefik.http.services.kafka-mapper-consumer-ui.loadbalancer.server.port=80
+        - traefik.http.services.kafka-mapper-consumer-ui.loadbalancer.server.url=http://kafka-mapper-consumer-ui:80/jembi-kafka-mapper-consumer-ui.js
+        - traefik.http.routers.kafka-mapper-consumer-ui.tls=${TLS}
+        - traefik.http.routers.kafka-mapper-consumer-ui.entrypoints=${WEB_ENTRY_POINT}
+        - traefik.http.routers.kafka-mapper-consumer-ui.middlewares=kafka-mapper-consumer-ui-stripprefix
+        - traefik.http.middlewares.kafka-mapper-consumer-ui-stripprefix.stripprefix.prefixes=/kafka-mapper-consumer-ui
 
 configs:
   fhir-mapping.json:
@@ -49,5 +62,8 @@ networks:
     external: true
   reverse-proxy:
     name: reverse-proxy_public
+    external: true
+  traefik:
+    name: reverse-proxy-traefik_public
     external: true
   default:
