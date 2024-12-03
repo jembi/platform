@@ -136,6 +136,8 @@ services:
       - target: /etc/loki/loki-config.yml
         source: loki-config.yml
     command: -config.file=/etc/loki/loki-config.yml -config.expand-env=true
+    networks:
+      minio:
     deploy:
       labels:
         - prometheus-job-service=loki
@@ -152,45 +154,6 @@ services:
     command: -config.file=/etc/promtail/promtail-config.yml
     deploy:
       mode: global
-
-  minio-01:
-    image: quay.io/minio/minio:RELEASE.2022-10-24T18-35-07Z
-    entrypoint: sh
-    command: -c 'mkdir -p /data1/loki /data2/loki && minio server --console-address ":9001" http://minio-0{1...${NUM_MINIO_SERVERS}}/data{1...2}'
-    environment:
-      MINIO_ROOT_USER: ${MO_SECURITY_ADMIN_USER}
-      MINIO_ROOT_PASSWORD: ${MO_SECURITY_ADMIN_PASSWORD}
-      MINIO_BROWSER_REDIRECT_URL: ${MINIO_BROWSER_REDIRECT_URL}
-      MINIO_SERVER_URL: http://localhost:9000
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
-      interval: 30s
-      timeout: 20s
-      retries: 3
-    hostname: minio-01
-    volumes:
-      - minio-01-data1:/data1
-      - minio-01-data2:/data2
-    deploy:
-      replicas: 1
-      labels:
-        - traefik.enable=true
-        - traefik.docker.network=reverse-proxy-traefik_public
-        - traefik.http.routers.minio.service=minio
-        - traefik.http.routers.minio.rule=Host(`${DOMAIN_NAME_HOST_TRAEFIK}`) && PathPrefix(`/minio`)
-        - traefik.http.services.minio.loadbalancer.server.port=9001
-        - traefik.http.routers.minio.tls=${TLS}
-        - traefik.http.services.minio.loadbalancer.server.scheme=http
-        - traefik.http.routers.minio.entrypoints=${WEB_ENTRY_POINT}
-        - traefik.http.routers.minio.tls.certresolver=le
-        - traefik.http.middlewares.minio-stripprefix.stripprefix.prefixes=/minio
-        - traefik.http.routers.minio.middlewares=minio-stripprefix
-    networks:
-      reverse-proxy:
-      traefik:
-      default:
-
-
 configs:
   grafana.ini:
     file: ./grafana/grafana.ini
@@ -272,8 +235,7 @@ volumes:
   prometheus-data:
   grafana-data:
   loki-data:
-  minio-01-data1:
-  minio-01-data2:
+
 
 
 networks:
@@ -288,5 +250,8 @@ networks:
     external: true
   traefik:
     name: reverse-proxy-traefik_public
+    external: true
+  minio:
+    name: minio_public
     external: true
   default:
