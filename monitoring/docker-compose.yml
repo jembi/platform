@@ -75,6 +75,8 @@ services:
         source: logging-universal-dashboard_rev1.json
       - target: /etc/grafana/provisioning/dashboards/security/auditlogs.json
         source: auditlogs.json
+      - target: /etc/grafana/provisioning/dashboards/performance/k6.json
+        source: k6.json
     networks:
       keycloak:
       reverse-proxy:
@@ -98,6 +100,7 @@ services:
       - "--web.console.templates=/etc/prometheus/consoles"
       - "--web.enable-lifecycle"
       - "--storage.tsdb.retention.time=${MO_RETENTION_TIME}"
+      - "--web.enable-remote-write-receiver"
     networks:
       public:
       default:
@@ -154,6 +157,7 @@ services:
     command: -config.file=/etc/promtail/promtail-config.yml
     deploy:
       mode: global
+
 configs:
   grafana.ini:
     file: ./grafana/grafana.ini
@@ -215,6 +219,11 @@ configs:
     name: auditlogs.json-${auditlogs_json_DIGEST:?err}
     labels:
       name: grafana
+  k6.json:
+    file: ./grafana/dashboards/performance/k6.json
+    name: k6.json-${k6_json_DIGEST:?err}
+    labels:
+      name: grafana
   prometheus.yml:
     file: ./prometheus/prometheus.yml
     name: prometheus.yml-${prometheus_yml_DIGEST:?err}
@@ -235,6 +244,7 @@ volumes:
   prometheus-data:
   grafana-data:
   loki-data:
+
 
 
 
