@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   openfn:
-    image: ${OpenFn_IMAGE}
+    image: ${OPENFN_IMAGE}
     # This command runs a shell script that performs the following actions:
     # 1. Executes the Lightning.Release.migrate() function to handle database migrations.
     # 2. Sets up a user with the provided first name, last name, email, password, and role using the Lightning.Setup.setup_user function.
@@ -16,22 +16,22 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '${DOCKER_WEB_CPUS:-0}'
-          memory: '${DOCKER_WEB_MEMORY:-0}'
+          cpus: '${OPENFN_DOCKER_WEB_CPUS:-0}'
+          memory: '${OPENFN_DOCKER_WEB_MEMORY:-0}'
     environment:
-      - DATABASE_URL=${DATABASE_URL}
-      - DISABLE_DB_SSL=${DISABLE_DB_SSL}
-      - IS_RESETTABLE_DEMO=${IS_RESETTABLE_DEMO}
-      - LISTEN_ADDRESS=${LISTEN_ADDRESS}
-      - LOG_LEVEL=${LOG_LEVEL}
-      - ORIGINS=${ORIGINS}
-      - PRIMARY_ENCRYPTION_KEY=${PRIMARY_ENCRYPTION_KEY}
-      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
+      - DATABASE_URL=${OPENFN_DATABASE_URL}
+      - DISABLE_DB_SSL=${OPENFN_DISABLE_DB_SSL}
+      - IS_RESETTABLE_DEMO=${OPENFN_IS_RESETTABLE_DEMO}
+      - LISTEN_ADDRESS=${OPENFN_LISTEN_ADDRESS}
+      - LOG_LEVEL=${OPENFN_LOG_LEVEL}
+      - ORIGINS=${OPENFN_ORIGINS}
+      - PRIMARY_ENCRYPTION_KEY=${OPENFN_PRIMARY_ENCRYPTION_KEY}
+      - SECRET_KEY_BASE=${OPENFN_SECRET_KEY_BASE}
       - WORKER_RUNS_PRIVATE_KEY=${OPENFN_WORKER_RUNS_PRIVATE_KEY}
-      - WORKER_SECRET=${WORKER_SECRET}
-      - KAFKA_TRIGGERS_ENABLED=${KAFKA_TRIGGERS_ENABLED}
+      - WORKER_SECRET=${OPENFN_WORKER_SECRET}
+      - KAFKA_TRIGGERS_ENABLED=${OPENFN_KAFKA_TRIGGERS_ENABLED}
     healthcheck:
-      test: '${DOCKER_WEB_HEALTHCHECK_TEST:-curl localhost:4000/health_check}'
+      test: '${ DOCKER_WEB_HEALTHCHECK_TEST:-curl localhost:4000/health_check}'
       interval: '10s'
       timeout: '3s'
       start_period: '5s'
@@ -40,15 +40,15 @@ services:
       - kafka_public
       - postgres
   worker:
-    image: ${OpenFn_WORKER_IMAGE}
+    image: ${OPENFN_WORKER_IMAGE}
     deploy:
       resources:
         limits:
-          cpus: '${DOCKER_WORKER_CPUS:-0}'
-          memory: '${DOCKER_WORKER_MEMORY:-0}'
+          cpus: '${OPENFN_DOCKER_WORKER_CPUS:-0}'
+          memory: '${OPENFN_DOCKER_WORKER_MEMORY:-0}'
     environment:
-      - WORKER_LIGHTNING_PUBLIC_KEY=${WORKER_LIGHTNING_PUBLIC_KEY}
-      - WORKER_SECRET=${WORKER_SECRET}
+      - WORKER_LIGHTNING_PUBLIC_KEY=${OPENFN_WORKER_LIGHTNING_PUBLIC_KEY}
+      - WORKER_SECRET=${OPENFN_WORKER_SECRET}
       - NODE_ENV=production
     command: [ 'pnpm', 'start:prod', '-l', 'ws://openfn:${URL_PORT-4000}/worker' ]
     networks:
