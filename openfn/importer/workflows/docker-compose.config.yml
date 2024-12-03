@@ -1,0 +1,37 @@
+version: '3.9'
+
+services:
+  openfn_workflow_config:
+    image: node:18-alpine3.20
+    command: sh -c "cd /workflows && ls && npm install -g @openfn/cli && cat config.json && openfn deploy -c config.json --no-confirm"
+    configs:
+      - target: /workflows/project.yaml
+        source: project.yaml
+      - target: /workflows/config.json
+        source: config.json
+    networks:
+      postgres:
+    environment:
+      OPENFN_API_KEY: ${OPENFN_API_KEY}
+      OPENFN_API_URL: ${OPENFN_ENDPOINT}
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: none
+
+networks:
+  postgres:
+    name: postgres_public
+    external: true
+
+configs:
+  config.json:
+    file: ./example/config.json
+    name: config.json-${config_json_DIGEST:?err}
+    labels:
+      name: configjson
+  project.yaml:
+    file: ./example/project.yaml
+    name: project.yaml-${project_yaml_DIGEST:?err}
+    labels:
+      name: project
