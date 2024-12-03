@@ -55,7 +55,6 @@
   - [OpenFn](packages/openfn/README.md)
     - [Environment Variables](packages/openfn/environment-variables.md)
   - [Reverse Proxy Traefik](packages/reverse-proxy-traefik/README.md)
-    - [Local Development](packages/reverse-proxy-traefik/local-development.md)
     - [Environment Variables](packages/reverse-proxy-traefik/environment-variables.md)
 - [🗒️ Cheat sheet](cheat-sheet.md)
 - [Architecture](architecture.md)
