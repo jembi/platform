@@ -29,7 +29,6 @@
     "MO_SECURITY_ADMIN_PASSWORD": "dev_password_only",
     "MO_RETENTION_TIME": "15d",
     "GF_SERVER_SERVE_FROM_SUB_PATH": "false",
-    "MINIO_BROWSER_REDIRECT_URL": "",
     "DOCKER_SOCK_FOLDER": "/var/run/docker.sock",
     "DOCKER_LIB_FOLDER": "/var/lib/docker/"
   }
