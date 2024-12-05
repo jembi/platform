@@ -92,14 +92,30 @@ Set the following environment variables in the package-metadata.json in the "./d
 Set the following environment variables in the package-metadata.json in the "monitoring" directory
 
 ```bash
-
 "environmentVariables":
 {
 # Other Configurations
 ...
-    "MINIO_BROWSER_REDIRECT_URL": "https://domain/minio/"
+    "MINIO_BROWSER_REDIRECT_URL": "https://domain/minio-console/"
 }
+```
 
+### MinIO Configuration
+
+The MinIO server is configured to run with the following port settings:
+
+- **API Port**: 9090
+- **Console Port**: 9001
+
+Ensure that your Traefik configuration reflects these ports to properly route traffic to the MinIO services. The API can be accessed at `https://<domain>/minio` and the Console at `https://<domain>/minio-console`.
+
+Update your Traefik labels in the `docker-compose.yml` to match these settings:
+
+```yaml
+# API Configuration
+- traefik.http.services.minio.loadbalancer.server.port=9090
+# Console Configuration
+- traefik.http.services.minio-console.loadbalancer.server.port=9001
 ```
 
 ### Enabling Grafana

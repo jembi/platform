@@ -49,6 +49,10 @@ services:
         - traefik.http.middlewares.to-https.redirectscheme.permanent=${REDIRECT_TO_HTTPS}
         - traefik.http.middlewares.auth.basicauth.users=${USERNAME}:${PASSWORD}
 
+        - "traefik.http.middlewares.bigfiles.buffering.maxRequestBodyBytes=100000000"
+        - "traefik.http.service.traefik.loadbalancer.server.forwardingTimeouts.dialTimeout=120s"
+        - "traefik.http.service.traefik.loadbalancer.server.forwardingTimeouts.responseHeaderTimeout=120s"
+
       placement:
         max_replicas_per_node: 1
         constraints:
