@@ -23,8 +23,10 @@ services:
       reverse-proxy:
       default:
 
+
 volumes:
   clickhouse-data:
+
 
 configs:
   clickhouse_metric_log.xml:
@@ -54,5 +56,8 @@ networks:
     external: true
   reverse-proxy:
     name: reverse-proxy_public
+    external: true
+  datalake:
+    name: minio_public
     external: true
   default:
