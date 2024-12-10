@@ -24,15 +24,30 @@ services:
       labels:
         - traefik.enable=true
         - traefik.docker.network=reverse-proxy-traefik_public
-        - traefik.http.routers.minio.rule=${DOMAIN_NAME_HOST_TRAEFIK} && PathPrefix(`/minio`)
-        - traefik.http.services.minio.loadbalancer.server.port=9001
-        - traefik.http.middlewares.minio-stripprefix.stripprefix.prefixes=/minio
-        - traefik.http.routers.minio.middlewares=minio-stripprefix
+        - traefik.http.routers.minio-console.rule=Host(`${DOMAIN_NAME_HOST_TRAEFIK}`) && PathPrefix(`/minio-console`)
+        - traefik.http.routers.minio-console.priority=100
+        - traefik.http.routers.minio-console.service=minio-console-service
+        - traefik.http.services.minio-console-service.loadbalancer.server.port=9001
+        - traefik.http.middlewares.minio-console-stripprefix.stripprefix.prefixes=/minio-console/
+        - traefik.http.routers.minio-console.middlewares=minio-console-stripprefix
+        - traefik.http.routers.minio-console.tls=${TLS}
+
+        - traefik.http.routers.minio-api.rule=Host(`${DOMAIN_NAME_HOST_TRAEFIK}`) && PathPrefix(`/minio-api`)
+        - traefik.http.routers.minio-api.priority=100
+        - traefik.http.routers.minio-api.service=minio-api-service
+        - traefik.http.services.minio-api-service.loadbalancer.server.port=9090
+        - traefik.http.middlewares.minio-api-stripprefix.stripprefix.prefixes=/minio-api/
+        - traefik.http.routers.minio-api.middlewares=minio-api-stripprefix
+        - traefik.http.routers.minio-api.tls=${TLS}
     networks:
       public:
+      traefik:
 networks:
   public:
     name: minio_public
+    external: true
+  traefik:
+    name: reverse-proxy-traefik_public
     external: true
 
 volumes:
