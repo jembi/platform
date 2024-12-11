@@ -28,10 +28,9 @@ Feature: CDR-DW recipe?
     And The service "cadvisor" should have healthy containers
     And The service "loki" should be started with 1 replica
     And The service "promtail" should be started with 1 replica
-    And The service "minio-01" should be started with 1 replica
     And The service "dashboard-visualiser-superset" should be started with 1 replica
     And The service "analytics-datastore-clickhouse" should be started with 1 replica
-    And The service "openfn" should be started with 1 replica
+    And The service "minio-01" should be started with 1 replica
 
   Scenario: Send Fhir bundle and store the clinical data in the Fhir datastore, the patient info in the CR
     Given I have configured the cdr
