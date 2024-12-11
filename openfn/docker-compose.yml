@@ -31,7 +31,7 @@ services:
       - WORKER_SECRET=${OPENFN_WORKER_SECRET}
       - KAFKA_TRIGGERS_ENABLED=${OPENFN_KAFKA_TRIGGERS_ENABLED}
     healthcheck:
-      test: '${ DOCKER_WEB_HEALTHCHECK_TEST:-curl localhost:4000/health_check}'
+      test: '${DOCKER_WEB_HEALTHCHECK_TEST:-curl localhost:4000/health_check}'
       interval: '10s'
       timeout: '3s'
       start_period: '5s'
