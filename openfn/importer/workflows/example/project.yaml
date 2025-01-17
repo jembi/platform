@@ -1,0 +1,1310 @@
+name: jembi-cdc-ahie
+description: POC test project for ART patient use case
+credentials:
+  root@openhim.org-openhim-ndr:
+    name: openhim ndr
+    owner: root@openhim.org
+workflows:
+  1-process-cdr-bundle:
+    name: 1-process-cdr-bundle
+    jobs:
+      parse-bundle:
+        name: parse bundle
+        adaptor: "@openfn/language-common@2.0.1"
+        credential: null
+        body: |
+          // this will take an incoming bundle and sort it into different resource types
+          fn((state) => {
+            let data = state.data.body;
+            if (typeof data === "string") {
+              data = JSON.parse(data)
+            }
+
+            const next = {
+              entry: data.entry
+            }
+
+            console.log(`Loading ${next.entry.length} bundle items from input`)
+
+            return next;
+          })
+
+          group($.entry, 'resource.resourceType')
+
+          fn((state) => {
+            const counts = Object.keys(state.data).map((k) => `${k} (${state.data[k].length})`);
+            console.log(`Sorted bundles into the following groups: ${counts.join('\n  ')}`)
+            return {
+              inputs: state.data,
+            }
+          })
+
+      Register-Organization:
+        name: Register Organization
+        adaptor: "@openfn/language-http@6.4.3"
+        credential: root@openhim.org-openhim-ndr
+        body: |
+          //For the POC test only we need to register the Organization first
+          //... for each Bundle... and AFTER we can process the Bundle
+          fn(state => {
+            const orgId =
+              state.inputs.Patient[0].resource.managingOrganization.reference.replace(
+                'Organization/',
+                ''
+              );
+            console.log('Setting up test organization', orgId);
+
+            const mappedOrganization = {
+              resourceType: 'Organization',
+              id: orgId,
+              meta: {
+                profile: ['http://moh.gov.et/fhir/hiv/StructureDefinition/organization'],
+              },
+              text: {
+                status: 'generated',
+                div: '<div xmlns="http://www.w3.org/1999/xhtml"><p class="res-header-id"><b>Generated Narrative: Organization CurrentServiceProviderExample</b></p><a name="CurrentServiceProviderExample"> </a><a name="hcCurrentServiceProviderExample"> </a><a name="CurrentServiceProviderExample-en-US"> </a><p><b>identifier</b>: <code>http://moh.gov.et/fhir/hiv/identifier/mohid</code>/MOH001, <code>http://moh.gov.et/fhir/hiv/identifier/hfuid</code>/HFUID001</p><p><b>active</b>: true</p><p><b>type</b>: <span title="Codes:{http://snomed.info/sct 257622000}">Current Healthcare Provider</span></p><p><b>name</b>: Meshwalkiya Health Center</p><p><b>address</b>: Meshulekia Kirkos Addis Ababa </p></div>',
+              },
+              identifier: [
+                {
+                  system: 'http://moh.gov.et/fhir/hiv/identifier/mohid',
+                  value: 'MOH001',
+                },
+                {
+                  system: 'http://moh.gov.et/fhir/hiv/identifier/hfuid',
+                  value: 'HFUID001',
+                },
+              ],
+              active: true,
+              type: [
+                {
+                  coding: [
+                    {
+                      system: 'http://snomed.info/sct',
+                      code: '257622000',
+                    },
+                  ],
+                  text: 'Current Healthcare Provider',
+                },
+              ],
+              name: `Organization ${orgId}`,
+              address: [
+                {
+                  line: ['Meshulekia'],
+                  city: 'Kirkos',
+                  district: 'Kirkos woreda 9',
+                  state: 'Addis Ababa',
+                },
+              ],
+            };
+
+            return { ...state, mappedOrganization, orgId };
+          });
+
+          // basic HTTP put should do it
+          put(`/fhir/Organization/${$.orgId}`, {
+            body: $.mappedOrganization,
+            headers: { 'content-type': 'application/json' },
+          });
+
+          fn(state => {
+            console.log('Organization registered!');
+            return state;
+          });
+
+      map-encounters:
+        name: map encounters
+        adaptor: "@openfn/language-fhir-ndr-et@0.1.0"
+        credential: null
+        body: |
+          fn(state => {
+            console.log('Parsing encounters...');
+            state.encounters = [];
+            return state;
+          });
+
+          each($.inputs.Encounter, state => {
+            const input = state.data.resource;
+            console.log('Mapping encounter ', input.id);
+
+            util.setSystemMap({
+              'http://cdr.aacahb.gov.et/Encounter':
+                'http://moh.gov.et/fhir/hiv/identifier/encounter',
+            });
+
+            const visitType = util.findExtension(
+              input,
+              'http://cdr.aacahb.gov.et/visit-type'
+            );
+
+            const [_, patientId] = input.subject.reference.split('Patient/');
+            const patient = state.inputs.Patient.find(
+              e => e.resource.id === patientId
+            )?.resource;
+            if (!patient) {
+              console.log(
+                `WARNING: COULD NOT FIND PATIENT ${patientId ?? input.subject} IN BUNDLE`
+              );
+            }
+
+            // TODO: Future phase work out whether this is a target-facility-encounter or a entry-from-outside-target-facility-encounter
+            if (visitType) {
+              const serviceType = input.serviceType?.coding.find(
+                item =>
+                  item.system === 'http://terminology.hl7.org/CodeSystem/service-type'
+              );
+
+              const result = builders.encounter('target-facility-encounter', {
+                id: input.id,
+                status: input.status,
+
+                class:
+                  input.class ??
+                  util.coding(
+                    'Absent-or-unknown',
+                    'http://moh.gov.et/fhir/hiv/CodeSystem/absent-unknown-code-system'
+                  ),
+                identifier: input.identifier,
+                serviceType: serviceType && {
+                  coding: serviceType,
+                },
+                period: input.period,
+                subject: input.subject,
+                serviceProvider: patient.managingOrganization,
+                type: input.type,
+              });
+
+              // Handle the visit type extension manually
+              util.addExtension(
+                result.type[0],
+                'http://moh.gov.et/fhir/hiv/StructureDefinition/encounter-visit-type',
+                util.concept([
+                  visitType.valueString.toLowerCase(),
+                  'http://moh.gov.et/fhir/hiv/CodeSystem/encounter-visit-type-code-system',
+                ])
+              ),
+                state.encounters.push(result);
+            } else {
+              console.log('WARNING: no visit type found for Encounter ', input.id);
+            }
+
+            return state;
+          });
+
+          fn(state => {
+            console.log(
+              `Finished parsing Encounters! Created ${state.encounters.length} Encounters`
+            );
+
+            return state;
+          });
+
+      map-patients:
+        name: map patients
+        adaptor: "@openfn/language-fhir-ndr-et@0.1.0"
+        credential: null
+        body: |
+          // Handle patients (and related persons)
+
+          // This import is needed for code assist in VSC
+          // It is harmless to include in job code, but not needed in lightning
+          import { b, util } from '@openfn/language-fhir-ndr-et';
+
+          const createId = (base, type) => {
+            let id = `${base}${type}`;
+            if (id.length <= 64) {
+              // If the id is too long, cut the difference out of the base id
+              id = `${base.substr(0, base.length - (id.length - 64))}${type}`;
+            }
+            return id;
+          };
+
+          // Flag a resource as being newly created
+          // This affects the final bundle
+          // the __new__ property will be removed at the end
+          const markNew = resource => {
+            resource.__new__ = true;
+            return resource;
+          };
+
+          // Util function to map residential type on the address
+          const mapAddress = a => {
+            if (/rural/i.test(a.text)) {
+              const { text, ...address } = a;
+              return {
+                ...address,
+                residentialType: util.concept('Rural', [
+                  '224804009',
+                  'http://snomed.info/sct',
+                ]),
+              };
+            } else if (/urban/i.test(a.text)) {
+              const { text, ...address } = a;
+              return {
+                ...address,
+                residentialType: util.concept('Urban', [
+                  '224807002',
+                  'http://snomed.info/sct',
+                ]),
+              };
+            }
+            return a;
+          };
+
+          const populationMap = {
+            'general population': {
+              code: 'General-Population',
+              display: 'General Population',
+            },
+            prisoners: {
+              code: 'Prisoner',
+              display: 'Prisoner',
+            },
+            'children of plhiv': {
+              code: 'Children-Of-PLHIV',
+              display: 'Children of PLHIV',
+            },
+            'partners of plhiv': {
+              code: 'Partners-Of-PLHIV',
+              display: 'Partners of PLHIV',
+            },
+            'discordant couples': {
+              code: 'Discordant-Couples',
+              display: 'Discordant Couples',
+            },
+            'other marps': {
+              code: 'Other-MARPS',
+              display: 'Other MARPS',
+            },
+            'female commercial sex workers': {
+              code: 'Female-Commercial-Sex-Workers',
+              display: 'Female Commercial Sex Workers',
+            },
+            'sex worker': {
+              code: 'Female-Commercial-Sex-Workers',
+              display: 'Female Commercial Sex Workers',
+            },
+            'distance drivers': {
+              code: 'Distance-Drivers',
+              display: 'Distance Drivers',
+            },
+            'mobile or daily laborers': {
+              code: 'Mobile-Daily-Laborers',
+              display: 'Mobile or Daily Laborers',
+            },
+            'ovc or aids orphaned': {
+              code: 'OVC-AIDS-Orphaned',
+              display: 'OVC or AIDS Orphaned',
+            },
+            tg: {
+              code: 'TG',
+              display: 'TG',
+            },
+            reguees: {
+              code: 'Refugee',
+              display: 'Refugee',
+            },
+            'people who inject drug': {
+              code: 'People-Who-Inject-Drug',
+              display: 'People who Inject drug',
+            },
+            msm: {
+              code: 'MSM',
+              display: 'MSM',
+            },
+          };
+
+          const educationMap = {
+            'no education': {
+              code: 'LA35-1',
+              display: 'No schooling',
+            },
+            primary: {
+              code: 'LA32466-7',
+              display: 'Primary school education',
+            },
+            secondary: {
+              code: 'LA32467-5',
+              display: 'High school education',
+            },
+            tertiary: {
+              code: 'LA15568-1',
+              display: 'Graduated from a college or university',
+            },
+            tvet: {
+              code: 'LA39-3',
+              display: 'Technical or trade school',
+            },
+            'other, specify': {
+              code: 'LA46-8',
+              display: 'Other',
+            },
+            assoc: {
+              code: 'LA39-3',
+              display: 'Technical or trade school',
+            },
+            bd: {
+              code: 'LA15568-1',
+              display: 'Graduated from a college or university',
+            },
+            elem: {
+              code: 'LA32466-7',
+              display: 'Primary school education',
+            },
+            gd: {
+              code: 'LA15568-1',
+              display: 'Graduated from a college or university',
+            },
+            hs: {
+              code: 'LA32467-5',
+              display: 'High school education',
+            },
+            pb: {
+              code: 'LA15568-1',
+              display: 'Graduated from a college or university',
+            },
+            postg: {
+              code: 'LA15568-1',
+              display: 'Graduated from a college or university',
+            },
+            scol: {
+              code: 'LA32467-5',
+              display: 'High school education',
+            },
+            sec: {
+              code: 'LA32467-5',
+              display: 'High school education',
+            },
+          };
+
+          fn(state => {
+            console.log('Parsing patients...');
+            state.patients ??= [];
+            state.observations ??= [];
+            state.relations ??= [];
+
+            // This will map identifier systems for us automatically
+            util.setSystemMap({
+              'http://cdr.aacahb.gov.et/SmartCareID':
+                'http://moh.gov.et/fhir/hiv/identifier/SmartCareID',
+              'http://cdr.aacahb.gov.et/MRN': 'http://moh.gov.et/fhir/hiv/identifier/MRN',
+              'http://cdr.aacahb.gov.et/UAN': 'http://moh.gov.et/fhir/hiv/identifier/UAN',
+              'http://terminology.hl7.org/CodeSystem/v2-0131':
+                'http://terminology.hl7.org/CodeSystem/v2-0131',
+            });
+
+            return state;
+          });
+
+          // Create an NDR patient for each CDR patient
+          each($.inputs.Patient, state => {
+            const input = state.data.resource;
+
+            console.log(`  Processing patient ${input.id}`);
+
+            const religion = util.findExtension(
+              input,
+              'http://hl7.org/fhir/StructureDefinition/patient-religion'
+            )?.valueCodeableConcept.coding[0];
+
+            const result = b.patient('patient', {
+              id: input.id,
+              religion:
+                religion &&
+                util.concept(
+                  religion.display,
+                  util.coding(
+                    religion.code,
+                    'http://terminology.hl7.org/CodeSystem/v3-ReligiousAffiliation'
+                  )
+                ),
+              identifier: input.identifier,
+              name: input.name,
+              telecom: input.telecom,
+              gender: input.gender,
+              birthDate: input.birthDate,
+              maritalStatus: input.maritalStatus,
+              managingOrganization: input.managingOrganization,
+              address: input.address?.map(mapAddress),
+            });
+
+            state.patients.push(result);
+
+            return state;
+          });
+
+          // Map the observations for each patient
+          each($.inputs.Patient, state => {
+            const input = state.data.resource;
+            console.log(`  Processing observations for patient ${input.id}`);
+            // Assumes one encounter per bundle
+            const encounter = state.inputs.Encounter[0].resource;
+
+            const occupation = util.findExtension(
+              input,
+              'http://cdr.aacahb.gov.et/Occupation'
+            );
+            if (occupation) {
+              state.observations.push(
+                markNew(
+                  b.observation('patient-occupation-observation', {
+                    id: createId(input.id, 'PatientOccupation'),
+                    // what to do about id?
+                    status: input.status ?? 'final',
+
+                    effective: encounter.period?.start,
+                    encounter,
+                    performer: input.managingOrganization ?? state.orgId,
+
+                    // Map the occupation string without a coding
+                    value: util.concept(occupation.valueString, [
+                      occupation.valueString,
+                      'http://moh.gov.et/fhir/hiv/CodeSystem/occupation-code-system',
+                    ]),
+
+                    subject: input,
+                  })
+                )
+              );
+            }
+
+            const education = util.findExtension(
+              input,
+              'http://cdr.aacahb.gov.et/EducationalLevel'
+            );
+            if (education) {
+              const ed =
+                education.valueString ?? education.valueCodeableConcept?.coding[0].code;
+              const edLabel =
+                education.valueString ??
+                education.valueCodeableConcept?.coding[0].display;
+              const mapped = educationMap[ed.toLowerCase()];
+              if (!mapped) {
+                console.error('ERROR: could not find mapped education for ', ed);
+              }
+              const value = util.concept(edLabel, [mapped.code, 'http://loinc.org']);
+
+              state.observations.push(
+                markNew(
+                  b.observation('highest-education-observation', {
+                    id: createId(input.id, 'HighestEducation'),
+                    status: input.status ?? 'final',
+
+                    effective: encounter.period?.start,
+                    encounter,
+                    performer: input.managingOrganization ?? state.orgId,
+                    subject: input,
+                    value,
+                  })
+                )
+              );
+            }
+
+            const popGroup = util.findExtension(
+              input,
+              'http://cdr.aacahb.gov.et/TargetPopulationGroup'
+            );
+            if (popGroup) {
+              const group =
+                popGroup.valueString ?? popGroup.valueCodeableConcept?.coding[0].text;
+              const mapped = populationMap[group.toLowerCase()];
+              if (!mapped) {
+                console.error(
+                  'ERROR: could not find mapped population group for ',
+                  group
+                );
+              }
+              const value = util.concept(mapped.display, [
+                mapped.code,
+                'http://moh.gov.et/fhir/hiv/CodeSystem/target-population-category-code-system',
+              ]);
+
+              state.observations.push(
+                markNew(
+                  b.observation('target-population-observation', {
+                    id: createId(input.id, 'TargetPopulation'),
+                    status: input.status ?? 'final',
+                    effective: encounter.period?.start,
+                    encounter,
+                    performer: input.managingOrganization ?? state.orgId,
+                    subject: input,
+                    value,
+                  })
+                )
+              );
+            }
+
+            return state;
+          });
+
+          // Find related people
+          each($.inputs.RelatedPerson, state => {
+            const input = state.data.resource;
+
+            console.log(`  Processing related person ${input.id}`);
+
+            let patient;
+            if (input.patient) {
+              // Extract the actual ID out of the reference
+              const [_, patientId] = input.patient.reference.split('Patient/');
+              patient = state.inputs.Patient.find(
+                e => e.resource.id === patientId
+              )?.resource;
+              if (patient) {
+                console.log(`  Found patient ${input.patient.reference} in bundle`);
+              } else {
+                console.log(
+                  'WARNING: COULD NOT FIND MATCHING PATIENT FOR ',
+                  input.patient.reference
+                );
+                return state;
+              }
+            }
+
+            const r = b.relatedPerson('related-person', {
+              ...input, // this should cover the basics
+              id: input.id,
+              extension: input.extension,
+
+              address: input.address?.map(mapAddress),
+
+              relationship: input.relationship.reduce(
+                (obj, next) => Object.assign(obj, next),
+                {}
+              ),
+            });
+
+            state.relations.push(r);
+
+            return state;
+          });
+
+          fn(state => {
+            console.log(
+              `Finished parsing patients! Created ${state.patients.length} Patients, ${state.observations.length} Observations and ${state.relations.length} Related Persons`
+            );
+
+            return state;
+          });
+
+      map-medications:
+        name: map medications
+        adaptor: "@openfn/language-fhir-ndr-et@0.1.0"
+        credential: null
+        body: |
+          const createId = (base, type) => {
+            let id = `${base}${type}`;
+            if (id.length > 64) {
+              // If the id is too long, cut the difference out of the base id
+              id = `${base.substr(0, base.length - (id.length - 64))}${type}`;
+            }
+            return id;
+          };
+
+          // Flag a resource as being newly created
+          // This affects the final bundle
+          // the __new__ property will be removed at the end
+          const markNew = resource => {
+            resource.__new__ = true;
+          };
+
+          const findServiceProvider = (encounter, patient) =>
+            encounter?.serviceProvider ?? patient?.managingOrganization;
+
+          const categoryTypeMap = {
+            '1st switch': 'First-Switch',
+            '2nd switch': 'Second-Switch',
+            '3rd switch': 'Third-Switch',
+            '1st substitution': 'First-Substitute',
+            '2nd substitution': 'Second-Substitute',
+            '3rd substitution': 'Third-Substitute',
+            '4th substitution': 'Fourth-Substitute',
+            '5th substitution': 'Fifth-Substitute',
+            '6th substitution': 'Sixth-Substitute',
+          };
+
+          const treatmentFailureMap = {
+            'Virologic failure': 'Virologic-Failure',
+            'Clinical failure': 'Clinical-Failure',
+            'Immunologic failure': 'Immunologic-Failure',
+          };
+
+          const substituteReasonMap = {
+            'Risk of pregnancy': 'LA6531-3',
+            Pregnancy: 'LA6530-5',
+            'New drug available': 'LA6533-9',
+            'Due to new TB': 'LA6532-1',
+            'Drug stock-out': 'LA6534-7',
+            'Toxicity/Side effects': 'LA6529-7',
+            Other: 'LA6535-4',
+            Anemia: 'LA6535-4',
+          };
+
+          const stoppedReasonMap = {
+            'toxicity/side effects': {
+              code: 'LA6529-7',
+              text: 'Toxicity/Side Effects',
+            },
+            pregnancy: {
+              code: 'A6530-5',
+              text: 'Pregnancy',
+            },
+            'planned treatment interruption': {
+              code: '18733-6',
+              text: 'Attending Progress note',
+            },
+            'other patient decisions': {
+              code: '18733-6',
+              text: 'Attending Progress note',
+            },
+            'poor adherence': {
+              code: 'LA31432-0',
+              text: 'Not adherent to treatment',
+            },
+            'planned treatment interruption': {
+              code: 'LP56812-8',
+              text: 'Medication regimen.status',
+            },
+            'patient lack finances': {
+              code: 'LA28316-0',
+              text: 'Financial concerns',
+            },
+            'other patient decisions': {
+              code: '51855-5',
+              text: 'Patient Note',
+            },
+            'illness/hospitalization': {
+              code: '34130-5',
+              text: 'Hospital Progress note',
+            },
+            'drugs out of stock': {
+              code: 'LA6534-7',
+              text: 'Drug Out of Stock',
+            },
+            other: {
+              code: 'LA46-8',
+              text: 'Other',
+            },
+          };
+
+          fn(state => {
+            console.log('Parsing medications...');
+            state.medicationDispense = [];
+            state.medication = [];
+            state.observations ??= [];
+            state.careplans ??= [];
+            state.requests ??= [];
+            state.admin ??= [];
+
+            return state;
+          });
+
+          const extractMedication = (state, input) => {
+            const { coding, text } = input.medicationCodeableConcept;
+
+            const codes = coding.find(
+              c => c.system === 'http://cdr.aacahb.gov.et/hiv-regimen-codes'
+            );
+            const c = [
+              codes.code,
+              'http://moh.gov.et/fhir/hiv/CodeSystem/arv-treatment-code-system',
+            ];
+
+            let value;
+            if (text) {
+              value = util.concept(text, c);
+            } else {
+              value = util.concept(codes.code, c);
+            }
+
+            const m = b.medication('arv-regimen-medication', {
+              id: `${input.id}Medication`,
+              status: 'active',
+              code: value,
+            });
+            markNew(m);
+            return m;
+          };
+
+          const extractAdmin = (state, input, encounter, medication, request) => {
+            const end = util.findExtension(
+              input,
+              'http://cdr.aacahb.gov.et/dose-end-date'
+            );
+            if (end) {
+              const ma = b.medicationAdministration('arv-medication-administration', {
+                id: createId(input.id, 'ARVMedicationAdministration'),
+                status: 'completed',
+                medication: util.ref(medication),
+                subject: input.subject,
+                context: input.context,
+                request,
+                effective: end.valueDateTime,
+                //effective: encounter.period,
+              });
+              markNew(ma);
+              return ma;
+            }
+          };
+
+          const extractRequest = (
+            state,
+            input,
+            careplan,
+            medication,
+            dispense,
+            encounter,
+            observation
+          ) => {
+            const r = b.medicationRequest('arv-medication-request', {
+              id: createId(input.id, 'ARVMedicationRequest'),
+              status: 'completed',
+              intent: 'order',
+              medication,
+              basedOn: careplan,
+              dispenseRequest: {
+                quantity: {
+                  value: parseInt(input.quantity.value),
+                  unit: 'TAB',
+                  system: 'http://terminology.hl7.org/CodeSystem/v3-orderableDrugForm',
+                  code: 'TAB',
+                },
+              },
+              subject: input.subject,
+              encounter: input.context,
+              authoredOn: encounter.period?.start,
+              identifier: {
+                value: dispense.id,
+                system: 'http://moh.gov.et/fhir/hiv/identifier/medication',
+              },
+              reasonReference: util.reference(observation),
+            });
+
+            markNew(r);
+
+            return r;
+          };
+
+          const extractCareplan = (state, input, encounter, patient) => {
+            const cp = b.carePlan('art-follow-up-careplan', {
+              id: createId(input.id, 'ARTFollowUpCareplan'),
+              status: 'active',
+              intent: 'order',
+              subject: input.subject,
+              encounter: input.context,
+              created: encounter.period?.start,
+              performer: findServiceProvider(encounter, patient),
+              category: [
+                {
+                  coding: [
+                    {
+                      system:
+                        'http://moh.gov.et/fhir/hiv/CodeSystem/care-plan-category-code-system',
+                      code: 'art-follow-up-care-plan',
+                    },
+                  ],
+                  text: 'ART',
+                },
+              ],
+            });
+            markNew(cp);
+            return cp;
+          };
+          const extractCareplanExtensions = (state, input, plan, encounter) => {
+            const nextVisit = util.findExtension(
+              encounter,
+              'http://cdr.aacahb.gov.et/next-visit'
+            );
+            if (nextVisit) {
+              util.addExtension(
+                plan.activity[0],
+                'http://moh.gov.et/fhir/hiv/StructureDefinition/care-plan-next-visit',
+                nextVisit.valueDateTime
+              );
+            }
+          };
+
+          // This maps the actual dispense object
+          const mapDispense = (_state, input /* Dispense resource*/, encounter) => {
+            // Create a matching dispense
+            const handover = util.findExtension(
+              input,
+              'http://cdr.aacahb.gov.et/dose-end-date'
+            );
+
+            return b.medicationDispense('arv-medication-dispense', {
+              id: input.id,
+              status: input.status,
+              subject: input.subject,
+              context: input.context,
+              quantity: input.quantity && {
+                ...input.quantity,
+                value: parseInt(input.quantity.value),
+                unit: 'TAB',
+                code: 'TAB',
+              },
+              daysSupply: input.daysSupply && {
+                ...input.daysSupply,
+                value: parseInt(input.daysSupply.value),
+                unit: 'Days',
+                code: 'd',
+              },
+              whenHandedOver: handover?.valueDateTime,
+              medication: input.reference,
+              // missing properties will be added later in the script
+            });
+          };
+
+          // This pulls out a bunch of observations
+          const extractObservations = (state, input, encounter, patient) => {
+            const result = {};
+            let stopReasonObs;
+
+            const stopReason = util.findExtension(
+              input,
+              'http://cdr.aacahb.gov.et/medication-stopped-reason'
+            );
+            if (stopReason) {
+              console.log(
+                `creating art-followup-stopped-reasons-observation for ${input.id}`
+              );
+
+              //console.log('stopReason::', JSON.stringify(stopReason, null, 2));
+
+              const stopReasonObs = b.observation(
+                'art-followup-stopped-reasons-observation',
+                {
+                  id: createId(input.id, 'ARTFollowupStatusStoppedReasonObservation'),
+                  status: 'final',
+                  subject: input.subject,
+                  encounter,
+                  effective: encounter?.period?.start,
+                  performer: findServiceProvider(encounter, patient),
+                }
+              );
+
+              let text = stopReason.valueString ?? stopReason.valueCodeableConcept?.text;
+
+              //('stopReason text::', JSON.stringify(text, null, 2));
+              if (!text) {
+                console.error(`No stop reason text found for `, input.id);
+              }
+
+              const value = {};
+              const mapped = stoppedReasonMap[text.toLowerCase()];
+              //console.log('mapped stopReasonObs::', JSON.stringify(mapped, null, 2));
+              if (mapped) {
+                util.addExtension(
+                  value,
+                  'http://moh.gov.et/fhir/hiv/StructureDefinition/reason-art-stopped',
+                  util.concept(mapped.text, [mapped.code, 'http://loinc.org'])
+                );
+
+                //console.log('stopReasonObs::', JSON.stringify(stopReasonObs, null, 2));
+
+                stopReasonObs['valueCodeableConcept'] = value;
+
+                // console.log(
+                //   'NEW stopReasonObs::',
+                //   JSON.stringify(stopReasonObs, null, 2)
+                // );
+
+                markNew(stopReasonObs);
+
+                // We have to write the concept like this because it's a strange structure
+                // the adaptor should handle this a lot better really
+                state.observations.push(stopReasonObs);
+                console.log('Stopped Obs pushed...');
+              } else {
+                console.error('WARNING: NO MAPPED VALUE FOR  STOP-REASON: ', text);
+              }
+            }
+
+            if (input.statusReasonCodeableConcept) {
+              const reason = Array.isArray(input.statusReasonCodeableConcept)
+                ? input.statusReasonCodeableConcept[0]
+                : input.statusReasonCodeableConcept;
+              const o = b.observation('art-followup-status-observation', {
+                id: createId(input.id, 'ARTFollowupStatusObservation'),
+                status: 'final',
+                subject: input.subject,
+                encounter,
+                effective: encounter?.period?.start,
+                value: util.concept([
+                  reason.coding[0].code,
+                  'http://moh.gov.et/fhir/hiv/CodeSystem/art-follow-up-status-code-system',
+                ]),
+                hasMember: stopReasonObs ? util.ref(stopReasonObs) : undefined,
+                performer: findServiceProvider(encounter, patient),
+              });
+              result.followUpStatus = o;
+              state.observations.push(o);
+            }
+
+            const extSwitchType = util.findExtension(
+              input,
+              'http://cdr.aacahb.gov.et/switch-type'
+            );
+            const extSwitchReason = util.findExtension(
+              input,
+              'http://cdr.aacahb.gov.et/switch-reason'
+            );
+
+            let changeObs;
+            let changeTypeObs;
+            let changeReasonObs;
+
+            if (input.substitution || extSwitchType) {
+              changeObs = b.observation('arv-regimen-changed-observation', {
+                id: createId(input.id, 'ARVRegimenChange'),
+                status: 'final',
+                subject: input.subject,
+                encounter,
+                effective: encounter?.period,
+                performer: findServiceProvider(encounter, patient),
+
+                value: util.concept([
+                  input.substitution ? 'Substituted' : 'Switched',
+                  'http://moh.gov.et/fhir/hiv/CodeSystem/arv-regimen-change-category-code-system',
+                ]),
+                // hasMember will be set at the end
+              });
+              markNew(changeObs);
+              state.observations.push(changeObs);
+            }
+
+            if (input.substitution?.type || extSwitchType) {
+              let value;
+              if (extSwitchType) {
+                const code = categoryTypeMap[extSwitchType.valueString];
+                if (!code) {
+                  console.error('No mapped switch code found for ', input.id);
+                  console.log(extSwitchType);
+                }
+                value = util.concept([
+                  code,
+                  'http://moh.gov.et/fhir/hiv/CodeSystem/arv-regimen-switch-type-code-system',
+                ]);
+              } else {
+                const code = categoryTypeMap[input.substitution?.type.text];
+                if (!code) {
+                  console.error('No mapped switch code found for ', input.id);
+                  console.log(input.substitution);
+                }
+                value = util.concept([
+                  code,
+                  'http://moh.gov.et/fhir/hiv/CodeSystem/arv-regimen-substitute-type-code-system',
+                ]);
+              }
+
+              changeTypeObs = b.observation('arv-change-category-type-observation', {
+                id: createId(input.id, 'ARVRegimenChangeCategoryType'),
+                status: 'final',
+                subject: input.subject,
+                encounter,
+                effective: encounter?.period?.start,
+                performer: findServiceProvider(encounter, patient),
+                value,
+                // hasmember is added later
+              });
+              markNew(changeTypeObs);
+              state.observations.push(changeTypeObs);
+            }
+
+            if (extSwitchReason ?? input.substitution?.reason) {
+              let reason;
+              if (extSwitchReason ?? input.substitution?.reason) {
+                reason =
+                  extSwitchReason?.valueCodeableConcept?.coding[0].code ??
+                  extSwitchReason?.valueString;
+              } else {
+                reason = input.substitution?.reason[0].text;
+              }
+
+              let reasonLabel;
+              if (extSwitchReason) {
+                reasonLabel =
+                  extSwitchReason?.valueCodeableConcept?.coding[0].display ??
+                  extSwitchReason?.valueString;
+              } else {
+                reasonLabel = input.substitution?.reason[0].text;
+              }
+              //console.log('reasonLabel ::', reasonLabel);
+
+              if (!reason) {
+                console.error('No reason observation found for ', input.id);
+                console.log(extSwitchReason || input.substitution);
+              }
+
+              reason = treatmentFailureMap[reason] || 'LA46-8' /* Other */;
+              const reasonCode = substituteReasonMap[reasonLabel] || 'LA6535-4'; /*Other*/
+              //console.log('reasonCode ::', reasonCode);
+
+              const value = util.concept(reasonLabel, ['http://loinc.org', reasonCode]);
+
+              // Add an extension to the new value concept
+              util.addExtension(
+                value,
+                'http://moh.gov.et/fhir/hiv/StructureDefinition/cd4-vl-classification-for-treatment-failure',
+                util.concept([
+                  reason,
+                  'http://moh.gov.et/fhir/hiv/CodeSystem/cd4-vl-classification-for-treatment-failure-code-system',
+                ])
+              );
+
+              changeReasonObs = b.observation('arv-regimen-change-reason-observation', {
+                id: createId(input.id, 'ARVRegimenChangeReason'),
+                status: 'final',
+                subject: input.subject,
+                encounter,
+                effective: encounter?.period?.start,
+                performer: findServiceProvider(encounter, patient),
+                value,
+                //hasMember: changeObs, //reference moved to Obs arv-regimen-changed-observation
+              });
+              markNew(changeReasonObs);
+              state.observations.push(changeReasonObs);
+            }
+
+            if (changeObs) {
+              changeObs.hasMember = [changeTypeObs, changeReasonObs]
+                .filter(Boolean)
+                .map(util.ref);
+            }
+
+            return result;
+          };
+
+          each($.inputs.MedicationDispense, state => {
+            const input = state.data.resource;
+
+            console.log(`Processing medication dispense ${input.id}`);
+
+            let encounter;
+            if (input.context) {
+              // Extract the actual ID out of the reference
+              const [_, encounterId] = input.context.reference.split('Encounter/');
+              encounter = state.inputs.Encounter.find(
+                e => e.resource.id === encounterId
+              )?.resource;
+              if (encounter) {
+                console.log(`  Found encounter ${input.context.reference} in bundle`);
+              } else {
+                console.log(
+                  'WARNING: COULD NOT FIND MATCHING ENCOUNTER FOR ',
+                  input.context
+                );
+              }
+            }
+
+            const [_, patientId] = input.subject.reference.split('Patient/');
+            const patient = state.inputs.Patient.find(
+              e => e.resource.id === patientId
+            )?.resource;
+
+            const dispense = mapDispense(state, input, encounter);
+
+            state.medicationDispense.push(dispense);
+
+            const med = extractMedication(state, input);
+            dispense.medicationReference = util.reference(med);
+            state.medication.push(med);
+
+            const plan = extractCareplan(state, input, encounter, patient);
+            state.careplans.push(plan);
+
+            const o = extractObservations(state, input, encounter, patient);
+
+            const request = extractRequest(
+              state,
+              input,
+              plan,
+              med,
+              dispense,
+              encounter,
+              o.followUpStatus
+            );
+            dispense.authorizingPrescription = [util.ref(request)];
+            state.requests.push(request);
+
+            // care plan and request have circular dependencies, so sort out plan.activity here
+            plan.activity = [{ reference: util.reference(request) }];
+            extractCareplanExtensions(state, input, plan, encounter);
+
+            const admin = extractAdmin(state, input, encounter, med, request);
+            if (admin) {
+              state.admin.push(admin);
+            }
+
+            return state;
+          });
+
+          fn(state => {
+            console.log(
+              `Finished parsing medications! Created ${state.medicationDispense.length} Patients`
+            );
+
+            return state;
+          });
+
+      send-to-NDR:
+        name: send to NDR
+        adaptor: "@openfn/language-http@6.4.3"
+        credential: root@openhim.org-openhim-ndr
+        body: |
+          fn(state => {
+            console.log('Sending final bundle to NDR');
+            return state;
+          });
+
+          post('/fhir', {
+            body: $.bundle,
+            headers: { 'content-type': 'application/json' },
+            parseAs: 'json',
+          }).catch(async (response, state) => {
+            const err = JSON.parse(response.body)
+            console.error('Error from NDR FHIR')
+            console.error(err)
+            state.issue = err.issue;
+            return state
+          })
+
+          fn(state => {
+            console.log('Done!');
+            return {
+              issue: state.issue,
+              bundle: state.bundle,
+              data: state.data,
+              response: state.response,
+            };
+          });
+
+      send-errors-to-kafka-topic:
+        name: send errors to kafka topic
+        adaptor: "@openfn/language-http@6.4.3"
+        credential: root@openhim.org-openhim-ndr
+        body: |
+          fn(state => {
+            console.log('Catching errors to send to kafka topic fhir-errors...');
+            console.log(state.issue)
+            return state;
+          });
+
+           //send error message from FHIR API
+          post('/openfn/fhir-errors', {
+            body: JSON.stringify($.issue),
+            headers: { 'content-type': 'application/json' },
+          });
+
+          fn(state => {
+            console.log('Sending failed bundle to kafka topic dead-queue...');
+            return state;
+          });
+
+          //send final Bundle we mapped
+          post('/openfn/dead-queue', {
+            body: $.bundle, 
+            headers: { 'content-type': 'application/json' },
+          });
+
+      build-bundle:
+        name: build bundle
+        adaptor: "@openfn/language-common@2.0.1"
+        credential: null
+        body: |
+          const wrapResource = (res) => {
+            const { __new__, ...resource } = res;
+            return {
+              request: {
+                method: __new__ ? "POST" : "PUT",
+                url: __new__ ? res.resourceType : `${res.resourceType}/${res.id}`
+              },
+              resource,
+            }
+          }
+
+          fn((state) => {
+            console.log('Building final bundle...')
+
+            delete state.inputs
+
+            const bundle = {
+              "resourceType": "Bundle",
+              "type": "transaction",
+              "entry": []
+            };
+
+            // Write all data onto state
+            for (const k in state) {
+              const arr = state[k]
+              if (Array.isArray(arr)) {
+                bundle.entry.push(...arr.filter(a => a.resourceType).map(wrapResource))
+              }
+            }
+
+            console.log(`Bundle built with ${bundle.entry.length} items`)
+
+            const counts = {}
+            for (const res of bundle.entry ) {
+              try {
+              const type = res.resource.meta.profile[0].split('StructureDefinition/')[1]
+              counts[type] ??= 0
+              counts[type] += 1
+              } catch(e) {
+                console.log(res)
+                throw e
+              }
+            }
+
+            console.log(counts)
+
+            return { bundle };
+
+          })
+
+    triggers:
+      kafka:
+        type: webhook
+        enabled: true
+    edges:
+      kafka->parse-bundle:
+        source_trigger: kafka
+        target_job: parse-bundle
+        condition_type: always
+        enabled: true
+      parse-bundle->Register-Organization:
+        source_job: parse-bundle
+        target_job: Register-Organization
+        condition_type: on_job_success
+        enabled: true
+      Register-Organization->map-encounters:
+        source_job: Register-Organization
+        target_job: map-encounters
+        condition_type: on_job_success
+        enabled: true
+      map-encounters->map-patients:
+        source_job: map-encounters
+        target_job: map-patients
+        condition_type: on_job_success
+        enabled: true
+      map-patients->map-medications:
+        source_job: map-patients
+        target_job: map-medications
+        condition_type: on_job_success
+        enabled: true
+      send-to-NDR->send-errors-to-kafka-topic:
+        source_job: send-to-NDR
+        target_job: send-errors-to-kafka-topic
+        condition_type: js_expression
+        condition_label: import errors
+        condition_expression: state.issue
+        enabled: true
+      map-medications->build-bundle:
+        source_job: map-medications
+        target_job: build-bundle
+        condition_type: on_job_success
+        enabled: true
+      build-bundle->send-to-NDR:
+        source_job: build-bundle
+        target_job: send-to-NDR
+        condition_type: on_job_success
+        enabled: true

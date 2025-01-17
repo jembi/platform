@@ -14,12 +14,7 @@ Feature: Monitoring package?
     And The service "node-exporter" should be started with 3 replica
     And The service "loki" should be started with 1 replica
     And The service "promtail" should be started with 3 replica
-    And The service "minio-01" should be started with 1 replica
-    And The service "minio-01" should be connected to the networks
       | reverse-proxy_public | monitoring_default |
-    And The service "minio-02" should be started with 1 replica
-    And The service "minio-03" should be started with 1 replica
-    And The service "minio-04" should be started with 1 replica
     And The service "prometheus_backup" should be started with 1 replica
     And The service "prometheus_backup" should be connected to the networks
       | prometheus_public | monitoring_default |
@@ -33,10 +28,6 @@ Feature: Monitoring package?
     And The service "node-exporter" should be removed
     And The service "loki" should be removed
     And The service "promtail" should be removed
-    And The service "minio-01" should be removed
-    And The service "minio-02" should be removed
-    And The service "minio-03" should be removed
-    And The service "minio-04" should be removed
     And The service "prometheus_backup" should be removed
     And There should be 0 service
     And There should be 0 volume

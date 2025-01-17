@@ -2,7 +2,7 @@
   "id": "kafka-mapper-consumer",
   "name": "Kafka Mapper Consumer",
   "description": "A kafka consumer that maps fhir resources to a flattened data structure",
-  "type": "use-case",
+  "type": "infrastructure",
   "version": "0.0.1",
   "dependencies": ["message-bus-kafka", "interoperability-layer-openhim"],
   "environmentVariables": {

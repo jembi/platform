@@ -28,6 +28,8 @@ packages:
   - reprocess-mediator
   - fhir-ig-importer
   - fhir-info-gateway
+  - openfn
+  - datalake
 
 profiles:
   - name: cdr-dw
@@ -49,6 +51,7 @@ profiles:
       - fhir-ig-importer
       - reprocess-mediator
       - fhir-info-gateway
+      - datalake
     envFiles:
       - cdr-dw.env
 

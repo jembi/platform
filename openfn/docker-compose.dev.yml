@@ -1,0 +1,13 @@
+version: '3.9'
+
+services:
+  openfn:
+    ports:
+      - target: 4000
+        published: 4000
+        mode: host
+  worker:
+    ports:
+      - target: 2222
+        published: 2222
+        mode: host

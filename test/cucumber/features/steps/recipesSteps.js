@@ -19,6 +19,10 @@ const clickhouse = new ClickHouse({
   port: CLICKHOUSE_PORT,
   debug: CLICKHOUSE_DEBUG,
   raw: true,
+  basicAuth: {
+    username: "default",
+    password: "dev_password_only",
+  },
 });
 
 const query = (table) => `SELECT * FROM ${table}`;

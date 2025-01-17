@@ -18,9 +18,3 @@ services:
       - target: 3100
         published: 3100
         mode: host
-
-  minio-01:
-    ports:
-      - target: 9001
-        published: 9005
-        mode: host

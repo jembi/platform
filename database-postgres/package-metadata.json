@@ -9,7 +9,7 @@
     "REPMGR_PRIMARY_HOST": "postgres-1",
     "REPMGR_PARTNER_NODES": "postgres-1",
     "REPMGR_PASSWORD": "instant101",
-    "POSTGRES_IMAGE": "bitnami/postgresql-repmgr:14",
+    "POSTGRES_IMAGE": "bitnami/postgresql-repmgr:14@sha256:bdf1e4903710c4e0b465664b886d4556897e1b18c07d7c513a4fc1ceba929e02",
     "POSTGRES_1_PLACEMENT": "node-1",
     "POSTGRES_2_PLACEMENT": "node-2",
     "POSTGRES_3_PLACEMENT": "node-3",
