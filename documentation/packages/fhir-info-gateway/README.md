@@ -50,7 +50,7 @@ This document outlines the setup and integration of the FHIR Info Gateway to enh
 
 <!-- _Add configuration details here._ -->
 
----
+![Google Drive Image](images/RouteConfiguration.png "Route Configuration")
 
 ## Authentication Setup
 
@@ -58,10 +58,14 @@ This document outlines the setup and integration of the FHIR Info Gateway to enh
 
 The User UUID is the Keycloak user UUID. Obtain this UUID by querying Keycloak or checking the admin console.
 
+![Google Drive Image](images/userUuid.png "User UUID")
+
 ### Create a New Client in OpenHIM
 
 1. Use the retrieved Keycloak User UUID as the Client ID.
 2. Create a new client in OpenHIM using this UUID.
+
+![Google Drive Image](images/NewClient.png "New Client in OpenHIM")
 
 ### Generating Client Credentials
 
@@ -74,6 +78,8 @@ curl -X POST -d 'client_id=emr' -d 'username=fhiruser' \
 ```
 
 Replace `localhost:9088` with the appropriate Keycloak server address.
+
+![Google Drive Image](images/GeneratingClientCredentials.png "Generating Client Credentials")
 
 ### Token Usage
 
