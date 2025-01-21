@@ -52,6 +52,8 @@
   - [Reverse Proxy Nginx](packages/reverse-proxy-nginx/README.md)
     - [Local Development](packages/reverse-proxy-nginx/local-development.md)
     - [Environment Variables](packages/reverse-proxy-nginx/environment-variables.md)
+  - [FHIR Info Gateway](packages/fhir-info-gateway/README.md)
+    - [Environment Variables](packages/fhir-info-gateway/environment-variables.md)
   - [OpenFn](packages/openfn/README.md)
     - [Environment Variables](packages/openfn/environment-variables.md)
   - [Reverse Proxy Traefik](packages/reverse-proxy-traefik/README.md)

@@ -1,0 +1,36 @@
+version: "3.9"
+services:
+  update-keycloak-config:
+    image: node:erbium-alpine
+    environment:
+      KEYCLOAK_SERVER_URL: ${KC_API_URL}
+      KEYCLOAK_REALM: ${KC_REALM_NAME}
+      KEYCLOAK_ADMIN_USER: ${KC_ADMIN_USERNAME}
+      KEYCLOAK_ADMIN_PASSWORD: ${KC_ADMIN_PASSWORD}
+    command: sh -c "cd / && npm i axios && node keycloakConfig.js"
+    configs:
+      - source: keycloak-config-importer-updateConfig.js
+        target: /keycloakConfig.js
+      - source: keycloak-config-importer-updateConfig.json
+        target: /keycloak-config.json
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: none
+    networks:
+      keycloak:
+configs:
+  keycloak-config-importer-updateConfig.js:
+    file: ./update-keycloak-config.js
+    name: keycloak-config-importer-updateConfig.js-${keycloak_config_importer_updateConfig_js_DIGEST:?err}
+    labels:
+      name: keycloakConfig
+  keycloak-config-importer-updateConfig.json:
+    file: ./keycloak-config.json
+    name: keycloak-config-importer-updateConfig.json-${keycloak_config_importer_updateConfig_json_DIGEST:?err}
+    labels:
+      name: keycloakConfigJson
+networks:
+  keycloak:
+    name: keycloak_public
+    external: true

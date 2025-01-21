@@ -1,0 +1,231 @@
+{
+  "clientScopes": {
+    "system/*.rs": {
+      "protocol": "openid-connect",
+      "description": "Read access to all resources",
+      "mappers": {
+        "Audience Mapper": {
+          "protocol": "openid-connect",
+          "protocolmapper": "oidc-audience-mapper",
+          "config": {
+            "access.token.claim": "true"
+          }
+        }
+      },
+      "role": {
+        "id": "admin",
+        "name": "administrator",
+        "description": "Has full access to all resources"
+      }
+    },
+
+    "system/Patient.cruds": {
+      "protocol": "openid-connect",
+      "description": "Read access to all data",
+      "mappers": {
+        "Audience Mapper": {
+          "protocol": "openid-connect",
+          "protocolmapper": "oidc-audience-mapper",
+          "config": {
+            "access.token.claim": "true"
+          }
+        }
+      },
+      "role": {
+        "id": "admin",
+        "name": "administrator",
+        "description": "Has full access to all resources"
+      }
+    },
+    "system/Patient.cud": {
+      "protocol": "openid-connect",
+      "description": "Read and write access to all Patient",
+      "attributes": {
+        "include.in.token.scope": "false"
+      },
+      "mappers": {
+        "Audience Mapper": {
+          "protocol": "openid-connect",
+          "protocolmapper": "oidc-audience-mapper",
+          "config": {
+            "access.token.claim": "true"
+          }
+        }
+      },
+      "role": {
+        "id": "manager",
+        "name": "manager",
+        "description": "Has limited access to all resources"
+      }
+    },
+    "system/Patient.rs": {
+      "protocol": "openid-connect",
+      "description": "Read access to all Patient",
+      "mappers": {
+        "Audience Mapper": {
+          "protocol": "openid-connect",
+          "protocolmapper": "oidc-audience-mapper",
+          "config": {
+            "access.token.claim": "true"
+          }
+        }
+      },
+      "role": {
+        "id": "user",
+        "name": "user",
+        "description": "Has read access to all resources"
+      }
+    },
+    "system/Encounter.rs": {
+      "protocol": "openid-connect",
+      "description": "Read access to all Encounter data",
+      "mappers": {
+        "Audience Mapper": {
+          "protocol": "openid-connect",
+          "protocolmapper": "oidc-audience-mapper",
+          "config": {
+            "access.token.claim": "true"
+          }
+        }
+      },
+      "role": {
+        "id": "user",
+        "name": "user",
+        "description": "Has read access to all resources"
+      }
+    },
+    "system/Observation.rs": {
+      "protocol": "openid-connect",
+      "description": "Read access to all Observation data",
+      "mappers": {
+        "Audience Mapper": {
+          "protocol": "openid-connect",
+          "protocolmapper": "oidc-audience-mapper",
+          "config": {
+            "access.token.claim": "true"
+          }
+        }
+      },
+      "role": {
+        "id": "user",
+        "name": "user",
+        "description": "Has read access to all resources"
+      }
+    },
+    "system/Encounter.cruds": {
+      "protocol": "openid-connect",
+      "description": "Read, write and search access to all Encounter data",
+      "mappers": {
+        "Audience Mapper": {
+          "protocol": "openid-connect",
+          "protocolmapper": "oidc-audience-mapper",
+          "config": {
+            "access.token.claim": "true"
+          }
+        }
+      },
+      "role": {
+        "id": "admin",
+        "name": "administrator",
+        "description": "Has full access to all resources"
+      }
+    },
+    "system/Encounter.cud": {
+      "protocol": "openid-connect",
+      "description": "Read and write access to all Encounter data",
+      "attributes": {
+        "include.in.token.scope": "false"
+      },
+      "mappers": {
+        "Audience Mapper": {
+          "protocol": "openid-connect",
+          "protocolmapper": "oidc-audience-mapper",
+          "config": {
+            "access.token.claim": "true"
+          }
+        }
+      },
+      "role": {
+        "id": "manager",
+        "name": "manager",
+        "description": "Has limited access to all resources"
+      }
+    },
+    "system/Observation.cruds": {
+      "protocol": "openid-connect",
+      "description": "Read access to all Observation data",
+      "mappers": {
+        "Audience Mapper": {
+          "protocol": "openid-connect",
+          "protocolmapper": "oidc-audience-mapper",
+          "config": {
+            "access.token.claim": "true"
+          }
+        }
+      },
+      "role": {
+        "id": "admin",
+        "name": "administrator",
+        "description": "Has full access to all resources"
+      }
+    },
+    "system/Observation.cud": {
+      "protocol": "openid-connect",
+      "description": "Read and write access to all Observation data",
+      "attributes": {
+        "include.in.token.scope": "false"
+      },
+      "mappers": {
+        "Audience Mapper": {
+          "protocol": "openid-connect",
+          "protocolmapper": "oidc-audience-mapper",
+          "config": {
+            "access.token.claim": "true"
+          }
+        }
+      },
+      "role": {
+        "id": "manager",
+        "name": "manager",
+        "description": "Has limited access to all resources"
+      }
+    }
+  },
+
+  "client": {
+    "protocol": "openid-connect",
+    "clientId": "emr",
+    "name": "EMR user",
+    "description": "",
+    "publicClient": false,
+    "authorizationServicesEnabled": false,
+    "serviceAccountsEnabled": true,
+    "implicitFlowEnabled": false,
+    "directAccessGrantsEnabled": true,
+    "standardFlowEnabled": true,
+    "frontchannelLogout": true,
+    "alwaysDisplayInConsole": false,
+    "attributes": {
+      "oauth2.device.authorization.grant.enabled": false,
+      "oidc.ciba.grant.enabled": false
+    }
+  },
+  "groups": {
+    "fhirUser": {}
+  },
+  "defaultGroup": "fhir-user-group",
+  "defaultUser": {
+    "username": "fhirUser",
+    "firstName": "FHIR",
+    "lastName": "User",
+    "email": "fhir@jembi.org",
+    "emailVerified": false,
+    "enabled": true,
+    "groups": ["fhirUser"]
+  },
+  "resetPassword": {
+    "temporary": false,
+    "type": "password",
+    "value": "dev_password_only"
+  }
+}
