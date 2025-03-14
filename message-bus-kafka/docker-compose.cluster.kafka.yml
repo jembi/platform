@@ -8,6 +8,12 @@ services:
       placement:
         constraints:
           - "node.labels.name==${KAFKA_01_PLACEMENT}"
+    healthcheck:
+      test: ["CMD-SHELL", "df bitnami/kafka -h | tail -n 1 | awk '{print $$5}' | cut -d'%' -f1 | awk '{exit ($$1 > ${KAFKA_01_DISK_USAGE_THRESHOLD})}'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   kafka-02:
     image: ${KAFKA_IMAGE}
@@ -40,6 +46,12 @@ services:
           memory: ${KAFKA_MEMORY_RESERVE}
       restart_policy:
         condition: on-failure
+    healthcheck:
+      test: ["CMD-SHELL", "df bitnami/kafka -h | tail -n 1 | awk '{print $$5}' | cut -d'%' -f1 | awk '{exit ($$1 > ${KAFKA_02_DISK_USAGE_THRESHOLD})}'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     networks:
       public:
       default:
@@ -75,6 +87,12 @@ services:
           memory: ${KAFKA_MEMORY_RESERVE}
       restart_policy:
         condition: on-failure
+    healthcheck:
+      test: ["CMD-SHELL", "df bitnami/kafka -h | tail -n 1 | awk '{print $$5}' | cut -d'%' -f1 | awk '{exit ($$1 > ${KAFKA_03_DISK_USAGE_THRESHOLD})}'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     networks:
       public:
       default:
