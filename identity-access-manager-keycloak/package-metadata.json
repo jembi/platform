@@ -6,7 +6,7 @@
   "version": "0.0.1",
   "dependencies": ["database-postgres"],
   "environmentVariables": {
-    "POSTGRES_IMAGE": "bitnami/postgresql-repmgr:14",
+    "POSTGRES_IMAGE": "bitnamilegacy/postgresql-repmgr:14",
     "KEYCLOAK_POSTGRES_1": "node-1",
     "KEYCLOAK_POSTGRES_2": "node-2",
     "KEYCLOAK_POSTGRES_3": "node-3",
