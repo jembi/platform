@@ -6,7 +6,7 @@
   "type": "infrastructure",
   "dependencies": [],
   "environmentVariables": {
-    "KAFKA_IMAGE": "bitnami/kafka:3.4.0",
+    "KAFKA_IMAGE": "bitnamilegacy/kafka:3.4.0",
     "KAFDROP_IMAGE": "obsidiandynamics/kafdrop:3.27.0",
     "KAFKA_MINION": "quay.io/cloudhut/kminion:master",
     "KAFKA_01_PLACEMENT": "node-1",
