@@ -141,6 +141,7 @@ services:
     command: -config.file=/etc/loki/loki-config.yml -config.expand-env=true
     networks:
       minio:
+      default:
     deploy:
       labels:
         - prometheus-job-service=loki
